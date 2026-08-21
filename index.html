@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>JM Express — Bon d'intervention</title>
+
+<!-- PWA / installation iPhone -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0b0c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JM Bon">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0b0c;
+    --panel:#151517;
+    --panel-2:#1c1c1f;
+    --line:#2c2c30;
+    --orange:#f2a900;
+    --orange-dim:#7a5800;
+    --white:#f5f4f1;
+    --grey:#9a9a9f;
+    --green:#4caf6b;
+    --red:#e2543c;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--ink);color:var(--white);font-family:'Inter',sans-serif;}
+  body{padding-bottom:40px;}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+
+  /* HEADER */
+  header{
+    background:linear-gradient(180deg, #121213, var(--ink));
+    border-bottom:1px solid var(--line);
+    padding:18px 16px 14px;
+    position:sticky; top:0; z-index:20;
+  }
+  .head-row{display:flex; align-items:center; justify-content:space-between; max-width:520px; margin:0 auto;}
+  .brand{display:flex; flex-direction:column; line-height:1;}
+  .brand .jm{font-family:'Oswald',sans-serif; font-weight:700; font-size:22px; letter-spacing:0.5px; color:var(--white);}
+  .brand .jm span{color:var(--orange);}
+  .brand .sub{font-size:10.5px; letter-spacing:2px; color:var(--grey); text-transform:uppercase; margin-top:3px;}
+  .gear{
+    width:38px; height:38px; border-radius:10px; background:var(--panel-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--grey); font-size:18px; cursor:pointer;
+  }
+  .gear:active{background:var(--orange-dim); color:var(--orange);}
+
+  /* SECTION LABEL */
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; color:var(--orange);
+    text-transform:uppercase; margin:22px 0 8px 2px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::after{content:''; flex:1; height:1px; background:var(--line);}
+
+  /* CARD */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px;}
+
+  /* FORM */
+  label{display:block; font-size:12px; color:var(--grey); margin:0 0 6px 2px; font-weight:500;}
+  .field{margin-bottom:14px;}
+  input[type=text], input[type=number], select{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--white);
+    padding:12px 12px; border-radius:10px; font-size:15.5px; font-family:'Inter',sans-serif; outline:none;
+  }
+  input:focus, select:focus{border-color:var(--orange);}
+  select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%239a9a9f' stroke-width='1.6' fill='none' fill-rule='evenodd'/></svg>"); background-repeat:no-repeat; background-position:right 14px center;}
+
+  .route-line{display:flex; align-items:flex-start; gap:10px;}
+  .route-dots{display:flex; flex-direction:column; align-items:center; padding-top:14px; gap:2px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
+  .dot.hollow{background:transparent; border:1.5px solid var(--grey);}
+  .dash{width:1.5px; height:34px; background:repeating-linear-gradient(var(--line),var(--line) 3px, transparent 3px, transparent 6px);}
+  .route-fields{flex:1;}
+
+  .toggles{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .toggle{
+    flex:1; min-width:90px; text-align:center; padding:11px 6px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--grey); font-size:12.5px; font-weight:600; cursor:pointer; user-select:none;
+    letter-spacing:0.3px;
+  }
+  .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
+
+  .kmrow{display:flex; gap:10px;}
+  .kmrow .field{flex:1;}
+
+  button.primary{
+    width:100%; background:var(--orange); color:#1a1200; border:none; padding:15px; border-radius:11px;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:15.5px; letter-spacing:0.5px; text-transform:uppercase;
+    cursor:pointer; margin-top:4px;
+  }
+  button.primary:active{background:#d99700;}
+  button.ghost{
+    width:100%; background:transparent; color:var(--grey); border:1px solid var(--line); padding:13px;
+    border-radius:11px; font-size:14px; font-weight:500; cursor:pointer; margin-top:8px;
+  }
+
+  /* TICKET */
+  .ticket{
+    background:var(--panel); border:1px dashed var(--orange-dim); border-radius:14px; padding:18px;
+    margin-top:18px; position:relative; display:none;
+  }
+  .ticket.show{display:block; animation:rise .25s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+  .ticket .punch{position:absolute; width:16px; height:16px; background:var(--ink); border-radius:50%; top:50%; margin-top:-8px;}
+  .punch.left{left:-9px;} .punch.right{right:-9px;}
+  .ticket-head{display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px dashed var(--line); padding-bottom:10px; margin-bottom:10px;}
+  .ticket-head .num{font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:12px;}
+  .ticket-head .date{font-family:'JetBrains Mono',monospace; color:var(--grey); font-size:11px;}
+  .ticket-row{display:flex; justify-content:space-between; font-size:13.5px; padding:4px 0; color:var(--white);}
+  .ticket-row .l{color:var(--grey);}
+  .ticket-row .v{font-family:'JetBrains Mono',monospace;}
+  .ticket-total{
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:12px; padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .ticket-total .lbl{font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:var(--grey);}
+  .ticket-total .amt{font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; color:var(--orange);}
+  .ticket-addr{font-size:13px; margin:2px 0; color:var(--white); line-height:1.4;}
+  .ticket-addr .tag{color:var(--grey); font-size:10.5px; text-transform:uppercase; letter-spacing:1px; font-family:'JetBrains Mono',monospace;}
+
+  /* HISTORY */
+  .hist-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:13px 14px; margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .hist-item .info{flex:1; min-width:0;}
+  .hist-item .type{font-size:13.5px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hist-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
+  .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
+  .empty{color:var(--grey); font-size:13px; text-align:center; padding:20px 0;}
+
+  /* MODAL */
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; display:none; align-items:flex-end; justify-content:center;
+  }
+  .modal-bg.show{display:flex;}
+  .modal{
+    background:var(--panel); width:100%; max-width:520px; border-radius:18px 18px 0 0; padding:20px 18px 26px;
+    max-height:85vh; overflow-y:auto;
+  }
+  .modal h3{font-family:'Oswald',sans-serif; margin:0 0 14px; font-size:17px; letter-spacing:0.5px;}
+  .modal .grp{margin-bottom:16px;}
+  .modal .grp-title{font-size:11.5px; color:var(--orange); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-family:'JetBrains Mono',monospace;}
+  .rate-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .rate-row label{margin:0; flex:1; font-size:13px; color:var(--white);}
+  .rate-row input{width:90px; text-align:right; padding:9px 10px; font-size:14px;}
+  .cost-hint{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--orange); background:rgba(242,169,0,0.08); border:1px solid var(--orange-dim); border-radius:8px; padding:8px 10px; margin-top:4px;}
+  .modal .close-modal{margin-top:6px;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--orange); color:#1a1200;
+    padding:11px 18px; border-radius:20px; font-size:13.5px; font-weight:600; z-index:60; display:none;
+  }
+  .toast.show{display:block; animation:rise .2s ease;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <div class="brand">
+      <div class="jm">JM<span>EXPRESS</span></div>
+      <div class="sub">Bon d'intervention</div>
+    </div>
+    <div class="gear" onclick="openSettings()">⚙</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="eyebrow">Nouvelle intervention</div>
+  <div class="card">
+
+    <div class="field">
+      <label>Type d'intervention</label>
+      <select id="type">
+        <option value="pneu_chg">Changement de pneu</option>
+        <option value="pneu_rep">Réparation de pneu</option>
+        <option value="demarrage">Démarrage batterie</option>
+        <option value="test_batt">Test batterie / alternateur</option>
+        <option value="transfert">Transfert véhicule</option>
+        <option value="depannage">Dépannage / remorquage général</option>
+      </select>
+    </div>
+
+    <div class="route-line">
+      <div class="route-dots">
+        <div class="dot"></div>
+        <div class="dash"></div>
+        <div class="dot hollow"></div>
+      </div>
+      <div class="route-fields">
+        <div class="field">
+          <label>Adresse d'intervention (prise en charge)</label>
+          <input type="text" id="addrFrom" placeholder="Rue, n°, ville">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Adresse de dépose (garage / lieu)</label>
+          <input type="text" id="addrTo" placeholder="Rue, n°, ville">
+        </div>
+      </div>
+    </div>
+
+    <div class="kmrow" style="margin-top:14px;">
+      <div class="field">
+        <label>Distance (km) — trajet aller (intervention → dépôt)</label>
+        <input type="number" id="km" placeholder="0" min="0" inputmode="decimal">
+      </div>
+    </div>
+
+    <label>Conditions</label>
+    <div class="toggles">
+      <div class="toggle" id="tgNuit" onclick="toggle('tgNuit')">🌙 Nuit</div>
+      <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
+      <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
+      <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
+    </div>
+
+    <button class="primary" onclick="calculer()">Calculer le montant</button>
+  </div>
+
+  <div class="ticket" id="ticket">
+    <div class="punch left"></div><div class="punch right"></div>
+    <div class="ticket-head">
+      <span class="num" id="tkNum">BON N°—</span>
+      <span class="date" id="tkDate">—</span>
+    </div>
+    <div class="ticket-addr"><span class="tag">Prise en charge</span><br><span id="tkFrom">—</span></div>
+    <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Dépose</span><br><span id="tkTo">—</span></div>
+    <div class="ticket-row"><span class="l">Type</span><span class="v" id="tkType">—</span></div>
+    <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
+    <div class="ticket-row"><span class="l">Kilométrage</span><span class="v" id="tkKm">—</span></div>
+    <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
+    <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
+    <div class="ticket-row" id="rowAuto" style="display:none;"><span class="l">Majoration autoroute</span><span class="v" id="tkAuto">—</span></div>
+    <div class="ticket-total">
+      <span class="lbl">Total TVAC</span>
+      <span class="amt" id="tkTotal">0 €</span>
+    </div>
+    <button class="primary" style="margin-top:16px;" onclick="enregistrer()">Enregistrer dans le journal</button>
+    <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
+  </div>
+
+  <div class="eyebrow">Journal des interventions</div>
+  <div id="history"></div>
+
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Réglages des tarifs</h3>
+
+    <div class="grp">
+      <div class="grp-title">Forfaits de base (€)</div>
+      <div class="rate-row"><label>Changement de pneu</label><input type="number" id="r_pneu_chg"></div>
+      <div class="rate-row"><label>Réparation de pneu</label><input type="number" id="r_pneu_rep"></div>
+      <div class="rate-row"><label>Démarrage batterie</label><input type="number" id="r_demarrage"></div>
+      <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
+      <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
+      <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Kilométrage</div>
+      <div class="rate-row"><label>Tarif au km (€/km)</label><input type="number" id="r_km" step="0.05"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Majorations</div>
+      <div class="rate-row"><label>Nuit (22h–6h)</label><input type="number" id="r_nuitPct" step="1">%</div>
+      <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
+      <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Coût de revient carburant (indicatif)</div>
+      <div class="rate-row"><label>Prix gasoil (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
+      <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
+      <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
+    </div>
+
+    <button class="primary" onclick="saveSettings()">Enregistrer les réglages</button>
+    <button class="ghost close-modal" onclick="closeSettings()">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TYPE_LABELS = {
+  pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
+  test_batt:"Test batterie / alternateur", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général"
+};
+
+// Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
+window.storage = {
+  async get(key){
+    const v = localStorage.getItem('jm_'+key);
+    if(v === null) throw new Error('not found');
+    return {key, value:v};
+  },
+  async set(key, value){
+    localStorage.setItem('jm_'+key, value);
+    return {key, value};
+  },
+  async delete(key){
+    localStorage.removeItem('jm_'+key);
+    return {key, deleted:true};
+  },
+  async list(prefix){
+    const keys = Object.keys(localStorage)
+      .filter(k=>k.startsWith('jm_'+(prefix||'')))
+      .map(k=>k.slice(3));
+    return {keys};
+  }
+};
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+const DEFAULT_RATES = {
+  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, transfert:65, depannage:60,
+  km:2.00, nuitPct:25, wePct:20, auto:15,
+  diesel:2.21, conso:15
+};
+let RATES = {...DEFAULT_RATES};
+let lastCalc = null;
+
+function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
+
+async function loadRates(){
+  try{
+    const res = await window.storage.get('rates');
+    if(res && res.value) RATES = {...DEFAULT_RATES, ...JSON.parse(res.value)};
+  }catch(e){ /* pas encore de réglages enregistrés */ }
+  fillSettingsForm();
+}
+
+function fillSettingsForm(){
+  Object.keys(DEFAULT_RATES).forEach(k=>{
+    const el = document.getElementById('r_'+k);
+    if(el) el.value = RATES[k];
+  });
+}
+
+function updateCostHint(){
+  const diesel = parseFloat(document.getElementById('r_diesel').value) || 0;
+  const conso = parseFloat(document.getElementById('r_conso').value) || 0;
+  const kmRate = parseFloat(document.getElementById('r_km').value) || 0;
+  const costPerKm = (diesel * conso) / 100;
+  const margePerKm = kmRate - costPerKm;
+  document.getElementById('costHint').textContent =
+    `Carburant ≈ ${costPerKm.toFixed(2)} €/km · tarif facturé ${kmRate.toFixed(2)} €/km · marge brute ≈ ${margePerKm.toFixed(2)} €/km (hors entretien, assurance, cotisations)`;
+}
+
+function openSettings(){
+  document.getElementById('modalBg').classList.add('show');
+  updateCostHint();
+  ['r_diesel','r_conso','r_km'].forEach(id=>{
+    document.getElementById(id).oninput = updateCostHint;
+  });
+}
+function closeSettings(){ document.getElementById('modalBg').classList.remove('show'); }
+
+async function saveSettings(){
+  Object.keys(DEFAULT_RATES).forEach(k=>{
+    const el = document.getElementById('r_'+k);
+    if(el) RATES[k] = parseFloat(el.value) || 0;
+  });
+  try{
+    await window.storage.set('rates', JSON.stringify(RATES));
+    showToast('Tarifs enregistrés');
+  }catch(e){ showToast('Erreur d\'enregistrement'); }
+  closeSettings();
+}
+
+function toggle(id){ document.getElementById(id).classList.toggle('on'); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function calculer(){
+  const type = document.getElementById('type').value;
+  const from = document.getElementById('addrFrom').value.trim() || '—';
+  const to = document.getElementById('addrTo').value.trim() || '—';
+  const km = parseFloat(document.getElementById('km').value) || 0;
+  const nuit = document.getElementById('tgNuit').classList.contains('on');
+  const we = document.getElementById('tgWe').classList.contains('on');
+  const auto = document.getElementById('tgAuto').classList.contains('on');
+  const retour = document.getElementById('tgRetour').classList.contains('on');
+
+  const base = RATES[type];
+  const kmMultiplier = retour ? 2 : 1;
+  const kmCost = km * RATES.km * kmMultiplier;
+  const subtotal = base + kmCost;
+  const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
+  const weCost = we ? subtotal * (RATES.wePct/100) : 0;
+  const autoCost = auto ? RATES.auto : 0;
+  const total = subtotal + nuitCost + weCost + autoCost;
+
+  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, total, date: new Date().toISOString()};
+
+  document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
+  document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('tkFrom').textContent = from;
+  document.getElementById('tkTo').textContent = to;
+  document.getElementById('tkType').textContent = TYPE_LABELS[type];
+  document.getElementById('tkBase').textContent = fmt(base);
+  document.getElementById('tkKm').textContent = retour
+    ? (km + ' km × 2 (aller-retour) × ' + RATES.km.toFixed(2) + ' € = ' + fmt(kmCost))
+    : (km + ' km × ' + RATES.km.toFixed(2) + ' € = ' + fmt(kmCost));
+
+  document.getElementById('rowNuit').style.display = nuit ? 'flex' : 'none';
+  document.getElementById('tkNuit').textContent = '+' + RATES.nuitPct + '% = ' + fmt(nuitCost);
+  document.getElementById('rowWe').style.display = we ? 'flex' : 'none';
+  document.getElementById('tkWe').textContent = '+' + RATES.wePct + '% = ' + fmt(weCost);
+  document.getElementById('rowAuto').style.display = auto ? 'flex' : 'none';
+  document.getElementById('tkAuto').textContent = fmt(autoCost);
+
+  document.getElementById('tkTotal').textContent = fmt(total);
+  document.getElementById('ticket').classList.add('show');
+  document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function enregistrer(){
+  if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
+  try{
+    const id = 'intervention:' + Date.now();
+    await window.storage.set(id, JSON.stringify(lastCalc));
+    showToast('Intervention enregistrée');
+    loadHistory();
+  }catch(e){ showToast('Erreur d\'enregistrement'); }
+}
+
+function copierRecap(){
+  if(!lastCalc) { showToast('Calculez d\'abord le montant'); return; }
+  const c = lastCalc;
+  const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
+  let txt = `JM EXPRESS AUTO DÉPANNAGE\n${TYPE_LABELS[c.type]}\n\nPrise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
+  if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
+  if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
+  txt += `\n\nTOTAL TVAC : ${fmt(c.total)}\n\nFranchise TVA art. 56bis CTVA`;
+
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>showToast('Récap copié')).catch(()=>fallbackCopy(txt));
+  } else { fallbackCopy(txt); }
+}
+function fallbackCopy(txt){
+  const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta);
+  ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  showToast('Récap copié');
+}
+
+async function loadHistory(){
+  const container = document.getElementById('history');
+  try{
+    const list = await window.storage.list('intervention:');
+    if(!list || !list.keys || list.keys.length === 0){
+      container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
+      return;
+    }
+    const items = [];
+    for(const key of list.keys){
+      try{
+        const res = await window.storage.get(key);
+        if(res && res.value) items.push({key, data: JSON.parse(res.value)});
+      }catch(e){}
+    }
+    items.sort((a,b)=> new Date(b.data.date) - new Date(a.data.date));
+    container.innerHTML = items.map(it=>{
+      const d = it.data;
+      const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'});
+      return `<div class="hist-item">
+        <div class="info">
+          <div class="type">${TYPE_LABELS[d.type]}</div>
+          <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
+        </div>
+        <div class="amt">${fmt(d.total)}</div>
+        <div class="del" onclick="supprimer('${it.key}')">✕</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
+  }
+}
+
+async function supprimer(key){
+  try{
+    await window.storage.delete(key);
+    showToast('Intervention supprimée');
+    loadHistory();
+  }catch(e){ showToast('Erreur de suppression'); }
+}
+
+loadRates();
+loadHistory();
+</script>
+</body>
+</html>
