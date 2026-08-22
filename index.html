@@ -188,7 +188,7 @@
 
     <div class="field">
       <label>Type d'intervention</label>
-      <select id="type">
+      <select id="type" onchange="updateKmLabel()">
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
         <option value="demarrage">Démarrage batterie</option>
@@ -224,7 +224,7 @@
 
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
-        <label>Distance (km) — trajet aller (intervention → dépôt)</label>
+        <label id="kmLabel">Distance (km) — trajet aller (intervention → dépôt)</label>
         <input type="number" id="km" placeholder="0" min="0" inputmode="decimal">
       </div>
     </div>
@@ -284,7 +284,15 @@
 
     <div class="grp">
       <div class="grp-title">Kilométrage</div>
-      <div class="rate-row"><label>Tarif au km (€/km)</label><input type="number" id="r_km" step="0.05"></div>
+      <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
+      <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Majorations</div>
+      <div class="rate-row"><label>Nuit (22h–6h)</label><input type="number" id="r_nuitPct" step="1">%</div>
+      <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
+      <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
     </div>
 
     <div class="grp">
@@ -314,6 +322,15 @@ const TYPE_LABELS = {
   test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général"
 };
 
+const DEFAULT_RATES = {
+  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
+  km_remorque:3.45, km_deplacement:1.10, nuitPct:25, wePct:20, auto:15,
+  diesel:2.21, conso:15
+};
+// Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
+const TYPES_REMORQUAGE = ['transfert', 'depannage'];
+let RATES = {...DEFAULT_RATES};
+
 // Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
 window.storage = {
   async get(key){
@@ -342,13 +359,6 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
-
-const DEFAULT_RATES = {
-  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
-  km:2.00, nuitPct:25, wePct:20, auto:15,
-  diesel:2.21, conso:15
-};
-let RATES = {...DEFAULT_RATES};
 let lastCalc = null;
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
@@ -371,17 +381,17 @@ function fillSettingsForm(){
 function updateCostHint(){
   const diesel = parseFloat(document.getElementById('r_diesel').value) || 0;
   const conso = parseFloat(document.getElementById('r_conso').value) || 0;
-  const kmRate = parseFloat(document.getElementById('r_km').value) || 0;
+  const kmRemorque = parseFloat(document.getElementById('r_km_remorque').value) || 0;
+  const kmDeplacement = parseFloat(document.getElementById('r_km_deplacement').value) || 0;
   const costPerKm = (diesel * conso) / 100;
-  const margePerKm = kmRate - costPerKm;
   document.getElementById('costHint').textContent =
-    `Carburant ≈ ${costPerKm.toFixed(2)} €/km · tarif facturé ${kmRate.toFixed(2)} €/km · marge brute ≈ ${margePerKm.toFixed(2)} €/km (hors entretien, assurance, cotisations)`;
+    `Carburant ≈ ${costPerKm.toFixed(2)} €/km (conso saisie) · marge remorquage ≈ ${(kmRemorque-costPerKm).toFixed(2)} €/km · marge déplacement ≈ ${(kmDeplacement-costPerKm).toFixed(2)} €/km (hors entretien, assurance, cotisations — la conso ci-dessus vise le camion ; ta voiture perso consomme sans doute moins)`;
 }
 
 function openSettings(){
   document.getElementById('modalBg').classList.add('show');
   updateCostHint();
-  ['r_diesel','r_conso','r_km'].forEach(id=>{
+  ['r_diesel','r_conso','r_km_remorque','r_km_deplacement'].forEach(id=>{
     document.getElementById(id).oninput = updateCostHint;
   });
 }
@@ -396,21 +406,24 @@ async function saveSettings(){
     await window.storage.set('rates', JSON.stringify(RATES));
     showToast('Tarifs enregistrés');
   }catch(e){ showToast('Erreur d\'enregistrement'); }
+  updateKmLabel();
   closeSettings();
+}
+
+function updateKmLabel(){
+  const type = document.getElementById('type').value;
+  const isRemorquage = TYPES_REMORQUAGE.includes(type);
+  document.getElementById('kmLabel').textContent = isRemorquage
+    ? 'Distance (km) — trajet camion (' + RATES.km_remorque.toFixed(2) + ' €/km)'
+    : 'Distance (km) — trajet véhicule perso (' + RATES.km_deplacement.toFixed(2) + ' €/km)';
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
 
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
-}
-
 // Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
 function useMyLocation(){
   if(!navigator.geolocation){ showToast('Géolocalisation non disponible sur cet appareil'); return; }
-  showToast('Localisation en cours…');
+  showToast(navigator.onLine ? 'Localisation en cours…' : 'Localisation en cours… (peut prendre jusqu\'à 1 min hors ligne)');
   navigator.geolocation.getCurrentPosition(async (pos)=>{
     const {latitude, longitude} = pos.coords;
     // Le GPS fonctionne hors ligne ; seule la conversion en adresse lisible nécessite internet
@@ -429,9 +442,11 @@ function useMyLocation(){
       document.getElementById('addrFrom').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position récupérée (coordonnées GPS)');
     }
-  }, ()=>{
-    showToast('Localisation refusée ou indisponible');
-  }, {enableHighAccuracy:true, timeout:12000});
+  }, (err)=>{
+    if(err.code === 1) showToast('Localisation refusée — autorise-la dans Réglages > Confidentialité');
+    else if(err.code === 3) showToast('Pas de signal GPS — sors à l\'extérieur et réessaie');
+    else showToast('Position indisponible pour le moment');
+  }, {enableHighAccuracy:true, timeout:60000, maximumAge:0});
 }
 
 async function geocodeAddress(address){
@@ -483,8 +498,9 @@ function calculer(){
   const retour = document.getElementById('tgRetour').classList.contains('on');
 
   const base = RATES[type];
+  const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
-  const kmCost = km * RATES.km * kmMultiplier;
+  const kmCost = km * kmRate * kmMultiplier;
   const subtotal = base + kmCost;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
@@ -500,8 +516,8 @@ function calculer(){
   document.getElementById('tkType').textContent = TYPE_LABELS[type];
   document.getElementById('tkBase').textContent = fmt(base);
   document.getElementById('tkKm').textContent = retour
-    ? (km + ' km × 2 (aller-retour) × ' + RATES.km.toFixed(2) + ' € = ' + fmt(kmCost))
-    : (km + ' km × ' + RATES.km.toFixed(2) + ' € = ' + fmt(kmCost));
+    ? (km + ' km × 2 (aller-retour) × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost))
+    : (km + ' km × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost));
 
   document.getElementById('rowNuit').style.display = nuit ? 'flex' : 'none';
   document.getElementById('tkNuit').textContent = '+' + RATES.nuitPct + '% = ' + fmt(nuitCost);
@@ -586,7 +602,7 @@ async function supprimer(key){
   }catch(e){ showToast('Erreur de suppression'); }
 }
 
-loadRates();
+loadRates().then(updateKmLabel);
 loadHistory();
 </script>
 </body>
