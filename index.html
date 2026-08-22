@@ -95,6 +95,15 @@
   }
   .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
 
+  .discount-row{display:flex; gap:8px; margin-bottom:4px;}
+  .discount-row input{flex:1;}
+  .unit-toggle{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; flex-shrink:0;}
+  .unit-btn{
+    width:44px; display:flex; align-items:center; justify-content:center; background:var(--panel-2);
+    color:var(--grey); font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .unit-btn.on{background:rgba(242,169,0,0.15); color:var(--orange);}
+
   .kmrow{display:flex; gap:10px;}
   .kmrow .field{flex:1;}
 
@@ -237,6 +246,15 @@
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
     </div>
 
+    <label>Remise ponctuelle (optionnel)</label>
+    <div class="discount-row">
+      <input type="number" id="remise" placeholder="0" min="0" inputmode="decimal">
+      <div class="unit-toggle">
+        <div class="unit-btn on" id="unitEuro" onclick="setRemiseUnit('euro')">€</div>
+        <div class="unit-btn" id="unitPct" onclick="setRemiseUnit('pct')">%</div>
+      </div>
+    </div>
+
     <button class="primary" onclick="calculer()">Calculer le montant</button>
   </div>
 
@@ -254,6 +272,7 @@
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
     <div class="ticket-row" id="rowAuto" style="display:none;"><span class="l">Majoration autoroute</span><span class="v" id="tkAuto">—</span></div>
+    <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
       <span class="lbl">Total TVAC</span>
       <span class="amt" id="tkTotal">0 €</span>
@@ -420,6 +439,13 @@ function updateKmLabel(){
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
 
+let remiseUnit = 'euro';
+function setRemiseUnit(unit){
+  remiseUnit = unit;
+  document.getElementById('unitEuro').classList.toggle('on', unit === 'euro');
+  document.getElementById('unitPct').classList.toggle('on', unit === 'pct');
+}
+
 // Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
 function useMyLocation(){
   if(!navigator.geolocation){ showToast('Géolocalisation non disponible sur cet appareil'); return; }
@@ -505,9 +531,13 @@ function calculer(){
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
-  const total = subtotal + nuitCost + weCost + autoCost;
+  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost;
 
-  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, total, date: new Date().toISOString()};
+  const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
+  const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
+  const total = Math.max(0, totalAvantRemise - remiseAmount);
+
+  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -525,6 +555,9 @@ function calculer(){
   document.getElementById('tkWe').textContent = '+' + RATES.wePct + '% = ' + fmt(weCost);
   document.getElementById('rowAuto').style.display = auto ? 'flex' : 'none';
   document.getElementById('tkAuto').textContent = fmt(autoCost);
+
+  document.getElementById('rowRemise').style.display = remiseAmount > 0 ? 'flex' : 'none';
+  document.getElementById('tkRemise').textContent = '−' + fmt(remiseAmount) + (remiseUnit === 'pct' ? ' (' + remiseValue + '%)' : '');
 
   document.getElementById('tkTotal').textContent = fmt(total);
   document.getElementById('ticket').classList.add('show');
@@ -549,6 +582,7 @@ function copierRecap(){
   if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
   if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
+  if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\nTOTAL TVAC : ${fmt(c.total)}\n\nFranchise TVA art. 56bis CTVA`;
 
   if(navigator.clipboard){
