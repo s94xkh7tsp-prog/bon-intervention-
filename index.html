@@ -71,6 +71,13 @@
     padding:12px 12px; border-radius:10px; font-size:15.5px; font-family:'Inter',sans-serif; outline:none;
   }
   input:focus, select:focus{border-color:var(--orange);}
+  .input-with-btn{display:flex; gap:8px;}
+  .input-with-btn input{flex:1;}
+  .loc-btn{
+    width:44px; flex-shrink:0; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    font-size:17px; cursor:pointer; color:var(--orange);
+  }
+  .loc-btn:active{background:rgba(242,169,0,0.15);}
   select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%239a9a9f' stroke-width='1.6' fill='none' fill-rule='evenodd'/></svg>"); background-repeat:no-repeat; background-position:right 14px center;}
 
   .route-line{display:flex; align-items:flex-start; gap:10px;}
@@ -186,6 +193,7 @@
         <option value="pneu_rep">Réparation de pneu</option>
         <option value="demarrage">Démarrage batterie</option>
         <option value="test_batt">Test batterie / alternateur</option>
+        <option value="diag">Diagnostic électronique (valise OBD)</option>
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
       </select>
@@ -200,7 +208,10 @@
       <div class="route-fields">
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
-          <input type="text" id="addrFrom" placeholder="Rue, n°, ville">
+          <div class="input-with-btn">
+            <input type="text" id="addrFrom" placeholder="Rue, n°, ville">
+            <button type="button" class="loc-btn" onclick="useMyLocation()" title="Utiliser ma position">📍</button>
+          </div>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
@@ -208,6 +219,8 @@
         </div>
       </div>
     </div>
+
+    <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
 
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
@@ -264,6 +277,7 @@
       <div class="rate-row"><label>Réparation de pneu</label><input type="number" id="r_pneu_rep"></div>
       <div class="rate-row"><label>Démarrage batterie</label><input type="number" id="r_demarrage"></div>
       <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
+      <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
       <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
       <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
     </div>
@@ -297,7 +311,7 @@
 <script>
 const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
-  test_batt:"Test batterie / alternateur", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général"
+  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général"
 };
 
 // Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
@@ -330,7 +344,7 @@ if('serviceWorker' in navigator){
 }
 
 const DEFAULT_RATES = {
-  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, transfert:65, depannage:60,
+  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
   km:2.00, nuitPct:25, wePct:20, auto:15,
   diesel:2.21, conso:15
 };
@@ -386,6 +400,71 @@ async function saveSettings(){
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
+function useMyLocation(){
+  if(!navigator.geolocation){ showToast('Géolocalisation non disponible sur cet appareil'); return; }
+  showToast('Localisation en cours…');
+  navigator.geolocation.getCurrentPosition(async (pos)=>{
+    const {latitude, longitude} = pos.coords;
+    // Le GPS fonctionne hors ligne ; seule la conversion en adresse lisible nécessite internet
+    if(!navigator.onLine){
+      document.getElementById('addrFrom').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      showToast('Position GPS récupérée (hors ligne — coordonnées)');
+      return;
+    }
+    try{
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=fr`;
+      const res = await fetch(url);
+      const data = await res.json();
+      document.getElementById('addrFrom').value = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      showToast('Position récupérée');
+    }catch(e){
+      document.getElementById('addrFrom').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      showToast('Position récupérée (coordonnées GPS)');
+    }
+  }, ()=>{
+    showToast('Localisation refusée ou indisponible');
+  }, {enableHighAccuracy:true, timeout:12000});
+}
+
+async function geocodeAddress(address){
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&q=${encodeURIComponent(address)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if(!data.length) throw new Error('Adresse introuvable : ' + address);
+  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+}
+
+// Calcule la distance routière (km) entre les deux adresses saisies et remplit le champ km
+async function calculerDistance(){
+  const from = document.getElementById('addrFrom').value.trim();
+  const to = document.getElementById('addrTo').value.trim();
+  if(!from || !to){ showToast('Renseigne les deux adresses d\'abord'); return; }
+  if(!navigator.onLine){
+    showToast('Hors ligne : entre le km manuellement');
+    return;
+  }
+  showToast('Calcul de la distance…');
+  try{
+    const [gFrom, gTo] = await Promise.all([geocodeAddress(from), geocodeAddress(to)]);
+    const routeUrl = `https://router.project-osrm.org/route/v1/driving/${gFrom.lon},${gFrom.lat};${gTo.lon},${gTo.lat}?overview=false`;
+    const res = await fetch(routeUrl);
+    const data = await res.json();
+    if(!data.routes || !data.routes.length) throw new Error('Itinéraire introuvable');
+    const km = data.routes[0].distance / 1000;
+    document.getElementById('km').value = km.toFixed(1);
+    showToast('Distance : ' + km.toFixed(1) + ' km');
+  }catch(e){
+    showToast('Distance introuvable — entre le km à la main');
+  }
+}
 
 function showToast(msg){
   const t = document.getElementById('toast');
