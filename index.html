@@ -171,6 +171,16 @@
   .rate-row input{width:90px; text-align:right; padding:9px 10px; font-size:14px;}
   .cost-hint{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--orange); background:rgba(242,169,0,0.08); border:1px solid var(--orange-dim); border-radius:8px; padding:8px 10px; margin-top:4px;}
   .modal .close-modal{margin-top:6px;}
+  .route-hint{font-size:12.5px; color:var(--grey); line-height:1.5; margin:0 0 16px;}
+  .route-item{
+    display:flex; align-items:center; gap:10px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer;
+  }
+  .route-item .info{flex:1; min-width:0;}
+  .route-item .name{font-size:13.5px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .route-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .route-item .km{font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:13px; white-space:nowrap;}
+  .route-item .del{color:var(--red); font-size:17px; padding:2px 4px;}
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--orange); color:#1a1200;
     padding:11px 18px; border-radius:20px; font-size:13.5px; font-weight:600; z-index:60; display:none;
@@ -230,6 +240,7 @@
     </div>
 
     <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
+    <button class="ghost" style="margin-top:8px;" onclick="openRoutes()">🚏 Trajets fréquents (fonctionne hors ligne)</button>
 
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
@@ -333,6 +344,39 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modalRoutesBg">
+  <div class="modal">
+    <h3>Trajets fréquents</h3>
+    <p class="route-hint">Enregistre une fois un trajet (ex: garage habituel, une ville que tu fais souvent) : ensuite il s'applique en un tap, même sans connexion.</p>
+
+    <div id="routesList"></div>
+
+    <div class="grp" style="margin-top:18px;">
+      <div class="grp-title">Ajouter un trajet</div>
+      <div class="field">
+        <label>Nom du trajet</label>
+        <input type="text" id="routeName" placeholder="Ex: Charleroi → Garage Dupont">
+      </div>
+      <div class="field">
+        <label>Adresse de départ</label>
+        <input type="text" id="routeFrom" placeholder="Rue, n°, ville">
+      </div>
+      <div class="field">
+        <label>Adresse d'arrivée</label>
+        <input type="text" id="routeTo" placeholder="Rue, n°, ville">
+      </div>
+      <div class="field">
+        <label>Distance (km)</label>
+        <input type="number" id="routeKm" placeholder="0" min="0" inputmode="decimal">
+      </div>
+      <button class="ghost" style="margin-bottom:8px;" onclick="prefillRouteForm()">↑ Remplir avec le formulaire actuel</button>
+    </div>
+
+    <button class="primary" onclick="saveNewRoute()">Enregistrer ce trajet</button>
+    <button class="ghost close-modal" onclick="closeRoutes()">Fermer</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -415,6 +459,89 @@ function openSettings(){
   });
 }
 function closeSettings(){ document.getElementById('modalBg').classList.remove('show'); }
+
+// ===== Trajets fréquents (fonctionne 100% hors ligne une fois enregistrés) =====
+let ROUTES = [];
+
+async function loadRoutes(){
+  try{
+    const res = await window.storage.get('routes');
+    if(res && res.value) ROUTES = JSON.parse(res.value);
+  }catch(e){ ROUTES = []; }
+}
+
+async function persistRoutes(){
+  try{
+    await window.storage.set('routes', JSON.stringify(ROUTES));
+  }catch(e){ showToast('Erreur d\'enregistrement du trajet'); }
+}
+
+function renderRoutesList(){
+  const container = document.getElementById('routesList');
+  if(!ROUTES.length){
+    container.innerHTML = '<div class="empty">Aucun trajet enregistré pour l\'instant</div>';
+    return;
+  }
+  container.innerHTML = ROUTES.map(r => `
+    <div class="route-item" onclick="applyRoute('${r.id}')">
+      <div class="info">
+        <div class="name">${r.name}</div>
+        <div class="meta">${r.from} → ${r.to}</div>
+      </div>
+      <div class="km">${r.km} km</div>
+      <div class="del" onclick="event.stopPropagation(); deleteRoute('${r.id}')">✕</div>
+    </div>
+  `).join('');
+}
+
+function openRoutes(){
+  document.getElementById('modalRoutesBg').classList.add('show');
+  renderRoutesList();
+}
+function closeRoutes(){ document.getElementById('modalRoutesBg').classList.remove('show'); }
+
+function prefillRouteForm(){
+  document.getElementById('routeFrom').value = document.getElementById('addrFrom').value;
+  document.getElementById('routeTo').value = document.getElementById('addrTo').value;
+  document.getElementById('routeKm').value = document.getElementById('km').value;
+}
+
+function applyRoute(id){
+  const r = ROUTES.find(r => r.id === id);
+  if(!r) return;
+  document.getElementById('addrFrom').value = r.from;
+  document.getElementById('addrTo').value = r.to;
+  document.getElementById('km').value = r.km;
+  closeRoutes();
+  showToast('Trajet appliqué : ' + r.name);
+}
+
+async function saveNewRoute(){
+  const name = document.getElementById('routeName').value.trim();
+  const from = document.getElementById('routeFrom').value.trim();
+  const to = document.getElementById('routeTo').value.trim();
+  const km = parseFloat(document.getElementById('routeKm').value);
+  if(!name || !from || !to || !km){
+    showToast('Remplis nom, adresses et km avant d\'enregistrer');
+    return;
+  }
+  ROUTES.push({ id: 'r' + Date.now(), name, from, to, km });
+  await persistRoutes();
+  document.getElementById('routeName').value = '';
+  document.getElementById('routeFrom').value = '';
+  document.getElementById('routeTo').value = '';
+  document.getElementById('routeKm').value = '';
+  renderRoutesList();
+  showToast('Trajet enregistré — disponible hors ligne');
+}
+
+async function deleteRoute(id){
+  ROUTES = ROUTES.filter(r => r.id !== id);
+  await persistRoutes();
+  renderRoutesList();
+  showToast('Trajet supprimé');
+}
+
 
 async function saveSettings(){
   Object.keys(DEFAULT_RATES).forEach(k=>{
@@ -638,6 +765,7 @@ async function supprimer(key){
 
 loadRates().then(updateKmLabel);
 loadHistory();
+loadRoutes();
 </script>
 </body>
 </html>
