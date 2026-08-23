@@ -1459,7 +1459,8 @@ const COMPANY = {
   email: 'jmexpressautodepannage@gmail.com',
   iban: 'BE82732083848568',
   ibanDisplay: 'BE82 7320 8384 8568',
-  bic: 'BBRUBEBB'
+  bic: 'BBRUBEBB',
+  reviewUrl: 'https://maps.app.goo.gl/3ZbDYCQsao4b2UbS7?g_st=ic'
 };
 
 // --- Signature tactile ---
@@ -1690,6 +1691,16 @@ async function genererFacture(){
       pdf.addRgbImage('Sig', sig.width, sig.height, sig.deflatedRgb);
       pdf.drawImage('Sig', 52, sigY + 10, 216, 66);
     }
+
+    // --- QR avis Google (placé après la signature, une fois la prestation validée) ---
+    const reviewY = sigY + 100;
+    pdf.line(50, reviewY, 545, reviewY, {width:0.5, gray:0.85});
+    pdf.text(50, reviewY + 20, 'Votre avis compte pour nous !', {font:'F2', size:10});
+    pdf.text(50, reviewY + 35, 'Scannez pour laisser un avis Google en 30 secondes', {size:9, gray:0.4});
+    const reviewQr = makeQrMatrix(COMPANY.reviewUrl);
+    const rn = reviewQr.getModuleCount();
+    pdf.addBitmapImage('QrReview', rn, rn, (x,y2) => reviewQr.isDark(y2, x));
+    pdf.drawImage('QrReview', 460, reviewY + 8, 65, 65);
 
     const pdfBytes = pdf.build();
     const blob = new Blob([pdfBytes], {type:'application/pdf'});
