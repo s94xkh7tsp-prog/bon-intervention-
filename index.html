@@ -221,7 +221,13 @@
         <option value="diag">Diagnostic électronique (valise OBD)</option>
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
+        <option value="changement_batterie">Changement de batterie (achat + montage)</option>
       </select>
+    </div>
+
+    <div class="field" id="battFields" style="display:none;">
+      <label>Prix d'achat de la batterie (€) — ce que tu payes chez le fournisseur</label>
+      <input type="number" id="battPrice" placeholder="0" min="0" inputmode="decimal">
     </div>
 
     <div class="route-line">
@@ -261,6 +267,7 @@
       <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
+      <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
     </div>
 
     <label>Remise ponctuelle (optionnel)</label>
@@ -289,6 +296,8 @@
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
     <div class="ticket-row" id="rowAuto" style="display:none;"><span class="l">Majoration autoroute</span><span class="v" id="tkAuto">—</span></div>
+    <div class="ticket-row" id="rowBatt" style="display:none;"><span class="l">Batterie (achat + marge)</span><span class="v" id="tkBatt">—</span></div>
+    <div class="ticket-row" id="rowBattDeplacement" style="display:none;"><span class="l">Déplacement achat batterie</span><span class="v" id="tkBattDeplacement">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
       <span class="lbl">Total TVAC</span>
@@ -317,6 +326,13 @@
       <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
       <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
       <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
+      <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Batterie — achat</div>
+      <div class="rate-row"><label>Marge sur prix d'achat batterie</label><input type="number" id="r_battMarginPct" step="1">%</div>
+      <div class="rate-row"><label>Frais déplacement pour aller chercher</label><input type="number" id="r_battDeplacementFee" step="1"></div>
     </div>
 
     <div class="grp">
@@ -1288,12 +1304,15 @@ function getIdatBytes(pngBytes){
 <script>
 const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
-  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général"
+  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
+  changement_batterie:"Changement de batterie (achat + montage)"
 };
 
 const DEFAULT_RATES = {
   pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
+  changement_batterie:40,
   km_remorque:3.45, km_deplacement:1.10, nuitPct:25, wePct:20, auto:15,
+  battMarginPct:20, battDeplacementFee:10,
   diesel:2.21, conso:15
 };
 // Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
@@ -1655,6 +1674,8 @@ async function genererFacture(){
     if(c.nuit) priceLine('Majoration nuit (+' + RATES.nuitPct + '%)', c.nuitCost);
     if(c.we) priceLine('Majoration week-end (+' + RATES.wePct + '%)', c.weCost);
     if(c.auto) priceLine('Majoration autoroute', c.autoCost);
+    if(c.battCost) priceLine('Batterie (achat ' + c.battPrice.toFixed(2) + ' € + ' + RATES.battMarginPct + '%)', c.battCost);
+    if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
     if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
 
     y += 6;
@@ -1750,6 +1771,10 @@ function updateKmLabel(){
   document.getElementById('kmLabel').textContent = isRemorquage
     ? 'Distance (km) — trajet camion (' + RATES.km_remorque.toFixed(2) + ' €/km)'
     : 'Distance (km) — trajet véhicule perso (' + RATES.km_deplacement.toFixed(2) + ' €/km)';
+
+  const isBatt = type === 'changement_batterie';
+  document.getElementById('battFields').style.display = isBatt ? 'block' : 'none';
+  document.getElementById('tgBattDeplacement').style.display = isBatt ? 'flex' : 'none';
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
@@ -1837,6 +1862,9 @@ function calculer(){
   const we = document.getElementById('tgWe').classList.contains('on');
   const auto = document.getElementById('tgAuto').classList.contains('on');
   const retour = document.getElementById('tgRetour').classList.contains('on');
+  const isBatt = type === 'changement_batterie';
+  const battDeplacement = isBatt && document.getElementById('tgBattDeplacement').classList.contains('on');
+  const battPrice = isBatt ? (parseFloat(document.getElementById('battPrice').value) || 0) : 0;
 
   const base = RATES[type];
   const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
@@ -1846,13 +1874,15 @@ function calculer(){
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
-  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost;
+  const battCost = battPrice > 0 ? battPrice * (1 + RATES.battMarginPct/100) : 0;
+  const battDeplacementCost = battDeplacement ? RATES.battDeplacementFee : 0;
+  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost;
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.max(0, totalAvantRemise - remiseAmount);
 
-  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, battPrice, battCost, battDeplacement, battDeplacementCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -1870,6 +1900,10 @@ function calculer(){
   document.getElementById('tkWe').textContent = '+' + RATES.wePct + '% = ' + fmt(weCost);
   document.getElementById('rowAuto').style.display = auto ? 'flex' : 'none';
   document.getElementById('tkAuto').textContent = fmt(autoCost);
+  document.getElementById('rowBatt').style.display = battCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkBatt').textContent = battPrice.toFixed(2) + ' € + ' + RATES.battMarginPct + '% = ' + fmt(battCost);
+  document.getElementById('rowBattDeplacement').style.display = battDeplacementCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkBattDeplacement').textContent = fmt(battDeplacementCost);
 
   document.getElementById('rowRemise').style.display = remiseAmount > 0 ? 'flex' : 'none';
   const remisePct = totalAvantRemise > 0 ? (remiseAmount / totalAvantRemise * 100) : 0;
@@ -1901,6 +1935,8 @@ function copierRecap(){
   if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
   if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
+  if(c.battCost) txt += `\nBatterie (achat ${c.battPrice.toFixed(2)} € + ${RATES.battMarginPct}%) : ${fmt(c.battCost)}`;
+  if(c.battDeplacementCost) txt += `\nDéplacement achat batterie : ${fmt(c.battDeplacementCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\nTOTAL TVAC : ${fmt(c.total)}\n\nFranchise TVA art. 56bis CTVA`;
 
