@@ -101,6 +101,13 @@
     letter-spacing:0.3px;
   }
   .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
+  .toggle .sub{display:block; font-size:9.5px; font-weight:500; opacity:0.65; margin-top:2px; letter-spacing:0.2px;}
+
+  .holiday-banner{
+    display:none; align-items:center; gap:10px; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4);
+    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:12.5px; color:var(--white);
+  }
+  .holiday-banner .close{margin-left:auto; cursor:pointer; color:var(--grey); font-size:16px; flex-shrink:0;}
 
   .extras-list{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
   .extras-header{
@@ -238,6 +245,12 @@
 
 <div class="wrap">
 
+  <div class="holiday-banner" id="holidayBanner">
+    <span>🎉</span>
+    <span id="holidayBannerText"></span>
+    <span class="close" onclick="document.getElementById('holidayBanner').style.display='none'">✕</span>
+  </div>
+
   <div class="eyebrow">Nouvelle intervention</div>
   <div class="card">
 
@@ -321,7 +334,7 @@
 
     <label>Conditions</label>
     <div class="toggles">
-      <div class="toggle" id="tgNuit" onclick="toggle('tgNuit')">🌙 Nuit</div>
+      <div class="toggle" id="tgNuit" onclick="toggle('tgNuit')">🌙 Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
       <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
@@ -405,6 +418,14 @@
     <h3>Réglages des tarifs</h3>
 
     <div class="grp">
+      <div class="grp-title">Sauvegarde des données</div>
+      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, photos) sont stockées uniquement sur ce téléphone. Fais une sauvegarde régulièrement pour ne rien perdre.</p>
+      <button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">💾 Exporter une sauvegarde complète</button>
+      <input type="file" id="restoreFile" accept="application/json" style="display:none;" onchange="restaurerSauvegarde(event)">
+      <button class="ghost" onclick="document.getElementById('restoreFile').click()">📥 Restaurer une sauvegarde</button>
+    </div>
+
+    <div class="grp">
       <div class="grp-title">Adresse de départ par défaut</div>
       <div class="field" style="margin-bottom:0;">
         <label>Pré-remplit le champ "départ" à chaque nouvelle intervention</label>
@@ -440,14 +461,18 @@
 
     <div class="grp">
       <div class="grp-title">Majorations</div>
-      <div class="rate-row"><label>Nuit (22h–6h)</label><input type="number" id="r_nuitPct" step="1">%</div>
+      <div class="rate-row"><label>Nuit — de</label><input type="time" id="r_nightStart" step="900"></div>
+      <div class="rate-row"><label>Nuit — à</label><input type="time" id="r_nightEnd" step="900"></div>
+      <div class="rate-row"><label>Majoration nuit</label><input type="number" id="r_nuitPct" step="1">%</div>
       <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
       <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
     </div>
 
     <div class="grp">
       <div class="grp-title">Majorations</div>
-      <div class="rate-row"><label>Nuit (22h–6h)</label><input type="number" id="r_nuitPct" step="1">%</div>
+      <div class="rate-row"><label>Nuit — de</label><input type="time" id="r_nightStart" step="900"></div>
+      <div class="rate-row"><label>Nuit — à</label><input type="time" id="r_nightEnd" step="900"></div>
+      <div class="rate-row"><label>Majoration nuit</label><input type="number" id="r_nuitPct" step="1">%</div>
       <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
       <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
     </div>
@@ -1449,6 +1474,8 @@ const DEFAULT_RATES = {
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
+let NIGHT_START = '20:00';
+let NIGHT_END = '08:00';
 
 // Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
 window.storage = {
@@ -1529,6 +1556,90 @@ function compressImageToBase64(file, maxDim, quality){
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
 
+// Calcule la date de Pâques (algorithme de Meeus/Jones/Butcher) pour une année donnée
+function getEasterDate(year){
+  const a = year % 19, b = Math.floor(year/100), c = year % 100;
+  const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+  const g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30;
+  const i = Math.floor(c/4), k = c % 4, l = (32+2*e+2*i-h-k) % 7;
+  const m = Math.floor((a+11*h+22*l)/451);
+  const month = Math.floor((h+l-7*m+114)/31);
+  const day = ((h+l-7*m+114) % 31) + 1;
+  return new Date(year, month-1, day);
+}
+
+function addDays(date, n){
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function sameDay(a, b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+// Liste des jours fériés légaux belges pour une année donnée
+function getBelgianHolidays(year){
+  const easter = getEasterDate(year);
+  return [
+    {date: new Date(year,0,1), name: "Jour de l'an"},
+    {date: addDays(easter,1), name: "Lundi de Pâques"},
+    {date: new Date(year,4,1), name: "Fête du travail"},
+    {date: addDays(easter,39), name: "Ascension"},
+    {date: addDays(easter,50), name: "Lundi de Pentecôte"},
+    {date: new Date(year,6,21), name: "Fête nationale belge"},
+    {date: new Date(year,7,15), name: "Assomption"},
+    {date: new Date(year,10,1), name: "Toussaint"},
+    {date: new Date(year,10,11), name: "Armistice"},
+    {date: new Date(year,11,25), name: "Noël"}
+  ];
+}
+
+// Liste des jours fériés légaux français pour une année donnée (diffère de la Belgique sur certaines dates)
+function getFrenchHolidays(year){
+  const easter = getEasterDate(year);
+  return [
+    {date: new Date(year,0,1), name: "Jour de l'an"},
+    {date: addDays(easter,1), name: "Lundi de Pâques"},
+    {date: new Date(year,4,1), name: "Fête du travail"},
+    {date: new Date(year,4,8), name: "Victoire 1945"},
+    {date: addDays(easter,39), name: "Ascension"},
+    {date: addDays(easter,50), name: "Lundi de Pentecôte"},
+    {date: new Date(year,6,14), name: "Fête nationale française"},
+    {date: new Date(year,7,15), name: "Assomption"},
+    {date: new Date(year,10,1), name: "Toussaint"},
+    {date: new Date(year,10,11), name: "Armistice"},
+    {date: new Date(year,11,25), name: "Noël"}
+  ];
+}
+
+// Vérifie si le jour actuel est un jour férié belge et/ou français, et affiche un rappel si c'est le cas
+function checkJourFerie(){
+  const today = new Date();
+  const be = getBelgianHolidays(today.getFullYear()).find(h => sameDay(h.date, today));
+  const fr = getFrenchHolidays(today.getFullYear()).find(h => sameDay(h.date, today));
+  if(!be && !fr) return;
+
+  let label, flag;
+  if(be && fr){
+    label = be.name === fr.name ? be.name : (be.name + ' (BE) / ' + fr.name + ' (FR)');
+    flag = '🇧🇪🇫🇷';
+  } else if(be){
+    label = be.name + ' — Belgique';
+    flag = '🇧🇪';
+  } else {
+    label = fr.name + ' — France';
+    flag = '🇫🇷';
+  }
+  document.querySelector('#holidayBanner span').textContent = flag;
+  document.getElementById('holidayBannerText').textContent =
+    `Aujourd'hui, c'est un jour férié (${label}) — la majoration week-end / férié a été cochée automatiquement.`;
+  document.getElementById('holidayBanner').style.display = 'flex';
+
+  const tgWe = document.getElementById('tgWe');
+  if(tgWe && !tgWe.classList.contains('on')) tgWe.classList.add('on');
+}
+
 async function loadRates(){
   try{
     const res = await window.storage.get('rates');
@@ -1538,8 +1649,29 @@ async function loadRates(){
     const res2 = await window.storage.get('baseAddress');
     if(res2 && res2.value) BASE_ADDRESS = res2.value;
   }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
+  try{
+    const res3 = await window.storage.get('nightHours');
+    if(res3 && res3.value){
+      const parsed = JSON.parse(res3.value);
+      if(parsed.start) NIGHT_START = parsed.start;
+      if(parsed.end) NIGHT_END = parsed.end;
+    }
+  }catch(e){ /* pas encore d'horaires enregistrés, on garde 20h-8h par défaut */ }
   fillSettingsForm();
   prefillDepartAddress();
+  updateNightHoursLabel();
+  checkJourFerie();
+}
+
+function formatHourShort(hhmm){
+  const [h, m] = hhmm.split(':');
+  const hNum = parseInt(h, 10);
+  return m === '00' ? (hNum + 'h') : (hNum + 'h' + m);
+}
+
+function updateNightHoursLabel(){
+  const el = document.getElementById('nightHoursLabel');
+  if(el) el.textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
 }
 
 function prefillDepartAddress(){
@@ -1553,6 +1685,8 @@ function fillSettingsForm(){
     if(el) el.value = RATES[k];
   });
   document.getElementById('r_baseAddress').value = BASE_ADDRESS;
+  document.getElementById('r_nightStart').value = NIGHT_START;
+  document.getElementById('r_nightEnd').value = NIGHT_END;
 }
 
 function updateCostHint(){
@@ -1904,7 +2038,7 @@ async function genererFacture(){
     priceLine('Forfait de base', c.base);
     if(c.kmCost) priceLine('Kilométrage', c.kmCost);
     c.extras.forEach(e => priceLine('+ ' + e.label, e.cost));
-    if(c.nuit) priceLine('Majoration nuit (+' + RATES.nuitPct + '%)', c.nuitCost);
+    if(c.nuit) priceLine('Majoration nuit (' + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ', +' + RATES.nuitPct + '%)', c.nuitCost);
     if(c.we) priceLine('Majoration week-end (+' + RATES.wePct + '%)', c.weCost);
     if(c.auto) priceLine('Majoration autoroute', c.autoCost);
     if(c.battCost) priceLine('Fourniture batterie', c.battCost);
@@ -1985,18 +2119,89 @@ async function genererFacture(){
 
 
 
+async function exporterSauvegarde(){
+  try{
+    const list = await window.storage.list();
+    const data = {};
+    for(const key of (list.keys || [])){
+      try{
+        const res = await window.storage.get(key);
+        if(res && res.value !== undefined) data[key] = res.value;
+      }catch(e){}
+    }
+    const backup = {
+      app: 'JM Express — Bon d\'intervention',
+      version: 1,
+      exportDate: new Date().toISOString(),
+      data
+    };
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const dateStr = new Date().toISOString().slice(0,10);
+    const fileName = `JM-Express-sauvegarde_${dateStr}.json`;
+    const file = new File([blob], fileName, {type:'application/json'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'Sauvegarde JM Express'}); return; }catch(e){}
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Sauvegarde exportée — garde ce fichier en lieu sûr (mail, drive...)');
+  }catch(e){
+    showToast('Erreur lors de la sauvegarde');
+  }
+}
+
+async function restaurerSauvegarde(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const backup = JSON.parse(text);
+    if(!backup || !backup.data){ showToast('Fichier de sauvegarde invalide'); return; }
+
+    const nbKeys = Object.keys(backup.data).length;
+    const dateLabel = backup.exportDate ? new Date(backup.exportDate).toLocaleString('fr-BE') : 'date inconnue';
+    const ok = confirm(`Restaurer la sauvegarde du ${dateLabel} (${nbKeys} éléments) ? Cela remplacera les données actuelles portant le même nom (tarifs, interventions, réglages).`);
+    if(!ok){ event.target.value = ''; return; }
+
+    for(const [key, value] of Object.entries(backup.data)){
+      try{ await window.storage.set(key, value); }catch(e){}
+    }
+    showToast('Sauvegarde restaurée');
+    event.target.value = '';
+  }catch(e){
+    showToast('Erreur lors de la restauration — fichier illisible');
+    return;
+  }
+  // Rafraîchissement de l'écran — séparé du bloc critique : un souci ici n'efface pas le message de succès ci-dessus
+  try{
+    await loadRates();
+    updateKmLabel();
+    loadHistory();
+    loadRoutes();
+  }catch(e){ /* les données sont bien restaurées, seul le rafraîchissement visuel a un souci — un rechargement de la page suffit */ }
+}
+
 async function saveSettings(){
   Object.keys(DEFAULT_RATES).forEach(k=>{
     const el = document.getElementById('r_'+k);
     if(el) RATES[k] = parseFloat(el.value) || 0;
   });
   BASE_ADDRESS = document.getElementById('r_baseAddress').value.trim();
+  NIGHT_START = document.getElementById('r_nightStart').value || '20:00';
+  NIGHT_END = document.getElementById('r_nightEnd').value || '08:00';
   try{
     await window.storage.set('rates', JSON.stringify(RATES));
     await window.storage.set('baseAddress', BASE_ADDRESS);
+    await window.storage.set('nightHours', JSON.stringify({start:NIGHT_START, end:NIGHT_END}));
     showToast('Tarifs enregistrés');
   }catch(e){ showToast('Erreur d\'enregistrement'); }
   updateKmLabel();
+  updateNightHoursLabel();
   closeSettings();
 }
 
@@ -2166,6 +2371,7 @@ function calculer(){
   ).join('');
 
   document.getElementById('rowNuit').style.display = nuit ? 'flex' : 'none';
+  document.querySelector('#rowNuit .l').textContent = 'Majoration nuit (' + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ')';
   document.getElementById('tkNuit').textContent = '+' + RATES.nuitPct + '% = ' + fmt(nuitCost);
   document.getElementById('rowWe').style.display = we ? 'flex' : 'none';
   document.getElementById('tkWe').textContent = '+' + RATES.wePct + '% = ' + fmt(weCost);
@@ -2207,7 +2413,7 @@ function copierRecap(){
   const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
   let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${TYPE_LABELS[c.type]}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
   c.extras.forEach(e => txt += `\n+ ${e.label} : ${fmt(e.cost)}`);
-  if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
+  if(c.nuit) txt += `\nMajoration nuit (${formatHourShort(NIGHT_START)}-${formatHourShort(NIGHT_END)}) : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
   if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
   if(c.battCost) txt += `\nFourniture batterie : ${fmt(c.battCost)}`;
