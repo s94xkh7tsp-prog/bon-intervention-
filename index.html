@@ -66,6 +66,13 @@
   /* FORM */
   label{display:block; font-size:12px; color:var(--grey); margin:0 0 6px 2px; font-weight:500;}
   .field{margin-bottom:14px;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field{flex:1;}
+  .hist-summary{
+    background:rgba(242,169,0,0.08); border:1px solid rgba(242,169,0,0.25); border-radius:10px;
+    padding:10px 14px; margin-bottom:12px; font-size:13px; color:var(--white);
+  }
+  .hist-summary b{color:var(--orange);}
   input[type=text], input[type=number], select{
     width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--white);
     padding:12px 12px; border-radius:10px; font-size:15.5px; font-family:'Inter',sans-serif; outline:none;
@@ -168,7 +175,15 @@
   .hist-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
+  .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
   .empty{color:var(--grey); font-size:13px; text-align:center; padding:20px 0;}
+
+  .photo-row{margin-bottom:14px;}
+  .photo-lightbox{
+    position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .photo-lightbox img{max-width:100%; max-height:100%; border-radius:8px;}
 
   /* MODAL */
   .modal-bg{
@@ -322,6 +337,16 @@
       </div>
     </div>
 
+    <label>Photo facture d'achat (pièce/batterie, optionnel)</label>
+    <div class="photo-row">
+      <input type="file" id="receiptPhoto" accept="image/*" capture="environment" onchange="handleReceiptPhoto(event)" style="display:none;">
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('receiptPhoto').click()">📷 Photographier / choisir une facture</button>
+      <div id="receiptPreviewWrap" style="display:none; margin-top:8px;">
+        <img id="receiptPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
+        <button type="button" class="ghost" style="margin-top:6px;" onclick="clearReceiptPhoto()">Retirer la photo</button>
+      </div>
+    </div>
+
     <button class="primary" onclick="calculer()">Calculer le montant</button>
   </div>
 
@@ -354,6 +379,23 @@
   </div>
 
   <div class="eyebrow">Journal des interventions</div>
+
+  <div class="field-row">
+    <div class="field" style="margin-bottom:0;">
+      <label>Du</label>
+      <input type="date" id="histDateFrom" onchange="loadHistory()">
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Au</label>
+      <input type="date" id="histDateTo" onchange="loadHistory()">
+    </div>
+  </div>
+  <button class="ghost" style="margin:8px 0 12px 0;" onclick="resetHistDates()">Réinitialiser les dates (tout afficher)</button>
+
+  <div id="historySummary" class="hist-summary"></div>
+  <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">⬇️ Exporter en CSV (comptabilité)</button>
+  <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()">🧾 Exporter en PDF groupé</button>
+  <button class="ghost" style="margin-bottom:12px; color:#e05a4e; border-color:rgba(224,90,78,0.4);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
   <div id="history"></div>
 
 </div>
@@ -1042,7 +1084,8 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     0x2018: 0x91, 0x2019: 0x92, // ' '
     0x201C: 0x93, 0x201D: 0x94, // " "
     0x2013: 0x96, 0x2014: 0x97, // – —
-    0x2212: 0x2D  // − (signe moins typographique) -> tiret standard
+    0x2212: 0x2D, // − (signe moins typographique) -> tiret standard
+    0x202F: 0x20, 0x2009: 0x20 // espaces insécables fines (séparateur de milliers fr-BE) -> espace normale
   };
   function toLatin1Bytes(str){
     const arr = new Uint8Array(str.length);
@@ -1055,7 +1098,13 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     return arr;
   }
 
-  const contentOps = [];
+  const pagesContent = [[]];
+  let curPage = 0;
+  const contentOps = { push: (op) => pagesContent[curPage].push(op) };
+  function newPage(){
+    pagesContent.push([]);
+    curPage++;
+  }
 
   function setFont(name, size){
     contentOps.push(`/${name} ${size} Tf`);
@@ -1180,31 +1229,37 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
   }
 
   function build(){
-    // Objet 1: Catalog, 2: Pages, 3: Page, 4: Content, 5/6: Fonts
     const fontRegularId = newId();
     const fontBoldId = newId();
-    const contentId = newId();
-    const pageId = newId();
     const pagesId = newId();
     const catalogId = newId();
-
-    const contentStr = contentOps.join('\n');
-    const contentBytes = toLatin1Bytes(contentStr);
 
     let xobjectEntries = '';
     for(const name in images){
       xobjectEntries += `/${name} ${images[name].id} 0 R `;
     }
 
-    const pageDict = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${W} ${H}] `
-      + `/Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> `
-      + `/XObject << ${xobjectEntries}>> >> /Contents ${contentId} 0 R >>`;
+    const pageIds = [];
+    const pageObjects = [];
+    for(const ops of pagesContent){
+      const contentStr = ops.join('\n');
+      const contentBytes = toLatin1Bytes(contentStr);
+      const contentId = newId();
+      const pageId = newId();
+      pageIds.push(pageId);
+      const pageDict = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${W} ${H}] `
+        + `/Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> `
+        + `/XObject << ${xobjectEntries}>> >> /Contents ${contentId} 0 R >>`;
+      pageObjects.push({ id: pageId, dict: pageDict });
+      pageObjects.push({ id: contentId, dict: `<< /Length ${contentBytes.length} >>`, stream: contentBytes });
+    }
+
+    const kids = pageIds.map(id => `${id} 0 R`).join(' ');
 
     const allObjects = [
       { id: catalogId, dict: `<< /Type /Catalog /Pages ${pagesId} 0 R >>` },
-      { id: pagesId, dict: `<< /Type /Pages /Kids [${pageId} 0 R] /Count 1 >>` },
-      { id: pageId, dict: pageDict },
-      { id: contentId, dict: `<< /Length ${contentBytes.length} >>`, stream: contentBytes },
+      { id: pagesId, dict: `<< /Type /Pages /Kids [${kids}] /Count ${pageIds.length} >>` },
+      ...pageObjects,
       { id: fontRegularId, dict: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>` },
       { id: fontBoldId, dict: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>` },
       ...objects
@@ -1257,7 +1312,7 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     return concatBytes(parts);
   }
 
-  return { text, line, rect, addBitmapImage, addPngImage, addRgbImage, drawImage, build, setFont, setFillGray, setStrokeGray, setLineWidth };
+  return { text, line, rect, addBitmapImage, addPngImage, addRgbImage, drawImage, build, setFont, setFillGray, setStrokeGray, setLineWidth, newPage };
 }
 
 // ===== Décodeur PNG minimal : lit IHDR + IDAT, dé-filtre les scanlines =====
@@ -1424,6 +1479,53 @@ if('serviceWorker' in navigator){
   });
 }
 let lastCalc = null;
+let receiptPhotoData = null; // base64 JPEG compressé, ou null
+
+async function handleReceiptPhoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  try{
+    const compressed = await compressImageToBase64(file, 900, 0.6);
+    receiptPhotoData = compressed;
+    document.getElementById('receiptPreview').src = compressed;
+    document.getElementById('receiptPreviewWrap').style.display = 'block';
+    showToast('Photo prête (' + Math.round(compressed.length/1024) + ' Ko)');
+  }catch(e){
+    showToast('Erreur lors du traitement de la photo');
+  }
+}
+
+function clearReceiptPhoto(){
+  receiptPhotoData = null;
+  document.getElementById('receiptPhoto').value = '';
+  document.getElementById('receiptPreviewWrap').style.display = 'none';
+}
+
+// Redimensionne et compresse une image (fichier) en JPEG base64, pour ne pas alourdir le stockage local
+function compressImageToBase64(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = () => {
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
 
@@ -1656,6 +1758,35 @@ async function streamProcess(bytes, kind){
   const out = new Uint8Array(total);
   let off = 0; for(const c of chunks){ out.set(c, off); off += c.length; }
   return out;
+}
+
+// Décode une image (JPEG ou PNG, peu importe) via le canvas natif du navigateur vers RGB compressé pour le PDF
+function imageDataUrlToRgb(dataUrl, maxDim){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = async () => {
+      let w = img.width, h = img.height;
+      if(maxDim && (w > maxDim || h > maxDim)){
+        if(w > h){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const imgData = ctx.getImageData(0, 0, w, h).data;
+      const rgb = new Uint8Array(w * h * 3);
+      for(let i=0, p=0; i<w*h; i++, p+=4){
+        rgb[i*3] = imgData[p]; rgb[i*3+1] = imgData[p+1]; rgb[i*3+2] = imgData[p+2];
+      }
+      try{
+        const deflatedRgb = await streamProcess(rgb, 'deflate');
+        resolve({width:w, height:h, deflatedRgb});
+      }catch(e){ reject(e); }
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
 }
 
 async function canvasSignatureToRgb(){
@@ -2061,10 +2192,13 @@ async function enregistrer(){
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   try{
     const id = 'intervention:' + Date.now();
-    await window.storage.set(id, JSON.stringify(lastCalc));
+    const entry = {...lastCalc};
+    if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
+    await window.storage.set(id, JSON.stringify(entry));
     showToast('Intervention enregistrée');
+    clearReceiptPhoto();
     loadHistory();
-  }catch(e){ showToast('Erreur d\'enregistrement'); }
+  }catch(e){ showToast('Erreur d\'enregistrement — la photo est peut-être trop volumineuse'); }
 }
 
 function copierRecap(){
@@ -2091,26 +2225,63 @@ function fallbackCopy(txt){
   showToast('Récap copié');
 }
 
-async function loadHistory(){
-  const container = document.getElementById('history');
-  try{
-    const list = await window.storage.list('intervention:');
-    if(!list || !list.keys || list.keys.length === 0){
-      container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
-      return;
-    }
-    const items = [];
+// Km réellement parcourus pour une intervention (aller-retour compté double)
+function kmReel(d){ return (d.km || 0) * (d.retour ? 2 : 1); }
+
+function resetHistDates(){
+  document.getElementById('histDateFrom').value = '';
+  document.getElementById('histDateTo').value = '';
+  loadHistory();
+}
+
+// Récupère toutes les interventions enregistrées, filtrées par la plage de dates choisie (si définie)
+async function getFilteredHistory(){
+  const fromStr = document.getElementById('histDateFrom').value;
+  const toStr = document.getElementById('histDateTo').value;
+  const from = fromStr ? new Date(fromStr + 'T00:00:00') : null;
+  const to = toStr ? new Date(toStr + 'T23:59:59') : null;
+
+  const list = await window.storage.list('intervention:');
+  const items = [];
+  if(list && list.keys){
     for(const key of list.keys){
       try{
         const res = await window.storage.get(key);
-        if(res && res.value) items.push({key, data: JSON.parse(res.value)});
+        if(res && res.value){
+          const data = JSON.parse(res.value);
+          const d = new Date(data.date);
+          if(from && d < from) continue;
+          if(to && d > to) continue;
+          items.push({key, data});
+        }
       }catch(e){}
     }
-    items.sort((a,b)=> new Date(b.data.date) - new Date(a.data.date));
+  }
+  items.sort((a,b)=> new Date(b.data.date) - new Date(a.data.date));
+  return items;
+}
+
+async function loadHistory(){
+  const container = document.getElementById('history');
+  const summary = document.getElementById('historySummary');
+  try{
+    const items = await getFilteredHistory();
+    if(items.length === 0){
+      container.innerHTML = '<div class="empty">Aucune intervention enregistrée sur cette période</div>';
+      summary.innerHTML = '';
+      return;
+    }
+    const total = items.reduce((s,it)=> s + (it.data.total || 0), 0);
+    const totalKm = items.reduce((s,it)=> s + kmReel(it.data), 0);
+    summary.innerHTML = `<b>${items.length}</b> intervention${items.length>1?'s':''} — <b>${totalKm.toFixed(0)} km</b> parcourus — total <b>${fmt(total)}</b>`;
     container.innerHTML = items.map(it=>{
       const d = it.data;
       const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'});
+      const photoThumb = d.receiptPhoto
+        ? `<img src="${d.receiptPhoto}" class="hist-thumb" onclick="voirPhoto('${it.key}')" alt="Facture d'achat">`
+        : '';
       return `<div class="hist-item">
+        ${photoThumb}
         <div class="info">
           <div class="type">${TYPE_LABELS[d.type]}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
@@ -2121,7 +2292,21 @@ async function loadHistory(){
     }).join('');
   }catch(e){
     container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
+    summary.innerHTML = '';
   }
+}
+
+async function voirPhoto(key){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    if(!d.receiptPhoto) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'photo-lightbox';
+    overlay.onclick = () => overlay.remove();
+    overlay.innerHTML = `<img src="${d.receiptPhoto}">`;
+    document.body.appendChild(overlay);
+  }catch(e){ showToast('Impossible d\'afficher la photo'); }
 }
 
 async function supprimer(key){
@@ -2130,6 +2315,189 @@ async function supprimer(key){
     showToast('Intervention supprimée');
     loadHistory();
   }catch(e){ showToast('Erreur de suppression'); }
+}
+
+async function viderHistoriqueFiltre(){
+  const items = await getFilteredHistory();
+  if(items.length === 0){ showToast('Rien à supprimer sur cette période'); return; }
+  const ok = confirm(`Supprimer définitivement ${items.length} intervention(s) du journal ? Assure-toi d'avoir bien exporté le CSV ou le PDF avant.`);
+  if(!ok) return;
+  for(const it of items){
+    try{ await window.storage.delete(it.key); }catch(e){}
+  }
+  showToast(items.length + ' intervention(s) supprimée(s)');
+  loadHistory();
+}
+
+function csvEscape(v){
+  const s = String(v == null ? '' : v);
+  return '"' + s.replace(/"/g,'""') + '"';
+}
+
+async function exporterCsv(){
+  const items = await getFilteredHistory();
+  if(items.length === 0){ showToast('Aucune intervention sur cette période'); return; }
+  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total TVAC','Justificatif']];
+  let totalKm = 0, totalMontant = 0;
+  items.forEach(it=>{
+    const d = it.data;
+    const extrasTxt = (d.extras||[]).map(e=>e.label+' ('+fmt(e.cost)+')').join(' + ');
+    const km = kmReel(d);
+    totalKm += km;
+    totalMontant += (d.total || 0);
+    rows.push([
+      new Date(d.date).toLocaleDateString('fr-BE'),
+      TYPE_LABELS[d.type] || d.type,
+      d.depart || '', d.from, d.to, d.km, km,
+      d.base != null ? d.base.toFixed(2) : '',
+      d.kmCost != null ? d.kmCost.toFixed(2) : '',
+      extrasTxt,
+      d.nuitCost ? d.nuitCost.toFixed(2) : '',
+      d.weCost ? d.weCost.toFixed(2) : '',
+      d.autoCost ? d.autoCost.toFixed(2) : '',
+      d.battCost ? d.battCost.toFixed(2) : '',
+      d.battDeplacementCost ? d.battDeplacementCost.toFixed(2) : '',
+      d.remiseAmount ? d.remiseAmount.toFixed(2) : '',
+      d.total != null ? d.total.toFixed(2) : '',
+      d.receiptPhoto ? 'Oui (voir PDF groupé)' : 'Non'
+    ]);
+  });
+  rows.push([]);
+  rows.push(['TOTAL', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '']);
+  const csvContent = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
+  const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8'});
+  const fromStr = document.getElementById('histDateFrom').value || 'debut';
+  const toStr = document.getElementById('histDateTo').value || 'aujourdhui';
+  const fileName = `JM-Express-interventions_${fromStr}_${toStr}.csv`;
+  const file = new File([blob], fileName, {type:'text/csv'});
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Export interventions JM Express'}); return; }catch(e){}
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV exporté');
+}
+
+async function exporterPdfGroupe(){
+  const items = await getFilteredHistory();
+  if(items.length === 0){ showToast('Aucune intervention sur cette période'); return; }
+
+  showToast('Génération du PDF groupé…');
+  try{
+    const fromStr = document.getElementById('histDateFrom').value;
+    const toStr = document.getElementById('histDateTo').value;
+    const periodeLabel = (fromStr || toStr)
+      ? `Période : ${fromStr ? new Date(fromStr).toLocaleDateString('fr-BE') : '...'} - ${toStr ? new Date(toStr).toLocaleDateString('fr-BE') : '...'}`
+      : 'Toutes les interventions enregistrées';
+
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+    const marginBottom = 780;
+
+    const drawHeader = (isFirstPage) => {
+      pdf.text(50, y, COMPANY.name, {font:'F2', size:15}); y += 18;
+      pdf.text(50, y, 'Relevé des interventions — usage comptable', {size:10, gray:0.35}); y += 14;
+      if(isFirstPage){ pdf.text(50, y, periodeLabel, {size:9.5, gray:0.4}); y += 14; }
+      pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
+      pdf.text(50, y, 'DATE', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(115, y, 'TYPE', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(350, y, 'DISTANCE', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(495, y, 'TOTAL', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.8});
+      y += 12;
+      pdf.line(50, y, 545, y, {width:0.5, gray:0.85}); y += 12;
+    };
+
+    drawHeader(true);
+
+    let lineIdx = 0;
+    let grandTotal = 0;
+    let grandTotalKm = 0;
+    items.forEach(it => {
+      const d = it.data;
+      if(y > marginBottom){
+        pdf.newPage();
+        y = 50;
+        drawHeader(false);
+      }
+      if(lineIdx % 2 === 1){
+        pdf.rect(50, y-10, 495, 15, {mode:'f', gray:0.96});
+      }
+      const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
+      if(d.receiptPhoto) pdf.rect(44, y-7, 4, 4, {mode:'f', rgb:[242,169,0]});
+      pdf.text(50, y, dt, {size:9});
+      pdf.text(115, y, (TYPE_LABELS[d.type] || d.type).slice(0, 50), {size:9});
+      const kmTxt = d.km ? (d.km + ' km' + (d.retour ? ' (A/R)' : '')) : '—';
+      pdf.text(350, y, kmTxt, {size:9, gray:0.4});
+      pdf.text(495, y, fmt(d.total), {size:9});
+      y += 15;
+      grandTotal += (d.total || 0);
+      grandTotalKm += kmReel(d);
+      lineIdx++;
+    });
+
+    if(y > marginBottom - 40){ pdf.newPage(); y = 50; }
+    y += 10;
+    pdf.rect(50, y-4, 495, 26, {mode:'f', rgb:[255,248,228]});
+    pdf.text(56, y+14, `TOTAL (${items.length} intervention${items.length>1?'s':''})`, {font:'F2', size:11});
+    pdf.text(465, y+14, fmt(grandTotal), {font:'F2', size:13, rgb:[196,136,0]});
+    y += 40;
+    pdf.text(50, y, `Kilométrage total parcouru : ${grandTotalKm.toFixed(0)} km`, {size:9.5, gray:0.4});
+
+    const withPhotos = items.filter(it => it.data.receiptPhoto);
+    if(withPhotos.length > 0){
+      pdf.newPage();
+      y = 50;
+      pdf.text(50, y, 'ANNEXE — Justificatifs d\'achat', {font:'F2', size:13}); y += 8;
+      pdf.rect(50, y, 42, 2, {mode:'f', rgb:[242,169,0]}); y += 20;
+      pdf.text(50, y, '(Un carré orange sur le tableau ci-avant signale une intervention avec justificatif joint)', {size:8.5, gray:0.45}); y += 20;
+
+      for(const it of withPhotos){
+        const d = it.data;
+        try{
+          const img = await imageDataUrlToRgb(d.receiptPhoto, 700);
+          const maxW = 495, maxH = 380;
+          let w = img.width, h = img.height;
+          const ratio = Math.min(maxW / w, maxH / h, 1);
+          w = Math.round(w * ratio); h = Math.round(h * ratio);
+
+          if(y + 30 + h > 800){
+            pdf.newPage();
+            y = 50;
+          }
+          const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
+          pdf.text(50, y, `${dt} — ${TYPE_LABELS[d.type] || d.type}`, {font:'F2', size:10}); y += 14;
+          const imgName = 'Receipt' + it.key.replace(/[^a-zA-Z0-9]/g, '');
+          pdf.addRgbImage(imgName, img.width, img.height, img.deflatedRgb);
+          pdf.drawImage(imgName, 50, y, w, h);
+          y += h + 28;
+        }catch(e){ /* photo illisible, on continue sans bloquer l'export */ }
+      }
+    }
+
+    const pdfBytes = pdf.build();
+    const blob = new Blob([pdfBytes], {type:'application/pdf'});
+    const fromLabel = fromStr || 'debut';
+    const toLabel = toStr || 'aujourdhui';
+    const fileName = `JM-Express-releve_${fromLabel}_${toLabel}.pdf`;
+    const file = new File([blob], fileName, {type:'application/pdf'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Relevé interventions JM Express'});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    showToast('PDF groupé généré');
+  }catch(e){
+    showToast('Erreur lors de la génération du PDF');
+  }
 }
 
 loadRates().then(updateKmLabel);
