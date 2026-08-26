@@ -237,6 +237,8 @@
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
         <option value="changement_batterie">Changement de batterie (achat + montage)</option>
+        <option value="moto_remorquage">Remorquage / chargement moto</option>
+        <option value="moto_batterie">Changement de batterie moto (achat + montage)</option>
       </select>
     </div>
 
@@ -254,6 +256,7 @@
         <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag" onchange="updateExtrasSummary()"> Diagnostic électronique (valise OBD)</label>
         <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert" onchange="updateExtrasSummary()"> Transfert véhicule</label>
         <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage" onchange="updateExtrasSummary()"> Dépannage / remorquage général</label>
+        <label class="extra-item" data-type="moto_remorquage"><input type="checkbox" class="extraCheck" value="moto_remorquage" onchange="updateExtrasSummary()"> Remorquage / chargement moto</label>
       </div>
     </div>
 
@@ -377,6 +380,8 @@
       <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
       <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
       <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
+      <div class="rate-row"><label>Remorquage / chargement moto</label><input type="number" id="r_moto_remorquage"></div>
+      <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
     </div>
 
     <div class="grp">
@@ -453,31 +458,41 @@
 <div class="modal-bg" id="modalInvoiceBg">
   <div class="modal">
     <h3>Facture</h3>
+    <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">Remplis les informations du client, puis génère le PDF à envoyer ou imprimer.</p>
 
-    <div class="field">
-      <label>Nom du client</label>
-      <input type="text" id="invClientName" placeholder="Nom / société">
-    </div>
-    <div class="field">
-      <label>Adresse du client (optionnel)</label>
-      <input type="text" id="invClientAddress" placeholder="Rue, n°, ville">
-    </div>
-    <div class="field">
-      <label>Société / Compagnie d'assurance (optionnel)</label>
-      <input type="text" id="invClientCompany" placeholder="Ex: Europ Assistance, ou nom d'entreprise">
-    </div>
-    <div class="field">
-      <label>N° TVA client / Référence dossier (optionnel)</label>
-      <input type="text" id="invClientVat" placeholder="Ex: BE0123.456.789 ou n° sinistre">
+    <div class="grp">
+      <div class="grp-title">Client</div>
+      <div class="field">
+        <label>Nom du client *</label>
+        <input type="text" id="invClientName" placeholder="Nom / société">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Adresse du client (optionnel)</label>
+        <input type="text" id="invClientAddress" placeholder="Rue, n°, ville">
+      </div>
     </div>
 
-    <label>Signature du client</label>
-    <div class="sig-wrap">
-      <canvas id="sigCanvas"></canvas>
+    <div class="grp">
+      <div class="grp-title">Références (optionnel)</div>
+      <div class="field">
+        <label>Société / Compagnie d'assurance</label>
+        <input type="text" id="invClientCompany" placeholder="Ex: Europ Assistance, ou nom d'entreprise">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>N° TVA client / Référence dossier</label>
+        <input type="text" id="invClientVat" placeholder="Ex: BE0123.456.789 ou n° sinistre">
+      </div>
     </div>
-    <button class="ghost" style="margin-top:8px;" onclick="clearSignature()">Effacer la signature</button>
 
-    <button class="primary" style="margin-top:16px;" onclick="genererFacture()">Générer et partager la facture (PDF)</button>
+    <div class="grp">
+      <div class="grp-title">Signature du client</div>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+      </div>
+      <button class="ghost" style="margin-top:8px;" onclick="clearSignature()">Effacer la signature</button>
+    </div>
+
+    <button class="primary" style="margin-top:8px;" onclick="genererFacture()">Générer et partager la facture (PDF)</button>
     <button class="ghost close-modal" onclick="closeInvoice()">Fermer</button>
   </div>
 </div>
@@ -1057,10 +1072,16 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     const gray = (typeof opts.gray === 'number') ? opts.gray : 0;
     const yPdf = H - y;
     contentOps.push('BT');
-    contentOps.push(`${gray} g`);
+    if(opts.rgb){
+      contentOps.push(`${(opts.rgb[0]/255).toFixed(3)} ${(opts.rgb[1]/255).toFixed(3)} ${(opts.rgb[2]/255).toFixed(3)} rg`);
+    } else {
+      contentOps.push(`${gray} g`);
+    }
     contentOps.push(`/${font} ${size} Tf`);
+    if(opts.charSpace) contentOps.push(`${opts.charSpace} Tc`);
     contentOps.push(`${x.toFixed(2)} ${yPdf.toFixed(2)} Td`);
     contentOps.push(`(${escapeForStream(escapePdfString(str))}) Tj`);
+    if(opts.charSpace) contentOps.push(`0 Tc`);
     contentOps.push('ET');
   }
 
@@ -1083,7 +1104,10 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     opts = opts || {};
     const mode = opts.mode || 'S'; // S=stroke, f=fill
     const gray = (typeof opts.gray === 'number') ? opts.gray : 0;
-    if(mode === 'f') contentOps.push(`${gray} g`);
+    if(opts.rgb){
+      const rgbOp = mode === 'f' ? 'rg' : 'RG';
+      contentOps.push(`${(opts.rgb[0]/255).toFixed(3)} ${(opts.rgb[1]/255).toFixed(3)} ${(opts.rgb[2]/255).toFixed(3)} ${rgbOp}`);
+    } else if(mode === 'f') contentOps.push(`${gray} g`);
     else contentOps.push(`${gray} G`);
     contentOps.push(`${x.toFixed(2)} ${(H-y-h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re`);
     contentOps.push(mode);
@@ -1355,18 +1379,19 @@ function getIdatBytes(pngBytes){
 const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
   test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
-  changement_batterie:"Changement de batterie (achat + montage)"
+  changement_batterie:"Changement de batterie (achat + montage)",
+  moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)"
 };
 
 const DEFAULT_RATES = {
   pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
-  changement_batterie:40,
+  changement_batterie:50, moto_remorquage:55, moto_batterie:30,
   km_remorque:3.45, km_deplacement:1.10, nuitPct:25, wePct:20, auto:15,
   battMarginPct:20, battDeplacementFee:10,
   diesel:2.21, conso:15
 };
 // Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
-const TYPES_REMORQUAGE = ['transfert', 'depannage'];
+const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 
@@ -1530,7 +1555,6 @@ async function deleteRoute(id){
 }
 
 // ===== Facture PDF (signature tactile + QR de paiement, tout hors ligne) =====
-
 const COMPANY = {
   name: 'JM Express Auto Dépannage',
   nameAscii: 'JM Express Auto Depannage', // pour le QR (pas d'accents)
@@ -1692,6 +1716,12 @@ async function genererFacture(){
     const pdf = MiniPDF(595, 842); // A4
     let y = 50;
 
+    // --- En-tête : logo typographique simple (texte vectoriel, toujours net) ---
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+    pdf.text(393, 78, 'TOUJOURS PLUS LOIN', {font:'F2', size:8, rgb:[242,169,0], charSpace:1.3});
+
     pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
     pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
     pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 13;
@@ -1699,13 +1729,14 @@ async function genererFacture(){
 
     pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 25;
 
-    pdf.text(50, y, 'FACTURE', {font:'F2', size:14}); 
+    pdf.text(50, y, 'FACTURE', {font:'F2', size:15});
+    pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, 'N° ' + invoiceNumber, {size:10});
     y += 16;
     pdf.text(400, y, 'Date : ' + dateStr, {size:10});
     y += 25;
 
-    pdf.text(50, y, 'Client', {font:'F2', size:10, gray:0.3}); y += 14;
+    pdf.text(50, y, 'CLIENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
     pdf.text(50, y, clientName, {size:11}); y += 14;
     if(clientCompany){ pdf.text(50, y, clientCompany, {size:10}); y += 14; }
     if(clientAddress){ pdf.text(50, y, clientAddress, {size:10, gray:0.3}); y += 14; }
@@ -1714,7 +1745,7 @@ async function genererFacture(){
 
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
 
-    pdf.text(50, y, 'Détail de l\'intervention', {font:'F2', size:11}); y += 16;
+    pdf.text(50, y, 'DÉTAIL DE L\'INTERVENTION', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
     pdf.text(50, y, TYPE_LABELS[c.type], {size:10}); y += 14;
     if(c.depart){
       pdf.text(50, y, 'Départ : ' + c.depart, {size:9.5, gray:0.3}); y += 13;
@@ -1729,10 +1760,15 @@ async function genererFacture(){
 
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
 
+    let lineIdx = 0;
     const priceLine = (label, amount) => {
-      pdf.text(50, y, label, {size:10});
+      if(lineIdx % 2 === 1){
+        pdf.rect(50, y-11, 495, 16, {mode:'f', gray:0.96});
+      }
+      pdf.text(56, y, label, {size:10});
       pdf.text(480, y, fmt(amount), {size:10});
       y += 16;
+      lineIdx++;
     };
     priceLine('Forfait de base', c.base);
     if(c.kmCost) priceLine('Kilométrage', c.kmCost);
@@ -1744,12 +1780,11 @@ async function genererFacture(){
     if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
     if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
 
-    y += 6;
-    pdf.line(50, y, 545, y, {width:1, gray:0.4}); y += 20;
-
-    pdf.text(50, y, 'TOTAL TVAC', {font:'F2', size:13});
-    pdf.text(460, y, fmt(c.total), {font:'F2', size:13});
-    y += 25;
+    y += 10;
+    pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
+    pdf.text(56, y+15, 'TOTAL TVAC', {font:'F2', size:13});
+    pdf.text(455, y+15, fmt(c.total), {font:'F2', size:14, rgb:[196,136,0]});
+    y += 40;
 
     pdf.text(50, y, 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.', {size:8.5, gray:0.4});
     y += 25;
@@ -1764,10 +1799,10 @@ async function genererFacture(){
     pdf.drawImage('QrPay', 50, qrY, qrSizePt, qrSizePt);
     pdf.text(50, qrY + qrSizePt + 14, 'Scannez pour payer', {size:9, gray:0.3});
 
-    pdf.text(180, qrY + 5, 'Paiement par virement', {font:'F2', size:10});
-    pdf.text(180, qrY + 22, 'IBAN : ' + COMPANY.ibanDisplay, {size:9.5});
-    pdf.text(180, qrY + 37, 'BIC : ' + COMPANY.bic, {size:9.5});
-    pdf.text(180, qrY + 52, 'Communication : Facture ' + invoiceNumber, {size:9.5});
+    pdf.text(180, qrY + 5, 'PAIEMENT PAR VIREMENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1});
+    pdf.text(180, qrY + 24, 'IBAN : ' + COMPANY.ibanDisplay, {size:9.5});
+    pdf.text(180, qrY + 39, 'BIC : ' + COMPANY.bic, {size:9.5});
+    pdf.text(180, qrY + 54, 'Communication : Facture ' + invoiceNumber, {size:9.5});
 
     // --- Signature ---
     const sigY = qrY + qrSizePt + 40;
@@ -1853,7 +1888,7 @@ function updateKmLabel(){
     ? 'Distance (km) — trajet camion (' + RATES.km_remorque.toFixed(2) + ' €/km)'
     : 'Distance (km) — trajet véhicule perso (' + RATES.km_deplacement.toFixed(2) + ' €/km)';
 
-  const isBatt = type === 'changement_batterie';
+  const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
   document.getElementById('battFields').style.display = isBatt ? 'block' : 'none';
   document.getElementById('tgBattDeplacement').style.display = isBatt ? 'flex' : 'none';
 
@@ -1958,7 +1993,7 @@ function calculer(){
   const we = document.getElementById('tgWe').classList.contains('on');
   const auto = document.getElementById('tgAuto').classList.contains('on');
   const retour = document.getElementById('tgRetour').classList.contains('on');
-  const isBatt = type === 'changement_batterie';
+  const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
   const battDeplacement = isBatt && document.getElementById('tgBattDeplacement').classList.contains('on');
   const battPrice = isBatt ? (parseFloat(document.getElementById('battPrice').value) || 0) : 0;
   const extras = Array.from(document.querySelectorAll('.extraCheck:checked')).map(cb => ({type: cb.value, label: TYPE_LABELS[cb.value], cost: RATES[cb.value]}));
@@ -2035,7 +2070,7 @@ function copierRecap(){
   if(!lastCalc) { showToast('Calculez d\'abord le montant'); return; }
   const c = lastCalc;
   const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
-  let txt = `JM EXPRESS AUTO DÉPANNAGE\n${TYPE_LABELS[c.type]}\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${TYPE_LABELS[c.type]}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
   c.extras.forEach(e => txt += `\n+ ${e.label} : ${fmt(e.cost)}`);
   if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
@@ -2043,7 +2078,7 @@ function copierRecap(){
   if(c.battCost) txt += `\nFourniture batterie : ${fmt(c.battCost)}`;
   if(c.battDeplacementCost) txt += `\nDéplacement achat batterie : ${fmt(c.battDeplacementCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
-  txt += `\n\nTOTAL TVAC : ${fmt(c.total)}\n\nFranchise TVA art. 56bis CTVA`;
+  txt += `\n\n*TOTAL TVAC : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
 
   if(navigator.clipboard){
     navigator.clipboard.writeText(txt).then(()=>showToast('Récap copié')).catch(()=>fallbackCopy(txt));
