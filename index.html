@@ -180,6 +180,12 @@
   .hist-item .info{flex:1; min-width:0;}
   .hist-item .type{font-size:13.5px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hist-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pay-badge{
+    display:inline-block; margin-top:5px; padding:3px 9px; border-radius:20px; font-size:10.5px; font-weight:700;
+    cursor:pointer; user-select:none;
+  }
+  .pay-badge.paye{background:rgba(90,180,110,0.15); color:#5ab46e;}
+  .pay-badge.attente{background:rgba(224,90,78,0.15); color:#e05a4e;}
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
   .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
@@ -2398,7 +2404,7 @@ async function enregistrer(){
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   try{
     const id = 'intervention:' + Date.now();
-    const entry = {...lastCalc};
+    const entry = {...lastCalc, paye: false};
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     await window.storage.set(id, JSON.stringify(entry));
     showToast('Intervention enregistrée');
@@ -2479,18 +2485,25 @@ async function loadHistory(){
     }
     const total = items.reduce((s,it)=> s + (it.data.total || 0), 0);
     const totalKm = items.reduce((s,it)=> s + kmReel(it.data), 0);
-    summary.innerHTML = `<b>${items.length}</b> intervention${items.length>1?'s':''} — <b>${totalKm.toFixed(0)} km</b> parcourus — total <b>${fmt(total)}</b>`;
+    const totalEnAttente = items.reduce((s,it)=> s + (it.data.paye ? 0 : (it.data.total || 0)), 0);
+    const nbEnAttente = items.filter(it => !it.data.paye).length;
+    summary.innerHTML = `<b>${items.length}</b> intervention${items.length>1?'s':''} — <b>${totalKm.toFixed(0)} km</b> parcourus — total <b>${fmt(total)}</b>`
+      + (nbEnAttente > 0 ? `<br><span style="color:#e05a4e;">⏳ ${nbEnAttente} en attente de paiement — ${fmt(totalEnAttente)}</span>` : '');
     container.innerHTML = items.map(it=>{
       const d = it.data;
       const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'});
       const photoThumb = d.receiptPhoto
         ? `<img src="${d.receiptPhoto}" class="hist-thumb" onclick="voirPhoto('${it.key}')" alt="Facture d'achat">`
         : '';
+      const payeBadge = d.paye
+        ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
+        : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       return `<div class="hist-item">
         ${photoThumb}
         <div class="info">
           <div class="type">${TYPE_LABELS[d.type]}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
+          ${payeBadge}
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
@@ -2513,6 +2526,16 @@ async function voirPhoto(key){
     overlay.innerHTML = `<img src="${d.receiptPhoto}">`;
     document.body.appendChild(overlay);
   }catch(e){ showToast('Impossible d\'afficher la photo'); }
+}
+
+async function togglePaye(key){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    d.paye = !d.paye;
+    await window.storage.set(key, JSON.stringify(d));
+    loadHistory();
+  }catch(e){ showToast('Erreur lors de la mise à jour'); }
 }
 
 async function supprimer(key){
@@ -2543,7 +2566,7 @@ function csvEscape(v){
 async function exporterCsv(){
   const items = await getFilteredHistory();
   if(items.length === 0){ showToast('Aucune intervention sur cette période'); return; }
-  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total TVAC','Justificatif']];
+  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total TVAC','Statut paiement','Justificatif']];
   let totalKm = 0, totalMontant = 0;
   items.forEach(it=>{
     const d = it.data;
@@ -2565,11 +2588,12 @@ async function exporterCsv(){
       d.battDeplacementCost ? d.battDeplacementCost.toFixed(2) : '',
       d.remiseAmount ? d.remiseAmount.toFixed(2) : '',
       d.total != null ? d.total.toFixed(2) : '',
+      d.paye ? 'Payé' : 'En attente',
       d.receiptPhoto ? 'Oui (voir PDF groupé)' : 'Non'
     ]);
   });
   rows.push([]);
-  rows.push(['TOTAL', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '']);
+  rows.push(['TOTAL', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '', '']);
   const csvContent = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
   const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8'});
   const fromStr = document.getElementById('histDateFrom').value || 'debut';
@@ -2622,6 +2646,8 @@ async function exporterPdfGroupe(){
     let lineIdx = 0;
     let grandTotal = 0;
     let grandTotalKm = 0;
+    let totalPaye = 0;
+    let totalAttente = 0;
     items.forEach(it => {
       const d = it.data;
       if(y > marginBottom){
@@ -2638,19 +2664,30 @@ async function exporterPdfGroupe(){
       pdf.text(115, y, (TYPE_LABELS[d.type] || d.type).slice(0, 50), {size:9});
       const kmTxt = d.km ? (d.km + ' km' + (d.retour ? ' (A/R)' : '')) : '—';
       pdf.text(350, y, kmTxt, {size:9, gray:0.4});
-      pdf.text(495, y, fmt(d.total), {size:9});
+      if(d.paye){
+        pdf.text(495, y, fmt(d.total), {size:9});
+        totalPaye += (d.total || 0);
+      } else {
+        pdf.text(495, y, fmt(d.total), {size:9, rgb:[224,90,78]});
+        totalAttente += (d.total || 0);
+      }
       y += 15;
       grandTotal += (d.total || 0);
       grandTotalKm += kmReel(d);
       lineIdx++;
     });
 
-    if(y > marginBottom - 40){ pdf.newPage(); y = 50; }
+    if(y > marginBottom - 55){ pdf.newPage(); y = 50; }
     y += 10;
     pdf.rect(50, y-4, 495, 26, {mode:'f', rgb:[255,248,228]});
     pdf.text(56, y+14, `TOTAL (${items.length} intervention${items.length>1?'s':''})`, {font:'F2', size:11});
     pdf.text(465, y+14, fmt(grandTotal), {font:'F2', size:13, rgb:[196,136,0]});
-    y += 40;
+    y += 34;
+    if(totalAttente > 0){
+      pdf.text(50, y, `dont payé : ${fmt(totalPaye)}`, {size:9, rgb:[90,180,110]});
+      pdf.text(300, y, `dont en attente de paiement : ${fmt(totalAttente)}`, {size:9, rgb:[224,90,78]});
+      y += 18;
+    }
     pdf.text(50, y, `Kilométrage total parcouru : ${grandTotalKm.toFixed(0)} km`, {size:9.5, gray:0.4});
 
     const withPhotos = items.filter(it => it.data.receiptPhoto);
