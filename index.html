@@ -1635,7 +1635,7 @@ async function nextInvoiceNumber(){
   }catch(e){}
   await window.storage.set('invoiceCounter', String(n));
   const today = new Date();
-  const ymd = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  const ymd = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
   return 'FACT-' + ymd + '-' + String(n).padStart(4,'0');
 }
 
