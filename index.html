@@ -95,6 +95,14 @@
   }
   .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
 
+  .extras-list{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
+  .extra-item{
+    display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:9px;
+    color:var(--grey); font-size:13px; cursor:pointer; user-select:none;
+  }
+  .extra-item:has(input:checked){background:rgba(242,169,0,0.10); color:var(--orange);}
+  .extra-item input{width:16px; height:16px; accent-color:var(--orange); flex-shrink:0;}
+
   .discount-row{display:flex; gap:8px; margin-bottom:4px;}
   .discount-row input{flex:1;}
   .unit-toggle{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; flex-shrink:0;}
@@ -225,9 +233,30 @@
       </select>
     </div>
 
+    <div class="field">
+      <label>+ Prestations supplémentaires (optionnel)</label>
+      <div class="extras-list" id="extrasList">
+        <label class="extra-item" data-type="pneu_chg"><input type="checkbox" class="extraCheck" value="pneu_chg"> Changement de pneu</label>
+        <label class="extra-item" data-type="pneu_rep"><input type="checkbox" class="extraCheck" value="pneu_rep"> Réparation de pneu</label>
+        <label class="extra-item" data-type="demarrage"><input type="checkbox" class="extraCheck" value="demarrage"> Démarrage batterie</label>
+        <label class="extra-item" data-type="test_batt"><input type="checkbox" class="extraCheck" value="test_batt"> Test batterie / alternateur</label>
+        <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag"> Diagnostic électronique (valise OBD)</label>
+        <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert"> Transfert véhicule</label>
+        <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage"> Dépannage / remorquage général</label>
+      </div>
+    </div>
+
     <div class="field" id="battFields" style="display:none;">
       <label>Prix d'achat de la batterie (€) — ce que tu payes chez le fournisseur</label>
       <input type="number" id="battPrice" placeholder="0" min="0" inputmode="decimal">
+    </div>
+
+    <div class="field">
+      <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
+      <div class="input-with-btn">
+        <input type="text" id="addrDepart" placeholder="Rue, n°, ville">
+        <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
+      </div>
     </div>
 
     <div class="route-line">
@@ -241,7 +270,7 @@
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
             <input type="text" id="addrFrom" placeholder="Rue, n°, ville">
-            <button type="button" class="loc-btn" onclick="useMyLocation()" title="Utiliser ma position">📍</button>
+            <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
           </div>
         </div>
         <div class="field" style="margin-bottom:0;">
@@ -288,11 +317,13 @@
       <span class="num" id="tkNum">BON N°—</span>
       <span class="date" id="tkDate">—</span>
     </div>
+    <div class="ticket-addr" id="tkDepartRow" style="display:none;"><span class="tag">Départ (dépanneuse)</span><br><span id="tkDepart">—</span></div>
     <div class="ticket-addr"><span class="tag">Prise en charge</span><br><span id="tkFrom">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Dépose</span><br><span id="tkTo">—</span></div>
     <div class="ticket-row"><span class="l">Type</span><span class="v" id="tkType">—</span></div>
     <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
     <div class="ticket-row"><span class="l">Kilométrage</span><span class="v" id="tkKm">—</span></div>
+    <div id="extrasRows"></div>
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
     <div class="ticket-row" id="rowAuto" style="display:none;"><span class="l">Majoration autoroute</span><span class="v" id="tkAuto">—</span></div>
@@ -316,6 +347,14 @@
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3>Réglages des tarifs</h3>
+
+    <div class="grp">
+      <div class="grp-title">Adresse de départ par défaut</div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Pré-remplit le champ "départ" à chaque nouvelle intervention</label>
+        <input type="text" id="r_baseAddress" placeholder="Rue, n°, ville">
+      </div>
+    </div>
 
     <div class="grp">
       <div class="grp-title">Forfaits de base (€)</div>
@@ -1318,6 +1357,7 @@ const DEFAULT_RATES = {
 // Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
 const TYPES_REMORQUAGE = ['transfert', 'depannage'];
 let RATES = {...DEFAULT_RATES};
+let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 
 // Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
 window.storage = {
@@ -1356,7 +1396,17 @@ async function loadRates(){
     const res = await window.storage.get('rates');
     if(res && res.value) RATES = {...DEFAULT_RATES, ...JSON.parse(res.value)};
   }catch(e){ /* pas encore de réglages enregistrés */ }
+  try{
+    const res2 = await window.storage.get('baseAddress');
+    if(res2 && res2.value) BASE_ADDRESS = res2.value;
+  }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
   fillSettingsForm();
+  prefillDepartAddress();
+}
+
+function prefillDepartAddress(){
+  const el = document.getElementById('addrDepart');
+  if(el && !el.value.trim()) el.value = BASE_ADDRESS;
 }
 
 function fillSettingsForm(){
@@ -1364,6 +1414,7 @@ function fillSettingsForm(){
     const el = document.getElementById('r_'+k);
     if(el) el.value = RATES[k];
   });
+  document.getElementById('r_baseAddress').value = BASE_ADDRESS;
 }
 
 function updateCostHint(){
@@ -1654,6 +1705,9 @@ async function genererFacture(){
 
     pdf.text(50, y, 'Détail de l\'intervention', {font:'F2', size:11}); y += 16;
     pdf.text(50, y, TYPE_LABELS[c.type], {size:10}); y += 14;
+    if(c.depart){
+      pdf.text(50, y, 'Départ : ' + c.depart, {size:9.5, gray:0.3}); y += 13;
+    }
     pdf.text(50, y, 'Prise en charge : ' + c.from, {size:9.5, gray:0.3}); y += 13;
     pdf.text(50, y, 'Dépose : ' + c.to, {size:9.5, gray:0.3}); y += 13;
     if(c.km){
@@ -1671,10 +1725,11 @@ async function genererFacture(){
     };
     priceLine('Forfait de base', c.base);
     if(c.kmCost) priceLine('Kilométrage', c.kmCost);
+    c.extras.forEach(e => priceLine('+ ' + e.label, e.cost));
     if(c.nuit) priceLine('Majoration nuit (+' + RATES.nuitPct + '%)', c.nuitCost);
     if(c.we) priceLine('Majoration week-end (+' + RATES.wePct + '%)', c.weCost);
     if(c.auto) priceLine('Majoration autoroute', c.autoCost);
-    if(c.battCost) priceLine('Batterie (achat ' + c.battPrice.toFixed(2) + ' € + ' + RATES.battMarginPct + '%)', c.battCost);
+    if(c.battCost) priceLine('Fourniture batterie', c.battCost);
     if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
     if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
 
@@ -1757,8 +1812,10 @@ async function saveSettings(){
     const el = document.getElementById('r_'+k);
     if(el) RATES[k] = parseFloat(el.value) || 0;
   });
+  BASE_ADDRESS = document.getElementById('r_baseAddress').value.trim();
   try{
     await window.storage.set('rates', JSON.stringify(RATES));
+    await window.storage.set('baseAddress', BASE_ADDRESS);
     showToast('Tarifs enregistrés');
   }catch(e){ showToast('Erreur d\'enregistrement'); }
   updateKmLabel();
@@ -1775,6 +1832,12 @@ function updateKmLabel(){
   const isBatt = type === 'changement_batterie';
   document.getElementById('battFields').style.display = isBatt ? 'block' : 'none';
   document.getElementById('tgBattDeplacement').style.display = isBatt ? 'flex' : 'none';
+
+  document.querySelectorAll('.extra-item').forEach(item=>{
+    const isMainType = item.dataset.type === type;
+    item.style.display = isMainType ? 'none' : 'flex';
+    if(isMainType) item.querySelector('input').checked = false;
+  });
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
@@ -1787,14 +1850,15 @@ function setRemiseUnit(unit){
 }
 
 // Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
-function useMyLocation(){
+function useMyLocation(fieldId){
+  fieldId = fieldId || 'addrFrom';
   if(!navigator.geolocation){ showToast('Géolocalisation non disponible sur cet appareil'); return; }
   showToast(navigator.onLine ? 'Localisation en cours…' : 'Localisation en cours… (peut prendre jusqu\'à 1 min hors ligne)');
   navigator.geolocation.getCurrentPosition(async (pos)=>{
     const {latitude, longitude} = pos.coords;
     // Le GPS fonctionne hors ligne ; seule la conversion en adresse lisible nécessite internet
     if(!navigator.onLine){
-      document.getElementById('addrFrom').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      document.getElementById(fieldId).value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position GPS récupérée (hors ligne — coordonnées)');
       return;
     }
@@ -1802,10 +1866,10 @@ function useMyLocation(){
       const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=fr`;
       const res = await fetch(url);
       const data = await res.json();
-      document.getElementById('addrFrom').value = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      document.getElementById(fieldId).value = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position récupérée');
     }catch(e){
-      document.getElementById('addrFrom').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      document.getElementById(fieldId).value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position récupérée (coordonnées GPS)');
     }
   }, (err)=>{
@@ -1823,25 +1887,31 @@ async function geocodeAddress(address){
   return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
 }
 
-// Calcule la distance routière (km) entre les deux adresses saisies et remplit le champ km
+// Calcule la distance routière (km) — inclut le trajet de départ si renseigné
 async function calculerDistance(){
+  const depart = document.getElementById('addrDepart').value.trim();
   const from = document.getElementById('addrFrom').value.trim();
   const to = document.getElementById('addrTo').value.trim();
-  if(!from || !to){ showToast('Renseigne les deux adresses d\'abord'); return; }
+  if(!from || !to){ showToast('Renseigne au moins les adresses d\'intervention et de dépose'); return; }
   if(!navigator.onLine){
     showToast('Hors ligne : entre le km manuellement');
     return;
   }
   showToast('Calcul de la distance…');
   try{
-    const [gFrom, gTo] = await Promise.all([geocodeAddress(from), geocodeAddress(to)]);
-    const routeUrl = `https://router.project-osrm.org/route/v1/driving/${gFrom.lon},${gFrom.lat};${gTo.lon},${gTo.lat}?overview=false`;
-    const res = await fetch(routeUrl);
-    const data = await res.json();
-    if(!data.routes || !data.routes.length) throw new Error('Itinéraire introuvable');
-    const km = data.routes[0].distance / 1000;
-    document.getElementById('km').value = km.toFixed(1);
-    showToast('Distance : ' + km.toFixed(1) + ' km');
+    const addresses = depart ? [depart, from, to] : [from, to];
+    const geos = await Promise.all(addresses.map(geocodeAddress));
+    let totalKm = 0;
+    for(let i=0; i<geos.length-1; i++){
+      const a = geos[i], b = geos[i+1];
+      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`;
+      const res = await fetch(routeUrl);
+      const data = await res.json();
+      if(!data.routes || !data.routes.length) throw new Error('Itinéraire introuvable');
+      totalKm += data.routes[0].distance / 1000;
+    }
+    document.getElementById('km').value = totalKm.toFixed(1);
+    showToast((depart ? 'Distance totale (départ→intervention→dépôt) : ' : 'Distance : ') + totalKm.toFixed(1) + ' km');
   }catch(e){
     showToast('Distance introuvable — entre le km à la main');
   }
@@ -1855,6 +1925,7 @@ function showToast(msg){
 
 function calculer(){
   const type = document.getElementById('type').value;
+  const depart = document.getElementById('addrDepart').value.trim();
   const from = document.getElementById('addrFrom').value.trim() || '—';
   const to = document.getElementById('addrTo').value.trim() || '—';
   const km = parseFloat(document.getElementById('km').value) || 0;
@@ -1865,12 +1936,14 @@ function calculer(){
   const isBatt = type === 'changement_batterie';
   const battDeplacement = isBatt && document.getElementById('tgBattDeplacement').classList.contains('on');
   const battPrice = isBatt ? (parseFloat(document.getElementById('battPrice').value) || 0) : 0;
+  const extras = Array.from(document.querySelectorAll('.extraCheck:checked')).map(cb => ({type: cb.value, label: TYPE_LABELS[cb.value], cost: RATES[cb.value]}));
+  const extrasCost = extras.reduce((sum, e) => sum + e.cost, 0);
 
   const base = RATES[type];
   const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
   const kmCost = km * kmRate * kmMultiplier;
-  const subtotal = base + kmCost;
+  const subtotal = base + kmCost + extrasCost;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
@@ -1882,10 +1955,12 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.max(0, totalAvantRemise - remiseAmount);
 
-  lastCalc = {type, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, battPrice, battCost, battDeplacement, battDeplacementCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, depart, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('tkDepartRow').style.display = depart ? 'block' : 'none';
+  document.getElementById('tkDepart').textContent = depart || '—';
   document.getElementById('tkFrom').textContent = from;
   document.getElementById('tkTo').textContent = to;
   document.getElementById('tkType').textContent = TYPE_LABELS[type];
@@ -1893,6 +1968,10 @@ function calculer(){
   document.getElementById('tkKm').textContent = retour
     ? (km + ' km × 2 (aller-retour) × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost))
     : (km + ' km × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost));
+
+  document.getElementById('extrasRows').innerHTML = extras.map(e =>
+    `<div class="ticket-row"><span class="l">+ ${e.label}</span><span class="v">${fmt(e.cost)}</span></div>`
+  ).join('');
 
   document.getElementById('rowNuit').style.display = nuit ? 'flex' : 'none';
   document.getElementById('tkNuit').textContent = '+' + RATES.nuitPct + '% = ' + fmt(nuitCost);
@@ -1931,11 +2010,12 @@ function copierRecap(){
   if(!lastCalc) { showToast('Calculez d\'abord le montant'); return; }
   const c = lastCalc;
   const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
-  let txt = `JM EXPRESS AUTO DÉPANNAGE\n${TYPE_LABELS[c.type]}\n\nPrise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  let txt = `JM EXPRESS AUTO DÉPANNAGE\n${TYPE_LABELS[c.type]}\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  c.extras.forEach(e => txt += `\n+ ${e.label} : ${fmt(e.cost)}`);
   if(c.nuit) txt += `\nMajoration nuit : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
   if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
-  if(c.battCost) txt += `\nBatterie (achat ${c.battPrice.toFixed(2)} € + ${RATES.battMarginPct}%) : ${fmt(c.battCost)}`;
+  if(c.battCost) txt += `\nFourniture batterie : ${fmt(c.battCost)}`;
   if(c.battDeplacementCost) txt += `\nDéplacement achat batterie : ${fmt(c.battDeplacementCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\nTOTAL TVAC : ${fmt(c.total)}\n\nFranchise TVA art. 56bis CTVA`;
