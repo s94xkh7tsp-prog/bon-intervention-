@@ -96,6 +96,13 @@
   .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
 
   .extras-list{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
+  .extras-header{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    cursor:pointer; padding:2px 0 8px 0; user-select:none;
+  }
+  .extras-summary{color:var(--orange); font-size:12px; font-weight:600; flex-shrink:0;}
+  .extras-chevron{color:var(--grey); font-size:14px; transition:transform 0.2s; flex-shrink:0;}
+  .extras-chevron.open{transform:rotate(180deg);}
   .extra-item{
     display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:9px;
     color:var(--grey); font-size:13px; cursor:pointer; user-select:none;
@@ -234,15 +241,19 @@
     </div>
 
     <div class="field">
-      <label>+ Prestations supplémentaires (optionnel)</label>
-      <div class="extras-list" id="extrasList">
-        <label class="extra-item" data-type="pneu_chg"><input type="checkbox" class="extraCheck" value="pneu_chg"> Changement de pneu</label>
-        <label class="extra-item" data-type="pneu_rep"><input type="checkbox" class="extraCheck" value="pneu_rep"> Réparation de pneu</label>
-        <label class="extra-item" data-type="demarrage"><input type="checkbox" class="extraCheck" value="demarrage"> Démarrage batterie</label>
-        <label class="extra-item" data-type="test_batt"><input type="checkbox" class="extraCheck" value="test_batt"> Test batterie / alternateur</label>
-        <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag"> Diagnostic électronique (valise OBD)</label>
-        <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert"> Transfert véhicule</label>
-        <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage"> Dépannage / remorquage général</label>
+      <div class="extras-header" onclick="toggleExtrasList()">
+        <label style="margin:0; cursor:pointer;">+ Prestations supplémentaires (optionnel)</label>
+        <span class="extras-summary" id="extrasSummary">Aucune</span>
+        <span class="extras-chevron" id="extrasChevron">▾</span>
+      </div>
+      <div class="extras-list" id="extrasList" style="display:none;">
+        <label class="extra-item" data-type="pneu_chg"><input type="checkbox" class="extraCheck" value="pneu_chg" onchange="updateExtrasSummary()"> Changement de pneu</label>
+        <label class="extra-item" data-type="pneu_rep"><input type="checkbox" class="extraCheck" value="pneu_rep" onchange="updateExtrasSummary()"> Réparation de pneu</label>
+        <label class="extra-item" data-type="demarrage"><input type="checkbox" class="extraCheck" value="demarrage" onchange="updateExtrasSummary()"> Démarrage batterie</label>
+        <label class="extra-item" data-type="test_batt"><input type="checkbox" class="extraCheck" value="test_batt" onchange="updateExtrasSummary()"> Test batterie / alternateur</label>
+        <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag" onchange="updateExtrasSummary()"> Diagnostic électronique (valise OBD)</label>
+        <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert" onchange="updateExtrasSummary()"> Transfert véhicule</label>
+        <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage" onchange="updateExtrasSummary()"> Dépannage / remorquage général</label>
       </div>
     </div>
 
@@ -1822,6 +1833,19 @@ async function saveSettings(){
   closeSettings();
 }
 
+function toggleExtrasList(){
+  const list = document.getElementById('extrasList');
+  const chevron = document.getElementById('extrasChevron');
+  const isOpen = list.style.display !== 'none';
+  list.style.display = isOpen ? 'none' : 'flex';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function updateExtrasSummary(){
+  const n = document.querySelectorAll('.extraCheck:checked').length;
+  document.getElementById('extrasSummary').textContent = n === 0 ? 'Aucune' : (n + ' sélectionnée' + (n > 1 ? 's' : ''));
+}
+
 function updateKmLabel(){
   const type = document.getElementById('type').value;
   const isRemorquage = TYPES_REMORQUAGE.includes(type);
@@ -1838,6 +1862,7 @@ function updateKmLabel(){
     item.style.display = isMainType ? 'none' : 'flex';
     if(isMainType) item.querySelector('input').checked = false;
   });
+  updateExtrasSummary();
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
