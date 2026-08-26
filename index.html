@@ -334,9 +334,9 @@
     <div class="ticket-addr" id="tkDepartRow" style="display:none;"><span class="tag">Départ (dépanneuse)</span><br><span id="tkDepart">—</span></div>
     <div class="ticket-addr"><span class="tag">Prise en charge</span><br><span id="tkFrom">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Dépose</span><br><span id="tkTo">—</span></div>
-    <div class="ticket-row"><span class="l">Type</span><span class="v" id="tkType">—</span></div>
+    <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Type</span><br><span id="tkType">—</span></div>
     <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
-    <div class="ticket-row"><span class="l">Kilométrage</span><span class="v" id="tkKm">—</span></div>
+    <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
     <div id="extrasRows"></div>
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
@@ -1725,25 +1725,25 @@ async function genererFacture(){
     pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
     pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
     pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 13;
-    pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.3}); y += 25;
+    pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.3}); y += 20;
 
-    pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 25;
+    pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
 
     pdf.text(50, y, 'FACTURE', {font:'F2', size:15});
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, 'N° ' + invoiceNumber, {size:10});
     y += 16;
     pdf.text(400, y, 'Date : ' + dateStr, {size:10});
-    y += 25;
+    y += 20;
 
     pdf.text(50, y, 'CLIENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
     pdf.text(50, y, clientName, {size:11}); y += 14;
     if(clientCompany){ pdf.text(50, y, clientCompany, {size:10}); y += 14; }
     if(clientAddress){ pdf.text(50, y, clientAddress, {size:10, gray:0.3}); y += 14; }
     if(clientVat){ pdf.text(50, y, 'TVA / Réf. : ' + clientVat, {size:10, gray:0.3}); y += 14; }
-    y += 12;
+    y += 8;
 
-    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
 
     pdf.text(50, y, 'DÉTAIL DE L\'INTERVENTION', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
     pdf.text(50, y, TYPE_LABELS[c.type], {size:10}); y += 14;
@@ -1756,9 +1756,9 @@ async function genererFacture(){
       const kmTxt = c.retour ? (c.km + ' km × 2 (aller-retour)') : (c.km + ' km');
       pdf.text(50, y, 'Kilométrage : ' + kmTxt, {size:9.5, gray:0.3}); y += 13;
     }
-    y += 15;
+    y += 10;
 
-    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
 
     let lineIdx = 0;
     const priceLine = (label, amount) => {
@@ -1780,21 +1780,21 @@ async function genererFacture(){
     if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
     if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
 
-    y += 10;
+    y += 8;
     pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
     pdf.text(56, y+15, 'TOTAL TVAC', {font:'F2', size:13});
     pdf.text(455, y+15, fmt(c.total), {font:'F2', size:14, rgb:[196,136,0]});
-    y += 40;
+    y += 34;
 
     pdf.text(50, y, 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.', {size:8.5, gray:0.4});
-    y += 25;
+    y += 20;
 
     // --- QR paiement ---
     const qrY = y;
     const epcPayload = buildEpcPayload(c.total, invoiceNumber);
     const qr = makeQrMatrix(epcPayload);
     const n = qr.getModuleCount();
-    const qrSizePt = 110;
+    const qrSizePt = 100;
     pdf.addBitmapImage('QrPay', n, n, (x,y2) => qr.isDark(y2, x));
     pdf.drawImage('QrPay', 50, qrY, qrSizePt, qrSizePt);
     pdf.text(50, qrY + qrSizePt + 14, 'Scannez pour payer', {size:9, gray:0.3});
@@ -1805,24 +1805,25 @@ async function genererFacture(){
     pdf.text(180, qrY + 54, 'Communication : Facture ' + invoiceNumber, {size:9.5});
 
     // --- Signature ---
-    const sigY = qrY + qrSizePt + 40;
+    const sigY = qrY + qrSizePt + 32;
     pdf.text(50, sigY, 'Signature du client (bon pour accord)', {size:9.5, gray:0.3});
-    pdf.rect(50, sigY + 8, 220, 70, {mode:'S', gray:0.7});
+    pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
     if(sigHasContent){
       const sig = await canvasSignatureToRgb();
       pdf.addRgbImage('Sig', sig.width, sig.height, sig.deflatedRgb);
-      pdf.drawImage('Sig', 52, sigY + 10, 216, 66);
+      pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
     }
 
     // --- QR avis Google (placé après la signature, une fois la prestation validée) ---
-    const reviewY = sigY + 100;
+    const reviewY = sigY + 78;
     pdf.line(50, reviewY, 545, reviewY, {width:0.5, gray:0.85});
     pdf.text(50, reviewY + 20, 'Votre avis compte pour nous !', {font:'F2', size:10});
     pdf.text(50, reviewY + 35, 'Scannez pour laisser un avis Google en 30 secondes', {size:9, gray:0.4});
     const reviewQr = makeQrMatrix(COMPANY.reviewUrl);
     const rn = reviewQr.getModuleCount();
     pdf.addBitmapImage('QrReview', rn, rn, (x,y2) => reviewQr.isDark(y2, x));
-    pdf.drawImage('QrReview', 460, reviewY + 8, 65, 65);
+    pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
+    pdf.text(460, reviewY + 78, 'Lien pour avis Google', {size:8, gray:0.4});
 
     const pdfBytes = pdf.build();
     const blob = new Blob([pdfBytes], {type:'application/pdf'});
