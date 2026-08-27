@@ -31,6 +31,18 @@
     --green:#4caf6b;
     --red:#e2543c;
   }
+  html[data-theme="light"]{
+    --ink:#f7f7f5;
+    --panel:#ffffff;
+    --panel-2:#f0f0ee;
+    --line:#d8d8d4;
+    --orange:#a66c00;
+    --orange-dim:#ffe8b8;
+    --white:#1a1a1a;
+    --grey:#5c5c60;
+    --green:#2f8a4e;
+    --red:#c73f2b;
+  }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--ink);color:var(--white);font-family:'Inter',sans-serif;}
   body{padding-bottom:calc(40px + env(safe-area-inset-bottom));}
@@ -466,6 +478,16 @@
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3>Réglages des tarifs</h3>
+
+    <div class="grp">
+      <div class="grp-title">Apparence</div>
+      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">"Automatique" suit le réglage clair/sombre de ton iPhone (pour un passage en sombre à la tombée de la nuit, active "Automatique" dans Réglages iPhone > Luminosité et affichage > Apparence).</p>
+      <div class="toggles">
+        <div class="toggle" id="themeAuto" onclick="setThemeMode('auto')">Automatique</div>
+        <div class="toggle" id="themeLight" onclick="setThemeMode('light')">Toujours clair</div>
+        <div class="toggle" id="themeDark" onclick="setThemeMode('dark')">Toujours sombre</div>
+      </div>
+    </div>
 
     <div class="grp">
       <div class="grp-title">Taille du texte</div>
@@ -1652,6 +1674,47 @@ function compressImageToBase64(file, maxDim, quality){
 }
 
 // --- Taille du texte (accessibilité) ---
+// --- Apparence : suit le mode clair/sombre du système, ou fixe si choisi ---
+let THEME_MODE = 'auto';
+const darkModeQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+function applyTheme(){
+  let isLight;
+  if(THEME_MODE === 'light') isLight = true;
+  else if(THEME_MODE === 'dark') isLight = false;
+  else isLight = darkModeQuery ? !darkModeQuery.matches : false; // auto : suit le système, sombre par défaut si indisponible
+
+  if(isLight) document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+
+  ['themeAuto','themeLight','themeDark'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('on');
+  });
+  const map = {auto:'themeAuto', light:'themeLight', dark:'themeDark'};
+  const activeEl = document.getElementById(map[THEME_MODE]);
+  if(activeEl) activeEl.classList.add('on');
+}
+
+async function setThemeMode(mode){
+  THEME_MODE = mode;
+  applyTheme();
+  try{ await window.storage.set('themeMode', mode); }catch(e){}
+}
+
+async function loadThemeMode(){
+  try{
+    const res = await window.storage.get('themeMode');
+    if(res && res.value) THEME_MODE = res.value;
+  }catch(e){ /* pas de préférence : mode automatique par défaut */ }
+  applyTheme();
+  if(darkModeQuery){
+    darkModeQuery.addEventListener('change', () => {
+      if(THEME_MODE === 'auto') applyTheme();
+    });
+  }
+}
+
 const TEXT_SIZE_ZOOM = { normal: '1', large: '1.15', xlarge: '1.3' };
 let TEXT_SIZE = 'normal';
 
@@ -3107,6 +3170,7 @@ async function exporterPdfGroupe(){
 }
 
 checkPinLock();
+loadThemeMode();
 loadTextSize();
 checkBackupReminder();
 loadRates().then(updateKmLabel);
