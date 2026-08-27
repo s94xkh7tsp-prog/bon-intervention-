@@ -467,12 +467,28 @@
     <h3>Réglages des tarifs</h3>
 
     <div class="grp">
+      <div class="grp-title">Taille du texte</div>
+      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Pour une meilleure lisibilité de toute l'appli.</p>
+      <div class="toggles">
+        <div class="toggle" id="textSizeNormal" onclick="setTextSize('normal')">Normal</div>
+        <div class="toggle" id="textSizeLarge" onclick="setTextSize('large')">Grand</div>
+        <div class="toggle" id="textSizeXLarge" onclick="setTextSize('xlarge')">Très grand</div>
+      </div>
+    </div>
+
+    <div class="grp">
       <div class="grp-title">Code d'accès</div>
       <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Protège l'appli par un code si ton téléphone contient des données clients sensibles. Simple dissuasion, pas un vrai chiffrement.</p>
       <div class="field" style="margin-bottom:8px;">
         <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="r_pinCode" placeholder="Laisser vide = pas de code">
       </div>
       <button class="ghost" onclick="savePinCode()">Enregistrer le code</button>
+
+      <div id="faceIdSection" style="display:none;">
+        <div style="border-top:1px solid var(--line); margin:4px 0 12px 0;"></div>
+        <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;" id="faceIdStatus">Face ID / Touch ID non activé.</p>
+        <button class="ghost" id="faceIdBtn" onclick="activerFaceId()">🔓 Activer Face ID / Touch ID</button>
+      </div>
     </div>
 
     <div class="grp">
@@ -1643,17 +1659,70 @@ function compressImageToBase64(file, maxDim, quality){
   });
 }
 
+// --- Taille du texte (accessibilité) ---
+const TEXT_SIZE_ZOOM = { normal: '1', large: '1.15', xlarge: '1.3' };
+let TEXT_SIZE = 'normal';
+
+function applyTextSize(size){
+  document.documentElement.style.zoom = TEXT_SIZE_ZOOM[size] || '1';
+  ['textSizeNormal','textSizeLarge','textSizeXLarge'].forEach(id=>{
+    document.getElementById(id).classList.remove('on');
+  });
+  const map = {normal:'textSizeNormal', large:'textSizeLarge', xlarge:'textSizeXLarge'};
+  document.getElementById(map[size]).classList.add('on');
+}
+
+async function setTextSize(size){
+  TEXT_SIZE = size;
+  applyTextSize(size);
+  try{ await window.storage.set('textSize', size); }catch(e){}
+}
+
+async function loadTextSize(){
+  try{
+    const res = await window.storage.get('textSize');
+    if(res && res.value) TEXT_SIZE = res.value;
+  }catch(e){ /* réglage par défaut : normal */ }
+  applyTextSize(TEXT_SIZE);
+}
+
 let PIN_CODE = null;
+let FACE_ID_CREDENTIAL_ID = null;
+
+// --- Utilitaires de conversion pour les identifiants WebAuthn ---
+function bufToBase64(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function base64ToBuf(b64){
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) buf[i] = bin.charCodeAt(i);
+  return buf;
+}
+
+function faceIdSupported(){
+  return !!(window.PublicKeyCredential && navigator.credentials);
+}
 
 async function checkPinLock(){
   try{
     const res = await window.storage.get('pinCode');
-    if(res && res.value){
-      PIN_CODE = res.value;
-      document.getElementById('lockScreen').style.display = 'flex';
-      document.getElementById('lockInput').focus();
-    }
+    if(res && res.value) PIN_CODE = res.value;
   }catch(e){ /* pas de code défini */ }
+  try{
+    const res2 = await window.storage.get('faceIdCredentialId');
+    if(res2 && res2.value) FACE_ID_CREDENTIAL_ID = res2.value;
+  }catch(e){ /* Face ID pas activé */ }
+
+  if(!PIN_CODE && !FACE_ID_CREDENTIAL_ID) return;
+
+  document.getElementById('lockScreen').style.display = 'flex';
+  if(FACE_ID_CREDENTIAL_ID){
+    document.getElementById('faceIdUnlockBtn').style.display = 'block';
+    deverrouillerFaceId(true); // tentative automatique au chargement
+  } else {
+    document.getElementById('lockInput').focus();
+  }
 }
 
 function tryUnlock(){
@@ -1682,6 +1751,87 @@ async function savePinCode(){
       showToast('Code d\'accès désactivé');
     }
   }catch(e){ showToast('Erreur d\'enregistrement du code'); }
+}
+
+// --- Face ID / Touch ID via WebAuthn (authentificateur de la plateforme, 100% local) ---
+function updateFaceIdSection(){
+  const section = document.getElementById('faceIdSection');
+  if(!faceIdSupported()){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  const status = document.getElementById('faceIdStatus');
+  const btn = document.getElementById('faceIdBtn');
+  if(FACE_ID_CREDENTIAL_ID){
+    status.textContent = 'Face ID / Touch ID activé sur cet appareil.';
+    btn.textContent = '🔓 Désactiver Face ID / Touch ID';
+    btn.onclick = desactiverFaceId;
+  } else {
+    status.textContent = 'Non activé. Nécessite un code d\'accès enregistré ci-dessus.';
+    btn.textContent = '🔓 Activer Face ID / Touch ID';
+    btn.onclick = activerFaceId;
+  }
+}
+
+async function activerFaceId(){
+  if(!PIN_CODE){
+    showToast('Enregistre d\'abord un code d\'accès ci-dessus (nécessaire en secours)');
+    return;
+  }
+  try{
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const userId = crypto.getRandomValues(new Uint8Array(16));
+    const credential = await navigator.credentials.create({
+      publicKey: {
+        challenge,
+        rp: { name: 'JM Express — Bon d\'intervention' },
+        user: { id: userId, name: 'jm-express-app', displayName: 'JM Express' },
+        pubKeyCredParams: [{alg:-7, type:'public-key'}, {alg:-257, type:'public-key'}],
+        authenticatorSelection: { authenticatorAttachment:'platform', userVerification:'required' },
+        timeout: 60000
+      }
+    });
+    if(!credential) throw new Error('Aucun identifiant créé');
+    const credId = bufToBase64(credential.rawId);
+    await window.storage.set('faceIdCredentialId', credId);
+    FACE_ID_CREDENTIAL_ID = credId;
+    showToast('Face ID / Touch ID activé');
+    updateFaceIdSection();
+  }catch(e){
+    showToast('Activation annulée ou non disponible sur cet appareil');
+  }
+}
+
+async function desactiverFaceId(){
+  try{
+    await window.storage.delete('faceIdCredentialId');
+    FACE_ID_CREDENTIAL_ID = null;
+    showToast('Face ID / Touch ID désactivé');
+    updateFaceIdSection();
+  }catch(e){ showToast('Erreur lors de la désactivation'); }
+}
+
+async function deverrouillerFaceId(silencieux){
+  if(!FACE_ID_CREDENTIAL_ID) return;
+  try{
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        allowCredentials: [{ id: base64ToBuf(FACE_ID_CREDENTIAL_ID), type:'public-key' }],
+        userVerification: 'required',
+        timeout: 60000
+      }
+    });
+    if(assertion){
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('lockError').textContent = '';
+    }
+  }catch(e){
+    if(!silencieux) document.getElementById('lockError').textContent = 'Échec Face ID — utilise ton code';
+    // en tentative automatique silencieuse, on laisse simplement le champ code disponible
+  }
 }
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
@@ -1855,6 +2005,7 @@ function updateCostHint(){
 function openSettings(){
   document.getElementById('modalBg').classList.add('show');
   updateCostHint();
+  updateFaceIdSection();
   ['r_diesel','r_conso','r_km_remorque','r_km_deplacement'].forEach(id=>{
     document.getElementById(id).oninput = updateCostHint;
   });
@@ -2955,6 +3106,7 @@ async function exporterPdfGroupe(){
 }
 
 checkPinLock();
+loadTextSize();
 checkBackupReminder();
 loadRates().then(updateKmLabel);
 loadHistory();
