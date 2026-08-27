@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>JM Express — Bon d'intervention</title>
 
 <!-- PWA / installation iPhone -->
 <link rel="manifest" href="manifest.json">
@@ -14,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="JM Bon">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
-
+<title>JM Express — Bon d'intervention</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -221,9 +220,25 @@
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
   .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
+  .hist-thumb-wrap{position:relative; flex-shrink:0; cursor:pointer;}
+  .hist-thumb-count{
+    position:absolute; bottom:-4px; right:-4px; background:var(--orange); color:#1a1200;
+    font-size:9px; font-weight:700; padding:1px 4px; border-radius:8px; line-height:1.3;
+  }
+  .lightbox-gallery{display:flex; flex-direction:column; gap:12px; max-height:90vh; overflow-y:auto;}
+  .lightbox-gallery img{max-width:100%; border-radius:8px;}
   .empty{color:var(--grey); font-size:13px; text-align:center; padding:20px 0;}
 
   .photo-row{margin-bottom:14px;}
+  .check-row{display:flex; align-items:flex-start; gap:10px; font-size:12.5px; color:var(--white); cursor:pointer; line-height:1.4;}
+  .check-row input{width:18px; height:18px; flex-shrink:0; margin-top:1px; accent-color:var(--orange);}
+  .epave-preview-grid{display:flex; flex-wrap:wrap; gap:8px;}
+  .epave-preview-grid .thumb-wrap{position:relative;}
+  .epave-preview-grid img{width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--line);}
+  .epave-preview-grid .rm{
+    position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%;
+    background:var(--red); color:#fff; font-size:12px; line-height:20px; text-align:center; cursor:pointer;
+  }
   .photo-lightbox{
     position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200;
     display:flex; align-items:center; justify-content:center; padding:20px;
@@ -257,7 +272,7 @@
   .route-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .route-item .km{font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:13px; white-space:nowrap;}
   .route-item .del{color:var(--red); font-size:17px; padding:2px 4px;}
-    .sig-wrap{
+  .sig-wrap{
     background:#fff; border-radius:10px; border:1px solid var(--line); overflow:hidden;
     touch-action:none;
   }
@@ -274,6 +289,7 @@
 <div class="lock-screen" id="lockScreen" style="display:none;">
   <div class="lock-box">
     <div class="jm" style="margin-bottom:24px;">JM<span>EXPRESS</span></div>
+    <button class="primary" id="faceIdUnlockBtn" style="display:none; margin-bottom:16px;" onclick="deverrouillerFaceId()">🔓 Déverrouiller avec Face ID</button>
     <label style="color:var(--grey); font-size:13px; margin-bottom:10px; display:block;">Code d'accès</label>
     <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="lockInput" class="lock-input" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter') tryUnlock()">
     <button class="primary" style="margin-top:16px;" onclick="tryUnlock()">Déverrouiller</button>
@@ -324,6 +340,8 @@
         <option value="changement_batterie">Changement de batterie (achat + montage)</option>
         <option value="moto_remorquage">Remorquage / chargement moto</option>
         <option value="moto_batterie">Changement de batterie moto (achat + montage)</option>
+        <option value="levee_saisie">Transfert de levée de saisie (police → CT → entrepôt)</option>
+        <option value="epave_demolition">Enlèvement épave pour démolition</option>
       </select>
     </div>
 
@@ -401,6 +419,15 @@
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
       <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
+      <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField()">🏚️ Gardiennage (jours suppl.)</div>
+      <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;">🚗 Abandon par le propriétaire</div>
+      <div class="toggle" id="tgSansMoteur" onclick="toggle('tgSansMoteur')" style="display:none;">🔧 Sans moteur</div>
+      <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
+    </div>
+
+    <div class="field" id="gardiennageField" style="display:none;">
+      <label>Jours de gardiennage supplémentaires (au-delà des jours gratuits)</label>
+      <input type="number" id="joursGardiennage" placeholder="0" min="0" inputmode="numeric">
     </div>
 
     <label>Remise ponctuelle (optionnel)</label>
@@ -414,13 +441,25 @@
 
     <label>Photo facture d'achat (pièce/batterie, optionnel)</label>
     <div class="photo-row">
-      <input type="file" id="receiptPhoto" accept="image/*" capture="environment" onchange="handleReceiptPhoto(event)" style="display:none;">
+      <input type="file" id="receiptPhoto" accept="image/*" onchange="handleReceiptPhoto(event)" style="display:none;">
       <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('receiptPhoto').click()">📷 Photographier / choisir une facture</button>
       <div id="receiptPreviewWrap" style="display:none; margin-top:8px;">
         <img id="receiptPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearReceiptPhoto()">Retirer la photo</button>
       </div>
     </div>
+
+    <div class="photo-row" id="epavePhotoField" style="display:none;">
+      <label>Photos de l'épave (état du véhicule à la prise en charge)</label>
+      <input type="file" id="epavePhotos" accept="image/*" multiple onchange="handleEpavePhotos(event)" style="display:none;">
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('epavePhotos').click()">📷 Ajouter des photos de l'épave</button>
+      <div id="epavePreviewWrap" style="display:none; margin-top:8px;">
+        <div id="epavePreviewGrid" class="epave-preview-grid"></div>
+        <button type="button" class="ghost" style="margin-top:6px;" onclick="clearEpavePhotos()">Retirer toutes les photos</button>
+      </div>
+    </div>
+
+    <button type="button" class="ghost" id="btnDocAbandon" style="display:none; margin-bottom:14px;" onclick="openAbandonDoc()">📄 Document d'abandon / cession du véhicule</button>
 
     <button class="primary" onclick="calculer()">Calculer le montant</button>
   </div>
@@ -443,6 +482,8 @@
     <div class="ticket-row" id="rowAuto" style="display:none;"><span class="l">Majoration autoroute</span><span class="v" id="tkAuto">—</span></div>
     <div class="ticket-row" id="rowBatt" style="display:none;"><span class="l">Batterie (achat + marge)</span><span class="v" id="tkBatt">—</span></div>
     <div class="ticket-row" id="rowBattDeplacement" style="display:none;"><span class="l">Déplacement achat batterie</span><span class="v" id="tkBattDeplacement">—</span></div>
+    <div class="ticket-row" id="rowGardiennage" style="display:none;"><span class="l">Gardiennage suppl.</span><span class="v" id="tkGardiennage">—</span></div>
+    <div class="ticket-row" id="rowPasRoues" style="display:none;"><span class="l">Pas sur roues (treuil/plateau)</span><span class="v" id="tkPasRoues">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
       <span class="lbl">Total TVAC</span>
@@ -505,7 +546,7 @@
       <div class="field" style="margin-bottom:8px;">
         <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="r_pinCode" placeholder="Laisser vide = pas de code">
       </div>
-      <button class="ghost" onclick="savePinCode()">Enregistrer le code</button>
+      <button class="ghost" style="margin-bottom:10px;" onclick="savePinCode()">Enregistrer le code</button>
 
       <div id="faceIdSection" style="display:none;">
         <div style="border-top:1px solid var(--line); margin:4px 0 12px 0;"></div>
@@ -542,6 +583,14 @@
       <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
       <div class="rate-row"><label>Remorquage / chargement moto</label><input type="number" id="r_moto_remorquage"></div>
       <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
+      <div class="rate-row"><label>Transfert de levée de saisie (forfait complet)</label><input type="number" id="r_levee_saisie"></div>
+      <div class="rate-row"><label>Enlèvement épave démolition (sur roues, avec moteur)</label><input type="number" id="r_epave_demolition"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Gardiennage / épave</div>
+      <div class="rate-row"><label>Gardiennage entrepôt (€/jour suppl.)</label><input type="number" id="r_gardiennageJour" step="1"></div>
+      <div class="rate-row"><label>Supplément si pas sur ses roues (treuil/plateau)</label><input type="number" id="r_epaveSansRouesFee" step="1"></div>
     </div>
 
     <div class="grp">
@@ -631,12 +680,36 @@
       <div class="grp-title">Références (optionnel)</div>
       <div class="field">
         <label>Société / Compagnie d'assurance</label>
-        <input type="text" id="invClientCompany" placeholder="Ex: Europ Assistance, ou nom d'entreprise">
+        <input type="text" id="invClientCompany" list="assuranceList" placeholder="Ex: Europ Assistance, ou nom d'entreprise">
+        <datalist id="assuranceList">
+          <option value="Europ Assistance">
+          <option value="Touring Assistance">
+          <option value="AXA Assistance">
+          <option value="Allianz Assistance">
+          <option value="VAB">
+          <option value="Mondial Assistance">
+          <option value="Ethias">
+          <option value="DKV">
+          <option value="P&V Assurances">
+          <option value="Corona Direct">
+          <option value="Baloise Assurances">
+          <option value="Belfius Insurance">
+          <option value="KBC Assurances">
+          <option value="Fidea">
+        </datalist>
       </div>
       <div class="field" style="margin-bottom:0;">
         <label>N° TVA client / Référence dossier</label>
         <input type="text" id="invClientVat" placeholder="Ex: BE0123.456.789 ou n° sinistre">
       </div>
+    </div>
+
+    <div class="grp" id="leveeSaisieAttestGrp" style="display:none;">
+      <div class="grp-title">Levée de saisie</div>
+      <label class="check-row">
+        <input type="checkbox" id="attestLeveeSaisie">
+        <span>Le client m'a bien remis la levée de saisie, me libérant de mes obligations concernant le transfert du véhicule.</span>
+      </label>
     </div>
 
     <div class="grp">
@@ -680,6 +753,52 @@
     </div>
 
     <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAbandonBg">
+  <div class="modal">
+    <h3>📄 Document d'abandon / cession</h3>
+    <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">À faire signer par le propriétaire — le décharge de la propriété du véhicule en vue de sa démolition.</p>
+
+    <div class="grp">
+      <div class="grp-title">Propriétaire</div>
+      <div class="field">
+        <label>Nom et prénom *</label>
+        <input type="text" id="abNom" placeholder="Nom Prénom">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Adresse</label>
+        <input type="text" id="abAdresse" placeholder="Rue, n°, ville">
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Véhicule</div>
+      <div class="field">
+        <label>Plaque d'immatriculation</label>
+        <input type="text" id="abPlaque" placeholder="Ex: 1-ABC-123">
+      </div>
+      <div class="field">
+        <label>Marque / modèle</label>
+        <input type="text" id="abMarqueModele" placeholder="Ex: Renault Clio">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>N° de châssis (optionnel)</label>
+        <input type="text" id="abChassis" placeholder="Ex: VF1XXXXXXXXXXXXXX">
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Signature du propriétaire</div>
+      <div class="sig-wrap">
+        <canvas id="sigCanvasAbandon"></canvas>
+      </div>
+      <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasAbandon')">Effacer la signature</button>
+    </div>
+
+    <button class="primary" style="margin-top:8px;" onclick="genererDocAbandon()">Générer le document (PDF)</button>
+    <button class="ghost close-modal" onclick="closeAbandonDoc()">Fermer</button>
   </div>
 </div>
 
@@ -1229,7 +1348,8 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     0x201C: 0x93, 0x201D: 0x94, // " "
     0x2013: 0x96, 0x2014: 0x97, // – —
     0x2212: 0x2D, // − (signe moins typographique) -> tiret standard
-    0x202F: 0x20, 0x2009: 0x20 // espaces insécables fines (séparateur de milliers fr-BE) -> espace normale
+    0x202F: 0x20, 0x2009: 0x20, // espaces insécables fines (séparateur de milliers fr-BE) -> espace normale
+    0x2192: 0x2D // → (flèche, utilisée dans certains libellés) -> tiret standard
   };
   function toLatin1Bytes(str){
     const arr = new Uint8Array(str.length);
@@ -1579,18 +1699,21 @@ const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
   test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
   changement_batterie:"Changement de batterie (achat + montage)",
-  moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)"
+  moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)",
+  levee_saisie:"Transfert de levée de saisie (police → CT → entrepôt)",
+  epave_demolition:"Enlèvement épave pour démolition"
 };
 
 const DEFAULT_RATES = {
   pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, transfert:70, depannage:65,
-  changement_batterie:50, moto_remorquage:60, moto_batterie:35,
+  changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
+  epave_demolition:90, epaveSansRouesFee:30,
   km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
-  battMarginPct:30, battDeplacementFee:10,
+  battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
   diesel:2.21, conso:15
 };
 // Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
-const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage'];
+const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 let NIGHT_START = '20:00';
@@ -1645,6 +1768,50 @@ function clearReceiptPhoto(){
   receiptPhotoData = null;
   document.getElementById('receiptPhoto').value = '';
   document.getElementById('receiptPreviewWrap').style.display = 'none';
+}
+
+// --- Photos de l'épave (état du véhicule) — plusieurs photos possibles ---
+let epavePhotosData = [];
+
+async function handleEpavePhotos(event){
+  const files = Array.from(event.target.files || []);
+  if(files.length === 0) return;
+  for(const file of files){
+    try{
+      const compressed = await compressImageToBase64(file, 900, 0.6);
+      epavePhotosData.push(compressed);
+    }catch(e){ /* une photo a échoué, on continue avec les autres */ }
+  }
+  event.target.value = '';
+  renderEpavePreview();
+  showToast(epavePhotosData.length + ' photo(s) de l\'épave prête(s)');
+}
+
+function removeEpavePhoto(index){
+  epavePhotosData.splice(index, 1);
+  renderEpavePreview();
+}
+
+function clearEpavePhotos(){
+  epavePhotosData = [];
+  renderEpavePreview();
+}
+
+function renderEpavePreview(){
+  const wrap = document.getElementById('epavePreviewWrap');
+  const grid = document.getElementById('epavePreviewGrid');
+  if(epavePhotosData.length === 0){
+    wrap.style.display = 'none';
+    grid.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+  grid.innerHTML = epavePhotosData.map((photo, i) => `
+    <div class="thumb-wrap">
+      <img src="${photo}">
+      <div class="rm" onclick="removeEpavePhoto(${i})">✕</div>
+    </div>
+  `).join('');
 }
 
 // Redimensionne et compresse une image (fichier) en JPEG base64, pour ne pas alourdir le stockage local
@@ -2027,6 +2194,15 @@ async function loadRates(){
   checkJourFerie();
 }
 
+// Construit le libellé complet du type avec les conditions particulières (abandon, état épave)
+function typeLabelComplet(c){
+  let label = TYPE_LABELS[c.type];
+  if(c.abandon) label += ' — véhicule abandonné par le propriétaire';
+  if(c.sansMoteur) label += ' — sans moteur';
+  if(c.pasRoues) label += ' — pas sur ses roues';
+  return label;
+}
+
 function formatHourShort(hhmm){
   const [h, m] = hhmm.split(':');
   const hNum = parseInt(h, 10);
@@ -2085,6 +2261,102 @@ function openQuickQuote(){
   calculerDevisRapide();
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
+
+// ===== Document d'abandon / cession de véhicule pour démolition =====
+function openAbandonDoc(){
+  document.getElementById('modalAbandonBg').classList.add('show');
+  setTimeout(()=>initSignatureCanvas('sigCanvasAbandon'), 50);
+}
+function closeAbandonDoc(){ document.getElementById('modalAbandonBg').classList.remove('show'); }
+
+async function genererDocAbandon(){
+  const nom = document.getElementById('abNom').value.trim();
+  if(!nom){ showToast('Le nom du propriétaire est obligatoire'); return; }
+  const adresse = document.getElementById('abAdresse').value.trim();
+  const plaque = document.getElementById('abPlaque').value.trim();
+  const marqueModele = document.getElementById('abMarqueModele').value.trim();
+  const chassis = document.getElementById('abChassis').value.trim();
+  const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+  showToast('Génération du document…');
+  try{
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+    pdf.text(393, 78, 'TOUJOURS PLUS LOIN', {font:'F2', size:8, rgb:[242,169,0], charSpace:1});
+
+    pdf.text(50, y, COMPANY.name, {font:'F2', size:15}); y += 18;
+    pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 25;
+
+    pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 25;
+
+    pdf.text(50, y, 'DÉCLARATION D\'ABANDON / CESSION DE VÉHICULE', {font:'F2', size:14}); y += 8;
+    pdf.rect(50, y, 42, 2, {mode:'f', rgb:[242,169,0]}); y += 15;
+    pdf.text(50, y, 'En vue de sa démolition', {size:10, gray:0.4}); y += 30;
+
+    pdf.text(50, y, 'PROPRIÉTAIRE', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
+    pdf.text(50, y, 'Nom : ' + nom, {size:10}); y += 15;
+    if(adresse){ pdf.text(50, y, 'Adresse : ' + adresse, {size:10}); y += 15; }
+    y += 15;
+
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
+
+    pdf.text(50, y, 'VÉHICULE', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
+    if(marqueModele){ pdf.text(50, y, 'Marque / modèle : ' + marqueModele, {size:10}); y += 15; }
+    if(plaque){ pdf.text(50, y, 'Plaque d\'immatriculation : ' + plaque, {size:10}); y += 15; }
+    if(chassis){ pdf.text(50, y, 'N° de châssis : ' + chassis, {size:10}); y += 15; }
+    y += 15;
+
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 25;
+
+    const declarationLines = [
+      'Je soussigné(e), déclare abandonner la propriété du véhicule désigné ci-dessus au',
+      'profit de JM Express Auto Dépannage, en vue de sa démolition.',
+      '',
+      'Je certifie être le propriétaire légitime de ce véhicule, libre de toute saisie non',
+      'déclarée, gage ou opposition, et je décharge JM Express Auto Dépannage de toute',
+      'responsabilité ultérieure concernant ce véhicule à compter de la signature du',
+      'présent document.'
+    ];
+    declarationLines.forEach(line => {
+      if(line) pdf.text(50, y, line, {size:9.5, gray:0.2});
+      y += 15;
+    });
+    y += 15;
+
+    pdf.text(50, y, 'Fait à ' + (COMPANY.address.split(',')[0] || 'Monceau-sur-Sambre') + ', le ' + dateStr, {size:10}); y += 30;
+
+    pdf.text(50, y, 'Signature du propriétaire (précédée de "lu et approuvé")', {size:9.5, gray:0.3});
+    pdf.rect(50, y + 8, 250, 80, {mode:'S', gray:0.7});
+    if(SIG_STATE.sigCanvasAbandon && SIG_STATE.sigCanvasAbandon.hasContent){
+      const sig = await canvasSignatureToRgb('sigCanvasAbandon');
+      pdf.addRgbImage('SigAbandon', sig.width, sig.height, sig.deflatedRgb);
+      pdf.drawImage('SigAbandon', 52, y + 10, 246, 76);
+    }
+
+    const pdfBytes = pdf.build();
+    const blob = new Blob([pdfBytes], {type:'application/pdf'});
+    const fileName = 'Abandon-cession_' + nom.replace(/[^a-zA-Z0-9]/g, '_') + '_' + dateStr.replace(/\//g,'-') + '.pdf';
+    const file = new File([blob], fileName, {type:'application/pdf'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Document abandon véhicule'});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    showToast('Document généré');
+  }catch(e){
+    showToast('Erreur lors de la génération du document');
+  }
+}
 
 function calculerDevisRapide(){
   const type = document.getElementById('qqType').value;
@@ -2202,59 +2474,65 @@ const COMPANY = {
 };
 
 // --- Signature tactile ---
-let sigCtx = null, sigDrawing = false, sigHasContent = false, sigLastX = 0, sigLastY = 0;
+const SIG_STATE = {}; // { [canvasId]: {ctx, drawing, hasContent, lastX, lastY} }
 
-function initSignatureCanvas(){
-  const canvas = document.getElementById('sigCanvas');
+function initSignatureCanvas(canvasId){
+  canvasId = canvasId || 'sigCanvas';
+  const canvas = document.getElementById(canvasId);
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-  sigCtx = canvas.getContext('2d');
-  sigCtx.scale(dpr, dpr);
-  sigCtx.fillStyle = '#ffffff';
-  sigCtx.fillRect(0, 0, rect.width, rect.height);
-  sigCtx.strokeStyle = '#0b0b0c';
-  sigCtx.lineWidth = 2.2;
-  sigCtx.lineCap = 'round';
-  sigCtx.lineJoin = 'round';
-  sigHasContent = false;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, rect.width, rect.height);
+  ctx.strokeStyle = '#0b0b0c';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const state = { ctx, drawing: false, hasContent: false, lastX: 0, lastY: 0 };
+  SIG_STATE[canvasId] = state;
 
   const getPos = (e) => {
     const r = canvas.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
     return { x: t.clientX - r.left, y: t.clientY - r.top };
   };
-  const start = (e) => { e.preventDefault(); sigDrawing = true; const p = getPos(e); sigLastX = p.x; sigLastY = p.y; };
+  const start = (e) => { e.preventDefault(); state.drawing = true; const p = getPos(e); state.lastX = p.x; state.lastY = p.y; };
   const move = (e) => {
-    if(!sigDrawing) return;
+    if(!state.drawing) return;
     e.preventDefault();
     const p = getPos(e);
-    sigCtx.beginPath();
-    sigCtx.moveTo(sigLastX, sigLastY);
-    sigCtx.lineTo(p.x, p.y);
-    sigCtx.stroke();
-    sigLastX = p.x; sigLastY = p.y;
-    sigHasContent = true;
+    ctx.beginPath();
+    ctx.moveTo(state.lastX, state.lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    state.lastX = p.x; state.lastY = p.y;
+    state.hasContent = true;
   };
-  const end = () => { sigDrawing = false; };
+  const end = () => { state.drawing = false; };
 
   canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
   canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end; canvas.onmouseleave = end;
 }
 
-function clearSignature(){
-  if(!sigCtx) return;
-  const canvas = document.getElementById('sigCanvas');
+function clearSignature(canvasId){
+  canvasId = canvasId || 'sigCanvas';
+  const state = SIG_STATE[canvasId];
+  if(!state) return;
+  const canvas = document.getElementById(canvasId);
   const rect = canvas.getBoundingClientRect();
-  sigCtx.fillStyle = '#ffffff';
-  sigCtx.fillRect(0, 0, rect.width, rect.height);
-  sigHasContent = false;
+  state.ctx.fillStyle = '#ffffff';
+  state.ctx.fillRect(0, 0, rect.width, rect.height);
+  state.hasContent = false;
 }
 
 function openInvoice(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
   document.getElementById('modalInvoiceBg').classList.add('show');
+  document.getElementById('leveeSaisieAttestGrp').style.display = lastCalc.type === 'levee_saisie' ? 'block' : 'none';
   setTimeout(initSignatureCanvas, 50);
 }
 function closeInvoice(){ document.getElementById('modalInvoiceBg').classList.remove('show'); }
@@ -2320,8 +2598,9 @@ function imageDataUrlToRgb(dataUrl, maxDim){
   });
 }
 
-async function canvasSignatureToRgb(){
-  const canvas = document.getElementById('sigCanvas');
+async function canvasSignatureToRgb(canvasId){
+  canvasId = canvasId || 'sigCanvas';
+  const canvas = document.getElementById(canvasId);
   const dataUrl = canvas.toDataURL('image/png');
   const base64 = dataUrl.split(',')[1];
   const binStr = atob(base64);
@@ -2372,6 +2651,7 @@ async function genererFacture(){
     const clientAddress = document.getElementById('invClientAddress').value.trim();
     const clientCompany = document.getElementById('invClientCompany').value.trim();
     const clientVat = document.getElementById('invClientVat').value.trim();
+    const attestLeveeSaisie = c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked;
     const invoiceNumber = await nextInvoiceNumber();
     const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
 
@@ -2408,7 +2688,7 @@ async function genererFacture(){
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
 
     pdf.text(50, y, 'DÉTAIL DE L\'INTERVENTION', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
-    pdf.text(50, y, TYPE_LABELS[c.type], {size:10}); y += 14;
+    pdf.text(50, y, typeLabelComplet(c), {size:10}); y += 14;
     if(c.depart){
       pdf.text(50, y, 'Départ : ' + c.depart, {size:9.5, gray:0.3}); y += 13;
     }
@@ -2440,6 +2720,8 @@ async function genererFacture(){
     if(c.auto) priceLine('Majoration autoroute', c.autoCost);
     if(c.battCost) priceLine('Fourniture batterie', c.battCost);
     if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
+    if(c.pasRouesFee) priceLine('Supplément véhicule pas sur ses roues', c.pasRouesFee);
+    if(c.gardiennageCost) priceLine('Gardiennage (' + c.joursGardiennage + ' j)', c.gardiennageCost);
     if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
 
     y += 8;
@@ -2466,12 +2748,23 @@ async function genererFacture(){
     pdf.text(180, qrY + 39, 'BIC : ' + COMPANY.bic, {size:9.5});
     pdf.text(180, qrY + 54, 'Communication : Facture ' + invoiceNumber, {size:9.5});
 
+    // --- Attestation levée de saisie (si cochée) ---
+    let attestHeight = 0;
+    if(attestLeveeSaisie){
+      const attestY = qrY + qrSizePt + 34;
+      pdf.line(50, attestY - 10, 545, attestY - 10, {width:0.5, gray:0.85});
+      pdf.text(50, attestY, 'ATTESTATION — LEVÉE DE SAISIE', {font:'F2', size:9, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(50, attestY + 15, 'Le client atteste avoir remis à JM Express Auto Dépannage le document de levée', {size:8.5, gray:0.3});
+      pdf.text(50, attestY + 28, 'de saisie, libérant celui-ci de ses obligations concernant le transfert du véhicule.', {size:8.5, gray:0.3});
+      attestHeight = 60;
+    }
+
     // --- Signature ---
-    const sigY = qrY + qrSizePt + 32;
+    const sigY = qrY + qrSizePt + 32 + attestHeight;
     pdf.text(50, sigY, 'Signature du client (bon pour accord)', {size:9.5, gray:0.3});
     pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
-    if(sigHasContent){
-      const sig = await canvasSignatureToRgb();
+    if(SIG_STATE.sigCanvas && SIG_STATE.sigCanvas.hasContent){
+      const sig = await canvasSignatureToRgb('sigCanvas');
       pdf.addRgbImage('Sig', sig.width, sig.height, sig.deflatedRgb);
       pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
     }
@@ -2630,12 +2923,39 @@ function updateKmLabel(){
   document.getElementById('battFields').style.display = isBatt ? 'block' : 'none';
   document.getElementById('tgBattDeplacement').style.display = isBatt ? 'flex' : 'none';
 
+  const isLeveeSaisie = type === 'levee_saisie';
+  document.getElementById('tgAbandon').style.display = isLeveeSaisie ? 'flex' : 'none';
+  if(!isLeveeSaisie) document.getElementById('tgAbandon').classList.remove('on');
+
+  const isEpave = type === 'epave_demolition';
+  document.getElementById('tgSansMoteur').style.display = isEpave ? 'flex' : 'none';
+  document.getElementById('tgPasRoues').style.display = isEpave ? 'flex' : 'none';
+  if(!isEpave){
+    document.getElementById('tgSansMoteur').classList.remove('on');
+    document.getElementById('tgPasRoues').classList.remove('on');
+  }
+
+  document.getElementById('epavePhotoField').style.display = (isEpave || isLeveeSaisie) ? 'block' : 'none';
+  updateAbandonDocButton();
+
   document.querySelectorAll('.extra-item').forEach(item=>{
     const isMainType = item.dataset.type === type;
     item.style.display = isMainType ? 'none' : 'flex';
     if(isMainType) item.querySelector('input').checked = false;
   });
   updateExtrasSummary();
+}
+
+function updateAbandonDocButton(){
+  const type = document.getElementById('type').value;
+  const isEpave = type === 'epave_demolition';
+  const abandonOn = type === 'levee_saisie' && document.getElementById('tgAbandon').classList.contains('on');
+  document.getElementById('btnDocAbandon').style.display = (isEpave || abandonOn) ? 'block' : 'none';
+}
+
+function updateGardiennageField(){
+  const on = document.getElementById('tgGardiennage').classList.contains('on');
+  document.getElementById('gardiennageField').style.display = on ? 'block' : 'none';
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
@@ -2769,23 +3089,35 @@ function calculer(){
   const extras = Array.from(document.querySelectorAll('.extraCheck:checked')).map(cb => ({type: cb.value, label: TYPE_LABELS[cb.value], cost: RATES[cb.value]}));
   const extrasCost = extras.reduce((sum, e) => sum + e.cost, 0);
 
+  const gardiennageOn = document.getElementById('tgGardiennage').classList.contains('on');
+  const joursGardiennage = gardiennageOn ? (parseInt(document.getElementById('joursGardiennage').value) || 0) : 0;
+  const gardiennageCost = joursGardiennage * RATES.gardiennageJour;
+
+  const isLeveeSaisie = type === 'levee_saisie';
+  const abandon = isLeveeSaisie && document.getElementById('tgAbandon').classList.contains('on');
+
+  const isEpave = type === 'epave_demolition';
+  const sansMoteur = isEpave && document.getElementById('tgSansMoteur').classList.contains('on');
+  const pasRoues = isEpave && document.getElementById('tgPasRoues').classList.contains('on');
+  const pasRouesFee = pasRoues ? RATES.epaveSansRouesFee : 0;
+
   const base = RATES[type];
   const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
   const kmCost = km * kmRate * kmMultiplier;
-  const subtotal = base + kmCost + extrasCost;
+  const subtotal = base + kmCost + extrasCost + pasRouesFee;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
   const battCost = battPrice > 0 ? battPrice * (1 + RATES.battMarginPct/100) : 0;
   const battDeplacementCost = battDeplacement ? RATES.battDeplacementFee : 0;
-  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost;
+  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost;
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.max(0, totalAvantRemise - remiseAmount);
 
-  lastCalc = {type, depart, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, depart, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -2793,7 +3125,7 @@ function calculer(){
   document.getElementById('tkDepart').textContent = depart || '—';
   document.getElementById('tkFrom').textContent = from;
   document.getElementById('tkTo').textContent = to;
-  document.getElementById('tkType').textContent = TYPE_LABELS[type];
+  document.getElementById('tkType').textContent = typeLabelComplet(lastCalc);
   document.getElementById('tkBase').textContent = fmt(base);
   document.getElementById('tkKm').textContent = retour
     ? (km + ' km × 2 (aller-retour) × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost))
@@ -2814,6 +3146,10 @@ function calculer(){
   document.getElementById('tkBatt').textContent = battPrice.toFixed(2) + ' € + ' + RATES.battMarginPct + '% = ' + fmt(battCost);
   document.getElementById('rowBattDeplacement').style.display = battDeplacementCost > 0 ? 'flex' : 'none';
   document.getElementById('tkBattDeplacement').textContent = fmt(battDeplacementCost);
+  document.getElementById('rowGardiennage').style.display = gardiennageCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkGardiennage').textContent = joursGardiennage + ' j × ' + fmt(RATES.gardiennageJour) + ' = ' + fmt(gardiennageCost);
+  document.getElementById('rowPasRoues').style.display = pasRouesFee > 0 ? 'flex' : 'none';
+  document.getElementById('tkPasRoues').textContent = fmt(pasRouesFee);
 
   document.getElementById('rowRemise').style.display = remiseAmount > 0 ? 'flex' : 'none';
   const remisePct = totalAvantRemise > 0 ? (remiseAmount / totalAvantRemise * 100) : 0;
@@ -2833,24 +3169,28 @@ async function enregistrer(){
     const id = 'intervention:' + Date.now();
     const entry = {...lastCalc, paye: false};
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
+    if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     await window.storage.set(id, JSON.stringify(entry));
     showToast('Intervention enregistrée');
     clearReceiptPhoto();
+    clearEpavePhotos();
     loadHistory();
-  }catch(e){ showToast('Erreur d\'enregistrement — la photo est peut-être trop volumineuse'); }
+  }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
 }
 
 function copierRecap(){
   if(!lastCalc) { showToast('Calculez d\'abord le montant'); return; }
   const c = lastCalc;
   const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
-  let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${TYPE_LABELS[c.type]}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${typeLabelComplet(c)}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
   c.extras.forEach(e => txt += `\n+ ${e.label} : ${fmt(e.cost)}`);
   if(c.nuit) txt += `\nMajoration nuit (${formatHourShort(NIGHT_START)}-${formatHourShort(NIGHT_END)}) : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
   if(c.auto) txt += `\nMajoration autoroute : ${fmt(c.autoCost)}`;
   if(c.battCost) txt += `\nFourniture batterie : ${fmt(c.battCost)}`;
   if(c.battDeplacementCost) txt += `\nDéplacement achat batterie : ${fmt(c.battDeplacementCost)}`;
+  if(c.pasRouesFee) txt += `\nSupplément pas sur ses roues : ${fmt(c.pasRouesFee)}`;
+  if(c.gardiennageCost) txt += `\nGardiennage (${c.joursGardiennage} j) : ${fmt(c.gardiennageCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\n*TOTAL TVAC : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
 
@@ -2921,15 +3261,22 @@ async function loadHistory(){
       const d = it.data;
       const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'});
       const photoThumb = d.receiptPhoto
-        ? `<img src="${d.receiptPhoto}" class="hist-thumb" loading="lazy" decoding="async" onclick="voirPhoto('${it.key}')" alt="Facture d'achat">`
+        ? `<img src="${d.receiptPhoto}" class="hist-thumb" loading="lazy" decoding="async" onclick="voirPhoto('${it.key}', 'receiptPhoto')" alt="Facture d'achat">`
+        : '';
+      const epaveThumb = (d.epavePhotos && d.epavePhotos.length > 0)
+        ? `<div class="hist-thumb-wrap" onclick="voirPhoto('${it.key}', 'epavePhotos')">
+             <img src="${d.epavePhotos[0]}" class="hist-thumb" loading="lazy" decoding="async" alt="Photo épave">
+             ${d.epavePhotos.length > 1 ? `<span class="hist-thumb-count">+${d.epavePhotos.length - 1}</span>` : ''}
+           </div>`
         : '';
       const payeBadge = d.paye
         ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       return `<div class="hist-item">
         ${photoThumb}
+        ${epaveThumb}
         <div class="info">
-          <div class="type">${TYPE_LABELS[d.type]}</div>
+          <div class="type">${typeLabelComplet(d)}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
           ${payeBadge}
         </div>
@@ -2943,15 +3290,24 @@ async function loadHistory(){
   }
 }
 
-async function voirPhoto(key){
+async function voirPhoto(key, field){
+  field = field || 'receiptPhoto';
   try{
     const res = await window.storage.get(key);
     const d = JSON.parse(res.value);
-    if(!d.receiptPhoto) return;
     const overlay = document.createElement('div');
     overlay.className = 'photo-lightbox';
     overlay.onclick = () => overlay.remove();
-    overlay.innerHTML = `<img src="${d.receiptPhoto}">`;
+
+    if(field === 'epavePhotos' && d.epavePhotos && d.epavePhotos.length > 0){
+      overlay.innerHTML = `<div class="lightbox-gallery">` +
+        d.epavePhotos.map(p => `<img src="${p}">`).join('') +
+        `</div>`;
+    } else if(d[field]){
+      overlay.innerHTML = `<img src="${d[field]}">`;
+    } else {
+      return;
+    }
     document.body.appendChild(overlay);
   }catch(e){ showToast('Impossible d\'afficher la photo'); }
 }
@@ -3002,7 +3358,7 @@ async function exporterCsv(){
     totalMontant += (d.total || 0);
     rows.push([
       new Date(d.date).toLocaleDateString('fr-BE'),
-      TYPE_LABELS[d.type] || d.type,
+      typeLabelComplet(d),
       d.depart || '', d.from, d.to, d.km, km,
       d.base != null ? d.base.toFixed(2) : '',
       d.kmCost != null ? d.kmCost.toFixed(2) : '',
@@ -3087,7 +3443,7 @@ async function exporterPdfGroupe(){
       const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
       if(d.receiptPhoto) pdf.rect(44, y-7, 4, 4, {mode:'f', rgb:[242,169,0]});
       pdf.text(50, y, dt, {size:9});
-      pdf.text(115, y, (TYPE_LABELS[d.type] || d.type).slice(0, 50), {size:9});
+      pdf.text(115, y, typeLabelComplet(d).slice(0, 60), {size:9});
       const kmTxt = d.km ? (d.km + ' km' + (d.retour ? ' (A/R)' : '')) : '—';
       pdf.text(350, y, kmTxt, {size:9, gray:0.4});
       if(d.paye){
@@ -3138,7 +3494,7 @@ async function exporterPdfGroupe(){
             y = 50;
           }
           const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
-          pdf.text(50, y, `${dt} — ${TYPE_LABELS[d.type] || d.type}`, {font:'F2', size:10}); y += 14;
+          pdf.text(50, y, `${dt} — ${typeLabelComplet(d)}`, {font:'F2', size:10}); y += 14;
           const imgName = 'Receipt' + it.key.replace(/[^a-zA-Z0-9]/g, '');
           pdf.addRgbImage(imgName, img.width, img.height, img.deflatedRgb);
           pdf.drawImage(imgName, 50, y, w, h);
