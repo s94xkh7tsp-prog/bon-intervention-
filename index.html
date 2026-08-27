@@ -543,15 +543,6 @@
     </div>
 
     <div class="grp">
-      <div class="grp-title">Majorations</div>
-      <div class="rate-row"><label>Nuit — de</label><input type="time" id="r_nightStart" step="900"></div>
-      <div class="rate-row"><label>Nuit — à</label><input type="time" id="r_nightEnd" step="900"></div>
-      <div class="rate-row"><label>Majoration nuit</label><input type="number" id="r_nuitPct" step="1">%</div>
-      <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
-      <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
-    </div>
-
-    <div class="grp">
       <div class="grp-title">Coût de revient carburant (indicatif)</div>
       <div class="rate-row"><label>Prix gasoil (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
       <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
@@ -1569,9 +1560,9 @@ const TYPE_LABELS = {
 };
 
 const DEFAULT_RATES = {
-  pneu_chg:65, pneu_rep:75, demarrage:65, test_batt:50, diag:65, transfert:65, depannage:60,
-  changement_batterie:50, moto_remorquage:55, moto_batterie:30,
-  km_remorque:3.45, km_deplacement:1.10, nuitPct:25, wePct:20, auto:15,
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, transfert:70, depannage:65,
+  changement_batterie:50, moto_remorquage:60, moto_batterie:35,
+  km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
   battMarginPct:20, battDeplacementFee:10,
   diesel:2.21, conso:15
 };
