@@ -16,6 +16,7 @@
 <link rel="icon" href="icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -2449,11 +2450,14 @@ async function exporterSauvegarde(){
   try{
     const list = await window.storage.list();
     const data = {};
-    for(const key of (list.keys || [])){
+    const results = await Promise.all((list.keys || []).map(async (key) => {
       try{
         const res = await window.storage.get(key);
-        if(res && res.value !== undefined) data[key] = res.value;
-      }catch(e){}
+        return (res && res.value !== undefined) ? {key, value: res.value} : null;
+      }catch(e){ return null; }
+    }));
+    for(const item of results){
+      if(item) data[item.key] = item.value;
     }
     const backup = {
       app: 'JM Express — Bon d\'intervention',
@@ -2495,9 +2499,9 @@ async function restaurerSauvegarde(event){
     const ok = confirm(`Restaurer la sauvegarde du ${dateLabel} (${nbKeys} éléments) ? Cela remplacera les données actuelles portant le même nom (tarifs, interventions, réglages).`);
     if(!ok){ event.target.value = ''; return; }
 
-    for(const [key, value] of Object.entries(backup.data)){
-      try{ await window.storage.set(key, value); }catch(e){}
-    }
+    await Promise.all(Object.entries(backup.data).map(([key, value]) =>
+      window.storage.set(key, value).catch(()=>{})
+    ));
     showToast('Sauvegarde restaurée');
     event.target.value = '';
   }catch(e){
@@ -2809,17 +2813,18 @@ async function getFilteredHistory(){
   const list = await window.storage.list('intervention:');
   const items = [];
   if(list && list.keys){
-    for(const key of list.keys){
+    const results = await Promise.all(list.keys.map(async (key) => {
       try{
         const res = await window.storage.get(key);
-        if(res && res.value){
-          const data = JSON.parse(res.value);
-          const d = new Date(data.date);
-          if(from && d < from) continue;
-          if(to && d > to) continue;
-          items.push({key, data});
-        }
-      }catch(e){}
+        return (res && res.value) ? {key, data: JSON.parse(res.value)} : null;
+      }catch(e){ return null; }
+    }));
+    for(const item of results){
+      if(!item) continue;
+      const d = new Date(item.data.date);
+      if(from && d < from) continue;
+      if(to && d > to) continue;
+      items.push(item);
     }
   }
   items.sort((a,b)=> new Date(b.data.date) - new Date(a.data.date));
@@ -2846,7 +2851,7 @@ async function loadHistory(){
       const d = it.data;
       const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'});
       const photoThumb = d.receiptPhoto
-        ? `<img src="${d.receiptPhoto}" class="hist-thumb" onclick="voirPhoto('${it.key}')" alt="Facture d'achat">`
+        ? `<img src="${d.receiptPhoto}" class="hist-thumb" loading="lazy" decoding="async" onclick="voirPhoto('${it.key}')" alt="Facture d'achat">`
         : '';
       const payeBadge = d.paye
         ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
@@ -2904,9 +2909,7 @@ async function viderHistoriqueFiltre(){
   if(items.length === 0){ showToast('Rien à supprimer sur cette période'); return; }
   const ok = confirm(`Supprimer définitivement ${items.length} intervention(s) du journal ? Assure-toi d'avoir bien exporté le CSV ou le PDF avant.`);
   if(!ok) return;
-  for(const it of items){
-    try{ await window.storage.delete(it.key); }catch(e){}
-  }
+  await Promise.all(items.map(it => window.storage.delete(it.key).catch(()=>{})));
   showToast(items.length + ' intervention(s) supprimée(s)');
   loadHistory();
 }
