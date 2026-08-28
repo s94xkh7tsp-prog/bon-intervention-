@@ -711,6 +711,15 @@
       </div>
     </div>
 
+    <div class="grp">
+      <div class="grp-title">Langue de la facture</div>
+      <div class="toggles">
+        <div class="toggle on" id="invLangFr" onclick="setInvoiceLang('fr')">🇫🇷 Français</div>
+        <div class="toggle" id="invLangNl" onclick="setInvoiceLang('nl')">🇳🇱 Nederlands</div>
+        <div class="toggle" id="invLangEn" onclick="setInvoiceLang('en')">🇬🇧 English</div>
+      </div>
+    </div>
+
     <div class="grp" id="leveeSaisieAttestGrp" style="display:none;">
       <div class="grp-title">Levée de saisie</div>
       <label class="check-row">
@@ -2239,11 +2248,93 @@ async function loadRates(){
 }
 
 // Construit le libellé complet du type avec les conditions particulières (abandon, état épave)
-function typeLabelComplet(c){
-  let label = TYPE_LABELS[c.type];
-  if(c.abandon) label += ' — véhicule abandonné par le propriétaire';
-  if(c.sansMoteur) label += ' — sans moteur';
-  if(c.pasRoues) label += ' — pas sur ses roues';
+// --- Traductions pour la facture (NL / EN) — le français reste la langue de référence de l'appli ---
+const TYPE_LABELS_NL = {
+  pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
+  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
+  changement_batterie:"Batterij vervangen (aankoop + montage)",
+  moto_remorquage:"Motor slepen/laden", moto_batterie:"Motorbatterij vervangen (aankoop + montage)",
+  levee_saisie:"Overbrenging na inbeslagname (politie → keuring → opslag)",
+  epave_demolition:"Ophaling wrak voor sloop",
+  deblocage_boite:"Deblokkering automatische versnellingsbak", deblocage_frein:"Deblokkering handrem",
+  roulettes:"Verplaatsingswieltjes (bak/rem geblokkeerd)"
+};
+const TYPE_LABELS_EN = {
+  pneu_chg:"Tire change", pneu_rep:"Tire repair", demarrage:"Battery jump-start",
+  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
+  changement_batterie:"Battery replacement (purchase + installation)",
+  moto_remorquage:"Motorcycle towing/loading", moto_batterie:"Motorcycle battery replacement (purchase + installation)",
+  levee_saisie:"Seizure release transfer (police → inspection → storage)",
+  epave_demolition:"Wreck removal for scrapping",
+  deblocage_boite:"Automatic gearbox unlocking", deblocage_frein:"Handbrake release",
+  roulettes:"Dolly wheels (gearbox/brake locked)"
+};
+
+const INVOICE_STRINGS = {
+  fr: {
+    facture:'FACTURE', numero:'N° ', date:'Date : ', client:'CLIENT', tvaRef:'TVA / Réf. : ',
+    detail:'DÉTAIL DE L\'INTERVENTION', depart:'Départ : ', priseEnCharge:'Prise en charge : ', depose:'Dépose : ',
+    km:'Kilométrage : ', kmAllerRetour:' km × 2 (aller-retour)', kmSimple:' km',
+    forfaitBase:'Forfait de base', kilometrage:'Kilométrage',
+    majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
+    fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
+    supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)',
+    remise:'Remise', totalTvac:'TOTAL TVAC', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
+    scannezPayer:'Scannez pour payer', paiementVirement:'PAIEMENT PAR VIREMENT', communication:'Communication : Facture ',
+    attestationTitre:'ATTESTATION — LEVÉE DE SAISIE',
+    attestationL1:'Le client atteste avoir remis à JM Express Auto Dépannage le document de levée',
+    attestationL2:'de saisie, libérant celui-ci de ses obligations concernant le transfert du véhicule.',
+    signature:'Signature du client (bon pour accord)',
+    avisTitre:'Votre avis compte pour nous !', avisTexte:'Scannez pour laisser un avis Google en 30 secondes', avisLien:'Lien pour avis Google',
+    abandon:' — véhicule abandonné par le propriétaire', sansMoteur:' — sans moteur', pasRoues:' — pas sur ses roues',
+    locale:'fr-BE'
+  },
+  nl: {
+    facture:'FACTUUR', numero:'Nr. ', date:'Datum : ', client:'KLANT', tvaRef:'BTW / Ref. : ',
+    detail:'DETAIL VAN DE INTERVENTIE', depart:'Vertrek : ', priseEnCharge:'Ophaling : ', depose:'Aflevering : ',
+    km:'Kilometers : ', kmAllerRetour:' km × 2 (heen-terug)', kmSimple:' km',
+    forfaitBase:'Basisforfait', kilometrage:'Kilometers',
+    majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
+    fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
+    supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)',
+    remise:'Korting', totalTvac:'TOTAAL BTW INCL.', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
+    scannezPayer:'Scan om te betalen', paiementVirement:'BETALING PER OVERSCHRIJVING', communication:'Mededeling : Factuur ',
+    attestationTitre:'VERKLARING — OPHEFFING INBESLAGNAME',
+    attestationL1:'De klant verklaart het document van opheffing van inbeslagname te hebben overhandigd aan',
+    attestationL2:'JM Express Auto Dépannage, dat hierdoor ontheven wordt van zijn verplichtingen inzake het vervoer.',
+    signature:'Handtekening van de klant (voor akkoord)',
+    avisTitre:'Uw mening telt voor ons!', avisTexte:'Scan om binnen 30 seconden een Google-review achter te laten', avisLien:'Link voor Google-review',
+    abandon:' — voertuig afgestaan door de eigenaar', sansMoteur:' — zonder motor', pasRoues:' — niet op de wielen',
+    locale:'nl-BE'
+  },
+  en: {
+    facture:'INVOICE', numero:'No. ', date:'Date: ', client:'CLIENT', tvaRef:'VAT / Ref.: ',
+    detail:'SERVICE DETAILS', depart:'Departure: ', priseEnCharge:'Pick-up: ', depose:'Drop-off: ',
+    km:'Mileage: ', kmAllerRetour:' km × 2 (round trip)', kmSimple:' km',
+    forfaitBase:'Base rate', kilometrage:'Mileage',
+    majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
+    fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
+    supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)',
+    remise:'Discount', totalTvac:'TOTAL VAT INCL.', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
+    scannezPayer:'Scan to pay', paiementVirement:'PAYMENT BY BANK TRANSFER', communication:'Payment reference: Invoice ',
+    attestationTitre:'STATEMENT — SEIZURE RELEASE',
+    attestationL1:'The client confirms having handed over the seizure release document to',
+    attestationL2:'JM Express Auto Dépannage, releasing it from its obligations regarding the vehicle transfer.',
+    signature:'Customer signature (approved)',
+    avisTitre:'Your feedback matters to us!', avisTexte:'Scan to leave a Google review in 30 seconds', avisLien:'Google review link',
+    abandon:' — vehicle abandoned by the owner', sansMoteur:' — no engine', pasRoues:' — not on its wheels',
+    locale:'en-GB'
+  }
+};
+
+function typeLabelComplet(c, lang){
+  lang = lang || 'fr';
+  const labels = lang === 'nl' ? TYPE_LABELS_NL : (lang === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
+  const S = INVOICE_STRINGS[lang];
+  let label = labels[c.type];
+  if(c.abandon) label += S.abandon;
+  if(c.sansMoteur) label += S.sansMoteur;
+  if(c.pasRoues) label += S.pasRoues;
   return label;
 }
 
@@ -2591,10 +2682,20 @@ function clearSignature(canvasId){
   state.hasContent = false;
 }
 
+let INVOICE_LANG = 'fr';
+
+function setInvoiceLang(lang){
+  INVOICE_LANG = lang;
+  ['invLangFr','invLangNl','invLangEn'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {fr:'invLangFr', nl:'invLangNl', en:'invLangEn'};
+  document.getElementById(map[lang]).classList.add('on');
+}
+
 function openInvoice(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
   document.getElementById('modalInvoiceBg').classList.add('show');
   document.getElementById('leveeSaisieAttestGrp').style.display = lastCalc.type === 'levee_saisie' ? 'block' : 'none';
+  setInvoiceLang('fr');
   setTimeout(initSignatureCanvas, 50);
 }
 function closeInvoice(){ document.getElementById('modalInvoiceBg').classList.remove('show'); }
@@ -2709,13 +2810,15 @@ async function genererFacture(){
 
   try{
     const c = lastCalc;
+    const lang = INVOICE_LANG || 'fr';
+    const S = INVOICE_STRINGS[lang];
     const clientName = document.getElementById('invClientName').value.trim() || 'Client';
     const clientAddress = document.getElementById('invClientAddress').value.trim();
     const clientCompany = document.getElementById('invClientCompany').value.trim();
     const clientVat = document.getElementById('invClientVat').value.trim();
     const attestLeveeSaisie = c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked;
     const invoiceNumber = await nextInvoiceNumber();
-    const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
+    const dateStr = new Date().toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'});
 
     const pdf = MiniPDF(595, 842); // A4
     let y = 50;
@@ -2733,32 +2836,32 @@ async function genererFacture(){
 
     pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
 
-    pdf.text(50, y, 'FACTURE', {font:'F2', size:15});
+    pdf.text(50, y, S.facture, {font:'F2', size:15});
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
-    pdf.text(400, y, 'N° ' + invoiceNumber, {size:10});
+    pdf.text(400, y, S.numero + invoiceNumber, {size:10});
     y += 16;
-    pdf.text(400, y, 'Date : ' + dateStr, {size:10});
+    pdf.text(400, y, S.date + dateStr, {size:10});
     y += 20;
 
-    pdf.text(50, y, 'CLIENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
+    pdf.text(50, y, S.client, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
     pdf.text(50, y, clientName, {size:11}); y += 14;
     if(clientCompany){ pdf.text(50, y, clientCompany, {size:10}); y += 14; }
     if(clientAddress){ pdf.text(50, y, clientAddress, {size:10, gray:0.3}); y += 14; }
-    if(clientVat){ pdf.text(50, y, 'TVA / Réf. : ' + clientVat, {size:10, gray:0.3}); y += 14; }
+    if(clientVat){ pdf.text(50, y, S.tvaRef + clientVat, {size:10, gray:0.3}); y += 14; }
     y += 8;
 
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
 
-    pdf.text(50, y, 'DÉTAIL DE L\'INTERVENTION', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
-    pdf.text(50, y, typeLabelComplet(c), {size:10}); y += 14;
+    pdf.text(50, y, S.detail, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
+    pdf.text(50, y, typeLabelComplet(c, lang), {size:10}); y += 14;
     if(c.depart){
-      pdf.text(50, y, 'Départ : ' + c.depart, {size:9.5, gray:0.3}); y += 13;
+      pdf.text(50, y, S.depart + c.depart, {size:9.5, gray:0.3}); y += 13;
     }
-    pdf.text(50, y, 'Prise en charge : ' + c.from, {size:9.5, gray:0.3}); y += 13;
-    pdf.text(50, y, 'Dépose : ' + c.to, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, S.priseEnCharge + c.from, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, S.depose + c.to, {size:9.5, gray:0.3}); y += 13;
     if(c.km){
-      const kmTxt = c.retour ? (c.km + ' km × 2 (aller-retour)') : (c.km + ' km');
-      pdf.text(50, y, 'Kilométrage : ' + kmTxt, {size:9.5, gray:0.3}); y += 13;
+      const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
+      pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
     }
     y += 10;
 
@@ -2774,25 +2877,26 @@ async function genererFacture(){
       y += 16;
       lineIdx++;
     };
-    priceLine('Forfait de base', c.base);
-    if(c.kmCost) priceLine('Kilométrage', c.kmCost);
-    c.extras.forEach(e => priceLine('+ ' + e.label, e.cost));
-    if(c.nuit) priceLine('Majoration nuit (' + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ', +' + RATES.nuitPct + '%)', c.nuitCost);
-    if(c.we) priceLine('Majoration week-end (+' + RATES.wePct + '%)', c.weCost);
-    if(c.auto) priceLine('Majoration autoroute', c.autoCost);
-    if(c.battCost) priceLine('Fourniture batterie', c.battCost);
-    if(c.battDeplacementCost) priceLine('Déplacement achat batterie', c.battDeplacementCost);
-    if(c.pasRouesFee) priceLine('Supplément véhicule pas sur ses roues', c.pasRouesFee);
-    if(c.gardiennageCost) priceLine('Gardiennage (' + c.joursGardiennage + ' j)', c.gardiennageCost);
-    if(c.remiseAmount > 0) priceLine('Remise', -c.remiseAmount);
+    const extraLabels = lang === 'nl' ? TYPE_LABELS_NL : (lang === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
+    priceLine(S.forfaitBase, c.base);
+    if(c.kmCost) priceLine(S.kilometrage, c.kmCost);
+    c.extras.forEach(e => priceLine('+ ' + (extraLabels[e.type] || e.label), e.cost));
+    if(c.nuit) priceLine(S.majorationNuit + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ', +' + RATES.nuitPct + '%)', c.nuitCost);
+    if(c.we) priceLine(S.majorationWe + RATES.wePct + '%)', c.weCost);
+    if(c.auto) priceLine(S.majorationAuto, c.autoCost);
+    if(c.battCost) priceLine(S.fournitureBatterie, c.battCost);
+    if(c.battDeplacementCost) priceLine(S.deplacementBatterie, c.battDeplacementCost);
+    if(c.pasRouesFee) priceLine(S.supplementPasRoues, c.pasRouesFee);
+    if(c.gardiennageCost) priceLine(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
+    if(c.remiseAmount > 0) priceLine(S.remise, -c.remiseAmount);
 
     y += 8;
     pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
-    pdf.text(56, y+15, 'TOTAL TVAC', {font:'F2', size:13});
+    pdf.text(56, y+15, S.totalTvac, {font:'F2', size:13});
     pdf.text(455, y+15, fmt(c.total), {font:'F2', size:14, rgb:[196,136,0]});
     y += 34;
 
-    pdf.text(50, y, 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.', {size:8.5, gray:0.4});
+    pdf.text(50, y, S.franchise, {size:8.5, gray:0.4});
     y += 20;
 
     // --- QR paiement ---
@@ -2803,27 +2907,27 @@ async function genererFacture(){
     const qrSizePt = 100;
     pdf.addBitmapImage('QrPay', n, n, (x,y2) => qr.isDark(y2, x));
     pdf.drawImage('QrPay', 50, qrY, qrSizePt, qrSizePt);
-    pdf.text(50, qrY + qrSizePt + 14, 'Scannez pour payer', {size:9, gray:0.3});
+    pdf.text(50, qrY + qrSizePt + 14, S.scannezPayer, {size:9, gray:0.3});
 
-    pdf.text(180, qrY + 5, 'PAIEMENT PAR VIREMENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1});
+    pdf.text(180, qrY + 5, S.paiementVirement, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1});
     pdf.text(180, qrY + 24, 'IBAN : ' + COMPANY.ibanDisplay, {size:9.5});
     pdf.text(180, qrY + 39, 'BIC : ' + COMPANY.bic, {size:9.5});
-    pdf.text(180, qrY + 54, 'Communication : Facture ' + invoiceNumber, {size:9.5});
+    pdf.text(180, qrY + 54, S.communication + invoiceNumber, {size:9.5});
 
     // --- Attestation levée de saisie (si cochée) ---
     let attestHeight = 0;
     if(attestLeveeSaisie){
       const attestY = qrY + qrSizePt + 34;
       pdf.line(50, attestY - 10, 545, attestY - 10, {width:0.5, gray:0.85});
-      pdf.text(50, attestY, 'ATTESTATION — LEVÉE DE SAISIE', {font:'F2', size:9, rgb:[196,136,0], charSpace:0.8});
-      pdf.text(50, attestY + 15, 'Le client atteste avoir remis à JM Express Auto Dépannage le document de levée', {size:8.5, gray:0.3});
-      pdf.text(50, attestY + 28, 'de saisie, libérant celui-ci de ses obligations concernant le transfert du véhicule.', {size:8.5, gray:0.3});
+      pdf.text(50, attestY, S.attestationTitre, {font:'F2', size:9, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(50, attestY + 15, S.attestationL1, {size:8.5, gray:0.3});
+      pdf.text(50, attestY + 28, S.attestationL2, {size:8.5, gray:0.3});
       attestHeight = 60;
     }
 
     // --- Signature ---
     const sigY = qrY + qrSizePt + 32 + attestHeight;
-    pdf.text(50, sigY, 'Signature du client (bon pour accord)', {size:9.5, gray:0.3});
+    pdf.text(50, sigY, S.signature, {size:9.5, gray:0.3});
     pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
     if(SIG_STATE.sigCanvas && SIG_STATE.sigCanvas.hasContent){
       const sig = await canvasSignatureToRgb('sigCanvas');
@@ -2834,13 +2938,13 @@ async function genererFacture(){
     // --- QR avis Google (placé après la signature, une fois la prestation validée) ---
     const reviewY = sigY + 78;
     pdf.line(50, reviewY, 545, reviewY, {width:0.5, gray:0.85});
-    pdf.text(50, reviewY + 20, 'Votre avis compte pour nous !', {font:'F2', size:10});
-    pdf.text(50, reviewY + 35, 'Scannez pour laisser un avis Google en 30 secondes', {size:9, gray:0.4});
+    pdf.text(50, reviewY + 20, S.avisTitre, {font:'F2', size:10});
+    pdf.text(50, reviewY + 35, S.avisTexte, {size:9, gray:0.4});
     const reviewQr = makeQrMatrix(COMPANY.reviewUrl);
     const rn = reviewQr.getModuleCount();
     pdf.addBitmapImage('QrReview', rn, rn, (x,y2) => reviewQr.isDark(y2, x));
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
-    pdf.text(460, reviewY + 78, 'Lien pour avis Google', {size:8, gray:0.4});
+    pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
     const pdfBytes = pdf.build();
     const blob = new Blob([pdfBytes], {type:'application/pdf'});
