@@ -418,6 +418,7 @@
       <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
+      <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel()" style="display:none;">🚛 Avec le camion</div>
       <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
       <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField()">🏚️ Gardiennage (jours suppl.)</div>
       <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;">🚗 Abandon par le propriétaire</div>
@@ -744,6 +745,8 @@
       <div class="toggle" id="qqNuit" onclick="toggle('qqNuit'); calculerDevisRapide()">🌙 Nuit<span class="sub" id="qqNightHoursLabel">20h-8h</span></div>
       <div class="toggle" id="qqWe" onclick="toggle('qqWe'); calculerDevisRapide()">📅 Week-end</div>
       <div class="toggle" id="qqAuto" onclick="toggle('qqAuto'); calculerDevisRapide()">🛣️ Autoroute</div>
+      <div class="toggle" id="qqRetour" onclick="toggle('qqRetour'); calculerDevisRapide()">↩️ Retour à vide</div>
+      <div class="toggle" id="qqCamion" onclick="toggle('qqCamion'); calculerDevisRapide()">🚛 Avec le camion</div>
     </div>
 
     <div class="qq-result">
@@ -2412,10 +2415,13 @@ function calculerDevisRapide(){
   const nuit = document.getElementById('qqNuit').classList.contains('on');
   const we = document.getElementById('qqWe').classList.contains('on');
   const auto = document.getElementById('qqAuto').classList.contains('on');
+  const retour = document.getElementById('qqRetour').classList.contains('on');
+  const camionOn = document.getElementById('qqCamion').classList.contains('on');
 
   const base = RATES[type] || 0;
-  const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
-  const kmCost = km * kmRate;
+  const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
+  const kmMultiplier = retour ? 2 : 1;
+  const kmCost = km * kmRate * kmMultiplier;
   const subtotal = base + kmCost;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
@@ -2963,9 +2969,14 @@ function updateExtrasSummary(){
 function updateKmLabel(){
   const type = document.getElementById('type').value;
   const isRemorquage = TYPES_REMORQUAGE.includes(type);
-  document.getElementById('kmLabel').textContent = isRemorquage
+  const camionOn = document.getElementById('tgCamion').classList.contains('on');
+  const useTruckRate = isRemorquage || camionOn;
+  document.getElementById('kmLabel').textContent = useTruckRate
     ? 'Distance (km) — trajet camion (' + RATES.km_remorque.toFixed(2) + ' €/km)'
     : 'Distance (km) — trajet véhicule perso (' + RATES.km_deplacement.toFixed(2) + ' €/km)';
+
+  document.getElementById('tgCamion').style.display = isRemorquage ? 'none' : 'flex';
+  if(isRemorquage) document.getElementById('tgCamion').classList.remove('on');
 
   const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
   document.getElementById('battFields').style.display = isBatt ? 'block' : 'none';
@@ -3150,7 +3161,8 @@ function calculer(){
   const pasRouesFee = pasRoues ? RATES.epaveSansRouesFee : 0;
 
   const base = RATES[type];
-  const kmRate = TYPES_REMORQUAGE.includes(type) ? RATES.km_remorque : RATES.km_deplacement;
+  const camionOn = document.getElementById('tgCamion').classList.contains('on');
+  const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
   const kmCost = km * kmRate * kmMultiplier;
   const subtotal = base + kmCost + extrasCost + pasRouesFee;
@@ -3165,7 +3177,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.max(0, totalAvantRemise - remiseAmount);
 
-  lastCalc = {type, depart, from, to, km, retour, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
