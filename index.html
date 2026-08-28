@@ -360,6 +360,8 @@
         <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert" onchange="updateExtrasSummary()"> Transfert véhicule</label>
         <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage" onchange="updateExtrasSummary()"> Dépannage / remorquage général</label>
         <label class="extra-item" data-type="moto_remorquage"><input type="checkbox" class="extraCheck" value="moto_remorquage" onchange="updateExtrasSummary()"> Remorquage / chargement moto</label>
+        <label class="extra-item" data-type="deblocage_boite"><input type="checkbox" class="extraCheck" value="deblocage_boite" onchange="updateExtrasSummary()"> Déblocage boîte de vitesses auto</label>
+        <label class="extra-item" data-type="deblocage_frein"><input type="checkbox" class="extraCheck" value="deblocage_frein" onchange="updateExtrasSummary()"> Déblocage frein à main</label>
       </div>
     </div>
 
@@ -586,6 +588,8 @@
       <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
       <div class="rate-row"><label>Transfert de levée de saisie (forfait complet)</label><input type="number" id="r_levee_saisie"></div>
       <div class="rate-row"><label>Enlèvement épave démolition (sur roues, avec moteur)</label><input type="number" id="r_epave_demolition"></div>
+      <div class="rate-row"><label>Déblocage boîte de vitesses auto</label><input type="number" id="r_deblocage_boite"></div>
+      <div class="rate-row"><label>Déblocage frein à main</label><input type="number" id="r_deblocage_frein"></div>
     </div>
 
     <div class="grp">
@@ -1714,13 +1718,15 @@ const TYPE_LABELS = {
   changement_batterie:"Changement de batterie (achat + montage)",
   moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)",
   levee_saisie:"Transfert de levée de saisie (police → CT → entrepôt)",
-  epave_demolition:"Enlèvement épave pour démolition"
+  epave_demolition:"Enlèvement épave pour démolition",
+  deblocage_boite:"Déblocage boîte de vitesses auto", deblocage_frein:"Déblocage frein à main"
 };
 
 const DEFAULT_RATES = {
   pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, transfert:70, depannage:65,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
+  deblocage_boite:20, deblocage_frein:15,
   km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
   diesel:2.21, conso:15
