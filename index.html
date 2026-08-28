@@ -3573,6 +3573,24 @@ async function exporterPdfGroupe(){
   }
 }
 
+// Corrige un souci iOS : le clavier peut cacher les boutons situés juste sous un champ actif
+// dans une fenêtre (modal). On ajoute temporairement de la place en bas pour pouvoir tout faire défiler.
+document.addEventListener('focusin', (e) => {
+  if(e.target.matches('input, textarea')){
+    const modal = e.target.closest('.modal');
+    if(modal){
+      modal.style.paddingBottom = '340px';
+      setTimeout(() => { e.target.scrollIntoView({block:'center', behavior:'smooth'}); }, 300);
+    }
+  }
+});
+document.addEventListener('focusout', (e) => {
+  if(e.target.matches('input, textarea')){
+    const modal = e.target.closest('.modal');
+    if(modal) setTimeout(() => { modal.style.paddingBottom = ''; }, 200);
+  }
+});
+
 checkPinLock();
 loadThemeMode();
 loadTextSize();
