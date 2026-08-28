@@ -2426,7 +2426,7 @@ function calculerDevisRapide(){
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
-  const total = subtotal + nuitCost + weCost + autoCost;
+  const total = Math.round(subtotal + nuitCost + weCost + autoCost);
 
   document.getElementById('qqResult').textContent = fmt(total);
 }
@@ -3175,7 +3175,7 @@ function calculer(){
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
-  const total = Math.max(0, totalAvantRemise - remiseAmount);
+  const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
   lastCalc = {type, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
