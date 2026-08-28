@@ -3117,7 +3117,13 @@ async function calculerDistance(){
   showToast('Calcul de la distance…');
   try{
     const addresses = depart ? [depart, from, to] : [from, to];
-    const geos = await Promise.all(addresses.map(geocodeAddress));
+    // Géocodage l'un après l'autre (avec une petite pause) : le service gratuit utilisé
+    // limite à 1 requête/seconde — les envoyer toutes en même temps le fait échouer.
+    const geos = [];
+    for(let i=0; i<addresses.length; i++){
+      if(i > 0) await new Promise(r => setTimeout(r, 1100));
+      geos.push(await geocodeAddress(addresses[i]));
+    }
     let totalKm = 0;
     for(let i=0; i<geos.length-1; i++){
       const a = geos[i], b = geos[i+1];
