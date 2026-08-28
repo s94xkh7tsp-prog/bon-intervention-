@@ -789,6 +789,16 @@
       </div>
     </div>
 
+    <div class="photo-row">
+      <label>Photo de la plaque châssis (optionnel, comme preuve)</label>
+      <input type="file" id="chassisPhoto" accept="image/*" onchange="handleChassisPhoto(event)" style="display:none;">
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('chassisPhoto').click()">📷 Photographier / choisir</button>
+      <div id="chassisPreviewWrap" style="display:none; margin-top:8px;">
+        <img id="chassisPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
+        <button type="button" class="ghost" style="margin-top:6px;" onclick="clearChassisPhoto()">Retirer la photo</button>
+      </div>
+    </div>
+
     <div class="grp">
       <div class="grp-title">Signature du propriétaire</div>
       <div class="sig-wrap">
@@ -1770,6 +1780,29 @@ function clearReceiptPhoto(){
   document.getElementById('receiptPreviewWrap').style.display = 'none';
 }
 
+// --- Photo de la plaque châssis (preuve jointe au document d'abandon) ---
+let chassisPhotoData = null;
+
+async function handleChassisPhoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  try{
+    const compressed = await compressImageToBase64(file, 900, 0.6);
+    chassisPhotoData = compressed;
+    document.getElementById('chassisPreview').src = compressed;
+    document.getElementById('chassisPreviewWrap').style.display = 'block';
+    showToast('Photo prête');
+  }catch(e){
+    showToast('Erreur lors du traitement de la photo');
+  }
+}
+
+function clearChassisPhoto(){
+  chassisPhotoData = null;
+  document.getElementById('chassisPhoto').value = '';
+  document.getElementById('chassisPreviewWrap').style.display = 'none';
+}
+
 // --- Photos de l'épave (état du véhicule) — plusieurs photos possibles ---
 let epavePhotosData = [];
 
@@ -2306,9 +2339,23 @@ async function genererDocAbandon(){
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 20;
 
     pdf.text(50, y, 'VÉHICULE', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
+    const vehTextStart = y;
     if(marqueModele){ pdf.text(50, y, 'Marque / modèle : ' + marqueModele, {size:10}); y += 15; }
     if(plaque){ pdf.text(50, y, 'Plaque d\'immatriculation : ' + plaque, {size:10}); y += 15; }
     if(chassis){ pdf.text(50, y, 'N° de châssis : ' + chassis, {size:10}); y += 15; }
+
+    if(chassisPhotoData){
+      try{
+        const photo = await imageDataUrlToRgb(chassisPhotoData, 700);
+        const maxW = 175, maxH = 110;
+        const ratio = Math.min(maxW / photo.width, maxH / photo.height, 1);
+        const pw = Math.round(photo.width * ratio), ph = Math.round(photo.height * ratio);
+        pdf.addRgbImage('ChassisPhoto', photo.width, photo.height, photo.deflatedRgb);
+        pdf.drawImage('ChassisPhoto', 370, vehTextStart - 12, pw, ph);
+        pdf.text(370, vehTextStart - 12 + ph + 12, 'Photo plaque châssis', {size:7.5, gray:0.45});
+        y = Math.max(y, vehTextStart - 12 + ph + 26);
+      }catch(e){ /* photo illisible, on continue sans bloquer le document */ }
+    }
     y += 15;
 
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 25;
@@ -2353,6 +2400,7 @@ async function genererDocAbandon(){
       URL.revokeObjectURL(url);
     }
     showToast('Document généré');
+    clearChassisPhoto();
   }catch(e){
     showToast('Erreur lors de la génération du document');
   }
