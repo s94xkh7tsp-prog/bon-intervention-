@@ -268,7 +268,7 @@
     border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer;
   }
   .route-item .info{flex:1; min-width:0;}
-  .route-item .name{font-size:13.5px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .route-item .name{font-size:13.5px; font-weight:600; color:var(--white); white-space:normal; word-break:break-word;}
   .route-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .route-item .km{font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:13px; white-space:nowrap;}
   .route-item .del{color:var(--red); font-size:17px; padding:2px 4px;}
@@ -374,7 +374,7 @@
     <div class="field">
       <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
       <div class="input-with-btn">
-        <input type="text" id="addrDepart" placeholder="Rue, n°, ville">
+        <input type="text" id="addrDepart" list="airesBelges" placeholder="Rue, n°, ville">
         <button type="button" class="loc-btn" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
         <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
       </div>
@@ -390,7 +390,7 @@
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrFrom" placeholder="Rue, n°, ville">
+            <input type="text" id="addrFrom" list="airesBelges" placeholder="Rue, n°, ville">
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
           </div>
@@ -398,12 +398,60 @@
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrTo" placeholder="Rue, n°, ville">
+            <input type="text" id="addrTo" list="airesBelges" placeholder="Rue, n°, ville">
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
           </div>
         </div>
       </div>
     </div>
+
+    <datalist id="airesBelges">
+      <option value="Aire d'Aische-en-Refail, Gembloux (E411)">
+      <option value="Aire d'Aubange, frontière (E411)">
+      <option value="Aire de Bierges, Wavre (E411)">
+      <option value="Aire de Bois-du-Gard, Mons (E19/E42)">
+      <option value="Aire de Brecht (E19)">
+      <option value="Aire de Couthuin, Andenne (E42)">
+      <option value="Aire de Drongen, Gand (E40)">
+      <option value="Aire d'Everberg (E40)">
+      <option value="Aire de Froyennes, Tournai (E42)">
+      <option value="Aire de Gierle, Turnhout (E34)">
+      <option value="Aire de Grand-Bigard, Bruxelles (E40)">
+      <option value="Aire de Hellebecq, Lessines (E429)">
+      <option value="Aire de Hensies, frontière (E19)">
+      <option value="Aire de Heverlee, Louvain (E40)">
+      <option value="Aire de Hoegaarden, Tirlemont (E40)">
+      <option value="Aire de Hondelange, Arlon (E25)">
+      <option value="Aire de Kalken, Laarne (E17)">
+      <option value="Aire de Kruibeke, Anvers (E17)">
+      <option value="Aire de Lichtenbusch, frontière (E40)">
+      <option value="Aire de Mannekensvere, Furnes-Nieuport (E40)">
+      <option value="Aire de Marke, Courtrai (E17)">
+      <option value="Aire de Minderhout, Hoogstraten (E19)">
+      <option value="Aire de Nazareth, Deinze (E17)">
+      <option value="Aire de Nivelles-Orival (E19)">
+      <option value="Aire de Oekene, Roulers (E403)">
+      <option value="Aire de Peutie, Vilvorde (E19)">
+      <option value="Aire de Ranst, Anvers (E313)">
+      <option value="Aire de Rotselaar, Aarschot (E314)">
+      <option value="Aire de Ruisbroek, Sint-Pieters-Leeuw (R0)">
+      <option value="Aire de Saint-Ghislain, Mons (E19/E42)">
+      <option value="Aire de Sprimont, Noidré (E25)">
+      <option value="Aire de Spy, Namur (E42)">
+      <option value="Aire de Tellin (E411)">
+      <option value="Aire de Tessenderlo (E313)">
+      <option value="Aire de Thieu, Le Roeulx (E19/E42)">
+      <option value="Aire de Tignée, Barchon (E40)">
+      <option value="Aire de Verlaine, Huy (E42)">
+      <option value="Aire de Visé, frontière (E25)">
+      <option value="Aire de Waarloos, Kontich (E19)">
+      <option value="Aire de Waasmunster, Saint-Nicolas (E17)">
+      <option value="Aire de Wanlin, Rochefort (E411)">
+      <option value="Aire de Waremme, Bettincourt (E40)">
+      <option value="Aire de Westkerke, Jabbeke (E40)">
+      <option value="Aire de Wetteren, Gand (E40)">
+      <option value="Aire de Zolder-Zonhoven (E314)">
+    </datalist>
 
     <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
     <button class="ghost" style="margin-top:8px;" onclick="openRoutes()">🚏 Trajets fréquents (fonctionne hors ligne)</button>
@@ -3219,10 +3267,14 @@ async function geocodeAddress(address){
   const coords = extractCoordsFromText(address);
   if(coords) return coords;
 
+  // Retire la référence autoroute entre parenthèses (ex: "(E19)") des aires de repos —
+  // ce n'est pas un lieu géolocalisable, ça ferait échouer la recherche pour rien.
+  const cleanAddress = address.replace(/\s*\([A-Z]\d+(\/[A-Z]\d+)?\)\s*$/, '').trim();
+
   // Limite la recherche à la Belgique et la France (codes postaux à 4 vs 5 chiffres,
   // aucune ambiguïté possible entre les deux) pour que les codes postaux seuls (ex: "6042")
   // et les localités soient bien reconnus, au lieu de chercher n'importe où dans le monde.
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&countrycodes=be,fr&q=${encodeURIComponent(address)}`;
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&countrycodes=be,fr&q=${encodeURIComponent(cleanAddress)}`;
   const res = await fetch(url);
   const data = await res.json();
   if(!data.length) throw new Error('Adresse introuvable : ' + address);
