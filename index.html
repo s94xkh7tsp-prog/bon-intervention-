@@ -307,6 +307,7 @@
     </div>
     <div class="head-row-icons">
       <div class="gear" onclick="openQuickQuote()" title="Devis rapide">📞</div>
+      <div class="gear" onclick="openRdv()" title="Rendez-vous">📅</div>
       <div class="gear" onclick="openSettings()">⚙</div>
     </div>
   </div>
@@ -1112,7 +1113,69 @@
       <div class="qq-hint">Prix indicatif — à confirmer une fois sur place</div>
     </div>
 
-    <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:16px;">Fermer</button>
+    <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()">📅 Le client veut réserver — programmer le RDV</button>
+    <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:8px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalRdvBg">
+  <div class="modal">
+    <h3>📅 Réserver un rendez-vous</h3>
+    <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">Génère un événement à ajouter à ton calendrier iPhone, avec alarme — fonctionne même appli fermée.</p>
+
+    <div class="field">
+      <label>Type d'intervention</label>
+      <select id="rdvType"></select>
+    </div>
+
+    <div class="field">
+      <label>Nom du client</label>
+      <input type="text" id="rdvNom" placeholder="Nom du client">
+    </div>
+
+    <div class="field">
+      <label>Téléphone</label>
+      <input type="tel" id="rdvTel" placeholder="04XX XX XX XX">
+    </div>
+
+    <div class="field">
+      <label>Adresse du rendez-vous</label>
+      <input type="text" id="rdvAdresse" list="adressesBelgique" placeholder="Rue, n°, ville">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="rdvDate">
+      </div>
+      <div class="field">
+        <label>Heure</label>
+        <input type="time" id="rdvHeure">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Rappel avant le RDV</label>
+      <select id="rdvRappel">
+        <option value="15">15 minutes avant</option>
+        <option value="30" selected>30 minutes avant</option>
+        <option value="60">1 heure avant</option>
+        <option value="120">2 heures avant</option>
+      </select>
+    </div>
+
+    <div class="field" style="margin-bottom:0;">
+      <label>Notes (optionnel)</label>
+      <input type="text" id="rdvNotes" placeholder="Ex: prix annoncé, précisions...">
+    </div>
+
+    <button class="primary" style="margin-top:12px;" onclick="genererRdv()">📅 Ajouter au calendrier iPhone</button>
+    <button class="ghost close-modal" onclick="closeRdv()" style="margin-top:8px;">Fermer</button>
+
+    <div class="grp" style="margin-top:20px;">
+      <div class="grp-title">Prochains rendez-vous enregistrés</div>
+      <div id="rdvList"><div class="empty">Aucun rendez-vous à venir</div></div>
+    </div>
   </div>
 </div>
 
@@ -2754,6 +2817,161 @@ function openQuickQuote(){
   setQqVehicleType('normale');
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
+
+// ===== Rendez-vous programmés (génère un événement .ics pour le Calendrier iPhone natif) =====
+function openRdv(){
+  const sel = document.getElementById('rdvType');
+  if(sel.options.length === 0){
+    sel.innerHTML = document.getElementById('type').innerHTML;
+  }
+  const today = new Date();
+  if(!document.getElementById('rdvDate').value){
+    document.getElementById('rdvDate').value = today.toISOString().slice(0,10);
+  }
+  document.getElementById('modalRdvBg').classList.add('show');
+  renderRdvList();
+}
+function closeRdv(){ document.getElementById('modalRdvBg').classList.remove('show'); }
+
+function openRdvFromQuickQuote(){
+  const qqType = document.getElementById('qqType').value;
+  closeQuickQuote();
+  openRdv();
+  document.getElementById('rdvType').value = qqType;
+}
+
+// Échappe le texte selon la norme iCalendar (RFC 5545)
+function icsEscape(text){
+  return String(text || '').replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
+}
+
+function fmtIcsLocal(d){
+  const pad = n => String(n).padStart(2,'0');
+  return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
+}
+function fmtIcsUtc(d){
+  const pad = n => String(n).padStart(2,'0');
+  return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+}
+
+function buildIcsContent(rdv){
+  const dtStart = new Date(rdv.date + 'T' + rdv.heure + ':00');
+  const dtEnd = new Date(dtStart.getTime() + 60*60*1000);
+  const summary = (TYPE_LABELS[rdv.type] || rdv.type) + ' — ' + (rdv.nom || 'Client');
+  const descParts = [];
+  if(rdv.tel) descParts.push('Tél : ' + rdv.tel);
+  if(rdv.notes) descParts.push(rdv.notes);
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//JM Express//Bon Intervention//FR',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:rdv-' + Date.now() + '@jmexpressautodepannage.be',
+    'DTSTAMP:' + fmtIcsUtc(new Date()),
+    'DTSTART:' + fmtIcsLocal(dtStart),
+    'DTEND:' + fmtIcsLocal(dtEnd),
+    'SUMMARY:' + icsEscape(summary),
+    'LOCATION:' + icsEscape(rdv.adresse),
+    'DESCRIPTION:' + icsEscape(descParts.join('\n')),
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Rappel intervention',
+    'TRIGGER:-PT' + rdv.rappel + 'M',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  return lines.join('\r\n');
+}
+
+async function genererRdv(){
+  const type = document.getElementById('rdvType').value;
+  const nom = document.getElementById('rdvNom').value.trim();
+  const tel = document.getElementById('rdvTel').value.trim();
+  const adresse = document.getElementById('rdvAdresse').value.trim();
+  const date = document.getElementById('rdvDate').value;
+  const heure = document.getElementById('rdvHeure').value;
+  const rappel = document.getElementById('rdvRappel').value;
+  const notes = document.getElementById('rdvNotes').value.trim();
+
+  if(!date || !heure){ showToast('Indique la date et l\'heure du rendez-vous'); return; }
+
+  const rdv = {type, nom, tel, adresse, date, heure, rappel, notes};
+
+  try{
+    const id = 'rdv:' + Date.now();
+    await window.storage.set(id, JSON.stringify(rdv));
+
+    const icsContent = buildIcsContent(rdv);
+    const blob = new Blob([icsContent], {type:'text/calendar;charset=utf-8'});
+    const fileName = 'RDV_' + date + '_' + (nom || 'client').replace(/[^a-zA-Z0-9]/g,'_') + '.ics';
+    const file = new File([blob], fileName, {type:'text/calendar'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Rendez-vous ' + date});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }
+    showToast('Rendez-vous créé — ajoute-le à ton calendrier');
+    document.getElementById('rdvNom').value = '';
+    document.getElementById('rdvTel').value = '';
+    document.getElementById('rdvAdresse').value = '';
+    document.getElementById('rdvNotes').value = '';
+    renderRdvList();
+  }catch(e){
+    showToast('Erreur lors de la création du rendez-vous');
+  }
+}
+
+async function renderRdvList(){
+  const container = document.getElementById('rdvList');
+  try{
+    const list = await window.storage.list('rdv:');
+    const results = await Promise.all((list.keys || []).map(async key => {
+      try{
+        const res = await window.storage.get(key);
+        return {key, data: JSON.parse(res.value)};
+      }catch(e){ return null; }
+    }));
+    const now = new Date();
+    const items = results
+      .filter(it => it !== null)
+      .map(it => ({...it, when: new Date(it.data.date + 'T' + it.data.heure + ':00')}))
+      .filter(it => it.when >= now)
+      .sort((a,b) => a.when - b.when);
+
+    if(items.length === 0){
+      container.innerHTML = '<div class="empty">Aucun rendez-vous à venir</div>';
+      return;
+    }
+    container.innerHTML = items.map(it => {
+      const d = it.data;
+      const dateStr = it.when.toLocaleDateString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit'});
+      const heureStr = it.when.toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+      return `<div class="route-item">
+        <div class="info">
+          <div class="name">${dateStr} à ${heureStr} — ${TYPE_LABELS[d.type] || d.type}</div>
+          <div class="meta">${d.nom || 'Client'}${d.adresse ? ' · ' + d.adresse : ''}</div>
+        </div>
+        <div class="del" onclick="deleteRdv('${it.key}')">✕</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    container.innerHTML = '<div class="empty">Aucun rendez-vous à venir</div>';
+  }
+}
+
+async function deleteRdv(key){
+  try{
+    await window.storage.delete(key);
+    renderRdvList();
+  }catch(e){ showToast('Erreur lors de la suppression'); }
+}
 
 // ===== Document d'abandon / cession de véhicule pour démolition =====
 function openAbandonDoc(){
