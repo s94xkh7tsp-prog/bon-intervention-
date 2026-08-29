@@ -115,6 +115,8 @@
   }
   .toggle.on{background:rgba(242,169,0,0.12); border-color:var(--orange); color:var(--orange);}
   .toggle .sub{display:block; font-size:9.5px; font-weight:500; opacity:0.65; margin-top:2px; letter-spacing:0.2px;}
+  .toggles-vehicle{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .toggles-vehicle .toggle{min-width:0; white-space:normal; word-break:break-word; line-height:1.3;}
 
   .holiday-banner{
     display:none; align-items:center; gap:10px; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4);
@@ -718,6 +720,17 @@
     <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
     <button class="ghost" style="margin-top:8px;" onclick="openRoutes()">🚏 Trajets fréquents (fonctionne hors ligne)</button>
 
+    <label>Type de véhicule</label>
+    <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
+      <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')">🚗 Normale</div>
+      <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')">🚙 SUV / 4x4</div>
+      <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')">🔋 Électrique/Hybride</div>
+      <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
+    </div>
+    <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
+      ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
+    </div>
+
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
         <label id="kmLabel">Distance (km) — trajet aller (intervention → dépôt)</label>
@@ -798,6 +811,7 @@
     <div class="ticket-row" id="rowBattDeplacement" style="display:none;"><span class="l">Déplacement achat batterie</span><span class="v" id="tkBattDeplacement">—</span></div>
     <div class="ticket-row" id="rowGardiennage" style="display:none;"><span class="l">Gardiennage suppl.</span><span class="v" id="tkGardiennage">—</span></div>
     <div class="ticket-row" id="rowPasRoues" style="display:none;"><span class="l">Pas sur roues (treuil/plateau)</span><span class="v" id="tkPasRoues">—</span></div>
+    <div class="ticket-row" id="rowVehicleFee" style="display:none;"><span class="l" id="tkVehicleLabel">Supplément véhicule</span><span class="v" id="tkVehicleFee">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
       <span class="lbl">Total TVAC</span>
@@ -908,6 +922,13 @@
       <div class="grp-title">Gardiennage / épave</div>
       <div class="rate-row"><label>Gardiennage entrepôt (€/jour suppl.)</label><input type="number" id="r_gardiennageJour" step="1"></div>
       <div class="rate-row"><label>Supplément si pas sur ses roues (treuil/plateau)</label><input type="number" id="r_epaveSansRouesFee" step="1"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Suppléments type de véhicule</div>
+      <div class="rate-row"><label>SUV / 4x4</label><input type="number" id="r_vehiculeSuvFee" step="1"></div>
+      <div class="rate-row"><label>Électrique / hybride</label><input type="number" id="r_vehiculeElectriqueFee" step="1"></div>
+      <div class="rate-row"><label>Utilitaire / camionnette</label><input type="number" id="r_vehiculeUtilitaireFee" step="1"></div>
     </div>
 
     <div class="grp">
@@ -1064,6 +1085,17 @@
     <div class="field">
       <label id="qqKmLabel">Distance estimée (km)</label>
       <input type="number" id="qqKm" placeholder="0" min="0" inputmode="decimal" oninput="calculerDevisRapide()">
+    </div>
+
+    <label>Type de véhicule</label>
+    <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
+      <div class="toggle on" id="qqVtNormale" onclick="setQqVehicleType('normale')">🚗 Normale</div>
+      <div class="toggle" id="qqVtSuv" onclick="setQqVehicleType('suv')">🚙 SUV / 4x4</div>
+      <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')">🔋 Électrique/Hybride</div>
+      <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
+    </div>
+    <div id="qqCapaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
+      ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
     </div>
 
     <div class="toggles" style="margin-bottom:16px;">
@@ -2050,6 +2082,7 @@ const DEFAULT_RATES = {
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
   km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
+  vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   diesel:2.21, conso:15
 };
 // Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
@@ -2486,13 +2519,14 @@ function getFrenchHolidays(year){
 }
 
 // Vérifie si le jour actuel est un jour férié belge et/ou français, et affiche un rappel si c'est le cas
-// Rappel si aucune sauvegarde n'a été faite depuis 30 jours (ou jamais)
+// Rappel si aucune sauvegarde n'a été faite depuis 5 jours (ou jamais) — Safari iOS peut effacer les
+// données après environ 7 jours d'inactivité, donc ce seuil doit rester sous cette limite.
 async function checkBackupReminder(){
   try{
     const res = await window.storage.get('lastBackupDate');
     const last = new Date(res.value);
     const daysSince = Math.floor((new Date() - last) / (1000*60*60*24));
-    if(daysSince >= 30){
+    if(daysSince >= 5){
       document.getElementById('backupBannerText').textContent =
         `Dernière sauvegarde il y a ${daysSince} jours — pense à en refaire une (⚙️ Réglages).`;
       document.getElementById('backupBanner').style.display = 'flex';
@@ -2589,6 +2623,7 @@ const INVOICE_STRINGS = {
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
     supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)',
+    vehiculeSuv:'Supplément SUV / 4x4', vehiculeElectrique:'Supplément véhicule électrique/hybride', vehiculeUtilitaire:'Supplément utilitaire/camionnette',
     remise:'Remise', totalTvac:'TOTAL TVAC', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
     scannezPayer:'Scannez pour payer', paiementVirement:'PAIEMENT PAR VIREMENT', communication:'Communication : Facture ',
     attestationTitre:'ATTESTATION — LEVÉE DE SAISIE',
@@ -2607,6 +2642,7 @@ const INVOICE_STRINGS = {
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
     supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)',
+    vehiculeSuv:'Toeslag SUV / 4x4', vehiculeElectrique:'Toeslag elektrisch/hybride voertuig', vehiculeUtilitaire:'Toeslag bestelwagen',
     remise:'Korting', totalTvac:'TOTAAL BTW INCL.', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
     scannezPayer:'Scan om te betalen', paiementVirement:'BETALING PER OVERSCHRIJVING', communication:'Mededeling : Factuur ',
     attestationTitre:'VERKLARING — OPHEFFING INBESLAGNAME',
@@ -2625,6 +2661,7 @@ const INVOICE_STRINGS = {
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
     supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)',
+    vehiculeSuv:'SUV / 4x4 surcharge', vehiculeElectrique:'Electric/hybrid vehicle surcharge', vehiculeUtilitaire:'Van/utility vehicle surcharge',
     remise:'Discount', totalTvac:'TOTAL VAT INCL.', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
     scannezPayer:'Scan to pay', paiementVirement:'PAYMENT BY BANK TRANSFER', communication:'Payment reference: Invoice ',
     attestationTitre:'STATEMENT — SEIZURE RELEASE',
@@ -2696,6 +2733,17 @@ function openSettings(){
 function closeSettings(){ document.getElementById('modalBg').classList.remove('show'); }
 
 // ===== Devis rapide (estimation orale au téléphone, ne sauvegarde rien) =====
+let QQ_VEHICLE_TYPE = 'normale';
+
+function setQqVehicleType(type){
+  QQ_VEHICLE_TYPE = type;
+  ['qqVtNormale','qqVtSuv','qqVtElectrique','qqVtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {normale:'qqVtNormale', suv:'qqVtSuv', electrique:'qqVtElectrique', utilitaire:'qqVtUtilitaire'};
+  document.getElementById(map[type]).classList.add('on');
+  document.getElementById('qqCapaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
+  calculerDevisRapide();
+}
+
 function openQuickQuote(){
   const sel = document.getElementById('qqType');
   if(sel.options.length === 0){
@@ -2703,7 +2751,7 @@ function openQuickQuote(){
   }
   document.getElementById('qqNightHoursLabel').textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
   document.getElementById('modalQuickQuoteBg').classList.add('show');
-  calculerDevisRapide();
+  setQqVehicleType('normale');
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
 
@@ -2831,7 +2879,9 @@ function calculerDevisRapide(){
   const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
   const kmCost = km * kmRate * kmMultiplier;
-  const subtotal = base + kmCost;
+  const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
+  const vehicleFee = vehicleFeeMap[QQ_VEHICLE_TYPE] || 0;
+  const subtotal = base + kmCost + vehicleFee;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
@@ -2993,6 +3043,16 @@ function clearSignature(canvasId){
 }
 
 let INVOICE_LANG = 'fr';
+
+let VEHICLE_TYPE = 'normale';
+
+function setVehicleType(type){
+  VEHICLE_TYPE = type;
+  ['vtNormale','vtSuv','vtElectrique','vtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {normale:'vtNormale', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire'};
+  document.getElementById(map[type]).classList.add('on');
+  document.getElementById('capaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
+}
 
 function setInvoiceLang(lang){
   INVOICE_LANG = lang;
@@ -3197,6 +3257,10 @@ async function genererFacture(){
     if(c.battCost) priceLine(S.fournitureBatterie, c.battCost);
     if(c.battDeplacementCost) priceLine(S.deplacementBatterie, c.battDeplacementCost);
     if(c.pasRouesFee) priceLine(S.supplementPasRoues, c.pasRouesFee);
+    if(c.vehicleFee){
+      const vehicleLabelsPdf = {suv:S.vehiculeSuv, electrique:S.vehiculeElectrique, utilitaire:S.vehiculeUtilitaire};
+      priceLine(vehicleLabelsPdf[c.vehicleType] || S.vehiculeSuv, c.vehicleFee);
+    }
     if(c.gardiennageCost) priceLine(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
     if(c.remiseAmount > 0) priceLine(S.remise, -c.remiseAmount);
 
@@ -3618,7 +3682,9 @@ function calculer(){
   const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
   const kmCost = km * kmRate * kmMultiplier;
-  const subtotal = base + kmCost + extrasCost + pasRouesFee;
+  const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
+  const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
+  const subtotal = base + kmCost + extrasCost + pasRouesFee + vehicleFee;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
@@ -3630,7 +3696,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -3663,6 +3729,10 @@ function calculer(){
   document.getElementById('tkGardiennage').textContent = joursGardiennage + ' j × ' + fmt(RATES.gardiennageJour) + ' = ' + fmt(gardiennageCost);
   document.getElementById('rowPasRoues').style.display = pasRouesFee > 0 ? 'flex' : 'none';
   document.getElementById('tkPasRoues').textContent = fmt(pasRouesFee);
+  const vehicleLabels = {suv:'Supplément SUV / 4x4', electrique:'Supplément véhicule électrique/hybride', utilitaire:'Supplément utilitaire/camionnette'};
+  document.getElementById('rowVehicleFee').style.display = vehicleFee > 0 ? 'flex' : 'none';
+  document.getElementById('tkVehicleLabel').textContent = vehicleLabels[VEHICLE_TYPE] || 'Supplément véhicule';
+  document.getElementById('tkVehicleFee').textContent = fmt(vehicleFee);
 
   document.getElementById('rowRemise').style.display = remiseAmount > 0 ? 'flex' : 'none';
   const remisePct = totalAvantRemise > 0 ? (remiseAmount / totalAvantRemise * 100) : 0;
@@ -3687,6 +3757,7 @@ async function enregistrer(){
     showToast('Intervention enregistrée');
     clearReceiptPhoto();
     clearEpavePhotos();
+    setVehicleType('normale');
     loadHistory();
   }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
 }
@@ -3703,6 +3774,10 @@ function copierRecap(){
   if(c.battCost) txt += `\nFourniture batterie : ${fmt(c.battCost)}`;
   if(c.battDeplacementCost) txt += `\nDéplacement achat batterie : ${fmt(c.battDeplacementCost)}`;
   if(c.pasRouesFee) txt += `\nSupplément pas sur ses roues : ${fmt(c.pasRouesFee)}`;
+  if(c.vehicleFee){
+    const vehicleLabelsWa = {suv:'Supplément SUV/4x4', electrique:'Supplément véhicule électrique/hybride', utilitaire:'Supplément utilitaire/camionnette'};
+    txt += `\n${vehicleLabelsWa[c.vehicleType] || 'Supplément véhicule'} : ${fmt(c.vehicleFee)}`;
+  }
   if(c.gardiennageCost) txt += `\nGardiennage (${c.joursGardiennage} j) : ${fmt(c.gardiennageCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\n*TOTAL TVAC : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
