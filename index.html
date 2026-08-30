@@ -428,7 +428,7 @@
       <option value="Gare de La Louvière-Sud">
       <option value="Gare d'Erquelinnes-Village">
       <option value="Gare de Bruxelles-Central">
-      <option value="Gare de Bruxelles-Midi">
+      <option value="Gare du Midi (Bruxelles-Midi)">
       <option value="Gare de Bruxelles-Nord">
       <option value="Gare de Bruxelles-Luxembourg">
       <option value="Gare de Bruxelles-Schuman">
@@ -4245,18 +4245,32 @@ async function geocodeAddress(address){
   // ce n'est pas un lieu géolocalisable, ça ferait échouer la recherche pour rien.
   const cleanAddress = address.replace(/\s*\([A-Z]\d+(\/[A-Z]\d+)?\)\s*$/, '').trim();
 
-  // Limite la recherche à la Belgique et la France (codes postaux à 4 vs 5 chiffres,
-  // aucune ambiguïté possible entre les deux) pour que les codes postaux seuls (ex: "6042")
-  // et les localités soient bien reconnus, au lieu de chercher n'importe où dans le monde.
+  // Tentative 1 : adresse telle quelle (nettoyée de la référence autoroute)
   const tentative1 = await tenterGeocode(cleanAddress);
   if(tentative1) return tentative1;
 
-  // Deuxième tentative : retire un préfixe "Gare de/d'/du/des" — la base de données du
-  // service de recherche n'utilise pas toujours cette formulation exacte pour les gares.
+  // Tentative 2 : si le texte contient une précision entre parenthèses (ex: "Gare du Midi
+  // (Bruxelles-Midi)"), on tente directement ce nom entre parenthèses — c'est souvent le nom
+  // officiel le plus précis, plus fiable que le nom usuel qui précède.
+  const contenuParenthese = cleanAddress.match(/\(([^)]+)\)\s*$/);
+  if(contenuParenthese){
+    const tentative2 = await tenterGeocode(contenuParenthese[1].trim());
+    if(tentative2) return tentative2;
+  }
+
+  // Tentative 3 : retire un préfixe "Gare de/d'/du/des" — la base de données du service de
+  // recherche n'utilise pas toujours cette formulation exacte pour les gares.
   const sansGare = cleanAddress.replace(/^gare\s+(de\s+|d['’]|du\s+|des\s+)?/i, '').trim();
   if(sansGare && sansGare !== cleanAddress){
-    const tentative2 = await tenterGeocode(sansGare);
-    if(tentative2) return tentative2;
+    const tentative3 = await tenterGeocode(sansGare);
+    if(tentative3) return tentative3;
+  }
+
+  // Tentative 4 : retire toute précision entre parenthèses en fin de texte
+  const sansParenthese = sansGare.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  if(sansParenthese && sansParenthese !== sansGare){
+    const tentative4 = await tenterGeocode(sansParenthese);
+    if(tentative4) return tentative4;
   }
 
   throw new Error('Adresse introuvable : ' + address);
