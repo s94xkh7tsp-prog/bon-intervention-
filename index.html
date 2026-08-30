@@ -417,6 +417,33 @@
     </div>
 
     <datalist id="adressesBelgique">
+      <option value="Gare de Charleroi-Central">
+      <option value="Gare de Charleroi-Ouest">
+      <option value="Gare de Marchienne-au-Pont">
+      <option value="Gare de Lodelinsart">
+      <option value="Gare de Monceau">
+      <option value="Gare de Couillet">
+      <option value="Gare de Roux">
+      <option value="Gare de La Louvière-Centre">
+      <option value="Gare de La Louvière-Sud">
+      <option value="Gare d'Erquelinnes-Village">
+      <option value="Gare de Bruxelles-Central">
+      <option value="Gare de Bruxelles-Midi">
+      <option value="Gare de Bruxelles-Nord">
+      <option value="Gare de Bruxelles-Luxembourg">
+      <option value="Gare de Bruxelles-Schuman">
+      <option value="Gare de Namur">
+      <option value="Gare de Mons">
+      <option value="Gare de Liège-Guillemins">
+      <option value="Gare de Liège-Carré">
+      <option value="Gare de Liège-Saint-Lambert">
+      <option value="Gare d'Anvers-Central">
+      <option value="Gare d'Anvers-Berchem">
+      <option value="Gare de Luxembourg">
+      <option value="Gare de Verviers-Central">
+      <option value="Gare de Verviers-Palais">
+      <option value="Gare de Louvain-la-Neuve">
+      <option value="Gare de Bierges-Walibi">
       <option value="Aire d'Aische-en-Refail, Gembloux (E411)">
       <option value="Aire d'Aubange (E411)">
       <option value="Aire de Bierges, Wavre (E411)">
@@ -4221,11 +4248,28 @@ async function geocodeAddress(address){
   // Limite la recherche à la Belgique et la France (codes postaux à 4 vs 5 chiffres,
   // aucune ambiguïté possible entre les deux) pour que les codes postaux seuls (ex: "6042")
   // et les localités soient bien reconnus, au lieu de chercher n'importe où dans le monde.
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&countrycodes=be,fr&q=${encodeURIComponent(cleanAddress)}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  if(!data.length) throw new Error('Adresse introuvable : ' + address);
-  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+  const tentative1 = await tenterGeocode(cleanAddress);
+  if(tentative1) return tentative1;
+
+  // Deuxième tentative : retire un préfixe "Gare de/d'/du/des" — la base de données du
+  // service de recherche n'utilise pas toujours cette formulation exacte pour les gares.
+  const sansGare = cleanAddress.replace(/^gare\s+(de\s+|d['’]|du\s+|des\s+)?/i, '').trim();
+  if(sansGare && sansGare !== cleanAddress){
+    const tentative2 = await tenterGeocode(sansGare);
+    if(tentative2) return tentative2;
+  }
+
+  throw new Error('Adresse introuvable : ' + address);
+}
+
+async function tenterGeocode(query){
+  try{
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&countrycodes=be,fr,lu&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(!data.length) return null;
+    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+  }catch(e){ return null; }
 }
 
 // Calcule la distance routière (km) — inclut le trajet de départ si renseigné
