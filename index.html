@@ -386,6 +386,7 @@
       <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
       <div class="input-with-btn">
         <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville">
+        <button type="button" class="loc-btn" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
         <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
       </div>
@@ -402,6 +403,7 @@
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
             <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville">
+            <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
           </div>
@@ -410,6 +412,7 @@
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
             <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville">
+            <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
           </div>
         </div>
@@ -2310,14 +2313,12 @@ const DEFAULT_RATES = {
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   diesel:2.21, conso:15
 };
-// Types qui utilisent le véhicule perso (déplacement simple) vs le camion (remorquage/transfert)
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
 
-// Stockage local (fonctionne hors ligne, sur l'appareil uniquement)
 window.storage = {
   async get(key){
     const v = localStorage.getItem('jm_'+key);
@@ -2368,7 +2369,6 @@ function clearReceiptPhoto(){
   document.getElementById('receiptPreviewWrap').style.display = 'none';
 }
 
-// --- Photo de la plaque châssis (preuve jointe au document d'abandon) ---
 let chassisPhotoData = null;
 
 async function handleChassisPhoto(event){
@@ -2391,7 +2391,6 @@ function clearChassisPhoto(){
   document.getElementById('chassisPreviewWrap').style.display = 'none';
 }
 
-// --- Photos de l'épave (état du véhicule) — plusieurs photos possibles ---
 let epavePhotosData = [];
 
 async function handleEpavePhotos(event){
@@ -2435,7 +2434,6 @@ function renderEpavePreview(){
   `).join('');
 }
 
-// Redimensionne et compresse une image (fichier) en JPEG base64, pour ne pas alourdir le stockage local
 function compressImageToBase64(file, maxDim, quality){
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -2461,8 +2459,6 @@ function compressImageToBase64(file, maxDim, quality){
   });
 }
 
-// --- Taille du texte (accessibilité) ---
-// --- Apparence : suit le mode clair/sombre du système, ou fixe si choisi ---
 let THEME_MODE = 'auto';
 const darkModeQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
@@ -2508,9 +2504,6 @@ let TEXT_SIZE = 'normal';
 
 function applyTextSize(size){
   const zoomValue = TEXT_SIZE_ZOOM[size] || '1';
-  // On applique le zoom uniquement au contenu principal (en-tête + formulaire/journal),
-  // JAMAIS aux fenêtres de réglages/modals — elles restent toujours pleinement accessibles,
-  // quelle que soit la taille de texte choisie.
   const header = document.querySelector('header');
   const wrap = document.querySelector('.wrap');
   if(header) header.style.zoom = zoomValue;
@@ -2539,7 +2532,6 @@ async function loadTextSize(){
 let PIN_CODE = null;
 let FACE_ID_CREDENTIAL_ID = null;
 
-// --- Utilitaires de conversion pour les identifiants WebAuthn ---
 function bufToBase64(buf){
   return btoa(String.fromCharCode(...new Uint8Array(buf)));
 }
@@ -2603,7 +2595,6 @@ async function savePinCode(){
   }catch(e){ showToast('Erreur d\'enregistrement du code'); }
 }
 
-// --- Face ID / Touch ID via WebAuthn (authentificateur de la plateforme, 100% local) ---
 function updateFaceIdSection(){
   const section = document.getElementById('faceIdSection');
   if(!faceIdSupported()){
@@ -2680,13 +2671,11 @@ async function deverrouillerFaceId(silencieux){
     }
   }catch(e){
     if(!silencieux) document.getElementById('lockError').textContent = 'Échec Face ID — utilise ton code';
-    // en tentative automatique silencieuse, on laisse simplement le champ code disponible
   }
 }
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
 
-// Calcule la date de Pâques (algorithme de Meeus/Jones/Butcher) pour une année donnée
 function getEasterDate(year){
   const a = year % 19, b = Math.floor(year/100), c = year % 100;
   const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
@@ -2708,7 +2697,6 @@ function sameDay(a, b){
   return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 }
 
-// Liste des jours fériés légaux belges pour une année donnée
 function getBelgianHolidays(year){
   const easter = getEasterDate(year);
   return [
@@ -2725,7 +2713,6 @@ function getBelgianHolidays(year){
   ];
 }
 
-// Liste des jours fériés légaux français pour une année donnée (diffère de la Belgique sur certaines dates)
 function getFrenchHolidays(year){
   const easter = getEasterDate(year);
   return [
@@ -2743,10 +2730,6 @@ function getFrenchHolidays(year){
   ];
 }
 
-// Vérifie si le jour actuel est un jour férié belge et/ou français, et affiche un rappel si c'est le cas
-// Rappel si aucune sauvegarde n'a été faite depuis 5 jours (ou jamais) — Safari iOS peut effacer les
-// données après environ 7 jours d'inactivité, donc ce seuil doit rester sous cette limite.
-// --- Entretien de la dépanneuse (contrôle technique, vidange, assurance) ---
 async function saveEntretienDates(){
   const dates = {
     ct: document.getElementById('r_dateCT').value,
@@ -2865,8 +2848,6 @@ async function loadRates(){
   checkJourFerie();
 }
 
-// Construit le libellé complet du type avec les conditions particulières (abandon, état épave)
-// --- Traductions pour la facture (NL / EN) — le français reste la langue de référence de l'appli ---
 const TYPE_LABELS_NL = {
   pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
   test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
@@ -3007,7 +2988,6 @@ function openSettings(){
 }
 function closeSettings(){ document.getElementById('modalBg').classList.remove('show'); }
 
-// ===== Devis rapide (estimation orale au téléphone, ne sauvegarde rien) =====
 let QQ_VEHICLE_TYPE = 'normale';
 
 function setQqVehicleType(type){
@@ -3030,7 +3010,6 @@ function openQuickQuote(){
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
 
-// ===== Rendez-vous programmés (génère un événement .ics pour le Calendrier iPhone natif) =====
 function openRdv(){
   const sel = document.getElementById('rdvType');
   if(sel.options.length === 0){
@@ -3052,7 +3031,6 @@ function openRdvFromQuickQuote(){
   document.getElementById('rdvType').value = qqType;
 }
 
-// Échappe le texte selon la norme iCalendar (RFC 5545)
 function icsEscape(text){
   return String(text || '').replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
 }
@@ -3189,7 +3167,6 @@ async function deleteRdv(key){
   }catch(e){ showToast('Erreur lors de la suppression'); }
 }
 
-// ===== Document d'abandon / cession de véhicule pour démolition =====
 function openAbandonDoc(){
   document.getElementById('modalAbandonBg').classList.add('show');
   setTimeout(()=>initSignatureCanvas('sigCanvasAbandon'), 50);
@@ -3324,7 +3301,6 @@ function calculerDevisRapide(){
   document.getElementById('qqResult').textContent = fmt(total);
 }
 
-// ===== Trajets fréquents (fonctionne 100% hors ligne une fois enregistrés) =====
 let ROUTES = [];
 
 async function loadRoutes(){
@@ -3406,7 +3382,6 @@ async function deleteRoute(id){
   showToast('Trajet supprimé');
 }
 
-// ===== Clients enregistrés (fonctionne 100% hors ligne une fois enregistrés) =====
 let CLIENTS = [];
 
 async function loadClients(){
@@ -3499,7 +3474,6 @@ async function deleteClient(id){
   showToast('Client supprimé');
 }
 
-// ===== Tableau de bord (calculé à la demande — n'impacte jamais le démarrage de l'appli) =====
 function openDashboard(){
   document.getElementById('modalDashboardBg').classList.add('show');
   document.getElementById('dashboardContent').innerHTML = '<div class="empty">Calcul en cours…</div>';
@@ -3583,7 +3557,6 @@ async function renderDashboard(){
   }
 }
 
-// ===== Facture PDF (signature tactile + QR de paiement, tout hors ligne) =====
 const COMPANY = {
   name: 'JM Express Auto Dépannage',
   nameAscii: 'JM Express Auto Depannage', // pour le QR (pas d'accents)
@@ -3597,7 +3570,6 @@ const COMPANY = {
   reviewUrl: 'https://maps.app.goo.gl/3ZbDYCQsao4b2UbS7?g_st=ic'
 };
 
-// --- Signature tactile ---
 const SIG_STATE = {}; // { [canvasId]: {ctx, drawing, hasContent, lastX, lastY} }
 
 function initSignatureCanvas(canvasId){
@@ -3694,7 +3666,6 @@ function openInvoice(){
 }
 function closeInvoice(){ document.getElementById('modalInvoiceBg').classList.remove('show'); }
 
-// --- Numéro de facture séquentiel ---
 async function nextInvoiceNumber(){
   let n = 1;
   try{
@@ -3707,7 +3678,6 @@ async function nextInvoiceNumber(){
   return 'FACT-' + ymd + '-' + String(n).padStart(4,'0');
 }
 
-// --- Compression / décompression via API native du navigateur (aucune librairie externe) ---
 async function streamProcess(bytes, kind){
   const stream = kind === 'inflate' ? new DecompressionStream('deflate') : new CompressionStream('deflate');
   const writer = stream.writable.getWriter();
@@ -3726,7 +3696,6 @@ async function streamProcess(bytes, kind){
   return out;
 }
 
-// Décode une image (JPEG ou PNG, peu importe) via le canvas natif du navigateur vers RGB compressé pour le PDF
 function imageDataUrlToRgb(dataUrl, maxDim){
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -3771,7 +3740,6 @@ async function canvasSignatureToRgb(canvasId){
   return { width: decoded.width, height: decoded.height, deflatedRgb: recompressed };
 }
 
-// --- QR code de paiement (norme EPC / SEPA, lisible par toutes les apps bancaires belges) ---
 function buildEpcPayload(amount, invoiceNumber){
   const lines = [
     'BCD', '002', '1', 'SCT',
@@ -3797,7 +3765,6 @@ function makeQrMatrix(data){
   throw new Error('QR trop long');
 }
 
-// --- Génération complète de la facture PDF + partage natif ---
 async function genererFacture(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
   showToast('Génération de la facture…');
@@ -3817,7 +3784,6 @@ async function genererFacture(){
     const pdf = MiniPDF(595, 842); // A4
     let y = 50;
 
-    // --- En-tête : logo typographique simple (texte vectoriel, toujours net) ---
     pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
     pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
     pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
@@ -3897,7 +3863,6 @@ async function genererFacture(){
     pdf.text(50, y, S.franchise, {size:8.5, gray:0.4});
     y += 20;
 
-    // --- QR paiement ---
     const qrY = y;
     const epcPayload = buildEpcPayload(c.total, invoiceNumber);
     const qr = makeQrMatrix(epcPayload);
@@ -3912,7 +3877,6 @@ async function genererFacture(){
     pdf.text(180, qrY + 39, 'BIC : ' + COMPANY.bic, {size:9.5});
     pdf.text(180, qrY + 54, S.communication + invoiceNumber, {size:9.5});
 
-    // --- Attestation levée de saisie (si cochée) ---
     let attestHeight = 0;
     if(attestLeveeSaisie){
       const attestY = qrY + qrSizePt + 34;
@@ -3923,7 +3887,6 @@ async function genererFacture(){
       attestHeight = 60;
     }
 
-    // --- Signature ---
     const sigY = qrY + qrSizePt + 32 + attestHeight;
     pdf.text(50, sigY, S.signature, {size:9.5, gray:0.3});
     pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
@@ -3933,7 +3896,6 @@ async function genererFacture(){
       pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
     }
 
-    // --- QR avis Google (placé après la signature, une fois la prestation validée) ---
     const reviewY = sigY + 78;
     pdf.line(50, reviewY, 545, reviewY, {width:0.5, gray:0.85});
     pdf.text(50, reviewY + 20, S.avisTitre, {font:'F2', size:10});
@@ -4035,7 +3997,6 @@ async function restaurerSauvegarde(event){
     showToast('Erreur lors de la restauration — fichier illisible');
     return;
   }
-  // Rafraîchissement de l'écran — séparé du bloc critique : un souci ici n'efface pas le message de succès ci-dessus
   try{
     await loadRates();
     updateKmLabel();
@@ -4160,8 +4121,12 @@ function setClientRemiseUnit(unit){
   document.getElementById('clientUnitPct').classList.toggle('on', unit === 'pct');
 }
 
-// Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
-// Dictée vocale d'une adresse (Web Speech API — dispo sur la plupart des navigateurs mobiles récents)
+function effacerChamp(fieldId){
+  const field = document.getElementById(fieldId);
+  field.value = '';
+  field.focus();
+}
+
 function dicterAdresse(fieldId){
   const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognitionApi){
@@ -4199,7 +4164,6 @@ function useMyLocation(fieldId){
   showToast(navigator.onLine ? 'Localisation en cours…' : 'Localisation en cours… (peut prendre jusqu\'à 1 min hors ligne)');
   navigator.geolocation.getCurrentPosition(async (pos)=>{
     const {latitude, longitude} = pos.coords;
-    // Le GPS fonctionne hors ligne ; seule la conversion en adresse lisible nécessite internet
     if(!navigator.onLine){
       document.getElementById(fieldId).value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position GPS récupérée (hors ligne — coordonnées)');
@@ -4222,8 +4186,6 @@ function useMyLocation(fieldId){
   }, {enableHighAccuracy:true, timeout:60000, maximumAge:0});
 }
 
-// Détecte des coordonnées (lat,lon) collées directement ou dans un lien Google/Apple Maps
-// (ex: "50.41,4.44", ".../@50.41,4.44,17z", "?q=50.41,4.44", "?ll=50.41,4.44")
 function extractCoordsFromText(text){
   const matches = text.matchAll(/(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/g);
   for(const m of matches){
@@ -4236,37 +4198,26 @@ function extractCoordsFromText(text){
 }
 
 async function geocodeAddress(address){
-  // Si un lien de localisation (Google/Apple Maps) ou des coordonnées brutes ont été collés,
-  // on les utilise directement — pas besoin d'interroger le service de recherche d'adresse.
   const coords = extractCoordsFromText(address);
   if(coords) return coords;
 
-  // Retire la référence autoroute entre parenthèses (ex: "(E19)") des aires de repos —
-  // ce n'est pas un lieu géolocalisable, ça ferait échouer la recherche pour rien.
   const cleanAddress = address.replace(/\s*\([A-Z]\d+(\/[A-Z]\d+)?\)\s*$/, '').trim();
 
-  // Tentative 1 : adresse telle quelle (nettoyée de la référence autoroute)
   const tentative1 = await tenterGeocode(cleanAddress);
   if(tentative1) return tentative1;
 
-  // Tentative 2 : si le texte contient une précision entre parenthèses (ex: "Gare du Midi
-  // (Bruxelles-Midi)"), on tente directement ce nom entre parenthèses — c'est souvent le nom
-  // officiel le plus précis, plus fiable que le nom usuel qui précède.
   const contenuParenthese = cleanAddress.match(/\(([^)]+)\)\s*$/);
   if(contenuParenthese){
     const tentative2 = await tenterGeocode(contenuParenthese[1].trim());
     if(tentative2) return tentative2;
   }
 
-  // Tentative 3 : retire un préfixe "Gare de/d'/du/des" — la base de données du service de
-  // recherche n'utilise pas toujours cette formulation exacte pour les gares.
   const sansGare = cleanAddress.replace(/^gare\s+(de\s+|d['’]|du\s+|des\s+)?/i, '').trim();
   if(sansGare && sansGare !== cleanAddress){
     const tentative3 = await tenterGeocode(sansGare);
     if(tentative3) return tentative3;
   }
 
-  // Tentative 4 : retire toute précision entre parenthèses en fin de texte
   const sansParenthese = sansGare.replace(/\s*\([^)]*\)\s*$/, '').trim();
   if(sansParenthese && sansParenthese !== sansGare){
     const tentative4 = await tenterGeocode(sansParenthese);
@@ -4286,7 +4237,6 @@ async function tenterGeocode(query){
   }catch(e){ return null; }
 }
 
-// Calcule la distance routière (km) — inclut le trajet de départ si renseigné
 async function calculerDistance(){
   const depart = document.getElementById('addrDepart').value.trim();
   const from = document.getElementById('addrFrom').value.trim();
@@ -4299,8 +4249,6 @@ async function calculerDistance(){
   showToast('Calcul de la distance…');
   try{
     const addresses = depart ? [depart, from, to] : [from, to];
-    // Géocodage l'un après l'autre (avec une petite pause) : le service gratuit utilisé
-    // limite à 1 requête/seconde — les envoyer toutes en même temps le fait échouer.
     const geos = [];
     for(let i=0; i<addresses.length; i++){
       if(i > 0) await new Promise(r => setTimeout(r, 1100));
@@ -4476,7 +4424,6 @@ function fallbackCopy(txt){
   showToast('Récap copié');
 }
 
-// Km réellement parcourus pour une intervention (aller-retour compté double)
 function kmReel(d){ return (d.km || 0) * (d.retour ? 2 : 1); }
 
 function resetHistDates(){
@@ -4485,7 +4432,6 @@ function resetHistDates(){
   loadHistory();
 }
 
-// Récupère toutes les interventions enregistrées, filtrées par la plage de dates choisie (si définie)
 async function getFilteredHistory(){
   const fromStr = document.getElementById('histDateFrom').value;
   const toStr = document.getElementById('histDateTo').value;
@@ -4797,8 +4743,6 @@ async function exporterPdfGroupe(){
   }
 }
 
-// Corrige un souci iOS : le clavier peut cacher les boutons situés juste sous un champ actif
-// dans une fenêtre (modal). On ajoute temporairement de la place en bas pour pouvoir tout faire défiler.
 document.addEventListener('focusin', (e) => {
   if(e.target.matches('input, textarea')){
     const modal = e.target.closest('.modal');
