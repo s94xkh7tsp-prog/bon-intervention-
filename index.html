@@ -150,6 +150,8 @@
   .extras-summary{color:var(--orange); font-size:12px; font-weight:600; flex-shrink:0;}
   .extras-chevron{color:var(--grey); font-size:14px; transition:transform 0.2s; flex-shrink:0;}
   .extras-chevron.open{transform:rotate(180deg);}
+  .settings-category{margin-bottom:6px; border-bottom:1px solid var(--line); padding-bottom:6px;}
+  .settings-category:last-of-type{border-bottom:none;}
   .extra-item{
     display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:9px;
     color:var(--grey); font-size:13px; cursor:pointer; user-select:none;
@@ -325,6 +327,12 @@
     <span>💾</span>
     <span id="backupBannerText"></span>
     <span class="close" onclick="document.getElementById('backupBanner').style.display='none'">✕</span>
+  </div>
+
+  <div class="holiday-banner" id="entretienBanner">
+    <span>🔧</span>
+    <span id="entretienBannerText"></span>
+    <span class="close" onclick="document.getElementById('entretienBanner').style.display='none'">✕</span>
   </div>
 
   <div class="eyebrow">Nouvelle intervention</div>
@@ -720,17 +728,7 @@
 
     <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
     <button class="ghost" style="margin-top:8px;" onclick="openRoutes()">🚏 Trajets fréquents (fonctionne hors ligne)</button>
-
-    <label>Type de véhicule</label>
-    <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
-      <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')">🚗 Normale</div>
-      <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')">🚙 SUV / 4x4</div>
-      <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')">🔋 Électrique/Hybride</div>
-      <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
-    </div>
-    <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
-      ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
-    </div>
+    <button class="ghost" style="margin-top:8px;" onclick="openClients()">👤 Clients enregistrés</button>
 
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
@@ -745,17 +743,38 @@
       <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide</div>
-      <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel()" style="display:none;">🚛 Avec le camion</div>
       <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
-      <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField()">🏚️ Gardiennage (jours suppl.)</div>
       <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;">🚗 Abandon par le propriétaire</div>
       <div class="toggle" id="tgSansMoteur" onclick="toggle('tgSansMoteur')" style="display:none;">🔧 Sans moteur</div>
       <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
     </div>
 
-    <div class="field" id="gardiennageField" style="display:none;">
-      <label>Jours de gardiennage supplémentaires (au-delà des jours gratuits)</label>
-      <input type="number" id="joursGardiennage" placeholder="0" min="0" inputmode="numeric">
+    <div class="field">
+      <div class="extras-header" onclick="toggleAdvancedOptions()">
+        <label style="margin:0; cursor:pointer;">+ Options avancées (véhicule, camion, gardiennage)</label>
+        <span class="extras-summary" id="advancedSummary">Aucune</span>
+        <span class="extras-chevron" id="advancedChevron">▾</span>
+      </div>
+      <div id="advancedOptions" style="display:none; margin-top:12px;">
+        <label>Type de véhicule</label>
+        <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
+          <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')">🚗 Normale</div>
+          <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')">🚙 SUV / 4x4</div>
+          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')">🔋 Électrique/Hybride</div>
+          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
+        </div>
+        <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
+          ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
+        </div>
+        <div class="toggles" style="margin-bottom:8px;">
+          <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;">🚛 Avec le camion</div>
+          <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField(); updateAdvancedSummary()">🏚️ Gardiennage (jours suppl.)</div>
+        </div>
+        <div class="field" id="gardiennageField" style="display:none; margin-bottom:0;">
+          <label>Jours de gardiennage supplémentaires (au-delà des jours gratuits)</label>
+          <input type="number" id="joursGardiennage" placeholder="0" min="0" inputmode="numeric" oninput="updateAdvancedSummary()">
+        </div>
+      </div>
     </div>
 
     <label>Remise ponctuelle (optionnel)</label>
@@ -838,6 +857,7 @@
   <button class="ghost" style="margin:8px 0 12px 0;" onclick="resetHistDates()">Réinitialiser les dates (tout afficher)</button>
 
   <div id="historySummary" class="hist-summary"></div>
+  <button class="ghost" style="margin-bottom:8px;" onclick="openDashboard()">📊 Tableau de bord</button>
   <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">⬇️ Exporter en CSV (comptabilité)</button>
   <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()">🧾 Exporter en PDF groupé</button>
   <button class="ghost" style="margin-bottom:12px; color:#e05a4e; border-color:rgba(224,90,78,0.4);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
@@ -847,120 +867,178 @@
 
 <div class="modal-bg" id="modalBg">
   <div class="modal">
-    <h3>Réglages des tarifs</h3>
+    <h3>Réglages</h3>
 
-    <div class="grp">
-      <div class="grp-title">Apparence</div>
-      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">"Automatique" suit le réglage clair/sombre de ton iPhone (pour un passage en sombre à la tombée de la nuit, active "Automatique" dans Réglages iPhone > Luminosité et affichage > Apparence).</p>
-      <div class="toggles">
-        <div class="toggle" id="themeAuto" onclick="setThemeMode('auto')">Automatique</div>
-        <div class="toggle" id="themeLight" onclick="setThemeMode('light')">Toujours clair</div>
-        <div class="toggle" id="themeDark" onclick="setThemeMode('dark')">Toujours sombre</div>
+    <div class="settings-category">
+      <div class="extras-header" onclick="toggleSettingsCategory('catTarifs')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">💰 Tarifs</label>
+        <span class="extras-chevron open" id="catTarifsChevron">▾</span>
+      </div>
+      <div id="catTarifs" style="display:block;">
+
+        <div class="grp">
+          <div class="grp-title">Forfaits de base (€)</div>
+          <div class="rate-row"><label>Changement de pneu</label><input type="number" id="r_pneu_chg"></div>
+          <div class="rate-row"><label>Réparation de pneu</label><input type="number" id="r_pneu_rep"></div>
+          <div class="rate-row"><label>Démarrage batterie</label><input type="number" id="r_demarrage"></div>
+          <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
+          <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
+          <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
+          <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
+          <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
+          <div class="rate-row"><label>Remorquage / chargement moto</label><input type="number" id="r_moto_remorquage"></div>
+          <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
+          <div class="rate-row"><label>Transfert de levée de saisie (forfait complet)</label><input type="number" id="r_levee_saisie"></div>
+          <div class="rate-row"><label>Enlèvement épave démolition (sur roues, avec moteur)</label><input type="number" id="r_epave_demolition"></div>
+          <div class="rate-row"><label>Déblocage boîte de vitesses auto</label><input type="number" id="r_deblocage_boite"></div>
+          <div class="rate-row"><label>Déblocage frein à main</label><input type="number" id="r_deblocage_frein"></div>
+          <div class="rate-row"><label>Roulettes de manutention (boîte/frein bloqués)</label><input type="number" id="r_roulettes"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Kilométrage</div>
+          <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
+          <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Majorations</div>
+          <div class="rate-row"><label>Nuit — de</label><input type="time" id="r_nightStart" step="900"></div>
+          <div class="rate-row"><label>Nuit — à</label><input type="time" id="r_nightEnd" step="900"></div>
+          <div class="rate-row"><label>Majoration nuit</label><input type="number" id="r_nuitPct" step="1">%</div>
+          <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
+          <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Gardiennage / épave</div>
+          <div class="rate-row"><label>Gardiennage entrepôt (€/jour suppl.)</label><input type="number" id="r_gardiennageJour" step="1"></div>
+          <div class="rate-row"><label>Supplément si pas sur ses roues (treuil/plateau)</label><input type="number" id="r_epaveSansRouesFee" step="1"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Suppléments type de véhicule</div>
+          <div class="rate-row"><label>SUV / 4x4</label><input type="number" id="r_vehiculeSuvFee" step="1"></div>
+          <div class="rate-row"><label>Électrique / hybride</label><input type="number" id="r_vehiculeElectriqueFee" step="1"></div>
+          <div class="rate-row"><label>Utilitaire / camionnette</label><input type="number" id="r_vehiculeUtilitaireFee" step="1"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Batterie — achat</div>
+          <div class="rate-row"><label>Marge sur prix d'achat batterie</label><input type="number" id="r_battMarginPct" step="1">%</div>
+          <div class="rate-row"><label>Frais déplacement pour aller chercher</label><input type="number" id="r_battDeplacementFee" step="1"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Coût de revient carburant (indicatif)</div>
+          <div class="rate-row"><label>Prix gasoil (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
+          <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
+          <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
+        </div>
+
       </div>
     </div>
 
-    <div class="grp">
-      <div class="grp-title">Taille du texte</div>
-      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Pour une meilleure lisibilité de toute l'appli.</p>
-      <div class="toggles">
-        <div class="toggle" id="textSizeNormal" onclick="setTextSize('normal')">Normal</div>
-        <div class="toggle" id="textSizeLarge" onclick="setTextSize('large')">Grand</div>
-        <div class="toggle" id="textSizeXLarge" onclick="setTextSize('xlarge')">Très grand</div>
+    <div class="settings-category">
+      <div class="extras-header" onclick="toggleSettingsCategory('catApparence')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">🎨 Apparence & confort</label>
+        <span class="extras-chevron" id="catApparenceChevron">▾</span>
+      </div>
+      <div id="catApparence" style="display:none;">
+
+        <div class="grp">
+          <div class="grp-title">Apparence</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">"Automatique" suit le réglage clair/sombre de ton iPhone (pour un passage en sombre à la tombée de la nuit, active "Automatique" dans Réglages iPhone > Luminosité et affichage > Apparence).</p>
+          <div class="toggles">
+            <div class="toggle" id="themeAuto" onclick="setThemeMode('auto')">Automatique</div>
+            <div class="toggle" id="themeLight" onclick="setThemeMode('light')">Toujours clair</div>
+            <div class="toggle" id="themeDark" onclick="setThemeMode('dark')">Toujours sombre</div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Taille du texte</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Pour une meilleure lisibilité de toute l'appli.</p>
+          <div class="toggles">
+            <div class="toggle" id="textSizeNormal" onclick="setTextSize('normal')">Normal</div>
+            <div class="toggle" id="textSizeLarge" onclick="setTextSize('large')">Grand</div>
+            <div class="toggle" id="textSizeXLarge" onclick="setTextSize('xlarge')">Très grand</div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Adresse de départ par défaut</div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Pré-remplit le champ "départ" à chaque nouvelle intervention</label>
+            <input type="text" id="r_baseAddress" placeholder="Rue, n°, ville">
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <div class="grp">
-      <div class="grp-title">Code d'accès</div>
-      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Protège l'appli par un code si ton téléphone contient des données clients sensibles. Simple dissuasion, pas un vrai chiffrement.</p>
-      <div class="field" style="margin-bottom:8px;">
-        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="r_pinCode" placeholder="Laisser vide = pas de code">
+    <div class="settings-category">
+      <div class="extras-header" onclick="toggleSettingsCategory('catSecurite')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">🔒 Sécurité & données</label>
+        <span class="extras-chevron" id="catSecuriteChevron">▾</span>
       </div>
-      <button class="ghost" style="margin-bottom:10px;" onclick="savePinCode()">Enregistrer le code</button>
+      <div id="catSecurite" style="display:none;">
 
-      <div id="faceIdSection" style="display:none;">
-        <div style="border-top:1px solid var(--line); margin:4px 0 12px 0;"></div>
-        <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;" id="faceIdStatus">Face ID / Touch ID non activé.</p>
-        <button class="ghost" id="faceIdBtn" onclick="activerFaceId()">🔓 Activer Face ID / Touch ID</button>
+        <div class="grp">
+          <div class="grp-title">Code d'accès</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Protège l'appli par un code si ton téléphone contient des données clients sensibles. Simple dissuasion, pas un vrai chiffrement.</p>
+          <div class="field" style="margin-bottom:8px;">
+            <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="r_pinCode" placeholder="Laisser vide = pas de code">
+          </div>
+          <button class="ghost" style="margin-bottom:10px;" onclick="savePinCode()">Enregistrer le code</button>
+
+          <div id="faceIdSection" style="display:none;">
+            <div style="border-top:1px solid var(--line); margin:4px 0 12px 0;"></div>
+            <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;" id="faceIdStatus">Face ID / Touch ID non activé.</p>
+            <button class="ghost" id="faceIdBtn" onclick="activerFaceId()">🔓 Activer Face ID / Touch ID</button>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Sauvegarde des données</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, photos) sont stockées uniquement sur ce téléphone. Fais une sauvegarde régulièrement pour ne rien perdre.</p>
+          <button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">💾 Exporter une sauvegarde complète</button>
+          <input type="file" id="restoreFile" accept="application/json" style="display:none;" onchange="restaurerSauvegarde(event)">
+          <button class="ghost" onclick="document.getElementById('restoreFile').click()">📥 Restaurer une sauvegarde</button>
+        </div>
+
       </div>
     </div>
 
-    <div class="grp">
-      <div class="grp-title">Sauvegarde des données</div>
-      <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, photos) sont stockées uniquement sur ce téléphone. Fais une sauvegarde régulièrement pour ne rien perdre.</p>
-      <button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">💾 Exporter une sauvegarde complète</button>
-      <input type="file" id="restoreFile" accept="application/json" style="display:none;" onchange="restaurerSauvegarde(event)">
-      <button class="ghost" onclick="document.getElementById('restoreFile').click()">📥 Restaurer une sauvegarde</button>
-    </div>
+    <div class="settings-category">
+      <div class="extras-header" onclick="toggleSettingsCategory('catEntretien')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">🔧 Entretien dépanneuse</label>
+        <span class="extras-chevron" id="catEntretienChevron">▾</span>
+      </div>
+      <div id="catEntretien" style="display:none;">
 
-    <div class="grp">
-      <div class="grp-title">Adresse de départ par défaut</div>
-      <div class="field" style="margin-bottom:0;">
-        <label>Pré-remplit le champ "départ" à chaque nouvelle intervention</label>
-        <input type="text" id="r_baseAddress" placeholder="Rue, n°, ville">
+        <div class="grp">
+          <div class="grp-title">Entretien de la dépanneuse</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Un rappel s'affiche 30 jours avant chaque échéance.</p>
+          <div class="field">
+            <label>Contrôle technique — prochaine échéance</label>
+            <input type="date" id="r_dateCT">
+          </div>
+          <div class="field">
+            <label>Vidange / entretien — prochaine échéance</label>
+            <input type="date" id="r_dateVidange">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Assurance camion — prochaine échéance</label>
+            <input type="date" id="r_dateAssurance">
+          </div>
+          <button class="ghost" style="margin-top:12px;" onclick="saveEntretienDates()">Enregistrer les échéances</button>
+        </div>
+
       </div>
     </div>
 
-    <div class="grp">
-      <div class="grp-title">Forfaits de base (€)</div>
-      <div class="rate-row"><label>Changement de pneu</label><input type="number" id="r_pneu_chg"></div>
-      <div class="rate-row"><label>Réparation de pneu</label><input type="number" id="r_pneu_rep"></div>
-      <div class="rate-row"><label>Démarrage batterie</label><input type="number" id="r_demarrage"></div>
-      <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
-      <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
-      <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
-      <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
-      <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
-      <div class="rate-row"><label>Remorquage / chargement moto</label><input type="number" id="r_moto_remorquage"></div>
-      <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
-      <div class="rate-row"><label>Transfert de levée de saisie (forfait complet)</label><input type="number" id="r_levee_saisie"></div>
-      <div class="rate-row"><label>Enlèvement épave démolition (sur roues, avec moteur)</label><input type="number" id="r_epave_demolition"></div>
-      <div class="rate-row"><label>Déblocage boîte de vitesses auto</label><input type="number" id="r_deblocage_boite"></div>
-      <div class="rate-row"><label>Déblocage frein à main</label><input type="number" id="r_deblocage_frein"></div>
-      <div class="rate-row"><label>Roulettes de manutention (boîte/frein bloqués)</label><input type="number" id="r_roulettes"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Gardiennage / épave</div>
-      <div class="rate-row"><label>Gardiennage entrepôt (€/jour suppl.)</label><input type="number" id="r_gardiennageJour" step="1"></div>
-      <div class="rate-row"><label>Supplément si pas sur ses roues (treuil/plateau)</label><input type="number" id="r_epaveSansRouesFee" step="1"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Suppléments type de véhicule</div>
-      <div class="rate-row"><label>SUV / 4x4</label><input type="number" id="r_vehiculeSuvFee" step="1"></div>
-      <div class="rate-row"><label>Électrique / hybride</label><input type="number" id="r_vehiculeElectriqueFee" step="1"></div>
-      <div class="rate-row"><label>Utilitaire / camionnette</label><input type="number" id="r_vehiculeUtilitaireFee" step="1"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Batterie — achat</div>
-      <div class="rate-row"><label>Marge sur prix d'achat batterie</label><input type="number" id="r_battMarginPct" step="1">%</div>
-      <div class="rate-row"><label>Frais déplacement pour aller chercher</label><input type="number" id="r_battDeplacementFee" step="1"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Kilométrage</div>
-      <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
-      <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Majorations</div>
-      <div class="rate-row"><label>Nuit — de</label><input type="time" id="r_nightStart" step="900"></div>
-      <div class="rate-row"><label>Nuit — à</label><input type="time" id="r_nightEnd" step="900"></div>
-      <div class="rate-row"><label>Majoration nuit</label><input type="number" id="r_nuitPct" step="1">%</div>
-      <div class="rate-row"><label>Week-end / férié</label><input type="number" id="r_wePct" step="1">%</div>
-      <div class="rate-row"><label>Autoroute (€ fixe)</label><input type="number" id="r_auto"></div>
-    </div>
-
-    <div class="grp">
-      <div class="grp-title">Coût de revient carburant (indicatif)</div>
-      <div class="rate-row"><label>Prix gasoil (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
-      <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
-      <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
-    </div>
-
-    <button class="primary" onclick="saveSettings()">Enregistrer les réglages</button>
+    <button class="primary" style="margin-top:16px;" onclick="saveSettings()">Enregistrer les réglages</button>
     <button class="ghost close-modal" onclick="closeSettings()">Fermer</button>
   </div>
 </div>
@@ -971,6 +1049,7 @@
     <p class="route-hint">Enregistre une fois un trajet (ex: garage habituel, une ville que tu fais souvent) : ensuite il s'applique en un tap, même sans connexion.</p>
 
     <div id="routesList"></div>
+
 
     <div class="grp" style="margin-top:18px;">
       <div class="grp-title">Ajouter un trajet</div>
@@ -998,6 +1077,61 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modalClientsBg">
+  <div class="modal">
+    <h3>Clients enregistrés</h3>
+    <p class="route-hint">Enregistre une fois un client régulier (garage, société...) : ensuite sélectionne-le en un tap sur la facture, même sans connexion.</p>
+
+    <div id="clientsList"></div>
+
+    <div class="grp" style="margin-top:18px;">
+      <div class="grp-title">Ajouter un client</div>
+      <div class="field">
+        <label>Nom / société *</label>
+        <input type="text" id="clientNom" placeholder="Nom / société">
+      </div>
+      <div class="field">
+        <label>Adresse</label>
+        <input type="text" id="clientAdresse" list="adressesBelgique" placeholder="Rue, n°, ville">
+      </div>
+      <div class="field">
+        <label>Téléphone</label>
+        <input type="tel" id="clientTel" placeholder="04XX XX XX XX">
+      </div>
+      <div class="field">
+        <label>Société / assurance</label>
+        <input type="text" id="clientSociete" list="assuranceList" placeholder="Ex: Europ Assistance">
+      </div>
+      <div class="field">
+        <label>N° TVA / Référence</label>
+        <input type="text" id="clientVat" placeholder="Ex: BE0123.456.789">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Remise habituelle (optionnel)</label>
+        <div class="discount-row">
+          <input type="number" id="clientRemise" placeholder="0" min="0" inputmode="decimal">
+          <div class="unit-toggle">
+            <div class="unit-btn on" id="clientUnitEuro" onclick="setClientRemiseUnit('euro')">€</div>
+            <div class="unit-btn" id="clientUnitPct" onclick="setClientRemiseUnit('pct')">%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="primary" onclick="saveNewClient()">Enregistrer ce client</button>
+    <button class="ghost close-modal" onclick="closeClients()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalDashboardBg">
+  <div class="modal">
+    <h3>📊 Tableau de bord</h3>
+    <p class="route-hint">Basé sur toutes tes interventions enregistrées (peu importe le filtre de dates du journal).</p>
+    <div id="dashboardContent"><div class="empty">Chargement…</div></div>
+    <button class="ghost close-modal" onclick="closeDashboard()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalInvoiceBg">
   <div class="modal">
     <h3>Facture</h3>
@@ -1005,6 +1139,7 @@
 
     <div class="grp">
       <div class="grp-title">Client</div>
+      <button class="ghost" style="margin-bottom:10px;" onclick="openClientPicker()">👤 Choisir un client enregistré</button>
       <div class="field">
         <label>Nom du client *</label>
         <input type="text" id="invClientName" placeholder="Nom / société">
@@ -2584,6 +2719,55 @@ function getFrenchHolidays(year){
 // Vérifie si le jour actuel est un jour férié belge et/ou français, et affiche un rappel si c'est le cas
 // Rappel si aucune sauvegarde n'a été faite depuis 5 jours (ou jamais) — Safari iOS peut effacer les
 // données après environ 7 jours d'inactivité, donc ce seuil doit rester sous cette limite.
+// --- Entretien de la dépanneuse (contrôle technique, vidange, assurance) ---
+async function saveEntretienDates(){
+  const dates = {
+    ct: document.getElementById('r_dateCT').value,
+    vidange: document.getElementById('r_dateVidange').value,
+    assurance: document.getElementById('r_dateAssurance').value
+  };
+  try{
+    await window.storage.set('entretienDates', JSON.stringify(dates));
+    showToast('Échéances enregistrées');
+    checkEntretienReminder();
+  }catch(e){ showToast('Erreur d\'enregistrement'); }
+}
+
+async function loadEntretienDates(){
+  try{
+    const res = await window.storage.get('entretienDates');
+    const dates = JSON.parse(res.value);
+    if(document.getElementById('r_dateCT')) document.getElementById('r_dateCT').value = dates.ct || '';
+    if(document.getElementById('r_dateVidange')) document.getElementById('r_dateVidange').value = dates.vidange || '';
+    if(document.getElementById('r_dateAssurance')) document.getElementById('r_dateAssurance').value = dates.assurance || '';
+  }catch(e){ /* pas encore d'échéances enregistrées */ }
+}
+
+async function checkEntretienReminder(){
+  try{
+    const res = await window.storage.get('entretienDates');
+    const dates = JSON.parse(res.value);
+    const labels = {ct: 'Contrôle technique', vidange: 'Vidange / entretien', assurance: 'Assurance camion'};
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const alerts = [];
+    for(const key of ['ct', 'vidange', 'assurance']){
+      if(!dates[key]) continue;
+      const echeance = new Date(dates[key] + 'T00:00:00');
+      const daysLeft = Math.ceil((echeance - today) / (1000*60*60*24));
+      if(daysLeft <= 30){
+        if(daysLeft < 0) alerts.push(`${labels[key]} dépassé depuis ${Math.abs(daysLeft)} j !`);
+        else if(daysLeft === 0) alerts.push(`${labels[key]} — c'est aujourd'hui !`);
+        else alerts.push(`${labels[key]} dans ${daysLeft} j`);
+      }
+    }
+    if(alerts.length > 0){
+      document.getElementById('entretienBannerText').textContent = alerts.join(' · ') + ' (⚙️ Réglages)';
+      document.getElementById('entretienBanner').style.display = 'flex';
+    }
+  }catch(e){ /* pas encore d'échéances enregistrées */ }
+}
+
 async function checkBackupReminder(){
   try{
     const res = await window.storage.get('lastBackupDate');
@@ -2789,6 +2973,7 @@ function openSettings(){
   document.getElementById('modalBg').classList.add('show');
   updateCostHint();
   updateFaceIdSection();
+  loadEntretienDates();
   ['r_diesel','r_conso','r_km_remorque','r_km_deplacement'].forEach(id=>{
     document.getElementById(id).oninput = updateCostHint;
   });
@@ -2953,11 +3138,15 @@ async function renderRdvList(){
       const d = it.data;
       const dateStr = it.when.toLocaleDateString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit'});
       const heureStr = it.when.toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+      const callBtn = d.tel
+        ? `<a href="tel:${d.tel.replace(/\s/g,'')}" class="km" style="text-decoration:none;" onclick="event.stopPropagation()">📞</a>`
+        : '';
       return `<div class="route-item">
         <div class="info">
           <div class="name">${dateStr} à ${heureStr} — ${TYPE_LABELS[d.type] || d.type}</div>
           <div class="meta">${d.nom || 'Client'}${d.adresse ? ' · ' + d.adresse : ''}</div>
         </div>
+        ${callBtn}
         <div class="del" onclick="deleteRdv('${it.key}')">✕</div>
       </div>`;
     }).join('');
@@ -3190,6 +3379,183 @@ async function deleteRoute(id){
   showToast('Trajet supprimé');
 }
 
+// ===== Clients enregistrés (fonctionne 100% hors ligne une fois enregistrés) =====
+let CLIENTS = [];
+
+async function loadClients(){
+  try{
+    const res = await window.storage.get('clients');
+    if(res && res.value) CLIENTS = JSON.parse(res.value);
+  }catch(e){ CLIENTS = []; }
+}
+
+async function persistClients(){
+  try{
+    await window.storage.set('clients', JSON.stringify(CLIENTS));
+  }catch(e){ showToast('Erreur d\'enregistrement du client'); }
+}
+
+function renderClientsList(){
+  const container = document.getElementById('clientsList');
+  if(!CLIENTS.length){
+    container.innerHTML = '<div class="empty">Aucun client enregistré pour l\'instant</div>';
+    return;
+  }
+  container.innerHTML = CLIENTS.map(c => {
+    const remiseTxt = c.remise > 0 ? ` · remise ${c.remise}${c.remiseUnit === 'pct' ? '%' : '€'}` : '';
+    return `
+    <div class="route-item" onclick="applyClient('${c.id}')">
+      <div class="info">
+        <div class="name">${c.nom}</div>
+        <div class="meta">${c.adresse || ''}${c.societe ? ' · ' + c.societe : ''}${remiseTxt}</div>
+      </div>
+      <div class="del" onclick="event.stopPropagation(); deleteClient('${c.id}')">✕</div>
+    </div>
+  `;
+  }).join('');
+}
+
+function openClients(){
+  document.getElementById('modalClientsBg').classList.add('show');
+  renderClientsList();
+}
+function closeClients(){ document.getElementById('modalClientsBg').classList.remove('show'); }
+function openClientPicker(){ openClients(); }
+
+async function saveNewClient(){
+  const nom = document.getElementById('clientNom').value.trim();
+  if(!nom){ showToast('Le nom du client est obligatoire'); return; }
+  const client = {
+    id: 'c' + Date.now(),
+    nom,
+    adresse: document.getElementById('clientAdresse').value.trim(),
+    tel: document.getElementById('clientTel').value.trim(),
+    societe: document.getElementById('clientSociete').value.trim(),
+    vat: document.getElementById('clientVat').value.trim(),
+    remise: parseFloat(document.getElementById('clientRemise').value) || 0,
+    remiseUnit: clientRemiseUnit
+  };
+  CLIENTS.push(client);
+  await persistClients();
+  renderClientsList();
+  showToast('Client enregistré');
+  document.getElementById('clientNom').value = '';
+  document.getElementById('clientAdresse').value = '';
+  document.getElementById('clientTel').value = '';
+  document.getElementById('clientSociete').value = '';
+  document.getElementById('clientVat').value = '';
+  document.getElementById('clientRemise').value = '';
+  setClientRemiseUnit('euro');
+}
+
+function applyClient(id){
+  const c = CLIENTS.find(x => x.id === id);
+  if(!c) return;
+  document.getElementById('invClientName').value = c.nom;
+  document.getElementById('invClientAddress').value = c.adresse || '';
+  document.getElementById('invClientCompany').value = c.societe || '';
+  document.getElementById('invClientVat').value = c.vat || '';
+  closeClients();
+  if(c.remise > 0){
+    document.getElementById('remise').value = c.remise;
+    setRemiseUnit(c.remiseUnit || 'euro');
+    showToast('Client "' + c.nom + '" appliqué — remise habituelle pré-remplie, reclique sur "Calculer"');
+  } else {
+    showToast('Client "' + c.nom + '" appliqué à la facture');
+  }
+}
+
+async function deleteClient(id){
+  CLIENTS = CLIENTS.filter(c => c.id !== id);
+  await persistClients();
+  renderClientsList();
+  showToast('Client supprimé');
+}
+
+// ===== Tableau de bord (calculé à la demande — n'impacte jamais le démarrage de l'appli) =====
+function openDashboard(){
+  document.getElementById('modalDashboardBg').classList.add('show');
+  document.getElementById('dashboardContent').innerHTML = '<div class="empty">Calcul en cours…</div>';
+  renderDashboard();
+}
+function closeDashboard(){ document.getElementById('modalDashboardBg').classList.remove('show'); }
+
+async function renderDashboard(){
+  const container = document.getElementById('dashboardContent');
+  try{
+    const list = await window.storage.list('intervention:');
+    const results = await Promise.all((list.keys || []).map(async key => {
+      try{
+        const res = await window.storage.get(key);
+        return JSON.parse(res.value);
+      }catch(e){ return null; }
+    }));
+    const items = results.filter(d => d !== null);
+
+    if(items.length === 0){
+      container.innerHTML = '<div class="empty">Pas encore assez de données — enregistre quelques interventions d\'abord</div>';
+      return;
+    }
+
+    const total = items.reduce((s,d) => s + (d.total || 0), 0);
+    const moyenne = total / items.length;
+    const nbEnAttente = items.filter(d => !d.paye).length;
+    const totalEnAttente = items.filter(d => !d.paye).reduce((s,d) => s + (d.total||0), 0);
+
+    const joursNoms = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const parJour = {};
+    items.forEach(d => {
+      const jour = new Date(d.date).getDay();
+      parJour[jour] = (parJour[jour] || 0) + 1;
+    });
+    let jourMax = null, jourMaxCount = 0;
+    for(const [jour, count] of Object.entries(parJour)){
+      if(count > jourMaxCount){ jourMaxCount = count; jourMax = jour; }
+    }
+
+    const parType = {};
+    items.forEach(d => {
+      parType[d.type] = (parType[d.type] || 0) + 1;
+    });
+    let typeMax = null, typeMaxCount = 0;
+    for(const [type, count] of Object.entries(parType)){
+      if(count > typeMaxCount){ typeMaxCount = count; typeMax = type; }
+    }
+
+    const now = new Date();
+    const j30 = new Date(now); j30.setDate(j30.getDate() - 30);
+    const j60 = new Date(now); j60.setDate(j60.getDate() - 60);
+    const revenu30 = items.filter(d => new Date(d.date) >= j30).reduce((s,d) => s + (d.total||0), 0);
+    const revenuPrecedent30 = items.filter(d => new Date(d.date) >= j60 && new Date(d.date) < j30).reduce((s,d) => s + (d.total||0), 0);
+    let tendanceHtml = '';
+    if(revenuPrecedent30 > 0){
+      const variation = ((revenu30 - revenuPrecedent30) / revenuPrecedent30) * 100;
+      const signe = variation >= 0 ? '+' : '';
+      const couleur = variation >= 0 ? '#5ab46e' : '#e05a4e';
+      tendanceHtml = `<div class="rate-row"><label>Évolution vs 30 j précédents</label><span style="color:${couleur};">${signe}${variation.toFixed(0)}%</span></div>`;
+    }
+
+    container.innerHTML = `
+      <div class="grp">
+        <div class="grp-title">Vue d'ensemble</div>
+        <div class="rate-row"><label>Interventions enregistrées</label><span>${items.length}</span></div>
+        <div class="rate-row"><label>Chiffre d'affaires total</label><span>${fmt(total)}</span></div>
+        <div class="rate-row"><label>Panier moyen</label><span>${fmt(moyenne)}</span></div>
+        <div class="rate-row"><label>En attente de paiement</label><span style="${nbEnAttente>0?'color:#e05a4e;':''}">${nbEnAttente} (${fmt(totalEnAttente)})</span></div>
+      </div>
+      <div class="grp">
+        <div class="grp-title">Tendances</div>
+        <div class="rate-row"><label>Jour le plus chargé</label><span>${jourMax !== null ? joursNoms[jourMax] : '—'}</span></div>
+        <div class="rate-row"><label>Intervention la plus fréquente</label><span>${typeMax ? (TYPE_LABELS[typeMax]||typeMax) : '—'}</span></div>
+        <div class="rate-row"><label>Chiffre d'affaires (30 derniers jours)</label><span>${fmt(revenu30)}</span></div>
+        ${tendanceHtml}
+      </div>
+    `;
+  }catch(e){
+    container.innerHTML = '<div class="empty">Erreur lors du calcul des statistiques</div>';
+  }
+}
+
 // ===== Facture PDF (signature tactile + QR de paiement, tout hors ligne) =====
 const COMPANY = {
   name: 'JM Express Auto Dépannage',
@@ -3270,6 +3636,19 @@ function setVehicleType(type){
   const map = {normale:'vtNormale', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire'};
   document.getElementById(map[type]).classList.add('on');
   document.getElementById('capaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
+  updateAdvancedSummary();
+}
+
+function updateAdvancedSummary(){
+  const parts = [];
+  const vehicleLabels = {suv:'SUV/4x4', electrique:'Électrique', utilitaire:'Utilitaire'};
+  if(vehicleLabels[VEHICLE_TYPE]) parts.push(vehicleLabels[VEHICLE_TYPE]);
+  if(document.getElementById('tgCamion').classList.contains('on')) parts.push('Camion');
+  if(document.getElementById('tgGardiennage').classList.contains('on')){
+    const jours = document.getElementById('joursGardiennage').value || '0';
+    parts.push('Gardiennage ' + jours + 'j');
+  }
+  document.getElementById('advancedSummary').textContent = parts.length ? parts.join(' · ') : 'Aucune';
 }
 
 function setInvoiceLang(lang){
@@ -3665,6 +4044,22 @@ function toggleExtrasList(){
   chevron.classList.toggle('open', !isOpen);
 }
 
+function toggleAdvancedOptions(){
+  const box = document.getElementById('advancedOptions');
+  const chevron = document.getElementById('advancedChevron');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function toggleSettingsCategory(id){
+  const box = document.getElementById(id);
+  const chevron = document.getElementById(id + 'Chevron');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
 function updateExtrasSummary(){
   const n = document.querySelectorAll('.extraCheck:checked').length;
   document.getElementById('extrasSummary').textContent = n === 0 ? 'Aucune' : (n + ' sélectionnée' + (n > 1 ? 's' : ''));
@@ -3707,6 +4102,7 @@ function updateKmLabel(){
     if(isMainType) item.querySelector('input').checked = false;
   });
   updateExtrasSummary();
+  updateAdvancedSummary();
 }
 
 function updateAbandonDocButton(){
@@ -3728,6 +4124,13 @@ function setRemiseUnit(unit){
   remiseUnit = unit;
   document.getElementById('unitEuro').classList.toggle('on', unit === 'euro');
   document.getElementById('unitPct').classList.toggle('on', unit === 'pct');
+}
+
+let clientRemiseUnit = 'euro';
+function setClientRemiseUnit(unit){
+  clientRemiseUnit = unit;
+  document.getElementById('clientUnitEuro').classList.toggle('on', unit === 'euro');
+  document.getElementById('clientUnitPct').classList.toggle('on', unit === 'pct');
 }
 
 // Géolocalisation : remplit l'adresse d'intervention avec la position GPS actuelle
@@ -3976,6 +4379,11 @@ async function enregistrer(){
     clearReceiptPhoto();
     clearEpavePhotos();
     setVehicleType('normale');
+    document.getElementById('tgCamion').classList.remove('on');
+    document.getElementById('tgGardiennage').classList.remove('on');
+    document.getElementById('joursGardiennage').value = '';
+    updateGardiennageField();
+    updateKmLabel();
     loadHistory();
   }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
 }
@@ -4353,6 +4761,8 @@ checkPinLock();
 loadThemeMode();
 loadTextSize();
 checkBackupReminder();
+checkEntretienReminder();
+loadClients();
 loadRates().then(updateKmLabel);
 loadHistory();
 loadRoutes();
