@@ -864,7 +864,7 @@
     <div class="ticket-row" id="rowVehicleFee" style="display:none;"><span class="l" id="tkVehicleLabel">Supplément véhicule</span><span class="v" id="tkVehicleFee">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
-      <span class="lbl">Total TVAC</span>
+      <span class="lbl">Total à payer</span>
       <span class="amt" id="tkTotal">0 €</span>
     </div>
     <button class="primary" style="margin-top:16px;" onclick="enregistrer()">Enregistrer dans le journal</button>
@@ -2879,7 +2879,7 @@ const INVOICE_STRINGS = {
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
     supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)',
     vehiculeSuv:'Supplément SUV / 4x4', vehiculeElectrique:'Supplément véhicule électrique/hybride', vehiculeUtilitaire:'Supplément utilitaire/camionnette',
-    remise:'Remise', totalTvac:'TOTAL TVAC', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
+    remise:'Remise', totalTvac:'TOTAL À PAYER', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
     scannezPayer:'Scannez pour payer', paiementVirement:'PAIEMENT PAR VIREMENT', communication:'Communication : Facture ',
     attestationTitre:'ATTESTATION — LEVÉE DE SAISIE',
     attestationL1:'Le client atteste avoir remis à JM Express Auto Dépannage le document de levée',
@@ -2898,7 +2898,7 @@ const INVOICE_STRINGS = {
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
     supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)',
     vehiculeSuv:'Toeslag SUV / 4x4', vehiculeElectrique:'Toeslag elektrisch/hybride voertuig', vehiculeUtilitaire:'Toeslag bestelwagen',
-    remise:'Korting', totalTvac:'TOTAAL BTW INCL.', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
+    remise:'Korting', totalTvac:'TOTAAL TE BETALEN', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
     scannezPayer:'Scan om te betalen', paiementVirement:'BETALING PER OVERSCHRIJVING', communication:'Mededeling : Factuur ',
     attestationTitre:'VERKLARING — OPHEFFING INBESLAGNAME',
     attestationL1:'De klant verklaart het document van opheffing van inbeslagname te hebben overhandigd aan',
@@ -2917,7 +2917,7 @@ const INVOICE_STRINGS = {
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
     supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)',
     vehiculeSuv:'SUV / 4x4 surcharge', vehiculeElectrique:'Electric/hybrid vehicle surcharge', vehiculeUtilitaire:'Van/utility vehicle surcharge',
-    remise:'Discount', totalTvac:'TOTAL VAT INCL.', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
+    remise:'Discount', totalTvac:'TOTAL DUE', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
     scannezPayer:'Scan to pay', paiementVirement:'PAYMENT BY BANK TRANSFER', communication:'Payment reference: Invoice ',
     attestationTitre:'STATEMENT — SEIZURE RELEASE',
     attestationL1:'The client confirms having handed over the seizure release document to',
@@ -4413,7 +4413,7 @@ function copierRecap(){
   }
   if(c.gardiennageCost) txt += `\nGardiennage (${c.joursGardiennage} j) : ${fmt(c.gardiennageCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
-  txt += `\n\n*TOTAL TVAC : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
+  txt += `\n\n*TOTAL À PAYER : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
 
   if(navigator.clipboard){
     navigator.clipboard.writeText(txt).then(()=>showToast('Récap copié')).catch(()=>fallbackCopy(txt));
@@ -4567,7 +4567,7 @@ function csvEscape(v){
 async function exporterCsv(){
   const items = await getFilteredHistory();
   if(items.length === 0){ showToast('Aucune intervention sur cette période'); return; }
-  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total TVAC','Statut paiement','Justificatif']];
+  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total à payer','Statut paiement','Justificatif']];
   let totalKm = 0, totalMontant = 0;
   items.forEach(it=>{
     const d = it.data;
