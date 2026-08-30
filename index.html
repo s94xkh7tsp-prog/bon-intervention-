@@ -3007,6 +3007,7 @@ function openQuickQuote(){
   document.getElementById('qqNightHoursLabel').textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
   document.getElementById('modalQuickQuoteBg').classList.add('show');
   setQqVehicleType('normale');
+  document.getElementById('qqResult').textContent = '—';
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
 
