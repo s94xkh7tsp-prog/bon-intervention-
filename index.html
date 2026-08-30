@@ -64,7 +64,18 @@
     display:flex; align-items:center; justify-content:center; color:var(--grey); font-size:18px; cursor:pointer;
   }
   .gear:active{background:var(--orange-dim); color:var(--orange);}
+  .gear.emergency{background:rgba(224,90,78,0.15); border-color:rgba(224,90,78,0.4); color:#e05a4e; text-decoration:none;}
+  .gear.emergency:active{background:#e05a4e; color:#fff;}
   .head-row-icons{display:flex; gap:8px;}
+
+  .emergency-btn{
+    display:flex; flex-direction:column; align-items:center; gap:4px; text-decoration:none;
+    background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:14px;
+    padding:16px; margin-bottom:10px; font-size:28px; font-weight:700; color:#e05a4e;
+  }
+  .emergency-btn span{font-size:12.5px; font-weight:500; color:var(--white); text-align:center;}
+  .emergency-btn:active{background:#e05a4e; color:#fff;}
+  .emergency-btn:active span{color:#fff;}
 
   /* SECTION LABEL */
   .eyebrow{
@@ -314,6 +325,7 @@
       <div class="sub">Bon d'intervention</div>
     </div>
     <div class="head-row-icons">
+      <div class="gear emergency" onclick="openUrgences()" title="Urgences">🚨</div>
       <div class="gear" onclick="openQuickQuote()" title="Devis rapide">📞</div>
       <div class="gear" onclick="openRdv()" title="Rendez-vous">📅</div>
       <div class="gear" onclick="openSettings()">⚙</div>
@@ -476,6 +488,15 @@
       <option value="Parking de la Halle (Rue de la Halle, Mons)">
       <option value="Parking Grand'Rue (Rue Notre-Dame, Mons)">
       <option value="Parking Damoiseaux (Mons)">
+
+      <option value="Hôpital Civil Marie Curie (Chaussée de Bruxelles 140, Lodelinsart)">
+      <option value="Grand Hôpital de Charleroi - Les Viviers (Rue du Campus des Viviers 1, Gilly)">
+      <option value="Hôpital André Vésale (Rue de Gozée 706, Montigny-le-Tilleul)">
+      <option value="Grand Hôpital de Charleroi - Site Saint-Joseph (Rue Marguerite Depasse 6, Gilly)">
+      <option value="Grand Hôpital de Charleroi - Site Reine Fabiola (Avenue du Centenaire 73, Montignies-sur-Sambre)">
+      <option value="Grand Hôpital de Charleroi - Site Sainte-Thérèse (Rue Trieu Kaisin 134, Montignies-sur-Sambre)">
+      <option value="Grand Hôpital de Charleroi - Site IMTR (Rue de Villers 1, Loverval)">
+      <option value="Clinique Notre-Dame (Grand Rue 3, Charleroi)">
       <option value="Gare de Charleroi-Sud">
       <option value="Gare de Charleroi-Ouest">
       <option value="Gare de Marchienne-au-Pont">
@@ -1215,6 +1236,20 @@
     <p class="route-hint">Basé sur toutes tes interventions enregistrées (peu importe le filtre de dates du journal).</p>
     <div id="dashboardContent"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeDashboard()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalUrgencesBg">
+  <div class="modal">
+    <h3>🚨 Appel d'urgence</h3>
+    <p class="route-hint">Un tap appelle directement — vérifie d'abord le pays où tu te trouves.</p>
+    <a href="tel:112" class="emergency-btn" onclick="closeUrgences()">
+      🇧🇪 112 <span>Belgique — Police / Ambulance / Pompiers</span>
+    </a>
+    <a href="tel:18" class="emergency-btn" onclick="closeUrgences()">
+      🇫🇷 18 <span>France — Pompiers</span>
+    </a>
+    <button class="ghost close-modal" onclick="closeUrgences()" style="margin-top:12px;">Fermer</button>
   </div>
 </div>
 
@@ -3539,6 +3574,9 @@ function openDashboard(){
   renderDashboard();
 }
 function closeDashboard(){ document.getElementById('modalDashboardBg').classList.remove('show'); }
+
+function openUrgences(){ document.getElementById('modalUrgencesBg').classList.add('show'); }
+function closeUrgences(){ document.getElementById('modalUrgencesBg').classList.remove('show'); }
 
 async function renderDashboard(){
   const container = document.getElementById('dashboardContent');
