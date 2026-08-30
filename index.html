@@ -98,6 +98,12 @@
     font-size:17px; cursor:pointer; color:var(--orange);
   }
   .loc-btn:active{background:rgba(242,169,0,0.15);}
+  .access-hint{
+    font-size:11.5px; margin-top:5px; padding:5px 9px; border-radius:8px; display:flex; align-items:center; gap:6px;
+  }
+  .access-hint.ok{background:rgba(90,180,110,0.12); color:#5ab46e;}
+  .access-hint.camionnette{background:rgba(242,169,0,0.12); color:var(--orange);}
+  .access-hint.non{background:rgba(224,90,78,0.12); color:#e05a4e;}
   select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%239a9a9f' stroke-width='1.6' fill='none' fill-rule='evenodd'/></svg>"); background-repeat:no-repeat; background-position:right 14px center;}
 
   .route-line{display:flex; align-items:flex-start; gap:10px;}
@@ -402,24 +408,74 @@
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville">
+            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" oninput="checkAccesVehicule('addrFrom')" onchange="checkAccesVehicule('addrFrom')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
+            <button type="button" class="loc-btn" onclick="toggleAccesVehicule('addrFrom')" title="Noter l'accès véhicule">🚦</button>
           </div>
+          <div class="access-hint" id="addrFromAccessHint" style="display:none;"></div>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville">
+            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" oninput="checkAccesVehicule('addrTo')" onchange="checkAccesVehicule('addrTo')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
+            <button type="button" class="loc-btn" onclick="toggleAccesVehicule('addrTo')" title="Noter l'accès véhicule">🚦</button>
           </div>
+          <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
         </div>
       </div>
     </div>
 
     <datalist id="adressesBelgique">
+      <option value="Aéroport de Charleroi (Gosselies)">
+      <option value="Parking Express (Aéroport de Charleroi)">
+      <option value="Parking Lock Park (Aéroport de Charleroi)">
+      <option value="Parking P1 (Aéroport de Charleroi)">
+      <option value="Parking P2 (Aéroport de Charleroi)">
+      <option value="Parking P3 (Aéroport de Charleroi)">
+      <option value="Parking P4 (Aéroport de Charleroi)">
+      <option value="Parking P5 (Aéroport de Charleroi)">
+      <option value="Aéroport de Bruxelles-National (Zaventem)">
+      <option value="Kiss and Ride (Brussels Airport Zaventem)">
+      <option value="Parking P1 Front (Brussels Airport Zaventem)">
+      <option value="Parking P2 Economy (Brussels Airport Zaventem)">
+      <option value="Parking P3 Holiday (Brussels Airport Zaventem)">
+      <option value="Parking P4 (Brussels Airport Zaventem)">
+
+      <option value="Parking Rive Gauche (Boulevard Joseph Tirou, Charleroi)">
+      <option value="Parking de la Digue (Place de la Digue, Charleroi)">
+      <option value="Parking Campus (Boulevard Gustave Roullier, Charleroi)">
+      <option value="Parking Zoé Drion (Boulevard Zoé Drion, Charleroi)">
+      <option value="Parking Inno Centre-Ville (Rue de Montigny, Charleroi)">
+      <option value="Parking Tirou (Boulevard Joseph Tirou, Charleroi)">
+      <option value="Parking de l'Yser (Boulevard de l'Yser, Charleroi)">
+
+      <option value="Parking Hôtel de Ville (Rue des Dames Blanches, Namur)">
+      <option value="Parking Namur Expo (Avenue Sergent Vrithoff, Namur)">
+      <option value="Parking Saint-Nicolas (Avenue Albert Ier, Namur)">
+      <option value="Parking du Centre (Rue de Fer, Namur)">
+      <option value="Parking Gifar (Rue des Echasseurs, Namur)">
+      <option value="Parking Beffroi (Place d'Armes, Namur)">
+      <option value="Parking Confluence (Rue du Grognon, Namur)">
+      <option value="Parking Casernes - Palais de Justice (Rue Themis, Namur)">
+      <option value="Parking UNamur (Rue Grandgagnage, Namur)">
+
+      <option value="Parking Cathédrale (Place de la Cathédrale, Liège)">
+      <option value="Parking Charles Magnette (Rue Soeurs de Hasque, Liège)">
+      <option value="Parking Cité (Quai de la Goffe, Liège)">
+      <option value="Parking Opéra (Galerie Opéra, Liège)">
+      <option value="Parking Saint-Denis (Rue Souverain-Pont, Liège)">
+      <option value="Parking Saint-Georges (Quai de la Batte, Liège)">
+      <option value="Parking Saint-Lambert (Place Saint-Lambert, Liège)">
+      <option value="Parking Saint-Paul (Place Saint-Paul, Liège)">
+
+      <option value="Parking Grand-Place (Rue d'Havré, Mons)">
+      <option value="Parking de la Halle (Rue de la Halle, Mons)">
+      <option value="Parking Grand'Rue (Rue Notre-Dame, Mons)">
+      <option value="Parking Damoiseaux (Mons)">
       <option value="Gare de Charleroi-Sud">
       <option value="Gare de Charleroi-Ouest">
       <option value="Gare de Marchienne-au-Pont">
@@ -3355,6 +3411,8 @@ function applyRoute(id){
   document.getElementById('km').value = r.km;
   closeRoutes();
   showToast('Trajet appliqué : ' + r.name);
+  checkAccesVehicule('addrFrom');
+  checkAccesVehicule('addrTo');
 }
 
 async function saveNewRoute(){
@@ -4122,10 +4180,72 @@ function setClientRemiseUnit(unit){
   document.getElementById('clientUnitPct').classList.toggle('on', unit === 'pct');
 }
 
+let ACCESS_NOTES = {};
+
+async function loadAccessNotes(){
+  try{
+    const res = await window.storage.get('accesVehiculeNotes');
+    ACCESS_NOTES = JSON.parse(res.value);
+  }catch(e){ ACCESS_NOTES = {}; }
+}
+
+async function persistAccessNotes(){
+  try{ await window.storage.set('accesVehiculeNotes', JSON.stringify(ACCESS_NOTES)); }
+  catch(e){ showToast('Erreur d\'enregistrement de la note d\'accès'); }
+}
+
+function normaliserAdresse(address){
+  return address.trim().toLowerCase();
+}
+
+async function toggleAccesVehicule(fieldId){
+  const address = document.getElementById(fieldId).value.trim();
+  if(!address){ showToast('Indique d\'abord une adresse'); return; }
+  const key = normaliserAdresse(address);
+  const existing = ACCESS_NOTES[key];
+
+  if(!existing){
+    ACCESS_NOTES[key] = {statut: 'camion', label: address, date: new Date().toISOString()};
+    showToast('✅ Noté : accès camion possible pour "' + address + '"');
+  } else if(existing.statut === 'camion'){
+    ACCESS_NOTES[key] = {statut: 'camionnette', label: address, date: new Date().toISOString()};
+    showToast('🚐 Noté : camionnette seulement pour "' + address + '"');
+  } else if(existing.statut === 'camionnette'){
+    ACCESS_NOTES[key] = {statut: 'non', label: address, date: new Date().toISOString()};
+    showToast('❌ Noté : aucun accès véhicule pour "' + address + '"');
+  } else {
+    delete ACCESS_NOTES[key];
+    showToast('Note d\'accès retirée pour "' + address + '"');
+  }
+  await persistAccessNotes();
+  checkAccesVehicule(fieldId);
+}
+
+function checkAccesVehicule(fieldId){
+  const hintEl = document.getElementById(fieldId + 'AccessHint');
+  if(!hintEl) return;
+  const address = document.getElementById(fieldId).value.trim();
+  if(!address){ hintEl.style.display = 'none'; return; }
+  const note = ACCESS_NOTES[normaliserAdresse(address)];
+  if(!note){ hintEl.style.display = 'none'; return; }
+
+  const dateStr = new Date(note.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'numeric'});
+  const configs = {
+    camion: {cls:'ok', text:'✅ Accès camion possible (noté le ' + dateStr + ')'},
+    camionnette: {cls:'camionnette', text:'🚐 Camionnette seulement — le gros camion ne passe pas (noté le ' + dateStr + ')'},
+    non: {cls:'non', text:'❌ Aucun accès véhicule ici (noté le ' + dateStr + ')'}
+  };
+  const cfg = configs[note.statut];
+  hintEl.className = 'access-hint ' + cfg.cls;
+  hintEl.textContent = cfg.text;
+  hintEl.style.display = 'flex';
+}
+
 function effacerChamp(fieldId){
   const field = document.getElementById(fieldId);
   field.value = '';
   field.focus();
+  checkAccesVehicule(fieldId);
 }
 
 function dicterAdresse(fieldId){
@@ -4147,6 +4267,7 @@ function dicterAdresse(fieldId){
     const transcript = event.results[0][0].transcript;
     field.value = transcript;
     showToast('Adresse dictée : ' + transcript);
+    checkAccesVehicule(fieldId);
   };
   recognition.onerror = (event) => {
     if(event.error === 'not-allowed' || event.error === 'permission-denied'){
@@ -4168,6 +4289,7 @@ function useMyLocation(fieldId){
     if(!navigator.onLine){
       document.getElementById(fieldId).value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position GPS récupérée (hors ligne — coordonnées)');
+      checkAccesVehicule(fieldId);
       return;
     }
     try{
@@ -4176,9 +4298,11 @@ function useMyLocation(fieldId){
       const data = await res.json();
       document.getElementById(fieldId).value = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position récupérée');
+      checkAccesVehicule(fieldId);
     }catch(e){
       document.getElementById(fieldId).value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
       showToast('Position récupérée (coordonnées GPS)');
+      checkAccesVehicule(fieldId);
     }
   }, (err)=>{
     if(err.code === 1) showToast('Localisation refusée — autorise-la dans Réglages > Confidentialité');
@@ -4766,6 +4890,7 @@ loadTextSize();
 checkBackupReminder();
 checkEntretienReminder();
 loadClients();
+loadAccessNotes();
 loadRates().then(updateKmLabel);
 loadHistory();
 loadRoutes();
