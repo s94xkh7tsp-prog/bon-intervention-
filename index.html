@@ -429,9 +429,13 @@
             <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
-            <button type="button" class="loc-btn" onclick="toggleAccesVehicule('addrFrom')" title="Noter l'accès véhicule">🚦</button>
           </div>
           <div class="access-hint" id="addrFromAccessHint" style="display:none;"></div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button type="button" class="ghost" style="flex:1; padding:9px;" onclick="ouvrirNavigation('addrFrom')">🧭 Maps</button>
+            <button type="button" class="ghost" style="flex:1; padding:9px;" onclick="ouvrirWaze('addrFrom')">🚗 Waze</button>
+          </div>
+          <button type="button" class="ghost" style="width:100%; padding:9px; margin-top:8px;" onclick="toggleAccesVehicule('addrFrom')">🚦 Noter l'accès véhicule</button>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
@@ -439,9 +443,13 @@
             <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" oninput="checkAccesVehicule('addrTo')" onchange="checkAccesVehicule('addrTo')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
-            <button type="button" class="loc-btn" onclick="toggleAccesVehicule('addrTo')" title="Noter l'accès véhicule">🚦</button>
           </div>
           <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button type="button" class="ghost" style="flex:1; padding:9px;" onclick="ouvrirNavigation('addrTo')">🧭 Maps</button>
+            <button type="button" class="ghost" style="flex:1; padding:9px;" onclick="ouvrirWaze('addrTo')">🚗 Waze</button>
+          </div>
+          <button type="button" class="ghost" style="width:100%; padding:9px; margin-top:8px;" onclick="toggleAccesVehicule('addrTo')">🚦 Noter l'accès véhicule</button>
         </div>
       </div>
     </div>
@@ -4444,6 +4452,20 @@ function checkAccesVehicule(fieldId){
   hintEl.className = 'access-hint ' + cfg.cls;
   hintEl.textContent = cfg.text;
   hintEl.style.display = 'flex';
+}
+
+function ouvrirNavigation(fieldId){
+  const address = document.getElementById(fieldId).value.trim();
+  if(!address){ showToast('Indique d\'abord une adresse'); return; }
+  const url = 'https://maps.apple.com/?daddr=' + encodeURIComponent(address) + '&dirflg=d';
+  window.open(url, '_blank');
+}
+
+function ouvrirWaze(fieldId){
+  const address = document.getElementById(fieldId).value.trim();
+  if(!address){ showToast('Indique d\'abord une adresse'); return; }
+  const url = 'https://waze.com/ul?q=' + encodeURIComponent(address) + '&navigate=yes';
+  window.open(url, '_blank');
 }
 
 function effacerChamp(fieldId){
