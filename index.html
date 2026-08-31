@@ -4531,7 +4531,15 @@ function extractCoordsFromText(text){
   return null;
 }
 
+const LIEUX_PRECIS = {
+  'aéroport de charleroi (gosselies)': {lat: 50.4592, lon: 4.4538},
+  'aéroport de bruxelles-national (zaventem)': {lat: 50.9014, lon: 4.4844}
+};
+
 async function geocodeAddress(address){
+  const lieuConnu = LIEUX_PRECIS[address.trim().toLowerCase()];
+  if(lieuConnu) return lieuConnu;
+
   const coords = extractCoordsFromText(address);
   if(coords) return coords;
 
