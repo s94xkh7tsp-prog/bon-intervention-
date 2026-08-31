@@ -375,6 +375,11 @@
     </div>
 
     <div class="field">
+      <label>Plaque d'immatriculation (optionnel)</label>
+      <input type="text" id="plaqueImmat" placeholder="Ex: 1-ABC-123" style="text-transform:uppercase;">
+    </div>
+
+    <div class="field">
       <div class="extras-header" onclick="toggleExtrasList()">
         <label style="margin:0; cursor:pointer;">+ Prestations supplémentaires (optionnel)</label>
         <span class="extras-summary" id="extrasSummary">Aucune</span>
@@ -876,10 +881,15 @@
         <div class="toggles" style="margin-bottom:8px;">
           <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;">🚛 Avec le camion</div>
           <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField(); updateAdvancedSummary()">🏚️ Gardiennage (jours suppl.)</div>
+          <div class="toggle" id="tgAttente" onclick="toggle('tgAttente'); updateAttenteField(); updateAdvancedSummary()">⏱️ Temps d'attente</div>
         </div>
-        <div class="field" id="gardiennageField" style="display:none; margin-bottom:0;">
+        <div class="field" id="gardiennageField" style="display:none; margin-bottom:12px;">
           <label>Jours de gardiennage supplémentaires (au-delà des jours gratuits)</label>
           <input type="number" id="joursGardiennage" placeholder="0" min="0" inputmode="numeric" oninput="updateAdvancedSummary()">
+        </div>
+        <div class="field" id="attenteField" style="display:none; margin-bottom:0;">
+          <label>Minutes d'attente sur place (client absent, procédure...)</label>
+          <input type="number" id="minutesAttente" placeholder="0" min="0" step="15" inputmode="numeric" oninput="updateAdvancedSummary()">
         </div>
       </div>
     </div>
@@ -900,6 +910,23 @@
       <div id="receiptPreviewWrap" style="display:none; margin-top:8px;">
         <img id="receiptPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearReceiptPhoto()">Retirer la photo</button>
+      </div>
+    </div>
+
+    <div class="photo-row" id="etatLieuxField" style="display:none;">
+      <label>État des lieux avant chargement (protection en cas de litige)</label>
+      <input type="file" id="etatLieuxPhotos" accept="image/*" multiple onchange="handleEtatLieuxPhotos(event)" style="display:none;">
+      <button type="button" class="ghost" style="margin-bottom:8px;" onclick="document.getElementById('etatLieuxPhotos').click()">📷 Photos de l'état du véhicule</button>
+      <div id="etatLieuxPreviewWrap" style="display:none; margin-top:8px; margin-bottom:8px;">
+        <div id="etatLieuxPreviewGrid" class="epave-preview-grid"></div>
+        <button type="button" class="ghost" style="margin-top:6px;" onclick="clearEtatLieuxPhotos()">Retirer toutes les photos</button>
+      </div>
+      <input type="file" id="etatLieuxVideoInput" accept="video/*" capture="environment" style="display:none;" onchange="handleEtatLieuxVideo(event)">
+      <button type="button" class="ghost" style="margin-bottom:8px;" onclick="document.getElementById('etatLieuxVideoInput').click()">🎥 Filmer une vidéo (reste dans tes Photos)</button>
+      <div id="etatLieuxVideoNote" style="display:none; font-size:12px; color:var(--grey); margin:-4px 0 8px 0;"></div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Notes sur l'état constaté (rayures, bosses, dommages déjà présents...)</label>
+        <textarea id="etatLieuxNotes" rows="3" placeholder="Ex: rayure portière arrière gauche, pare-choc avant fissuré..." style="width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
       </div>
     </div>
 
@@ -928,6 +955,7 @@
     <div class="ticket-addr"><span class="tag">Prise en charge</span><br><span id="tkFrom">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Dépose</span><br><span id="tkTo">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Type</span><br><span id="tkType">—</span></div>
+    <div class="ticket-addr" id="tkPlaqueRow" style="margin-top:6px; display:none;"><span class="tag">Plaque</span><br><span id="tkPlaque">—</span></div>
     <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
     <div id="extrasRows"></div>
@@ -937,6 +965,7 @@
     <div class="ticket-row" id="rowBatt" style="display:none;"><span class="l">Batterie (achat + marge)</span><span class="v" id="tkBatt">—</span></div>
     <div class="ticket-row" id="rowBattDeplacement" style="display:none;"><span class="l">Déplacement achat batterie</span><span class="v" id="tkBattDeplacement">—</span></div>
     <div class="ticket-row" id="rowGardiennage" style="display:none;"><span class="l">Gardiennage suppl.</span><span class="v" id="tkGardiennage">—</span></div>
+    <div class="ticket-row" id="rowAttente" style="display:none;"><span class="l">Temps d'attente</span><span class="v" id="tkAttente">—</span></div>
     <div class="ticket-row" id="rowPasRoues" style="display:none;"><span class="l">Pas sur roues (treuil/plateau)</span><span class="v" id="tkPasRoues">—</span></div>
     <div class="ticket-row" id="rowVehicleFee" style="display:none;"><span class="l" id="tkVehicleLabel">Supplément véhicule</span><span class="v" id="tkVehicleFee">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
@@ -1021,6 +1050,11 @@
           <div class="grp-title">Gardiennage / épave</div>
           <div class="rate-row"><label>Gardiennage entrepôt (€/jour suppl.)</label><input type="number" id="r_gardiennageJour" step="1"></div>
           <div class="rate-row"><label>Supplément si pas sur ses roues (treuil/plateau)</label><input type="number" id="r_epaveSansRouesFee" step="1"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Temps d'attente</div>
+          <div class="rate-row"><label>Par tranche de 15 minutes</label><input type="number" id="r_attente15minFee" step="1"></div>
         </div>
 
         <div class="grp">
@@ -2038,7 +2072,8 @@ function MiniPDF(pageWidthPt, pageHeightPt) {
     0x2013: 0x96, 0x2014: 0x97, // – —
     0x2212: 0x2D, // − (signe moins typographique) -> tiret standard
     0x202F: 0x20, 0x2009: 0x20, // espaces insécables fines (séparateur de milliers fr-BE) -> espace normale
-    0x2192: 0x2D // → (flèche, utilisée dans certains libellés) -> tiret standard
+    0x2192: 0x2D, // → (flèche, utilisée dans certains libellés) -> tiret standard
+    0x2026: 0x85 // … (points de suspension, code natif WinAnsi)
   };
   function toLatin1Bytes(str){
     const arr = new Uint8Array(str.length);
@@ -2402,6 +2437,7 @@ const DEFAULT_RATES = {
   km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
+  attente15minFee:10,
   diesel:2.21, conso:15
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
@@ -2523,6 +2559,69 @@ function renderEpavePreview(){
       <div class="rm" onclick="removeEpavePhoto(${i})">✕</div>
     </div>
   `).join('');
+}
+
+let etatLieuxPhotosData = [];
+let etatLieuxVideoPrise = false;
+
+async function handleEtatLieuxPhotos(event){
+  const files = Array.from(event.target.files || []);
+  if(files.length === 0) return;
+  for(const file of files){
+    try{
+      const compressed = await compressImageToBase64(file, 900, 0.6);
+      etatLieuxPhotosData.push(compressed);
+    }catch(e){ /* une photo a échoué, on continue avec les autres */ }
+  }
+  event.target.value = '';
+  renderEtatLieuxPreview();
+  showToast(etatLieuxPhotosData.length + ' photo(s) d\'état des lieux prête(s)');
+}
+
+function removeEtatLieuxPhoto(index){
+  etatLieuxPhotosData.splice(index, 1);
+  renderEtatLieuxPreview();
+}
+
+function clearEtatLieuxPhotos(){
+  etatLieuxPhotosData = [];
+  renderEtatLieuxPreview();
+}
+
+function renderEtatLieuxPreview(){
+  const wrap = document.getElementById('etatLieuxPreviewWrap');
+  const grid = document.getElementById('etatLieuxPreviewGrid');
+  if(etatLieuxPhotosData.length === 0){
+    wrap.style.display = 'none';
+    grid.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+  grid.innerHTML = etatLieuxPhotosData.map((photo, i) => `
+    <div class="thumb-wrap">
+      <img src="${photo}">
+      <div class="rm" onclick="removeEtatLieuxPhoto(${i})">✕</div>
+    </div>
+  `).join('');
+}
+
+function handleEtatLieuxVideo(event){
+  if(!event.target.files || event.target.files.length === 0) return;
+  etatLieuxVideoPrise = true;
+  const heure = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+  const noteEl = document.getElementById('etatLieuxVideoNote');
+  noteEl.textContent = '🎥 Vidéo tournée à ' + heure + ' — elle est dans tes Photos, pas dans l\'appli';
+  noteEl.style.display = 'block';
+  event.target.value = '';
+  showToast('Vidéo enregistrée dans tes Photos');
+}
+
+function clearEtatLieuxState(){
+  etatLieuxPhotosData = [];
+  etatLieuxVideoPrise = false;
+  document.getElementById('etatLieuxNotes').value = '';
+  document.getElementById('etatLieuxVideoNote').style.display = 'none';
+  renderEtatLieuxPreview();
 }
 
 function compressImageToBase64(file, maxDim, quality){
@@ -2968,7 +3067,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Forfait de base', kilometrage:'Kilométrage',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
-    supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)',
+    supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT',
     vehiculeSuv:'Supplément SUV / 4x4', vehiculeElectrique:'Supplément véhicule électrique/hybride', vehiculeUtilitaire:'Supplément utilitaire/camionnette',
     remise:'Remise', totalTvac:'TOTAL À PAYER', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
     scannezPayer:'Scannez pour payer', paiementVirement:'PAIEMENT PAR VIREMENT', communication:'Communication : Facture ',
@@ -2987,7 +3086,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Basisforfait', kilometrage:'Kilometers',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
-    supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)',
+    supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN',
     vehiculeSuv:'Toeslag SUV / 4x4', vehiculeElectrique:'Toeslag elektrisch/hybride voertuig', vehiculeUtilitaire:'Toeslag bestelwagen',
     remise:'Korting', totalTvac:'TOTAAL TE BETALEN', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
     scannezPayer:'Scan om te betalen', paiementVirement:'BETALING PER OVERSCHRIJVING', communication:'Mededeling : Factuur ',
@@ -3006,7 +3105,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Base rate', kilometrage:'Mileage',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
-    supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)',
+    supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING',
     vehiculeSuv:'SUV / 4x4 surcharge', vehiculeElectrique:'Electric/hybrid vehicle surcharge', vehiculeUtilitaire:'Van/utility vehicle surcharge',
     remise:'Discount', totalTvac:'TOTAL DUE', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
     scannezPayer:'Scan to pay', paiementVirement:'PAYMENT BY BANK TRANSFER', communication:'Payment reference: Invoice ',
@@ -3121,6 +3220,22 @@ function openRdvFromQuickQuote(){
   closeQuickQuote();
   openRdv();
   document.getElementById('rdvType').value = qqType;
+}
+
+function wrapText(text, maxCharsPerLine){
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for(const word of words){
+    if((current + ' ' + word).trim().length > maxCharsPerLine){
+      if(current) lines.push(current);
+      current = word;
+    } else {
+      current = (current + ' ' + word).trim();
+    }
+  }
+  if(current) lines.push(current);
+  return lines;
 }
 
 function icsEscape(text){
@@ -3744,6 +3859,10 @@ function updateAdvancedSummary(){
     const jours = document.getElementById('joursGardiennage').value || '0';
     parts.push('Gardiennage ' + jours + 'j');
   }
+  if(document.getElementById('tgAttente').classList.contains('on')){
+    const minutes = document.getElementById('minutesAttente').value || '0';
+    parts.push('Attente ' + minutes + 'min');
+  }
   document.getElementById('advancedSummary').textContent = parts.length ? parts.join(' · ') : 'Aucune';
 }
 
@@ -3875,6 +3994,7 @@ async function genererFacture(){
     const clientCompany = document.getElementById('invClientCompany').value.trim();
     const clientVat = document.getElementById('invClientVat').value.trim();
     const attestLeveeSaisie = c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked;
+    const etatLieuxNotesInv = TYPES_REMORQUAGE.includes(c.type) ? document.getElementById('etatLieuxNotes').value.trim() : '';
     const invoiceNumber = await nextInvoiceNumber();
     const dateStr = new Date().toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'});
 
@@ -3920,6 +4040,21 @@ async function genererFacture(){
       const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
       pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
     }
+
+    if(etatLieuxNotesInv){
+      y += 8;
+      pdf.text(50, y, S.etatConstate, {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
+      const toutesLesLignes = wrapText(etatLieuxNotesInv, 95);
+      const lignesEtat = toutesLesLignes.slice(0, 4);
+      lignesEtat.forEach((ligne, i) => {
+        const estTronquee = (i === 3 && toutesLesLignes.length > 4);
+        pdf.text(50, y, ligne + (estTronquee ? '…' : ''), {size:8.5, gray:0.3});
+        y += 12;
+      });
+      if(toutesLesLignes.length > 4){
+        pdf.text(50, y, '(détail complet dans le journal de l\'appli)', {size:7.5, gray:0.5}); y += 11;
+      }
+    }
     y += 10;
 
     pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
@@ -3949,6 +4084,7 @@ async function genererFacture(){
       priceLine(vehicleLabelsPdf[c.vehicleType] || S.vehiculeSuv, c.vehicleFee);
     }
     if(c.gardiennageCost) priceLine(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
+    if(c.attenteCost) priceLine(S.attente + c.minutesAttente + S.minAttente, c.attenteCost);
     if(c.remiseAmount > 0) priceLine(S.remise, -c.remiseAmount);
 
     y += 8;
@@ -4179,6 +4315,7 @@ function updateKmLabel(){
   }
 
   document.getElementById('epavePhotoField').style.display = (isEpave || isLeveeSaisie) ? 'block' : 'none';
+  document.getElementById('etatLieuxField').style.display = TYPES_REMORQUAGE.includes(type) ? 'block' : 'none';
   updateAbandonDocButton();
 
   document.querySelectorAll('.extra-item').forEach(item=>{
@@ -4200,6 +4337,11 @@ function updateAbandonDocButton(){
 function updateGardiennageField(){
   const on = document.getElementById('tgGardiennage').classList.contains('on');
   document.getElementById('gardiennageField').style.display = on ? 'block' : 'none';
+}
+
+function updateAttenteField(){
+  const on = document.getElementById('tgAttente').classList.contains('on');
+  document.getElementById('attenteField').style.display = on ? 'block' : 'none';
 }
 
 function toggle(id){ document.getElementById(id).classList.toggle('on'); }
@@ -4441,6 +4583,7 @@ function showToast(msg){
 
 function calculer(){
   const type = document.getElementById('type').value;
+  const plaque = document.getElementById('plaqueImmat').value.trim().toUpperCase();
   const depart = document.getElementById('addrDepart').value.trim();
   const from = document.getElementById('addrFrom').value.trim() || '—';
   const to = document.getElementById('addrTo').value.trim() || '—';
@@ -4458,6 +4601,10 @@ function calculer(){
   const gardiennageOn = document.getElementById('tgGardiennage').classList.contains('on');
   const joursGardiennage = gardiennageOn ? (parseInt(document.getElementById('joursGardiennage').value) || 0) : 0;
   const gardiennageCost = joursGardiennage * RATES.gardiennageJour;
+
+  const attenteOn = document.getElementById('tgAttente').classList.contains('on');
+  const minutesAttente = attenteOn ? (parseInt(document.getElementById('minutesAttente').value) || 0) : 0;
+  const attenteCost = Math.ceil(minutesAttente / 15) * RATES.attente15minFee;
 
   const isLeveeSaisie = type === 'levee_saisie';
   const abandon = isLeveeSaisie && document.getElementById('tgAbandon').classList.contains('on');
@@ -4480,13 +4627,13 @@ function calculer(){
   const autoCost = auto ? RATES.auto : 0;
   const battCost = battPrice > 0 ? battPrice * (1 + RATES.battMarginPct/100) : 0;
   const battDeplacementCost = battDeplacement ? RATES.battDeplacementFee : 0;
-  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost;
+  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost;
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -4495,6 +4642,8 @@ function calculer(){
   document.getElementById('tkFrom').textContent = from;
   document.getElementById('tkTo').textContent = to;
   document.getElementById('tkType').textContent = typeLabelComplet(lastCalc);
+  document.getElementById('tkPlaqueRow').style.display = plaque ? 'block' : 'none';
+  document.getElementById('tkPlaque').textContent = plaque;
   document.getElementById('tkBase').textContent = fmt(base);
   document.getElementById('tkKm').textContent = retour
     ? (km + ' km × 2 (aller-retour) × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost))
@@ -4517,6 +4666,8 @@ function calculer(){
   document.getElementById('tkBattDeplacement').textContent = fmt(battDeplacementCost);
   document.getElementById('rowGardiennage').style.display = gardiennageCost > 0 ? 'flex' : 'none';
   document.getElementById('tkGardiennage').textContent = joursGardiennage + ' j × ' + fmt(RATES.gardiennageJour) + ' = ' + fmt(gardiennageCost);
+  document.getElementById('rowAttente').style.display = attenteCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkAttente').textContent = minutesAttente + ' min = ' + fmt(attenteCost);
   document.getElementById('rowPasRoues').style.display = pasRouesFee > 0 ? 'flex' : 'none';
   document.getElementById('tkPasRoues').textContent = fmt(pasRouesFee);
   const vehicleLabels = {suv:'Supplément SUV / 4x4', electrique:'Supplément véhicule électrique/hybride', utilitaire:'Supplément utilitaire/camionnette'};
@@ -4543,15 +4694,24 @@ async function enregistrer(){
     const entry = {...lastCalc, paye: false};
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
+    if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
+    if(etatLieuxVideoPrise) entry.etatLieuxVideo = true;
+    const etatLieuxNotes = document.getElementById('etatLieuxNotes').value.trim();
+    if(etatLieuxNotes) entry.etatLieuxNotes = etatLieuxNotes;
     await window.storage.set(id, JSON.stringify(entry));
     showToast('Intervention enregistrée');
     clearReceiptPhoto();
     clearEpavePhotos();
+    clearEtatLieuxState();
     setVehicleType('normale');
     document.getElementById('tgCamion').classList.remove('on');
     document.getElementById('tgGardiennage').classList.remove('on');
     document.getElementById('joursGardiennage').value = '';
+    document.getElementById('tgAttente').classList.remove('on');
+    document.getElementById('minutesAttente').value = '';
+    document.getElementById('plaqueImmat').value = '';
     updateGardiennageField();
+    updateAttenteField();
     updateKmLabel();
     loadHistory();
   }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
@@ -4574,6 +4734,7 @@ function copierRecap(){
     txt += `\n${vehicleLabelsWa[c.vehicleType] || 'Supplément véhicule'} : ${fmt(c.vehicleFee)}`;
   }
   if(c.gardiennageCost) txt += `\nGardiennage (${c.joursGardiennage} j) : ${fmt(c.gardiennageCost)}`;
+  if(c.attenteCost) txt += `\nTemps d'attente (${c.minutesAttente} min) : ${fmt(c.attenteCost)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\n*TOTAL À PAYER : ${fmt(c.total)}*\n\nFranchise TVA art. 56bis CTVA`;
 
@@ -4650,14 +4811,22 @@ async function loadHistory(){
              ${d.epavePhotos.length > 1 ? `<span class="hist-thumb-count">+${d.epavePhotos.length - 1}</span>` : ''}
            </div>`
         : '';
+      const etatLieuxThumb = (d.etatLieuxPhotos && d.etatLieuxPhotos.length > 0)
+        ? `<div class="hist-thumb-wrap" onclick="voirPhoto('${it.key}', 'etatLieuxPhotos')" title="État des lieux avant chargement">
+             <img src="${d.etatLieuxPhotos[0]}" class="hist-thumb" loading="lazy" decoding="async" alt="État des lieux">
+             ${d.etatLieuxPhotos.length > 1 ? `<span class="hist-thumb-count">+${d.etatLieuxPhotos.length - 1}</span>` : ''}
+           </div>`
+        : '';
+      const etatLieuxIcons = (d.etatLieuxVideo ? '🎥' : '') + (d.etatLieuxNotes ? '📝' : '');
       const payeBadge = d.paye
         ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       return `<div class="hist-item">
         ${photoThumb}
         ${epaveThumb}
+        ${etatLieuxThumb}
         <div class="info">
-          <div class="type">${typeLabelComplet(d)}</div>
+          <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
           ${payeBadge}
         </div>
@@ -4680,9 +4849,9 @@ async function voirPhoto(key, field){
     overlay.className = 'photo-lightbox';
     overlay.onclick = () => overlay.remove();
 
-    if(field === 'epavePhotos' && d.epavePhotos && d.epavePhotos.length > 0){
+    if(Array.isArray(d[field]) && d[field].length > 0){
       overlay.innerHTML = `<div class="lightbox-gallery">` +
-        d.epavePhotos.map(p => `<img src="${p}">`).join('') +
+        d[field].map(p => `<img src="${p}">`).join('') +
         `</div>`;
     } else if(d[field]){
       overlay.innerHTML = `<img src="${d[field]}">`;
@@ -4729,7 +4898,7 @@ function csvEscape(v){
 async function exporterCsv(){
   const items = await getFilteredHistory();
   if(items.length === 0){ showToast('Aucune intervention sur cette période'); return; }
-  const rows = [['Date','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total à payer','Statut paiement','Justificatif']];
+  const rows = [['Date','Plaque','Type','Départ','Prise en charge','Dépose','Km (aller simple)','Km réel parcouru','Forfait','Km (coût)','Extras','Nuit','Week-end','Autoroute','Batterie','Déplacement batterie','Remise','Total à payer','Statut paiement','Justificatif']];
   let totalKm = 0, totalMontant = 0;
   items.forEach(it=>{
     const d = it.data;
@@ -4739,6 +4908,7 @@ async function exporterCsv(){
     totalMontant += (d.total || 0);
     rows.push([
       new Date(d.date).toLocaleDateString('fr-BE'),
+      d.plaque || '',
       typeLabelComplet(d),
       d.depart || '', d.from, d.to, d.km, km,
       d.base != null ? d.base.toFixed(2) : '',
@@ -4756,7 +4926,7 @@ async function exporterCsv(){
     ]);
   });
   rows.push([]);
-  rows.push(['TOTAL', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '', '']);
+  rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '', '']);
   const csvContent = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
   const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8'});
   const fromStr = document.getElementById('histDateFrom').value || 'debut';
@@ -4853,18 +5023,17 @@ async function exporterPdfGroupe(){
     }
     pdf.text(50, y, `Kilométrage total parcouru : ${grandTotalKm.toFixed(0)} km`, {size:9.5, gray:0.4});
 
-    const withPhotos = items.filter(it => it.data.receiptPhoto);
+    const withPhotos = items.filter(it => it.data.receiptPhoto || (it.data.epavePhotos && it.data.epavePhotos.length) || (it.data.etatLieuxPhotos && it.data.etatLieuxPhotos.length));
     if(withPhotos.length > 0){
       pdf.newPage();
       y = 50;
-      pdf.text(50, y, 'ANNEXE — Justificatifs d\'achat', {font:'F2', size:13}); y += 8;
+      pdf.text(50, y, 'ANNEXE — Photos jointes', {font:'F2', size:13}); y += 8;
       pdf.rect(50, y, 42, 2, {mode:'f', rgb:[242,169,0]}); y += 20;
       pdf.text(50, y, '(Un carré orange sur le tableau ci-avant signale une intervention avec justificatif joint)', {size:8.5, gray:0.45}); y += 20;
 
-      for(const it of withPhotos){
-        const d = it.data;
+      const dessinerPhoto = async (dataUrl, legende) => {
         try{
-          const img = await imageDataUrlToRgb(d.receiptPhoto, 700);
+          const img = await imageDataUrlToRgb(dataUrl, 700);
           const maxW = 495, maxH = 380;
           let w = img.width, h = img.height;
           const ratio = Math.min(maxW / w, maxH / h, 1);
@@ -4874,13 +5043,21 @@ async function exporterPdfGroupe(){
             pdf.newPage();
             y = 50;
           }
-          const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
-          pdf.text(50, y, `${dt} — ${typeLabelComplet(d)}`, {font:'F2', size:10}); y += 14;
-          const imgName = 'Receipt' + it.key.replace(/[^a-zA-Z0-9]/g, '');
+          pdf.text(50, y, legende, {font:'F2', size:10}); y += 14;
+          const imgName = 'Img' + Math.random().toString(36).slice(2, 10);
           pdf.addRgbImage(imgName, img.width, img.height, img.deflatedRgb);
           pdf.drawImage(imgName, 50, y, w, h);
           y += h + 28;
         }catch(e){ /* photo illisible, on continue sans bloquer l'export */ }
+      };
+
+      for(const it of withPhotos){
+        const d = it.data;
+        const dt = new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
+        const base = `${dt} — ${typeLabelComplet(d)}`;
+        if(d.receiptPhoto) await dessinerPhoto(d.receiptPhoto, base + ' — Justificatif d\'achat');
+        if(d.epavePhotos) for(let i=0; i<d.epavePhotos.length; i++) await dessinerPhoto(d.epavePhotos[i], base + ` — Photo épave (${i+1}/${d.epavePhotos.length})`);
+        if(d.etatLieuxPhotos) for(let i=0; i<d.etatLieuxPhotos.length; i++) await dessinerPhoto(d.etatLieuxPhotos[i], base + ` — État des lieux (${i+1}/${d.etatLieuxPhotos.length})`);
       }
     }
 
