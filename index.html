@@ -1035,6 +1035,8 @@
           <div class="grp-title">Kilométrage</div>
           <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
           <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
+          <div class="rate-row"><label>Seuil dégressif remorquage (km aller simple)</label><input type="number" id="r_kmDegressifSeuil" step="5"></div>
+          <div class="rate-row"><label>Tarif réduit remorquage au-delà du seuil</label><input type="number" id="r_km_remorque_reduit" step="0.05"></div>
         </div>
 
         <div class="grp">
@@ -2438,6 +2440,7 @@ const DEFAULT_RATES = {
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   attente15minFee:10,
+  kmDegressifSeuil:50, km_remorque_reduit:2.30,
   diesel:2.21, conso:15
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
@@ -2865,6 +2868,27 @@ async function deverrouillerFaceId(silencieux){
 }
 
 function fmt(n){ return n.toLocaleString('fr-BE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
+
+function calculerKmCost(km, kmRate, kmMultiplier, estRemorquage){
+  if(!estRemorquage || km <= RATES.kmDegressifSeuil){
+    return km * kmRate * kmMultiplier;
+  }
+  const seuil = RATES.kmDegressifSeuil;
+  return (seuil * kmRate + (km - seuil) * RATES.km_remorque_reduit) * kmMultiplier;
+}
+
+function formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost){
+  const suffixeAR = kmMultiplier === 2 ? ' × 2 (aller-retour)' : '';
+  if(!estRemorquage || km <= RATES.kmDegressifSeuil){
+    return km + ' km' + suffixeAR + ' × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost);
+  }
+  const seuil = RATES.kmDegressifSeuil;
+  const kmSupp = km - seuil;
+  const detailBase = seuil + ' km × ' + kmRate.toFixed(2) + ' € + ' + kmSupp + ' km × ' + RATES.km_remorque_reduit.toFixed(2) + ' € (au-delà de ' + seuil + 'km)';
+  return kmMultiplier === 2
+    ? '(' + detailBase + ') × 2 (aller-retour) = ' + fmt(kmCost)
+    : detailBase + ' = ' + fmt(kmCost);
+}
 
 function getEasterDate(year){
   const a = year % 19, b = Math.floor(year/100), c = year % 100;
@@ -3496,7 +3520,8 @@ function calculerDevisRapide(){
   const base = RATES[type] || 0;
   const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
-  const kmCost = km * kmRate * kmMultiplier;
+  const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
+  const kmCost = calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
   const vehicleFee = vehicleFeeMap[QQ_VEHICLE_TYPE] || 0;
   const subtotal = base + kmCost + vehicleFee;
@@ -4622,7 +4647,8 @@ function calculer(){
   const camionOn = document.getElementById('tgCamion').classList.contains('on');
   const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmMultiplier = retour ? 2 : 1;
-  const kmCost = km * kmRate * kmMultiplier;
+  const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
+  const kmCost = calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
   const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
   const subtotal = base + kmCost + extrasCost + pasRouesFee + vehicleFee;
@@ -4649,9 +4675,7 @@ function calculer(){
   document.getElementById('tkPlaqueRow').style.display = plaque ? 'block' : 'none';
   document.getElementById('tkPlaque').textContent = plaque;
   document.getElementById('tkBase').textContent = fmt(base);
-  document.getElementById('tkKm').textContent = retour
-    ? (km + ' km × 2 (aller-retour) × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost))
-    : (km + ' km × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost));
+  document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
 
   document.getElementById('extrasRows').innerHTML = extras.map(e =>
     `<div class="ticket-row"><span class="l">+ ${e.label}</span><span class="v">${fmt(e.cost)}</span></div>`
