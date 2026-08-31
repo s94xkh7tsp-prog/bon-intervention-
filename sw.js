@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v78';
+const CACHE_NAME = 'jm-express-bon-v80';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,7 +10,14 @@ const APP_SHELL = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) => {
+      // cache: 'reload' force un vrai téléchargement, en ignorant le cache HTTP du navigateur —
+      // sans ça, une ancienne version mise en cache par Safari pouvait être réinstallée
+      // même après suppression + réinstallation de l'icône.
+      return Promise.all(
+        APP_SHELL.map((url) => fetch(url, {cache: 'reload'}).then((res) => cache.put(url, res)))
+      );
+    })
   );
   self.skipWaiting();
 });

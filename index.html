@@ -4426,6 +4426,10 @@ function effacerChamp(fieldId){
   field.value = '';
   field.focus();
   checkAccesVehicule(fieldId);
+  if((fieldId === 'addrFrom' || fieldId === 'addrTo') && lastCalc){
+    document.getElementById('ticket').classList.remove('show');
+    lastCalc = null;
+  }
 }
 
 function dicterAdresse(fieldId){
@@ -4710,9 +4714,23 @@ async function enregistrer(){
     document.getElementById('tgAttente').classList.remove('on');
     document.getElementById('minutesAttente').value = '';
     document.getElementById('plaqueImmat').value = '';
+    document.getElementById('tgNuit').classList.remove('on');
+    document.getElementById('tgWe').classList.remove('on');
+    document.getElementById('tgAuto').classList.remove('on');
+    document.getElementById('tgRetour').classList.remove('on');
+    document.getElementById('addrDepart').value = '';
+    document.getElementById('addrFrom').value = '';
+    document.getElementById('addrTo').value = '';
+    document.getElementById('km').value = '';
+    document.getElementById('remise').value = '';
+    checkAccesVehicule('addrFrom');
+    checkAccesVehicule('addrTo');
+    prefillDepartAddress();
     updateGardiennageField();
     updateAttenteField();
     updateKmLabel();
+    document.getElementById('ticket').classList.remove('show');
+    lastCalc = null;
     loadHistory();
   }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
 }
