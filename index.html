@@ -239,6 +239,7 @@
   .pay-badge.paye{background:rgba(90,180,110,0.15); color:#5ab46e;}
   .pay-badge.attente{background:rgba(224,90,78,0.15); color:#e05a4e;}
   .pay-badge.facture{background:rgba(242,169,0,0.15); color:var(--orange);}
+  .pay-badge.recharger{background:rgba(120,140,255,0.15); color:#8fa0ff;}
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
   .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
@@ -511,6 +512,18 @@
       <option value="Grand Hôpital de Charleroi - Site Sainte-Thérèse (Rue Trieu Kaisin 134, Montignies-sur-Sambre)">
       <option value="Grand Hôpital de Charleroi - Site IMTR (Rue de Villers 1, Loverval)">
       <option value="Clinique Notre-Dame (Grand Rue 3, Charleroi)">
+
+      <option value="PASSAUTO (Rue du Marais 36, Charleroi)">
+      <option value="Garage Pierard (Avenue Paul Pastur 408, Mont-sur-Marchienne)">
+      <option value="JB Motors (Rue Jules Destrée 96, Charleroi)">
+      <option value="Trend Cars (Chaussée de Châtelineau 266, Montignies-sur-Sambre)">
+      <option value="Garage Sadi-Car (Chaussée de Fleurus 309, Gilly)">
+      <option value="La Confiance Automobile (Rue de Gozée 539, Montigny-le-Tilleul)">
+      <option value="Chatelet Automobile Mon Occas & Fils (Rue de Couillet 165, Châtelet)">
+      <option value="Excellium Cars (Rue d'Acoz 15, Châtelet)">
+      <option value="World Cars (Chaussée de Chatelineau 240, Montignies-sur-Sambre)">
+      <option value="Infinity Car (Chaussée de Ransart 337, Gilly)">
+      <option value="Garage l'As de l'Auto (Rue de la Station 98, Châtelet)">
       <option value="Gare de Charleroi-Sud">
       <option value="Gare de Charleroi-Ouest">
       <option value="Gare de Marchienne-au-Pont">
@@ -3907,6 +3920,71 @@ function setInvoiceLang(lang){
   document.getElementById(map[lang]).classList.add('on');
 }
 
+function afficherTicketDepuisData(d){
+  const kmRate = (TYPES_REMORQUAGE.includes(d.type) || d.camionOn) ? RATES.km_remorque : RATES.km_deplacement;
+  const kmMultiplier = d.retour ? 2 : 1;
+  const estRemorquage = TYPES_REMORQUAGE.includes(d.type) || d.camionOn;
+
+  document.getElementById('tkNum').textContent = 'BON N°' + new Date(d.date).getTime().toString().slice(-6);
+  document.getElementById('tkDate').textContent = new Date(d.date).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('tkDepartRow').style.display = d.depart ? 'block' : 'none';
+  document.getElementById('tkDepart').textContent = d.depart || '—';
+  document.getElementById('tkFrom').textContent = d.from;
+  document.getElementById('tkTo').textContent = d.to;
+  document.getElementById('tkType').textContent = typeLabelComplet(d);
+  document.getElementById('tkPlaqueRow').style.display = d.plaque ? 'block' : 'none';
+  document.getElementById('tkPlaque').textContent = d.plaque || '';
+  document.getElementById('tkBase').textContent = fmt(d.base);
+  document.getElementById('tkKm').textContent = formatKmDetail(d.km, kmRate, kmMultiplier, estRemorquage, d.kmCost);
+
+  document.getElementById('extrasRows').innerHTML = (d.extras || []).map(e =>
+    `<div class="ticket-row"><span class="l">+ ${e.label}</span><span class="v">${fmt(e.cost)}</span></div>`
+  ).join('');
+
+  document.getElementById('rowNuit').style.display = d.nuit ? 'flex' : 'none';
+  document.querySelector('#rowNuit .l').textContent = 'Majoration nuit (' + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ')';
+  document.getElementById('tkNuit').textContent = '+' + RATES.nuitPct + '% = ' + fmt(d.nuitCost || 0);
+  document.getElementById('rowWe').style.display = d.we ? 'flex' : 'none';
+  document.getElementById('tkWe').textContent = '+' + RATES.wePct + '% = ' + fmt(d.weCost || 0);
+  document.getElementById('rowAuto').style.display = d.auto ? 'flex' : 'none';
+  document.getElementById('tkAuto').textContent = fmt(d.autoCost || 0);
+  document.getElementById('rowBatt').style.display = d.battCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkBatt').textContent = (d.battPrice || 0).toFixed(2) + ' € + ' + RATES.battMarginPct + '% = ' + fmt(d.battCost || 0);
+  document.getElementById('rowBattDeplacement').style.display = d.battDeplacementCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkBattDeplacement').textContent = fmt(d.battDeplacementCost || 0);
+  document.getElementById('rowGardiennage').style.display = d.gardiennageCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkGardiennage').textContent = (d.joursGardiennage || 0) + ' j × ' + fmt(RATES.gardiennageJour) + ' = ' + fmt(d.gardiennageCost || 0);
+  document.getElementById('rowAttente').style.display = d.attenteCost > 0 ? 'flex' : 'none';
+  document.getElementById('tkAttente').textContent = (d.minutesAttente || 0) + ' min = ' + fmt(d.attenteCost || 0);
+  document.getElementById('rowPasRoues').style.display = d.pasRouesFee > 0 ? 'flex' : 'none';
+  document.getElementById('tkPasRoues').textContent = fmt(d.pasRouesFee || 0);
+  const vehicleLabels = {suv:'Supplément SUV / 4x4', electrique:'Supplément véhicule électrique/hybride', utilitaire:'Supplément utilitaire/camionnette'};
+  document.getElementById('rowVehicleFee').style.display = d.vehicleFee > 0 ? 'flex' : 'none';
+  document.getElementById('tkVehicleLabel').textContent = vehicleLabels[d.vehicleType] || 'Supplément véhicule';
+  document.getElementById('tkVehicleFee').textContent = fmt(d.vehicleFee || 0);
+
+  const totalAvantRemise = d.total + (d.remiseAmount || 0);
+  document.getElementById('rowRemise').style.display = d.remiseAmount > 0 ? 'flex' : 'none';
+  const remisePct = totalAvantRemise > 0 ? ((d.remiseAmount || 0) / totalAvantRemise * 100) : 0;
+  document.getElementById('rowRemise').classList.toggle('over-threshold', remisePct > 10);
+  document.getElementById('tkRemise').textContent = '−' + fmt(d.remiseAmount || 0) + (d.remiseUnit === 'pct' ? ' (' + d.remiseValue + '%)' : ' (' + remisePct.toFixed(0) + '%)');
+
+  document.getElementById('tkTotal').textContent = fmt(d.total);
+  document.getElementById('ticket').classList.add('show');
+  document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function chargerInterventionDepuisJournal(key){
+  let data;
+  try{
+    const res = await window.storage.get(key);
+    data = JSON.parse(res.value);
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); return; }
+  lastCalc = data;
+  afficherTicketDepuisData(lastCalc);
+  showToast('Intervention rechargée — attention à ne pas la réenregistrer en double');
+}
+
 function openInvoice(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
   document.getElementById('modalInvoiceBg').classList.add('show');
@@ -4903,6 +4981,7 @@ async function loadHistory(){
         ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
+      const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">🔄 Recharger</div>`;
       return `<div class="hist-item">
         ${photoThumb}
         ${epaveThumb}
@@ -4910,7 +4989,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          ${payeBadge} ${factureBadge}
+          ${payeBadge} ${rechargerBadge} ${factureBadge}
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
