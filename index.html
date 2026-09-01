@@ -238,6 +238,7 @@
   }
   .pay-badge.paye{background:rgba(90,180,110,0.15); color:#5ab46e;}
   .pay-badge.attente{background:rgba(224,90,78,0.15); color:#e05a4e;}
+  .pay-badge.facture{background:rgba(242,169,0,0.15); color:var(--orange);}
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
   .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
@@ -3915,6 +3916,14 @@ function openInvoice(){
 }
 function closeInvoice(){ document.getElementById('modalInvoiceBg').classList.remove('show'); }
 
+async function genererFactureDepuisJournal(key){
+  try{
+    const res = await window.storage.get(key);
+    lastCalc = JSON.parse(res.value);
+    openInvoice();
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); }
+}
+
 async function nextInvoiceNumber(){
   let n = 1;
   try{
@@ -4893,6 +4902,7 @@ async function loadHistory(){
       const payeBadge = d.paye
         ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
+      const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
       return `<div class="hist-item">
         ${photoThumb}
         ${epaveThumb}
@@ -4900,7 +4910,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          ${payeBadge}
+          ${payeBadge} ${factureBadge}
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
