@@ -410,7 +410,7 @@
     <div class="field">
       <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
       <div class="input-with-btn">
-        <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville">
+        <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
         <button type="button" class="loc-btn" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
         <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
@@ -427,7 +427,7 @@
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" oninput="checkAccesVehicule('addrFrom')" onchange="checkAccesVehicule('addrFrom')">
+            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrFrom')" onchange="checkAccesVehicule('addrFrom')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
@@ -442,7 +442,7 @@
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" oninput="checkAccesVehicule('addrTo')" onchange="checkAccesVehicule('addrTo')">
+            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrTo')" onchange="checkAccesVehicule('addrTo')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
           </div>
@@ -950,7 +950,7 @@
       <div id="etatLieuxVideoNote" style="display:none; font-size:12px; color:var(--grey); margin:-4px 0 8px 0;"></div>
       <div class="field" style="margin-bottom:0;">
         <label>Notes sur l'état constaté (rayures, bosses, dommages déjà présents...)</label>
-        <textarea id="etatLieuxNotes" rows="3" placeholder="Ex: rayure portière arrière gauche, pare-choc avant fissuré..." style="width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+        <textarea id="etatLieuxNotes" rows="3" autocorrect="on" spellcheck="true" placeholder="Ex: rayure portière arrière gauche, pare-choc avant fissuré..." style="width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
       </div>
     </div>
 
@@ -1222,15 +1222,15 @@
       <div class="grp-title">Ajouter un trajet</div>
       <div class="field">
         <label>Nom du trajet</label>
-        <input type="text" id="routeName" placeholder="Ex: Charleroi → Garage Dupont">
+        <input type="text" id="routeName" placeholder="Ex: Charleroi → Garage Dupont" autocorrect="on" spellcheck="true">
       </div>
       <div class="field">
         <label>Adresse de départ</label>
-        <input type="text" id="routeFrom" placeholder="Rue, n°, ville">
+        <input type="text" id="routeFrom" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
       </div>
       <div class="field">
         <label>Adresse d'arrivée</label>
-        <input type="text" id="routeTo" placeholder="Rue, n°, ville">
+        <input type="text" id="routeTo" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
       </div>
       <div class="field">
         <label>Distance (km)</label>
@@ -1255,11 +1255,11 @@
       <div class="grp-title">Ajouter un client</div>
       <div class="field">
         <label>Nom / société *</label>
-        <input type="text" id="clientNom" placeholder="Nom / société">
+        <input type="text" id="clientNom" placeholder="Nom / société" autocorrect="on" spellcheck="true">
       </div>
       <div class="field">
         <label>Adresse</label>
-        <input type="text" id="clientAdresse" list="adressesBelgique" placeholder="Rue, n°, ville">
+        <input type="text" id="clientAdresse" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
       </div>
       <div class="field">
         <label>Téléphone</label>
@@ -1323,11 +1323,11 @@
       <button class="ghost" style="margin-bottom:10px;" onclick="openClientPicker()">👤 Choisir un client enregistré</button>
       <div class="field">
         <label>Nom du client *</label>
-        <input type="text" id="invClientName" placeholder="Nom / société">
+        <input type="text" id="invClientName" placeholder="Nom / société" autocorrect="on" spellcheck="true">
       </div>
       <div class="field" style="margin-bottom:0;">
         <label>Adresse du client (optionnel)</label>
-        <input type="text" id="invClientAddress" placeholder="Rue, n°, ville">
+        <input type="text" id="invClientAddress" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
       </div>
     </div>
 
@@ -1446,7 +1446,7 @@
 
     <div class="field">
       <label>Nom du client</label>
-      <input type="text" id="rdvNom" placeholder="Nom du client">
+      <input type="text" id="rdvNom" placeholder="Nom du client" autocorrect="on" spellcheck="true">
     </div>
 
     <div class="field">
@@ -1456,7 +1456,7 @@
 
     <div class="field">
       <label>Adresse du rendez-vous</label>
-      <input type="text" id="rdvAdresse" list="adressesBelgique" placeholder="Rue, n°, ville">
+      <input type="text" id="rdvAdresse" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
     </div>
 
     <div class="field-row">
@@ -4680,14 +4680,30 @@ async function geocodeAddress(address){
   throw new Error('Adresse introuvable : ' + address);
 }
 
-async function tenterGeocode(query){
+async function tenterGeocode(query, dejaReessaye){
   try{
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=fr&countrycodes=be,fr,lu&q=${encodeURIComponent(query)}`;
     const res = await fetch(url);
+    if(!res.ok && !dejaReessaye){
+      await new Promise(r => setTimeout(r, 1500));
+      return tenterGeocode(query, true);
+    }
     const data = await res.json();
-    if(!data.length) return null;
+    if(!data.length){
+      if(!dejaReessaye){
+        await new Promise(r => setTimeout(r, 1500));
+        return tenterGeocode(query, true);
+      }
+      return null;
+    }
     return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-  }catch(e){ return null; }
+  }catch(e){
+    if(!dejaReessaye){
+      await new Promise(r => setTimeout(r, 1500));
+      return tenterGeocode(query, true);
+    }
+    return null;
+  }
 }
 
 async function calculerDistance(){
@@ -4719,7 +4735,12 @@ async function calculerDistance(){
     document.getElementById('km').value = totalKm.toFixed(1);
     showToast((depart ? 'Distance totale (départ→intervention→dépôt) : ' : 'Distance : ') + totalKm.toFixed(1) + ' km');
   }catch(e){
-    showToast('Distance introuvable — entre le km à la main');
+    if(e.message && e.message.startsWith('Adresse introuvable : ')){
+      const adresseEnCause = e.message.replace('Adresse introuvable : ', '');
+      showToast('Introuvable : "' + adresseEnCause + '" — essaie d\'ajouter la ville (ex: ", Charleroi")');
+    } else {
+      showToast('Distance introuvable — entre le km à la main');
+    }
   }
 }
 
