@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v90';
+const CACHE_NAME = 'jm-express-bon-v91';
 const APP_SHELL = [
   './',
   './index.html',
