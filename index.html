@@ -232,8 +232,9 @@
   .hist-item .info{flex:1; min-width:0;}
   .hist-item .type{font-size:13.5px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hist-item .meta{font-size:11.5px; color:var(--grey); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
   .pay-badge{
-    display:inline-block; margin-top:5px; padding:3px 9px; border-radius:20px; font-size:10.5px; font-weight:700;
+    display:inline-block; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700;
     cursor:pointer; user-select:none;
   }
   .pay-badge.paye{background:rgba(90,180,110,0.15); color:#5ab46e;}
@@ -410,7 +411,7 @@
     <div class="field">
       <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
       <div class="input-with-btn">
-        <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
+        <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="invaliderTicketObsolete()">
         <button type="button" class="loc-btn" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
         <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
@@ -427,7 +428,7 @@
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrFrom')" onchange="checkAccesVehicule('addrFrom')">
+            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrFrom'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrFrom')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
             <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
@@ -442,7 +443,7 @@
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrTo')" onchange="checkAccesVehicule('addrTo')">
+            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')">
             <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
           </div>
@@ -869,7 +870,7 @@
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
         <label id="kmLabel">Distance (km) — trajet aller (intervention → dépôt)</label>
-        <input type="number" id="km" placeholder="0" min="0" inputmode="decimal">
+        <input type="number" id="km" placeholder="0" min="0" inputmode="decimal" oninput="invaliderTicketObsolete()">
       </div>
     </div>
 
@@ -2907,7 +2908,7 @@ function formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost){
     return km + ' km' + suffixeAR + ' × ' + kmRate.toFixed(2) + ' € = ' + fmt(kmCost);
   }
   const seuil = RATES.kmDegressifSeuil;
-  const kmSupp = km - seuil;
+  const kmSupp = Math.round((km - seuil) * 10) / 10;
   const detailBase = seuil + ' km × ' + kmRate.toFixed(2) + ' € + ' + kmSupp + ' km × ' + RATES.km_remorque_reduit.toFixed(2) + ' € (au-delà de ' + seuil + 'km)';
   return kmMultiplier === 2
     ? '(' + detailBase + ') × 2 (aller-retour) = ' + fmt(kmCost)
@@ -4523,6 +4524,13 @@ async function toggleAccesVehicule(fieldId){
   checkAccesVehicule(fieldId);
 }
 
+function invaliderTicketObsolete(){
+  if(lastCalc){
+    document.getElementById('ticket').classList.remove('show');
+    lastCalc = null;
+  }
+}
+
 function checkAccesVehicule(fieldId){
   const hintEl = document.getElementById(fieldId + 'AccessHint');
   if(!hintEl) return;
@@ -4562,10 +4570,7 @@ function effacerChamp(fieldId){
   field.value = '';
   field.focus();
   checkAccesVehicule(fieldId);
-  if((fieldId === 'addrFrom' || fieldId === 'addrTo') && lastCalc){
-    document.getElementById('ticket').classList.remove('show');
-    lastCalc = null;
-  }
+  invaliderTicketObsolete();
 }
 
 function dicterAdresse(fieldId){
@@ -5012,7 +5017,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          ${payeBadge} ${rechargerBadge} ${factureBadge}
+          <div class="badge-row">${payeBadge}${rechargerBadge}${factureBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
