@@ -281,6 +281,40 @@
   .pay-badge.attente{background:rgba(224,90,78,0.15); color:#e05a4e;}
   .pay-badge.facture{background:rgba(242,169,0,0.15); color:var(--orange);}
   .pay-badge.recharger{background:rgba(120,140,255,0.15); color:#8fa0ff;}
+  .pay-badge.afaire{background:rgba(120,140,255,0.15); color:#8fa0ff; border:1px solid rgba(120,140,255,0.35);}
+  .pay-badge.fait{background:rgba(90,180,110,0.15); color:#5ab46e;}
+
+  /* FEUILLE DE ROUTE */
+  .route-bar{
+    display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:13px 14px; margin-top:16px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.22);
+    transition:transform .08s ease, background .12s ease;
+  }
+  html[data-theme="light"] .route-bar{box-shadow:0 4px 14px rgba(0,0,0,0.05);}
+  .route-bar:active{transform:scale(0.985); background:var(--panel-2);}
+  .route-bar-icon{font-size:20px;}
+  .route-bar-text{flex:1; font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:0.5px; text-transform:uppercase; color:var(--white);}
+  .route-bar-count{
+    display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:26px; padding:0 8px; border-radius:13px;
+    background:var(--orange); color:#1a1200; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+  }
+  .route-bar-arrow{color:var(--grey); font-size:22px; line-height:1;}
+  .route-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px;
+  }
+  .route-card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--line);}
+  .route-card-type{font-weight:700; font-size:14px; color:var(--white);}
+  .route-card-meta{font-size:11.5px; color:var(--grey); margin-top:3px;}
+  .route-card-amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
+  .route-step{margin-top:10px;}
+  .route-step-label{font-size:10.5px; color:var(--grey); text-transform:uppercase; letter-spacing:1px; font-family:'JetBrains Mono',monospace;}
+  .route-step-addr{font-size:14.5px; color:var(--white); margin-top:3px; line-height:1.35;}
+  .route-nav{
+    flex:1; display:flex; align-items:center; justify-content:center; text-decoration:none;
+    background:var(--panel); color:var(--orange); border:1px solid rgba(242,169,0,0.35); border-radius:9px;
+    padding:9px 4px; font-size:12.5px; font-weight:700; transition:background .12s ease, transform .08s ease;
+  }
+  .route-nav:active{background:rgba(242,169,0,0.18); transform:scale(0.96);}
   .hist-item .amt{font-family:'JetBrains Mono',monospace; color:var(--orange); font-weight:700; font-size:15px; white-space:nowrap;}
   .hist-item .del{color:var(--red); font-size:18px; cursor:pointer; padding:4px 2px;}
   .hist-thumb{width:42px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1px solid var(--line);}
@@ -394,6 +428,13 @@
     <span>🔧</span>
     <span id="entretienBannerText"></span>
     <span class="close" onclick="document.getElementById('entretienBanner').style.display='none'">✕</span>
+  </div>
+
+  <div class="route-bar" onclick="openFeuilleDeRoute()">
+    <span class="route-bar-icon">🗺️</span>
+    <span class="route-bar-text">Feuille de route</span>
+    <span class="route-bar-count" id="routeCount" style="display:none;">0</span>
+    <span class="route-bar-arrow">›</span>
   </div>
 
   <div class="eyebrow">Nouvelle intervention</div>
@@ -1063,7 +1104,7 @@
 
   <div id="historySummary" class="hist-summary"></div>
   <button class="ghost" style="margin-bottom:8px;" onclick="openDashboard()">📊 Tableau de bord</button>
-  <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">⬇️ Exporter en CSV (comptabilité)</button>
+  <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">📊 Exporter en Excel (comptabilité)</button>
   <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()">🧾 Exporter en PDF groupé</button>
   <button class="ghost" style="margin-bottom:12px; color:#e05a4e; border-color:rgba(224,90,78,0.4);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
   <div id="history"></div>
@@ -1341,6 +1382,15 @@
     <p class="route-hint">Basé sur toutes tes interventions enregistrées (peu importe le filtre de dates du journal).</p>
     <div id="dashboardContent"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeDashboard()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalRouteBg">
+  <div class="modal">
+    <h3>🗺️ Feuille de route</h3>
+    <p class="route-hint">Tes interventions confirmées, pas encore faites. Un tap sur Maps ou Waze lance la navigation vers l'étape.</p>
+    <div id="routeList"><div class="empty">Chargement…</div></div>
+    <button class="ghost close-modal" onclick="closeFeuilleDeRoute()" style="margin-top:12px;">Fermer</button>
   </div>
 </div>
 
@@ -4908,7 +4958,7 @@ async function enregistrer(){
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   try{
     const id = 'intervention:' + Date.now();
-    const entry = {...lastCalc, paye: false};
+    const entry = {...lastCalc, paye: false, statut: 'a_faire'};
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
@@ -5017,6 +5067,7 @@ async function getFilteredHistory(){
 async function loadHistory(){
   const container = document.getElementById('history');
   const summary = document.getElementById('historySummary');
+  renderFeuilleDeRoute();
   try{
     const items = await getFilteredHistory();
     if(items.length === 0){
@@ -5054,6 +5105,9 @@ async function loadHistory(){
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
       const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">🔄 Recharger</div>`;
+      const statutBadge = estAFaire(d)
+        ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">🚚 À faire</div>`
+        : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">✅ Fait</div>`;
       return `<div class="hist-item">
         ${photoThumb}
         ${epaveThumb}
@@ -5061,7 +5115,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          <div class="badge-row">${payeBadge}${rechargerBadge}${factureBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${rechargerBadge}${factureBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
@@ -5105,6 +5159,82 @@ async function togglePaye(key){
   }catch(e){ showToast('Erreur lors de la mise à jour'); }
 }
 
+function estAFaire(d){ return d.statut === 'a_faire'; }
+
+async function toggleStatut(key){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    d.statut = estAFaire(d) ? 'fait' : 'a_faire';
+    await window.storage.set(key, JSON.stringify(d));
+    loadHistory();
+  }catch(e){ showToast('Erreur lors de la mise à jour'); }
+}
+
+async function getInterventionsAFaire(){
+  const list = await window.storage.list('intervention:');
+  const results = await Promise.all((list.keys || []).map(async key => {
+    try{ const res = await window.storage.get(key); return {key, data: JSON.parse(res.value)}; }
+    catch(e){ return null; }
+  }));
+  return results.filter(it => it && estAFaire(it.data)).sort((a,b) => new Date(a.data.date) - new Date(b.data.date));
+}
+
+function openFeuilleDeRoute(){
+  document.getElementById('modalRouteBg').classList.add('show');
+  renderFeuilleDeRoute();
+}
+function closeFeuilleDeRoute(){ document.getElementById('modalRouteBg').classList.remove('show'); }
+
+function navUrl(app, address){
+  return app === 'waze'
+    ? 'https://waze.com/ul?q=' + encodeURIComponent(address) + '&navigate=yes'
+    : 'https://maps.apple.com/?daddr=' + encodeURIComponent(address) + '&dirflg=d';
+}
+
+async function renderFeuilleDeRoute(){
+  const badge = document.getElementById('routeCount');
+  const container = document.getElementById('routeList');
+  try{
+    const items = await getInterventionsAFaire();
+    if(badge){ badge.textContent = items.length; badge.style.display = items.length ? 'inline-flex' : 'none'; }
+    if(!container) return;
+    if(items.length === 0){
+      container.innerHTML = '<div class="empty">Aucune intervention à faire — tout est réglé 👍</div>';
+      return;
+    }
+    const etape = (label, icon, adresse) => {
+      if(!adresse || adresse === '—') return '';
+      return `<div class="route-step">
+        <div class="route-step-label">${icon} ${label}</div>
+        <div class="route-step-addr">${adresse}</div>
+        <div class="quick-actions" style="margin-top:6px;">
+          <a href="${navUrl('maps', adresse)}" target="_blank" class="route-nav">🧭 Maps</a>
+          <a href="${navUrl('waze', adresse)}" target="_blank" class="route-nav">🚗 Waze</a>
+        </div>
+      </div>`;
+    };
+    container.innerHTML = items.map(it => {
+      const d = it.data;
+      const dt = new Date(d.date).toLocaleDateString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit'});
+      return `<div class="route-card">
+        <div class="route-card-head">
+          <div>
+            <div class="route-card-type">${typeLabelComplet(d)}</div>
+            <div class="route-card-meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${d.km} km${d.retour ? ' A/R' : ''}</div>
+          </div>
+          <div class="route-card-amt">${fmt(d.total)}</div>
+        </div>
+        ${etape('Prise en charge', '📍', d.from)}
+        ${etape('Dépose', '🏁', d.to)}
+        <button type="button" class="ghost" style="margin-top:10px; border-color:rgba(90,180,110,0.4); color:#5ab46e;" onclick="toggleStatut('${it.key}')">✅ Marquer comme faite</button>
+      </div>`;
+    }).join('');
+  }catch(e){
+    if(container) container.innerHTML = '<div class="empty">Impossible de charger la feuille de route</div>';
+  }
+}
+
 async function supprimer(key){
   try{
     await window.storage.delete(key);
@@ -5126,6 +5256,78 @@ async function viderHistoriqueFiltre(){
 function csvEscape(v){
   const s = String(v == null ? '' : v);
   return '"' + s.replace(/"/g,'""') + '"';
+}
+
+const CRC32_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1); t[i]=c>>>0; }
+  return t;
+})();
+function crc32(bytes){
+  let c = 0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++) c = CRC32_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function buildZipStored(entries){
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  const u16 = n => [n & 0xFF, (n >> 8) & 0xFF];
+  const u32 = n => [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >>> 24) & 0xFF];
+  for(const e of entries){
+    const nameB = enc.encode(e.name);
+    const data = typeof e.data === 'string' ? enc.encode(e.data) : e.data;
+    const crc = crc32(data);
+    const local = new Uint8Array([
+      0x50,0x4B,0x03,0x04, ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+      ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(nameB.length), ...u16(0), ...nameB
+    ]);
+    parts.push(local, data);
+    central.push(new Uint8Array([
+      0x50,0x4B,0x01,0x02, ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+      ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(nameB.length), ...u16(0), ...u16(0),
+      ...u16(0), ...u16(0), ...u32(0), ...u32(offset), ...nameB
+    ]));
+    offset += local.length + data.length;
+  }
+  const cdSize = central.reduce((s,c)=>s+c.length, 0);
+  const eocd = new Uint8Array([0x50,0x4B,0x05,0x06, ...u16(0), ...u16(0), ...u16(entries.length), ...u16(entries.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+  const total = parts.reduce((s,p)=>s+p.length, 0) + cdSize + eocd.length;
+  const out = new Uint8Array(total);
+  let pos = 0;
+  for(const p of [...parts, ...central, eocd]){ out.set(p, pos); pos += p.length; }
+  return out;
+}
+function xmlEscape(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function colLetter(i){ let s=''; i++; while(i>0){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; }
+function buildXlsx(rows, sheetName){
+  const cellsXml = rows.map((row, r) => {
+    const cells = row.map((val, c) => {
+      const ref = colLetter(c) + (r+1);
+      const style = r === 0 ? ' s="1"' : (row[0] === 'TOTAL' ? ' s="1"' : '');
+      if(val === '' || val == null) return '';
+      const num = typeof val === 'number' ? val : (/^-?\d+(\.\d+)?$/.test(String(val)) ? parseFloat(val) : null);
+      if(num !== null && !isNaN(num)) return `<c r="${ref}"${style}><v>${num}</v></c>`;
+      return `<c r="${ref}"${style} t="inlineStr"><is><t>${xmlEscape(val)}</t></is></c>`;
+    }).join('');
+    return `<row r="${r+1}">${cells}</row>`;
+  }).join('');
+  const nbCols = Math.max(...rows.map(r=>r.length));
+  const cols = `<cols><col min="1" max="${nbCols}" width="18" customWidth="1"/></cols>`;
+  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${cellsXml}</sheetData></worksheet>`;
+  const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFE8B8"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const workbook = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xmlEscape(sheetName)}" sheetId="1" r:id="rId1"/></sheets></workbook>`;
+  const wbRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const types = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+  return buildZipStored([
+    {name:'[Content_Types].xml', data:types},
+    {name:'_rels/.rels', data:rels},
+    {name:'xl/workbook.xml', data:workbook},
+    {name:'xl/_rels/workbook.xml.rels', data:wbRels},
+    {name:'xl/styles.xml', data:styles},
+    {name:'xl/worksheets/sheet1.xml', data:sheet}
+  ]);
 }
 
 async function exporterCsv(){
@@ -5160,12 +5362,12 @@ async function exporterCsv(){
   });
   rows.push([]);
   rows.push(['TOTAL', '', '', '', '', '', '', totalKm.toFixed(0), '', '', '', '', '', '', '', '', '', totalMontant.toFixed(2), '', '']);
-  const csvContent = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
-  const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8'});
+  const xlsxBytes = buildXlsx(rows, 'Interventions');
+  const blob = new Blob([xlsxBytes], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const fromStr = document.getElementById('histDateFrom').value || 'debut';
   const toStr = document.getElementById('histDateTo').value || 'aujourdhui';
-  const fileName = `JM-Express-interventions_${fromStr}_${toStr}.csv`;
-  const file = new File([blob], fileName, {type:'text/csv'});
+  const fileName = `JM-Express-interventions_${fromStr}_${toStr}.xlsx`;
+  const file = new File([blob], fileName, {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
 
   if(navigator.canShare && navigator.canShare({files:[file]})){
     try{ await navigator.share({files:[file], title:'Export interventions JM Express'}); return; }catch(e){}
@@ -5175,7 +5377,7 @@ async function exporterCsv(){
   a.href = url; a.download = fileName;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('CSV exporté');
+  showToast('Fichier Excel exporté');
 }
 
 async function exporterPdfGroupe(){
