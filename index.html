@@ -1708,6 +1708,7 @@
     <div id="payQrBox" style="background:#fff; padding:20px; border-radius:20px; display:flex; justify-content:center; align-items:center; min-height:260px;"></div>
     <div id="payIbanTxt" style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--grey); margin-top:12px;"></div>
 
+    <button class="ghost" id="btnMarquerPaye" style="display:none; border-color:rgba(63,138,95,0.45); color:var(--green);" onclick="marquerPayeDepuisQr()">💰 Marquer comme payé</button>
     <button class="ghost" onclick="partagerLienPaiement()">🔗 Envoyer les coordonnées par message</button>
     <button class="ghost close-modal" onclick="closePaiement()">Fermer</button>
   </div>
@@ -3321,7 +3322,53 @@ function openPaiement(){
   document.getElementById('modalPaiementBg').classList.add('show');
   const champ = document.getElementById('payMontant');
   if(lastCalc && lastCalc.total && !champ.value) champ.value = lastCalc.total.toFixed(2);
+  majBoutonPaye();
   renderPaiementQr();
+}
+
+async function majBoutonPaye(){
+  const btn = document.getElementById('btnMarquerPaye');
+  if(!btn) return;
+  const cible = await trouverInterventionAPayer();
+  btn.style.display = cible ? 'block' : 'none';
+  const champ = document.getElementById('payMontant');
+  if(cible && champ && !champ.value && cible.data.total){
+    champ.value = cible.data.total.toFixed(2);
+    const comm = document.getElementById('payComm');
+    if(comm && !comm.value) comm.value = typeLabelComplet(cible.data);
+    renderPaiementQr();
+  }
+}
+
+
+async function trouverInterventionAPayer(){
+  try{
+    if(typeof editingKey !== 'undefined' && editingKey){
+      const res = await window.storage.get(editingKey);
+      const d = JSON.parse(res.value);
+      if(!d.paye) return {key: editingKey, data: d};
+    }
+    const list = await window.storage.list('intervention:');
+    const items = await Promise.all((list.keys || []).map(async k => {
+      try{ return {key:k, data: JSON.parse((await window.storage.get(k)).value)}; }catch(e){ return null; }
+    }));
+    const enAttente = items.filter(it => it && !it.data.paye)
+      .sort((a,b) => new Date(b.data.date) - new Date(a.data.date));
+    return enAttente[0] || null;
+  }catch(e){ return null; }
+}
+
+async function marquerPayeDepuisQr(){
+  const cible = await trouverInterventionAPayer();
+  if(!cible){ showToast('Aucune intervention en attente de paiement'); return; }
+  try{
+    cible.data.paye = true;
+    await window.storage.set(cible.key, JSON.stringify(cible.data));
+    const dt = new Date(cible.data.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit'});
+    showToast('✅ Encaissé : ' + typeLabelComplet(cible.data) + ' du ' + dt + ' (' + fmt(cible.data.total) + ')');
+    document.getElementById('btnMarquerPaye').style.display = 'none';
+    loadHistory();
+  }catch(e){ showToast('Erreur lors de la mise à jour'); }
 }
 function closePaiement(){ document.getElementById('modalPaiementBg').classList.remove('show'); }
 
