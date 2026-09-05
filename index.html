@@ -4444,6 +4444,12 @@ function afficherTicketDepuisData(d){
 
 let editingKey = null;
 
+async function modifierDepuisRoute(key){
+  closeFeuilleDeRoute();
+  showTab('tabNouveau');
+  await chargerInterventionDepuisJournal(key);
+}
+
 async function chargerInterventionDepuisJournal(key){
   let d;
   try{
@@ -5758,7 +5764,10 @@ async function renderFeuilleDeRoute(){
         </div>
         ${etape('Prise en charge', '📍', d.from)}
         ${etape('Dépose', '🏁', d.to)}
-        <button type="button" class="ghost" style="margin-top:10px; border-color:rgba(90,180,110,0.4); color:#5ab46e;" onclick="toggleStatut('${it.key}')">✅ Marquer comme faite</button>
+        <div class="quick-actions" style="margin-top:12px;">
+          <button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Modifier / remise</button>
+          <button type="button" style="color:var(--green); border-color:rgba(63,138,95,0.45);" onclick="toggleStatut('${it.key}')">✅ Faite</button>
+        </div>
       </div>`;
     }).join('');
   }catch(e){
