@@ -4518,8 +4518,19 @@ async function genererRecu(){
     pdf.text(50, y, 'et ne peut pas être présenté à une assurance ou à une comptabilité.', {size:9, gray:0.4}); y += 12;
     pdf.text(50, y, 'Une facture en bonne et due forme peut être établie sur simple demande.', {size:9, gray:0.4}); y += 30;
 
-    pdf.text(50, y, 'Merci de votre confiance !', {font:'F2', size:11}); y += 14;
-    pdf.text(50, y, 'Votre avis nous aide beaucoup : ' + COMPANY.reviewUrl, {size:8.5, gray:0.45});
+    pdf.text(50, y, 'Merci de votre confiance !', {font:'F2', size:12}); y += 16;
+    pdf.text(50, y, 'Votre avis compte beaucoup pour nous —', {size:9.5, gray:0.35}); y += 12;
+    pdf.text(50, y, 'scannez ce code, ça prend 30 secondes.', {size:9.5, gray:0.35});
+
+    try{
+      const avisQr = makeQrMatrix(COMPANY.reviewUrl);
+      const an = avisQr.getModuleCount();
+      pdf.addBitmapImage('QrAvisRecu', an, an, (x, y2) => avisQr.isDark(y2, x));
+      pdf.drawImage('QrAvisRecu', 460, y - 30, 72, 72);
+      pdf.text(460, y + 52, 'Laissez-nous un avis', {size:7.5, gray:0.45});
+    }catch(e){ /* si le QR échoue, le lien texte ci-dessous suffit */ }
+    y += 26;
+    pdf.text(50, y, COMPANY.reviewUrl, {size:8, gray:0.45});
 
     const pdfBytes = pdf.build();
     const blob = new Blob([pdfBytes], {type:'application/pdf'});
