@@ -58,20 +58,22 @@
     padding:calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px calc(16px + env(safe-area-inset-left));
     position:sticky; top:0; z-index:20;
   }
-  .head-row{display:flex; align-items:center; justify-content:space-between; max-width:560px; margin:0 auto; gap:8px;}
-  .brand{display:flex; flex-direction:column; line-height:1;}
-  .brand .jm{font-family:'Oswald',sans-serif; font-weight:700; font-size:24px; letter-spacing:0.3px; color:var(--white);}
+  .head-row{display:flex; align-items:center; justify-content:space-between; max-width:560px; margin:0 auto; gap:6px;}
+  .brand{display:flex; flex-direction:column; line-height:1; min-width:0; overflow:hidden;}
+  .brand .jm{font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(21px, 6vw, 24px); letter-spacing:0.3px; color:var(--white); white-space:nowrap;}
   .brand .jm span{color:var(--orange);}
-  .brand .sub{font-size:9.5px; letter-spacing:2px; color:var(--grey); text-transform:uppercase; margin-top:3px;}
+  .brand .sub{font-size:clamp(8.5px, 2.5vw, 9.5px); letter-spacing:1.8px; color:var(--grey); text-transform:uppercase; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .gear{
-    width:44px; height:44px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center; color:var(--grey); font-size:19px; cursor:pointer;
+    width:44px; height:44px; border-radius:50%; flex-shrink:0;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--grey);
+    font-size:19px; cursor:pointer;
     transition:background .12s ease, transform .08s ease, color .12s ease;
   }
   .gear:active{background:var(--orange-soft); color:var(--orange); transform:scale(0.94);}
   .gear.emergency{background:rgba(201,74,50,0.10); border-color:rgba(201,74,50,0.3); color:var(--red); text-decoration:none;}
   .gear.emergency:active{background:#e05a4e; color:#fff;}
-  .head-row-icons{display:flex; gap:8px;}
+  .head-row-icons{display:flex; gap:8px; flex-shrink:0;}
 
   .emergency-btn{
     display:flex; flex-direction:column; align-items:center; gap:4px; text-decoration:none;
@@ -359,6 +361,18 @@
   @keyframes splashFade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
   @keyframes splashSlide{0%{transform:translateX(-120%);} 100%{transform:translateX(370%);}}
 
+  /* Menu d'accès rapide */
+  .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:8px;}
+  .menu-item{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:18px; padding:16px 14px;
+    cursor:pointer; display:flex; flex-direction:column; gap:3px;
+    transition:background .12s ease, transform .08s ease, border-color .12s ease;
+  }
+  .menu-item:active{background:var(--orange-soft); border-color:var(--orange); transform:scale(0.96);}
+  .menu-ico{font-size:26px; line-height:1; margin-bottom:5px;}
+  .menu-lbl{font-size:14.5px; font-weight:700; color:var(--white); line-height:1.25;}
+  .menu-desc{font-size:11.5px; color:var(--grey); line-height:1.3;}
+
   /* Curseur de vitesse des animations */
   .anim-slider-row{display:flex; align-items:center; gap:12px;}
   .anim-slider-lbl{font-size:11.5px; color:var(--grey); white-space:nowrap;}
@@ -583,8 +597,7 @@
     <div class="head-row-icons">
       <div class="gear emergency" onclick="openUrgences()" title="Urgences">🚨</div>
       <div class="gear" onclick="openQuickQuote()" title="Devis rapide">📞</div>
-      <div class="gear" onclick="openRdv()" title="Rendez-vous">📅</div>
-      <div class="gear" onclick="openSettings()">⚙</div>
+      <div class="gear" onclick="openMenu()" title="Menu">⋯</div>
     </div>
   </div>
 </header>
@@ -704,10 +717,11 @@
           </div>
           <div class="access-hint" id="addrFromAccessHint" style="display:none;"></div>
           <div class="quick-actions">
-            <button type="button" onclick="ouvrirNavigation('addrFrom')">🧭 Maps</button>
+            <button type="button" onclick="ouvrirPlans('addrFrom')">🧭 Plans</button>
+            <button type="button" onclick="ouvrirGoogleMaps('addrFrom')">🗺️ Maps</button>
             <button type="button" onclick="ouvrirWaze('addrFrom')">🚗 Waze</button>
-            <button type="button" onclick="toggleAccesVehicule('addrFrom')">🚦 Accès</button>
           </div>
+          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrFrom')">🚦 Noter l'accès véhicule</button>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
@@ -718,10 +732,11 @@
           </div>
           <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
           <div class="quick-actions">
-            <button type="button" onclick="ouvrirNavigation('addrTo')">🧭 Maps</button>
+            <button type="button" onclick="ouvrirPlans('addrTo')">🧭 Plans</button>
+            <button type="button" onclick="ouvrirGoogleMaps('addrTo')">🗺️ Maps</button>
             <button type="button" onclick="ouvrirWaze('addrTo')">🚗 Waze</button>
-            <button type="button" onclick="toggleAccesVehicule('addrTo')">🚦 Accès</button>
           </div>
+          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrTo')">🚦 Noter l'accès véhicule</button>
         </div>
       </div>
     </div>
@@ -1617,6 +1632,84 @@
     <p class="route-hint">Basé sur toutes tes interventions enregistrées (peu importe le filtre de dates du journal).</p>
     <div id="dashboardContent"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeDashboard()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalMenuBg">
+  <div class="modal">
+    <div class="eyebrow">Accès rapide</div>
+    <h1 class="page-title" style="font-size:26px;">Menu</h1>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="closeMenu(); openRdv();">
+        <span class="menu-ico">📅</span>
+        <span class="menu-lbl">Rendez-vous</span>
+        <span class="menu-desc">Programmer une course</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openPaiement();">
+        <span class="menu-ico">💳</span>
+        <span class="menu-lbl">QR de paiement</span>
+        <span class="menu-desc">Faire payer sur place</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openAvis();">
+        <span class="menu-ico">⭐</span>
+        <span class="menu-lbl">Demander un avis</span>
+        <span class="menu-desc">QR à faire scanner</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openClients();">
+        <span class="menu-ico">👤</span>
+        <span class="menu-lbl">Clients</span>
+        <span class="menu-desc">Carnet d'adresses</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openRoutes();">
+        <span class="menu-ico">🚏</span>
+        <span class="menu-lbl">Trajets fréquents</span>
+        <span class="menu-desc">Distances enregistrées</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openDashboard();">
+        <span class="menu-ico">📊</span>
+        <span class="menu-lbl">Tableau de bord</span>
+        <span class="menu-desc">Chiffres et tendances</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openSettings();">
+        <span class="menu-ico">⚙️</span>
+        <span class="menu-lbl">Réglages</span>
+        <span class="menu-desc">Tarifs et préférences</span>
+      </div>
+    </div>
+    <button class="ghost close-modal" onclick="closeMenu()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalPaiementBg">
+  <div class="modal">
+    <div class="eyebrow">Encaissement</div>
+    <h1 class="page-title" style="font-size:26px;">QR de paiement</h1>
+    <p class="page-sub">Le client scanne avec son app bancaire : montant et compte pré-remplis.</p>
+
+    <div class="field">
+      <label>Compte à créditer</label>
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle on" id="payIban1" onclick="setPayIban(1)">💼 Pro<span class="sub">…8568</span></div>
+        <div class="toggle" id="payIban2" onclick="setPayIban(2)">👤 Perso<span class="sub">…8569</span></div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Montant (€)</label>
+        <input type="number" id="payMontant" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="renderPaiementQr()">
+      </div>
+      <div class="field">
+        <label>Communication</label>
+        <input type="text" id="payComm" placeholder="Ex: Dépannage" oninput="renderPaiementQr()">
+      </div>
+    </div>
+
+    <div id="payQrBox" style="background:#fff; padding:20px; border-radius:20px; display:flex; justify-content:center; align-items:center; min-height:260px;"></div>
+    <div id="payIbanTxt" style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--grey); margin-top:12px;"></div>
+
+    <button class="ghost" onclick="partagerLienPaiement()">🔗 Envoyer les coordonnées par message</button>
+    <button class="ghost close-modal" onclick="closePaiement()">Fermer</button>
   </div>
 </div>
 
@@ -3209,6 +3302,69 @@ function updateFaceIdSection(){
   }
 }
 
+let PAY_IBAN = 1; // 1 = compte pro (par défaut), 2 = compte perso
+
+function setPayIban(n){
+  PAY_IBAN = n;
+  document.getElementById('payIban1').classList.toggle('on', n === 1);
+  document.getElementById('payIban2').classList.toggle('on', n === 2);
+  renderPaiementQr();
+}
+
+function ibanChoisi(){
+  return PAY_IBAN === 2
+    ? {brut: COMPANY.iban2, affiche: COMPANY.iban2Display, nom: 'Perso'}
+    : {brut: COMPANY.iban,  affiche: COMPANY.ibanDisplay,  nom: 'Pro'};
+}
+
+function openPaiement(){
+  document.getElementById('modalPaiementBg').classList.add('show');
+  const champ = document.getElementById('payMontant');
+  if(lastCalc && lastCalc.total && !champ.value) champ.value = lastCalc.total.toFixed(2);
+  renderPaiementQr();
+}
+function closePaiement(){ document.getElementById('modalPaiementBg').classList.remove('show'); }
+
+function renderPaiementQr(){
+  const box = document.getElementById('payQrBox');
+  if(!box) return;
+  const cpt = ibanChoisi();
+  const montant = parseFloat(document.getElementById('payMontant').value) || 0;
+  const comm = document.getElementById('payComm').value.trim();
+  document.getElementById('payIbanTxt').textContent = cpt.nom + ' · ' + cpt.affiche;
+  try{
+    const qr = makeQrMatrix(buildEpcLibre(cpt.brut, montant, comm));
+    const n = qr.getModuleCount(), cell = 8, marge = 4;
+    const taille = (n + marge*2) * cell;
+    let rects = '';
+    for(let r=0; r<n; r++){
+      for(let c=0; c<n; c++){
+        if(qr.isDark(r,c)) rects += `<rect x="${(c+marge)*cell}" y="${(r+marge)*cell}" width="${cell}" height="${cell}" fill="#000"/>`;
+      }
+    }
+    box.innerHTML = `<svg viewBox="0 0 ${taille} ${taille}" style="width:100%; max-width:260px; height:auto;" xmlns="http://www.w3.org/2000/svg"><rect width="${taille}" height="${taille}" fill="#fff"/>${rects}</svg>`;
+  }catch(e){
+    box.innerHTML = '<div style="color:#666; font-size:14px; text-align:center;">QR indisponible — utilise le bouton ci-dessous.</div>';
+  }
+}
+
+async function partagerLienPaiement(){
+  const cpt = ibanChoisi();
+  const montant = parseFloat(document.getElementById('payMontant').value) || 0;
+  const comm = document.getElementById('payComm').value.trim();
+  let txt = `${COMPANY.name}\nIBAN : ${cpt.affiche}\nBIC : ${COMPANY.bic}`;
+  if(montant > 0) txt += `\nMontant : ${fmt(montant)}`;
+  if(comm) txt += `\nCommunication : ${comm}`;
+  try{
+    if(navigator.share){ await navigator.share({text: txt}); return; }
+    await navigator.clipboard.writeText(txt);
+    showToast('Coordonnées copiées — colle-les dans un SMS ou WhatsApp');
+  }catch(e){ /* partage annulé */ }
+}
+
+function openMenu(){ document.getElementById('modalMenuBg').classList.add('show'); }
+function closeMenu(){ document.getElementById('modalMenuBg').classList.remove('show'); }
+
 function openAvis(){
   document.getElementById('modalAvisBg').classList.add('show');
   const box = document.getElementById('avisQrBox');
@@ -4292,6 +4448,8 @@ const COMPANY = {
   iban: 'BE82732083848568',
   ibanDisplay: 'BE82 7320 8384 8568',
   bic: 'BBRUBEBB',
+  iban2: 'BE71732065098569',
+  iban2Display: 'BE71 7320 6509 8569',
   reviewUrl: 'https://maps.app.goo.gl/3ZbDYCQsao4b2UbS7?g_st=ic'
 };
 
@@ -4595,6 +4753,19 @@ async function canvasSignatureToRgb(canvasId){
   const decoded = decodePngToRgb(pngBytes, inflated);
   const recompressed = await streamProcess(decoded.rgb, 'deflate');
   return { width: decoded.width, height: decoded.height, deflatedRgb: recompressed };
+}
+
+function buildEpcLibre(iban, amount, communication){
+  const lines = [
+    'BCD', '002', '1', 'SCT',
+    COMPANY.bic,
+    COMPANY.nameAscii,
+    iban,
+    amount > 0 ? 'EUR' + amount.toFixed(2) : '',
+    '', '',
+    communication || ''
+  ];
+  return lines.join('\n');
 }
 
 function buildEpcPayload(amount, invoiceNumber){
@@ -5154,10 +5325,17 @@ function checkAccesVehicule(fieldId){
   hintEl.style.display = 'flex';
 }
 
-function ouvrirNavigation(fieldId){
+function ouvrirPlans(fieldId){
   const address = document.getElementById(fieldId).value.trim();
   if(!address){ showToast('Indique d\'abord une adresse'); return; }
   const url = 'https://maps.apple.com/?daddr=' + encodeURIComponent(address) + '&dirflg=d';
+  window.open(url, '_blank');
+}
+
+function ouvrirGoogleMaps(fieldId){
+  const address = document.getElementById(fieldId).value.trim();
+  if(!address){ showToast('Indique d\'abord une adresse'); return; }
+  const url = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(address) + '&travelmode=driving';
   window.open(url, '_blank');
 }
 
@@ -5722,9 +5900,10 @@ function openFeuilleDeRoute(){
 function closeFeuilleDeRoute(){ document.getElementById('modalRouteBg').classList.remove('show'); }
 
 function navUrl(app, address){
-  return app === 'waze'
-    ? 'https://waze.com/ul?q=' + encodeURIComponent(address) + '&navigate=yes'
-    : 'https://maps.apple.com/?daddr=' + encodeURIComponent(address) + '&dirflg=d';
+  const a = encodeURIComponent(address);
+  if(app === 'waze')  return 'https://waze.com/ul?q=' + a + '&navigate=yes';
+  if(app === 'gmaps') return 'https://www.google.com/maps/dir/?api=1&destination=' + a + '&travelmode=driving';
+  return 'https://maps.apple.com/?daddr=' + a + '&dirflg=d';  // Plans (Apple)
 }
 
 async function renderFeuilleDeRoute(){
@@ -5746,7 +5925,8 @@ async function renderFeuilleDeRoute(){
         <div class="route-step-label">${icon} ${label}</div>
         <div class="route-step-addr">${adresse}</div>
         <div class="quick-actions" style="margin-top:6px;">
-          <a href="${navUrl('maps', adresse)}" target="_blank" class="route-nav">🧭 Maps</a>
+          <a href="${navUrl('plans', adresse)}" target="_blank" class="route-nav">🧭 Plans</a>
+          <a href="${navUrl('gmaps', adresse)}" target="_blank" class="route-nav">🗺️ Maps</a>
           <a href="${navUrl('waze', adresse)}" target="_blank" class="route-nav">🚗 Waze</a>
         </div>
       </div>`;
