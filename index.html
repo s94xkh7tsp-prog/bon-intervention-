@@ -31,6 +31,7 @@
     --green:#3f8a5f;
     --red:#c94a32;
   }
+  :root{ --anim: 1; }
   html[data-theme="dark"]{
     --ink:#12181c;
     --panel:#1a2228;
@@ -262,7 +263,7 @@
     margin-top:18px; position:relative; display:none;
     box-shadow:0 4px 18px rgba(38,63,75,0.07);
   }
-  .ticket.show{display:block; animation:rise .28s cubic-bezier(.2,.8,.2,1);}
+  .ticket.show{display:block; animation:rise calc(.28s * var(--anim)) cubic-bezier(.2,.8,.2,1);}
   @keyframes rise{from{opacity:0; transform:translateY(10px) scale(.985);} to{opacity:1; transform:translateY(0) scale(1);}}
   .ticket .punch{position:absolute; width:16px; height:16px; background:var(--ink); border-radius:50%; top:50%; margin-top:-8px;}
   .punch.left{left:-9px;} .punch.right{right:-9px;}
@@ -317,6 +318,66 @@
     padding:8px 14px; border:1px solid var(--orange); border-radius:20px;
   }
   .edit-banner-cancel:active{background:var(--orange-dim);}
+
+  /* ÉCRAN DE LANCEMENT — première impression de l'appli */
+  .splash{
+    position:fixed; inset:0; z-index:200; background:linear-gradient(160deg, #0d2a48, #071a30 55%, #04101f);
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity calc(.45s * var(--anim)) ease, visibility calc(.45s * var(--anim)) ease;
+  }
+  .splash.hide{opacity:0; visibility:hidden;}
+  .splash-inner{text-align:center; padding:0 24px; width:100%; max-width:420px;}
+  .splash-logo{position:relative; display:inline-block; animation:splashPop calc(.7s * var(--anim)) cubic-bezier(.2,.9,.25,1.05) both;}
+  .sl-j, .sl-e{
+    font-family:'Oswald',sans-serif; font-weight:700; letter-spacing:1px; display:inline-block;
+    font-size:clamp(34px, 12vw, 52px); line-height:1;
+  }
+  .sl-j{color:#fff;}
+  .sl-e{color:#f2900f;}
+  .splash-bar{
+    height:4px; border-radius:3px; background:linear-gradient(90deg, #f2900f, #ffc257);
+    margin-top:6px; transform-origin:left center;
+    animation:splashBar calc(.75s * var(--anim)) calc(.25s * var(--anim)) cubic-bezier(.2,.9,.25,1) both;
+  }
+  .splash-sub{
+    margin-top:16px; font-size:clamp(9.5px, 2.8vw, 12px); letter-spacing:2.4px; text-transform:uppercase;
+    color:rgba(255,255,255,0.55); font-family:'JetBrains Mono',monospace;
+    animation:splashFade calc(.6s * var(--anim)) calc(.5s * var(--anim)) both;
+  }
+  .splash-load{
+    width:150px; height:3px; margin:30px auto 0; border-radius:3px;
+    background:rgba(255,255,255,0.12); overflow:hidden;
+    animation:splashFade calc(.5s * var(--anim)) calc(.6s * var(--anim)) both;
+  }
+  .splash-load span{
+    display:block; height:100%; width:40%; border-radius:3px;
+    background:linear-gradient(90deg, transparent, #f2900f, transparent);
+    animation:splashSlide calc(1.1s * var(--anim)) calc(.6s * var(--anim)) infinite ease-in-out;
+  }
+  @keyframes splashPop{from{opacity:0; transform:translateY(16px) scale(.92);} to{opacity:1; transform:none;}}
+  @keyframes splashBar{from{transform:scaleX(0);} to{transform:scaleX(1);}}
+  @keyframes splashFade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  @keyframes splashSlide{0%{transform:translateX(-120%);} 100%{transform:translateX(370%);}}
+
+  /* Curseur de vitesse des animations */
+  .anim-slider-row{display:flex; align-items:center; gap:12px;}
+  .anim-slider-lbl{font-size:11.5px; color:var(--grey); white-space:nowrap;}
+  input[type=range]{
+    flex:1; -webkit-appearance:none; appearance:none; height:6px; border-radius:4px;
+    background:var(--line); outline:none; padding:0; margin:0;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:26px; height:26px; border-radius:50%;
+    background:var(--orange); cursor:pointer; border:3px solid var(--panel);
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px; height:22px; border-radius:50%; background:var(--orange);
+    cursor:pointer; border:3px solid var(--panel);
+  }
+  .anim-slider-val{
+    margin-top:10px; text-align:center; font-size:12.5px; color:var(--orange); font-weight:600;
+  }
 
   /* MODE PAYSAGE — l'écran est très bas de plafond : on récupère de la hauteur en
      compactant l'en-tête, les titres et la barre du bas, et on passe le formulaire
@@ -431,12 +492,33 @@
 
   /* MODAL */
   .modal-bg{
-    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; display:none; align-items:flex-end; justify-content:center;
+    position:fixed; inset:0; background:rgba(12,26,40,0.55); z-index:50; display:none;
+    align-items:flex-end; justify-content:center; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
   }
-  .modal-bg.show{display:flex;}
+  .modal-bg.show{display:flex; animation:bgFade calc(.22s * var(--anim)) ease both;}
   .modal{
-    background:var(--panel); width:100%; max-width:520px; border-radius:18px 18px 0 0; padding:20px 18px 26px;
-    max-height:85vh; overflow-y:auto;
+    background:var(--panel); width:100%; max-width:560px; border-radius:26px 26px 0 0; padding:24px 20px 30px;
+    max-height:88vh; overflow-y:auto; box-shadow:0 -8px 40px rgba(0,0,0,0.25);
+  }
+  .modal-bg.show .modal{animation:sheetUp calc(.34s * var(--anim)) cubic-bezier(.2,.9,.25,1.02) both;}
+  @keyframes bgFade{from{opacity:0;} to{opacity:1;}}
+  @keyframes sheetUp{from{transform:translateY(40px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+
+  /* Apparition en cascade du contenu d'une page/onglet */
+  .tab-section{animation:pageIn calc(.34s * var(--anim)) cubic-bezier(.2,.9,.25,1) both;}
+  @keyframes pageIn{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+  .stagger > *{animation:pageIn calc(.4s * var(--anim)) cubic-bezier(.2,.9,.25,1) both;}
+  .stagger > *:nth-child(1){animation-delay:calc(0.02s * var(--anim))}
+  .stagger > *:nth-child(2){animation-delay:calc(0.06s * var(--anim))}
+  .stagger > *:nth-child(3){animation-delay:calc(0.1s * var(--anim))}
+  .stagger > *:nth-child(4){animation-delay:calc(0.14s * var(--anim))}
+  .stagger > *:nth-child(5){animation-delay:calc(0.18s * var(--anim))}
+  .stagger > *:nth-child(n+6){animation-delay:calc(.22s * var(--anim))}
+
+  /* Si "Réduire les animations" est actif sur l'iPhone, on part sur un réglage très discret
+     (mais on ne supprime pas tout : le curseur de l'appli reste maître ensuite). */
+  @media (prefers-reduced-motion: reduce){
+    :root{ --anim: 0.35; }
   }
   .modal h3{font-family:'Oswald',sans-serif; margin:0 0 14px; font-size:17px; letter-spacing:0.5px;}
   .modal .grp{margin-bottom:16px;}
@@ -469,6 +551,17 @@
 </style>
 </head>
 <body>
+
+<div class="splash" id="splash">
+  <div class="splash-inner">
+    <div class="splash-logo">
+      <span class="sl-j">JM</span><span class="sl-e">EXPRESS</span>
+      <div class="splash-bar"></div>
+    </div>
+    <div class="splash-sub">Auto Dépannage · Charleroi</div>
+    <div class="splash-load"><span></span></div>
+  </div>
+</div>
 
 <div class="lock-screen" id="lockScreen" style="display:none;">
   <div class="lock-box">
@@ -1217,7 +1310,7 @@
   <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">📊 Exporter en Excel (comptabilité)</button>
   <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()">🧾 Exporter en PDF groupé</button>
   <button class="ghost" style="margin-bottom:12px; color:var(--red); border-color:rgba(201,74,50,0.35);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
-  <div id="history"></div>
+  <div id="history" class="stagger"></div>
   </section>
 
 </div>
@@ -1338,6 +1431,17 @@
             <div class="toggle" id="themeLight" onclick="setThemeMode('light')">Toujours clair</div>
             <div class="toggle" id="themeDark" onclick="setThemeMode('dark')">Toujours sombre</div>
           </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Animations</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 12px 0;">Règle la vitesse des effets d'ouverture. Vers la gauche = plus discret et plus rapide, vers la droite = plus marqué.</p>
+          <div class="anim-slider-row">
+            <span class="anim-slider-lbl">Discret</span>
+            <input type="range" id="animSpeed" min="0" max="150" step="5" value="100" oninput="setAnimSpeed(this.value)">
+            <span class="anim-slider-lbl">Marqué</span>
+          </div>
+          <div class="anim-slider-val" id="animSpeedVal">Normal (100 %)</div>
         </div>
 
         <div class="grp">
@@ -1466,7 +1570,7 @@
     <h3>Clients enregistrés</h3>
     <p class="route-hint">Enregistre une fois un client régulier (garage, société...) : ensuite sélectionne-le en un tap sur la facture, même sans connexion.</p>
 
-    <div id="clientsList"></div>
+    <div id="clientsList" class="stagger"></div>
 
     <div class="grp" style="margin-top:18px;">
       <div class="grp-title">Ajouter un client</div>
@@ -1531,7 +1635,7 @@
   <div class="modal">
     <h3>🗺️ Feuille de route</h3>
     <p class="route-hint">Tes interventions confirmées, pas encore faites. Un tap sur Maps ou Waze lance la navigation vers l'étape.</p>
-    <div id="routeList"><div class="empty">Chargement…</div></div>
+    <div id="routeList" class="stagger"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeFeuilleDeRoute()" style="margin-top:12px;">Fermer</button>
   </div>
 </div>
@@ -2983,6 +3087,42 @@ async function loadTextSize(){
   applyTextSize(TEXT_SIZE);
 }
 
+let ANIM_SPEED = 100;
+
+function applyAnimSpeed(val){
+  const pct = Math.max(0, Math.min(150, parseInt(val, 10) || 0));
+  document.documentElement.style.setProperty('--anim', (pct / 100).toFixed(2));
+  const slider = document.getElementById('animSpeed');
+  if(slider && slider.value != pct) slider.value = pct;
+  const lbl = document.getElementById('animSpeedVal');
+  if(lbl){
+    let nom;
+    if(pct === 0) nom = 'Aucune animation';
+    else if(pct <= 40) nom = 'Très discret';
+    else if(pct <= 80) nom = 'Discret';
+    else if(pct <= 110) nom = 'Normal';
+    else if(pct <= 130) nom = 'Marqué';
+    else nom = 'Très marqué';
+    lbl.textContent = nom + ' (' + pct + ' %)';
+  }
+}
+
+async function setAnimSpeed(val){
+  ANIM_SPEED = parseInt(val, 10) || 0;
+  applyAnimSpeed(ANIM_SPEED);
+  const sec = document.getElementById(currentTab);
+  if(sec && sec.style.display !== 'none') rejouerAnim(sec);
+  try{ await window.storage.set('animSpeed', String(ANIM_SPEED)); }catch(e){}
+}
+
+async function loadAnimSpeed(){
+  try{
+    const res = await window.storage.get('animSpeed');
+    if(res && res.value !== undefined && res.value !== '') ANIM_SPEED = parseInt(res.value, 10);
+  }catch(e){ /* réglage par défaut : 100 % */ }
+  applyAnimSpeed(ANIM_SPEED);
+}
+
 let PIN_CODE = null;
 let FACE_ID_CREDENTIAL_ID = null;
 
@@ -3533,6 +3673,13 @@ function setQqVehicleType(type){
 
 let currentTab = 'tabNouveau';
 
+function rejouerAnim(el){
+  if(!el) return;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+}
+
 function showTab(tab){
   const sections = {tabNouveau:'tabNouveau', tabHistorique:'tabHistorique'};
   if(sections[tab]){
@@ -3541,6 +3688,7 @@ function showTab(tab){
       const el = document.getElementById(id);
       if(el) el.style.display = (id === tab) ? 'block' : 'none';
     });
+    rejouerAnim(document.getElementById(tab));
     window.scrollTo({top:0, behavior:'smooth'});
   } else {
     if(tab === 'tabDevis') openQuickQuote();
@@ -5941,9 +6089,42 @@ document.addEventListener('focusout', (e) => {
   update();
 })();
 
+(function(){
+  const splash = document.getElementById('splash');
+  if(!splash) return;
+  const cacher = () => {
+    splash.classList.add('hide');
+    setTimeout(() => splash.remove(), 600);
+  };
+  const debut = Date.now();
+  const quandPret = () => {
+    const reste = Math.max(0, 950 - (Date.now() - debut));
+    setTimeout(cacher, reste);
+  };
+  if(document.readyState === 'complete') quandPret();
+  else window.addEventListener('load', quandPret);
+  setTimeout(cacher, 4000);
+})();
+
+(function(){
+  const obs = new MutationObserver(muts => {
+    muts.forEach(m => {
+      const el = m.target;
+      if(el.classList && el.classList.contains('modal-bg') && el.classList.contains('show')){
+        const inner = el.querySelector('.modal');
+        if(inner) rejouerAnim(inner);
+      }
+    });
+  });
+  document.querySelectorAll('.modal-bg').forEach(el => {
+    obs.observe(el, {attributes:true, attributeFilter:['class']});
+  });
+})();
+
 checkPinLock();
 loadThemeMode();
 loadTextSize();
+loadAnimSpeed();
 checkBackupReminder();
 checkEntretienReminder();
 loadClients();
