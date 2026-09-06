@@ -451,7 +451,8 @@
     input[type=time], input[type=password], select, textarea{padding:11px 14px; font-size:15.5px;}
     .toggle{padding:11px 8px; font-size:13.5px;}
     .tabbar{padding-top:5px;}
-    .tab-ico{font-size:18px;}
+    .tab-ico{width:30px; height:26px;}
+    .tab-ico svg{width:19px; height:19px;}
     .tab-lbl{font-size:10.5px;}
     button.primary{padding:15px; font-size:16px;}
     button.ghost{padding:13px; font-size:14.5px;}
@@ -476,10 +477,17 @@
     transition:color .12s ease, transform .08s ease;
   }
   .tab-btn:active{transform:scale(0.94);}
+  .tab-ico{
+    display:flex; align-items:center; justify-content:center;
+    width:34px; height:30px; border-radius:12px; color:var(--grey);
+    transition:color .16s ease, background .16s ease, transform .16s cubic-bezier(.2,.9,.25,1.1);
+  }
+  .tab-ico svg{width:22px; height:22px; display:block;}
+  .tab-lbl{font-size:11.5px; font-weight:600; letter-spacing:0.2px; color:var(--grey); transition:color .16s ease;}
+  .tab-btn.active .tab-ico{
+    color:var(--orange); background:var(--orange-soft); transform:translateY(-1px);
+  }
   .tab-btn.active .tab-lbl{color:var(--orange); font-weight:700;}
-  .tab-btn.active .tab-ico{filter:none; opacity:1;}
-  .tab-ico{font-size:21px; line-height:1; opacity:0.55; filter:grayscale(0.55);}
-  .tab-lbl{font-size:11.5px; font-weight:600; letter-spacing:0.2px; color:var(--grey);}
   .tab-badge{
     position:absolute; top:0; right:calc(50% - 24px); min-width:19px; height:19px; padding:0 5px;
     background:var(--orange); color:#fff; border-radius:10px; font-size:11px; font-weight:700;
@@ -1387,20 +1395,25 @@
 
 <nav class="tabbar" id="tabbar">
   <div class="tab-btn active" data-tab="tabNouveau" onclick="showTab('tabNouveau')">
-    <span class="tab-ico">🔧</span><span class="tab-lbl">Nouveau</span>
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+    <span class="tab-lbl">Nouveau</span>
   </div>
   <div class="tab-btn" data-tab="tabDevis" onclick="showTab('tabDevis')">
-    <span class="tab-ico">📞</span><span class="tab-lbl">Devis</span>
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+    <span class="tab-lbl">Devis</span>
   </div>
   <div class="tab-btn" data-tab="tabHistorique" onclick="showTab('tabHistorique')">
-    <span class="tab-ico">🕘</span><span class="tab-lbl">Historique</span>
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span>
+    <span class="tab-lbl">Historique</span>
   </div>
   <div class="tab-btn" data-tab="tabRoute" onclick="showTab('tabRoute')">
-    <span class="tab-ico">🗺️</span><span class="tab-lbl">Route</span>
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5"/><path d="M15 6.5V20"/></svg></span>
+    <span class="tab-lbl">Route</span>
     <span class="tab-badge" id="tabRouteBadge" style="display:none;">0</span>
   </div>
   <div class="tab-btn" data-tab="tabClients" onclick="showTab('tabClients')">
-    <span class="tab-ico">👤</span><span class="tab-lbl">Clients</span>
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+    <span class="tab-lbl">Clients</span>
   </div>
 </nav>
 
