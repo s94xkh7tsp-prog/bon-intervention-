@@ -1214,6 +1214,12 @@
       <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
     </div>
 
+    <div class="field" id="ctRepasseField" style="display:none;">
+      <label>2ᵉ passage au contrôle technique (véhicule recalé)</label>
+      <input type="number" id="ctRepasseMontant" placeholder="Montant en € — laisser vide si non concerné" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
+      <div class="km-mention">Le forfait de levée de saisie couvre un aller-retour au contrôle technique. Si le véhicule est recalé et doit y retourner après réparation, indique ici le montant de ce transport supplémentaire.</div>
+    </div>
+
     <div class="field">
       <div class="extras-header" onclick="toggleAdvancedOptions()">
         <label style="margin:0; cursor:pointer;">+ Options avancées (véhicule, camion, gardiennage)</label>
@@ -1322,6 +1328,7 @@
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
     <div class="km-mention" style="margin-bottom:6px;">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
+    <div class="ticket-row" id="rowCtRepasse" style="display:none;"><span class="l">2ᵉ passage contrôle technique</span><span class="v" id="tkCtRepasse">—</span></div>
     <div id="extrasRows"></div>
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
@@ -3817,7 +3824,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Forfait de base', kilometrage:'Kilométrage',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
-    supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT',
+    supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT', ctRepasse:'2e passage contrôle technique',
     vehiculeSuv:'Supplément SUV / 4x4', vehiculeElectrique:'Supplément véhicule électrique/hybride', vehiculeUtilitaire:'Supplément utilitaire/camionnette',
     remise:'Remise', totalTvac:'TOTAL À PAYER', franchise:'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.',
     scannezPayer:'Scannez pour payer', paiementVirement:'PAIEMENT PAR VIREMENT', communication:'Communication : Facture ',
@@ -3837,7 +3844,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Basisforfait', kilometrage:'Kilometers',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
-    supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN',
+    supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN', ctRepasse:'2e keuringsbeurt',
     vehiculeSuv:'Toeslag SUV / 4x4', vehiculeElectrique:'Toeslag elektrisch/hybride voertuig', vehiculeUtilitaire:'Toeslag bestelwagen',
     remise:'Korting', totalTvac:'TOTAAL TE BETALEN', franchise:'Vrijstelling van belasting. BTW niet van toepassing, artikel 56bis van het BTW-Wetboek.',
     scannezPayer:'Scan om te betalen', paiementVirement:'BETALING PER OVERSCHRIJVING', communication:'Mededeling : Factuur ',
@@ -3857,7 +3864,7 @@ const INVOICE_STRINGS = {
     forfaitBase:'Base rate', kilometrage:'Mileage',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
-    supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING',
+    supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING', ctRepasse:'2nd inspection visit',
     vehiculeSuv:'SUV / 4x4 surcharge', vehiculeElectrique:'Electric/hybrid vehicle surcharge', vehiculeUtilitaire:'Van/utility vehicle surcharge',
     remise:'Discount', totalTvac:'TOTAL DUE', franchise:'Tax exempt. VAT not applicable, article 56bis of the Belgian VAT Code.',
     scannezPayer:'Scan to pay', paiementVirement:'PAYMENT BY BANK TRANSFER', communication:'Payment reference: Invoice ',
@@ -4750,6 +4757,7 @@ async function chargerInterventionDepuisJournal(key){
   setTog('tgAttente', d.minutesAttente > 0);
   document.getElementById('minutesAttente').value = d.minutesAttente || '';
   document.getElementById('kmTarifExceptionnel').value = d.kmTarifExcept || '';
+  document.getElementById('ctRepasseMontant').value = d.ctRepasse || '';
   updateGardiennageField();
   updateAttenteField();
 
@@ -5096,6 +5104,7 @@ async function genererFacture(){
     }
     if(c.gardiennageCost) priceLine(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
     if(c.attenteCost) priceLine(S.attente + c.minutesAttente + S.minAttente, c.attenteCost);
+    if(c.ctRepasse) priceLine(S.ctRepasse, c.ctRepasse);
     if(c.remiseAmount > 0) priceLine(S.remise, -c.remiseAmount);
 
     y += 8;
@@ -5327,6 +5336,7 @@ function updateKmLabel(){
 
   document.getElementById('epavePhotoField').style.display = (isEpave || isLeveeSaisie) ? 'block' : 'none';
   document.getElementById('etatLieuxField').style.display = TYPES_REMORQUAGE.includes(type) ? 'block' : 'none';
+  document.getElementById('ctRepasseField').style.display = isLeveeSaisie ? 'block' : 'none';
   updateAbandonDocButton();
 
   document.querySelectorAll('.extra-item').forEach(item=>{
@@ -5920,6 +5930,7 @@ function calculer(){
 
   const isLeveeSaisie = type === 'levee_saisie';
   const abandon = isLeveeSaisie && document.getElementById('tgAbandon').classList.contains('on');
+  const ctRepasse = isLeveeSaisie ? (parseFloat(document.getElementById('ctRepasseMontant').value) || 0) : 0;
 
   const isEpave = type === 'epave_demolition';
   const sansMoteur = isEpave && document.getElementById('tgSansMoteur').classList.contains('on');
@@ -5941,7 +5952,7 @@ function calculer(){
     : calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
   const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
-  const subtotal = base + kmCost + extrasCost + pasRouesFee + vehicleFee;
+  const subtotal = base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse;
   const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = we ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = auto ? RATES.auto : 0;
@@ -5953,7 +5964,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: new Date().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -5966,6 +5977,8 @@ function calculer(){
   document.getElementById('tkPlaque').textContent = plaque;
   document.getElementById('tkBase').textContent = fmt(base);
   document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
+  document.getElementById('rowCtRepasse').style.display = ctRepasse > 0 ? 'flex' : 'none';
+  document.getElementById('tkCtRepasse').textContent = fmt(ctRepasse);
   document.getElementById('rowGeste').style.display = (kmTarifExcept !== null) ? 'flex' : 'none';
   if(kmTarifExcept !== null){
     document.getElementById('tkGeste').textContent = kmTarifExcept.toFixed(2) + ' €/km au lieu de ' + kmRateNormal.toFixed(2) + ' €/km';
@@ -6044,6 +6057,7 @@ async function enregistrer(){
     document.getElementById('tgAttente').classList.remove('on');
     document.getElementById('minutesAttente').value = '';
     document.getElementById('kmTarifExceptionnel').value = '';
+    document.getElementById('ctRepasseMontant').value = '';
     document.getElementById('plaqueImmat').value = '';
     document.getElementById('tgNuit').classList.remove('on');
     document.getElementById('tgWe').classList.remove('on');
@@ -6084,6 +6098,7 @@ function copierRecap(){
   }
   if(c.gardiennageCost) txt += `\nGardiennage (${c.joursGardiennage} j) : ${fmt(c.gardiennageCost)}`;
   if(c.attenteCost) txt += `\nTemps d'attente (${c.minutesAttente} min) : ${fmt(c.attenteCost)}`;
+  if(c.ctRepasse) txt += `\n2e passage contrôle technique : ${fmt(c.ctRepasse)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
   txt += `\n\n*TOTAL À PAYER : ${fmt(c.total)}*\n\nKilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.\n\nFranchise TVA art. 56bis CTVA`;
 
