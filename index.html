@@ -655,6 +655,12 @@
     <span class="close" onclick="document.getElementById('backupBanner').style.display='none'">✕</span>
   </div>
 
+  <div class="holiday-banner" id="gasoilBanner" style="background:rgba(232,115,12,0.10); border-color:rgba(232,115,12,0.35);">
+    <span>⛽</span>
+    <span id="gasoilBannerText"></span>
+    <span class="close" onclick="ignorerAlerteGasoil()">✕</span>
+  </div>
+
   <div class="holiday-banner" id="entretienBanner">
     <span>🔧</span>
     <span id="entretienBannerText"></span>
@@ -3724,6 +3730,57 @@ async function checkEntretienReminder(){
   }catch(e){ /* pas encore d'échéances enregistrées */ }
 }
 
+const GASOIL_ECART_ALERTE = 0.20;   // en €/L
+const GASOIL_RAPPEL_JOURS = 60;
+
+async function checkGasoilReminder(){
+  try{
+    const prixActuel = RATES.diesel;
+    if(!prixActuel) return;
+
+    let ref = null, dateRef = null;
+    try{
+      const res = await window.storage.get('gasoilRef');
+      const d = JSON.parse(res.value);
+      ref = d.prix; dateRef = new Date(d.date);
+    }catch(e){ /* première utilisation */ }
+
+    if(ref === null){
+      await window.storage.set('gasoilRef', JSON.stringify({prix: prixActuel, date: new Date().toISOString()}));
+      return;
+    }
+
+    const ecart = prixActuel - ref;
+    const jours = Math.floor((new Date() - dateRef) / (1000*60*60*24));
+    let message = null;
+
+    if(Math.abs(ecart) >= GASOIL_ECART_ALERTE){
+      const sens = ecart > 0 ? 'a augmenté' : 'a baissé';
+      const coutAvant = ref * RATES.conso / 100;
+      const coutApres = prixActuel * RATES.conso / 100;
+      const impact = Math.abs(coutApres - coutAvant) * 200; // course type de 100 km aller-retour
+      message = `Le gasoil ${sens} de ${Math.abs(ecart*100).toFixed(0)} cts/L depuis ta dernière vérification `
+        + `(${ref.toFixed(2)} → ${prixActuel.toFixed(2)} €/L). Impact ≈ ${impact.toFixed(0)} € sur une course de 100 km aller-retour. `
+        + `Pense à revoir ton tarif au km si besoin (⚙️ Réglages).`;
+    } else if(jours >= GASOIL_RAPPEL_JOURS){
+      message = `Cela fait ${jours} jours que tu n'as pas vérifié le prix du gasoil (${prixActuel.toFixed(2)} €/L enregistré). `
+        + `Un petit contrôle à la pompe ? (⚙️ Réglages)`;
+    }
+
+    if(message){
+      document.getElementById('gasoilBannerText').textContent = message;
+      document.getElementById('gasoilBanner').style.display = 'flex';
+    }
+  }catch(e){ /* rien de bloquant */ }
+}
+
+async function ignorerAlerteGasoil(){
+  document.getElementById('gasoilBanner').style.display = 'none';
+  try{
+    await window.storage.set('gasoilRef', JSON.stringify({prix: RATES.diesel, date: new Date().toISOString()}));
+  }catch(e){}
+}
+
 async function checkBackupReminder(){
   try{
     const res = await window.storage.get('lastBackupDate');
@@ -6686,6 +6743,7 @@ loadTextSize();
 loadAnimSpeed();
 checkBackupReminder();
 checkEntretienReminder();
+setTimeout(checkGasoilReminder, 900);
 loadClients();
 loadAccessNotes();
 loadRates().then(updateKmLabel);
