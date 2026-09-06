@@ -86,26 +86,26 @@
 
   /* SECTION LABEL */
   .eyebrow{
-    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--grey);
-    text-transform:uppercase; margin:26px 0 6px 2px; display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.8px; color:var(--grey);
+    text-transform:uppercase; margin:18px 0 5px 2px; display:flex; align-items:center; gap:9px;
   }
   .eyebrow::before{content:''; width:26px; height:2px; background:var(--orange); border-radius:2px;}
   .page-title{
-    font-family:'Oswald',sans-serif; font-weight:700; font-size:34px; line-height:1.05; letter-spacing:0.3px;
-    text-transform:uppercase; color:var(--white); margin:0 0 8px 2px;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:26px; line-height:1.08; letter-spacing:0.3px;
+    text-transform:uppercase; color:var(--white); margin:0 0 5px 2px;
   }
-  .page-sub{font-size:15px; color:var(--grey); line-height:1.45; margin:0 0 18px 2px;}
+  .page-sub{font-size:13.5px; color:var(--grey); line-height:1.4; margin:0 0 14px 2px;}
 
   /* CARD */
   .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:20px;
+    background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px;
     box-shadow:0 2px 10px rgba(38,63,75,0.05);
   }
 
   /* Boutons d'action compacts sous les adresses (Maps / Waze / Accès sur une seule ligne) */
   .quick-actions{display:flex; gap:8px; margin-top:10px;}
   .quick-actions button{
-    flex:1; background:var(--panel); color:var(--grey); border:1px solid var(--line); border-radius:20px;
+    flex:1; min-height:42px; background:var(--panel); color:var(--grey); border:1px solid var(--line); border-radius:20px;
     padding:10px 4px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
     transition:background .12s ease, transform .08s ease, color .12s ease;
   }
@@ -113,10 +113,10 @@
 
   /* FORM */
   label{
-    display:block; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--grey);
-    margin:0 0 8px 2px; font-weight:500; letter-spacing:1.4px; text-transform:uppercase;
+    display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--grey);
+    margin:0 0 6px 2px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase;
   }
-  .field{margin-bottom:18px;}
+  .field{margin-bottom:13px;}
   .field-row{display:flex; gap:10px;}
   .field-row .field{flex:1 1 0; min-width:0;}
   .hist-summary{
@@ -126,7 +126,7 @@
   .hist-summary b{color:var(--orange);}
   input[type=text], input[type=number], input[type=tel], input[type=date], input[type=time], input[type=password], select, textarea{
     width:100%; background:var(--panel); border:1px solid var(--line); color:var(--white);
-    padding:15px 16px; border-radius:14px; font-size:16.5px; font-family:'Inter',sans-serif; outline:none;
+    padding:12px 14px; border-radius:13px; font-size:16px; font-family:'Inter',sans-serif; outline:none;
     transition:border-color .12s ease, box-shadow .12s ease;
   }
   input::placeholder, textarea::placeholder{color:var(--grey); opacity:0.75;}
@@ -162,10 +162,10 @@
   .dash{width:1.5px; height:34px; background:repeating-linear-gradient(var(--line),var(--line) 3px, transparent 3px, transparent 6px);}
   .route-fields{flex:1;}
 
-  .toggles{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+  .toggles{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:13px;}
   .toggle{
-    flex:1; min-width:100px; text-align:center; padding:15px 8px; border-radius:16px; border:1px solid var(--line);
-    background:var(--panel); color:var(--grey); font-size:14.5px; font-weight:600; cursor:pointer; user-select:none;
+    flex:1; min-width:92px; text-align:center; padding:11px 8px; border-radius:14px; border:1px solid var(--line);
+    background:var(--panel); color:var(--grey); font-size:14px; font-weight:600; cursor:pointer; user-select:none;
     transition:background .12s ease, border-color .12s ease, color .12s ease, transform .08s ease;
   }
   .toggle:active{transform:scale(0.96);}
@@ -226,15 +226,15 @@
   .unit-btn.on{background:var(--orange-soft); color:var(--orange);}
 
   .km-mention{
-    font-size:12.5px; color:var(--grey); line-height:1.5; margin-top:10px; padding:12px 14px;
-    background:var(--panel-2); border-radius:12px; border-left:3px solid var(--orange);
+    font-size:11.5px; color:var(--grey); line-height:1.4; margin-top:8px; padding:9px 12px;
+    background:var(--panel-2); border-radius:10px; border-left:3px solid var(--orange);
   }
   .kmrow{display:flex; gap:10px;}
   .kmrow .field{flex:1;}
 
   button.primary{
-    width:100%; background:var(--orange); color:#fff; border:none; padding:19px; border-radius:32px;
-    font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:0.2px;
+    width:100%; background:var(--orange); color:#fff; border:none; padding:16px; border-radius:30px;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:16.5px; letter-spacing:0.2px;
     cursor:pointer; margin-top:6px; box-shadow:0 4px 14px rgba(232,115,12,0.28);
     transition:transform .08s ease, box-shadow .12s ease, filter .12s ease;
   }
@@ -253,8 +253,8 @@
   .float-calc.show{transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto;}
   .float-calc:active{transform:translateX(-50%) scale(0.96);}
   button.ghost{
-    width:100%; background:var(--panel); color:var(--white); border:1px solid var(--line); padding:16px;
-    border-radius:32px; font-size:15.5px; font-weight:600; cursor:pointer; margin-top:10px;
+    width:100%; background:var(--panel); color:var(--white); border:1px solid var(--line); padding:13px;
+    border-radius:26px; font-size:15px; font-weight:600; cursor:pointer; margin-top:8px;
     transition:background .12s ease, transform .08s ease, color .12s ease;
   }
   button.ghost:active{background:rgba(242,169,0,0.10); color:var(--orange); transform:scale(0.98);}
@@ -360,6 +360,45 @@
   @keyframes splashBar{from{transform:scaleX(0);} to{transform:scaleX(1);}}
   @keyframes splashFade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
   @keyframes splashSlide{0%{transform:translateX(-120%);} 100%{transform:translateX(370%);}}
+
+  /* Champ d'adresse : pendant la saisie il devient multiligne et prend toute la largeur,
+     pour qu'on voie la rue en entier (et donc les fautes de frappe). */
+  textarea.addr-input[readonly]{cursor:pointer; background:var(--panel);}
+  textarea.addr-input{
+    resize:none; overflow:hidden; font-family:'Inter',sans-serif; line-height:1.35;
+    white-space:nowrap; height:auto;
+  }
+  .input-with-btn.editing .addr-input{white-space:pre-wrap; word-break:break-word;}
+  .input-with-btn.editing{flex-wrap:wrap;}
+  .input-with-btn.editing .addr-input{
+    flex:1 1 100%; order:-1; font-size:18px; padding:14px 16px;
+  }
+  .input-with-btn.editing .loc-btn{margin-top:8px;}
+
+  /* Fenêtre de saisie d'adresse : positionnée par rapport au clavier réel (pas à l'écran),
+     pour qu'elle ne parte pas vers le haut quand iOS fait défiler la page. */
+  #modalAdresseBg{
+    align-items:flex-start;
+    padding-top:var(--adr-top, 0px);
+    transition:padding-top .18s ease;
+  }
+  #modalAdresseBg .modal{
+    max-height:none; padding:20px 20px 24px; border-radius:26px;
+  }
+  #modalAdresseBg .addr-suggest{max-height:170px;}
+
+  /* Suggestions d'adresses (liste maison, remplace le datalist du navigateur) */
+  .addr-suggest{
+    margin-top:8px; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:var(--panel); box-shadow:0 4px 16px rgba(38,63,75,0.10); max-height:230px; overflow-y:auto;
+  }
+  .addr-sugg-item{
+    padding:13px 15px; font-size:15px; color:var(--white); cursor:pointer; line-height:1.3;
+    border-bottom:1px solid var(--line);
+  }
+  .addr-sugg-item:last-child{border-bottom:none;}
+  .addr-sugg-item:active{background:var(--orange-soft); color:var(--orange);}
+  .addr-sugg-item b{color:var(--orange); font-weight:700;}
 
   /* Menu d'accès rapide */
   .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:8px;}
@@ -693,11 +732,12 @@
     <div class="field">
       <label>Adresse de départ (où est ta dépanneuse actuellement) — optionnel</label>
       <div class="input-with-btn">
-        <input type="text" id="addrDepart" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="invaliderTicketObsolete()">
-        <button type="button" class="loc-btn" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
-        <button type="button" class="loc-btn" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
-        <button type="button" class="loc-btn" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
+        <textarea rows="1" id="addrDepart" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrDepart'); invaliderTicketObsolete()" readonly onclick="ouvrirSaisieAdresse('addrDepart')"></textarea>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrDepart')" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrDepart')" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrDepart')" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
       </div>
+          <div class="addr-suggest" id="addrDepartSuggest" style="display:none;"></div>
     </div>
 
     <div class="route-line">
@@ -710,11 +750,12 @@
         <div class="field">
           <label>Adresse d'intervention (prise en charge)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrFrom'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrFrom')">
-            <button type="button" class="loc-btn" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
-            <button type="button" class="loc-btn" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
-            <button type="button" class="loc-btn" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
+            <textarea rows="1" id="addrFrom" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrFrom'); checkAccesVehicule('addrFrom'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrFrom')" readonly onclick="ouvrirSaisieAdresse('addrFrom')"></textarea>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrFrom')" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrFrom')" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrFrom')" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
           </div>
+          <div class="addr-suggest" id="addrFromSuggest" style="display:none;"></div>
           <div class="access-hint" id="addrFromAccessHint" style="display:none;"></div>
           <div class="quick-actions">
             <button type="button" onclick="ouvrirPlans('addrFrom')">🧭 Plans</button>
@@ -726,10 +767,11 @@
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
-            <input type="text" id="addrTo" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')">
-            <button type="button" class="loc-btn" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
-            <button type="button" class="loc-btn" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
+            <textarea rows="1" id="addrTo" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrTo'); checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')" readonly onclick="ouvrirSaisieAdresse('addrTo')"></textarea>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrTo')" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrTo')" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
           </div>
+          <div class="addr-suggest" id="addrToSuggest" style="display:none;"></div>
           <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
           <div class="quick-actions">
             <button type="button" onclick="ouvrirPlans('addrTo')">🧭 Plans</button>
@@ -1632,6 +1674,31 @@
     <p class="route-hint">Basé sur toutes tes interventions enregistrées (peu importe le filtre de dates du journal).</p>
     <div id="dashboardContent"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeDashboard()" style="margin-top:16px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAdresseBg">
+  <div class="modal">
+    <div class="eyebrow" id="adrEyebrow">Adresse</div>
+    <h1 class="page-title" style="font-size:24px;" id="adrTitre">Saisir l'adresse</h1>
+    <!-- Étape 1 : choisir sans clavier -->
+    <div id="adrEtapeChoix">
+      <div id="adrValeurActuelle" class="km-mention" style="display:none; margin:0 0 12px 0;"></div>
+      <button class="ghost" style="margin-top:0; text-align:left;" onclick="passerEnSaisieLibre()">⌨️ Taper une adresse</button>
+      <div id="adrRecents"></div>
+    </div>
+
+    <!-- Étape 2 : saisie au clavier -->
+    <div id="adrEtapeSaisie" style="display:none;">
+      <textarea id="adrSaisie" rows="2" class="addr-input" placeholder="Rue, n°, ville"
+        autocorrect="on" spellcheck="true" autocapitalize="sentences"
+        style="font-size:19px; padding:16px; min-height:84px;"
+        oninput="suggererDansModal()"></textarea>
+      <div class="addr-suggest" id="adrSuggest" style="display:none; position:static; margin-top:10px;"></div>
+      <button class="primary" style="margin-top:14px;" onclick="validerSaisieAdresse()">Valider l'adresse</button>
+    </div>
+
+    <button class="ghost close-modal" onclick="annulerSaisieAdresse()">Annuler</button>
   </div>
 </div>
 
@@ -5393,6 +5460,247 @@ function ouvrirWaze(fieldId){
   window.open(url, '_blank');
 }
 
+let champAdresseEnCours = null;
+
+const LIBELLES_ADRESSE = {
+  addrDepart: {eyebrow:'Où est ta dépanneuse', titre:'Adresse de départ'},
+  addrFrom:   {eyebrow:'Prise en charge',      titre:"Adresse d'intervention"},
+  addrTo:     {eyebrow:'Garage / lieu',        titre:'Adresse de dépose'}
+};
+
+function positionnerFenetreAdresse(){
+  const bg = document.getElementById('modalAdresseBg');
+  if(!bg || !bg.classList.contains('show')) return;
+  const modal = bg.querySelector('.modal');
+  const vv = window.visualViewport;
+  const hautVisible = vv ? vv.offsetTop : 0;
+  const hauteurVisible = vv ? vv.height : window.innerHeight;
+  const hModal = modal ? modal.getBoundingClientRect().height : 0;
+  const top = Math.max(0, hautVisible + hauteurVisible - hModal);
+  bg.style.setProperty('--adr-top', top + 'px');
+}
+
+function ouvrirSaisieAdresse(fieldId){
+  champAdresseEnCours = fieldId;
+  const src = document.getElementById(fieldId);
+  const lib = LIBELLES_ADRESSE[fieldId] || {eyebrow:'Adresse', titre:"Saisir l'adresse"};
+  document.getElementById('adrEyebrow').textContent = lib.eyebrow;
+  document.getElementById('adrTitre').textContent = lib.titre;
+
+  document.getElementById('adrEtapeChoix').style.display = 'block';
+  document.getElementById('adrEtapeSaisie').style.display = 'none';
+  document.getElementById('adrSuggest').style.display = 'none';
+  document.getElementById('adrSaisie').value = src.value;
+
+  const actuelle = document.getElementById('adrValeurActuelle');
+  if(src.value.trim()){
+    actuelle.textContent = 'Actuellement : ' + src.value.trim();
+    actuelle.style.display = 'block';
+  } else {
+    actuelle.style.display = 'none';
+  }
+
+  afficherAdressesRapides();
+  document.getElementById('modalAdresseBg').classList.add('show');
+}
+
+async function afficherAdressesRapides(){
+  const box = document.getElementById('adrRecents');
+  if(!box) return;
+  let recentes = [];
+  try{
+    const list = await window.storage.list('intervention:');
+    const items = await Promise.all((list.keys || []).slice(-40).map(async k => {
+      try{ return JSON.parse((await window.storage.get(k)).value); }catch(e){ return null; }
+    }));
+    const vues = new Set();
+    items.filter(Boolean)
+      .sort((a,b) => new Date(b.date) - new Date(a.date))
+      .forEach(d => {
+        [d.from, d.to, d.depart].forEach(a => {
+          if(a && a !== '—' && !vues.has(a) && recentes.length < 6){ vues.add(a); recentes.push(a); }
+        });
+      });
+  }catch(e){ /* pas d'historique : on affichera seulement les lieux enregistrés */ }
+
+  const lieux = chargerListeAdresses().slice(0, 6);
+  const bloc = (titre, liste) => liste.length === 0 ? '' :
+    `<div style="margin-top:14px;">
+       <div class="eyebrow" style="margin:0 0 8px 2px;">${titre}</div>
+       ${liste.map(a => `<div class="addr-sugg-item" style="border:1px solid var(--line); border-radius:14px; margin-bottom:8px;" onclick="choisirAdresseRapide(this)" data-val="${a.replace(/"/g,'&quot;')}">${a}</div>`).join('')}
+     </div>`;
+
+  box.innerHTML = bloc('Dernières utilisées', recentes) + bloc('Lieux enregistrés', lieux);
+}
+
+function choisirAdresseRapide(item){
+  const fieldId = champAdresseEnCours;
+  if(!fieldId) return;
+  const el = document.getElementById(fieldId);
+  el.value = item.dataset.val;
+  ajusterHauteurAdresse(el);
+  if(typeof checkAccesVehicule === 'function') checkAccesVehicule(fieldId);
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  fermerSaisieAdresse();
+}
+
+function passerEnSaisieLibre(){
+  document.getElementById('adrEtapeChoix').style.display = 'none';
+  document.getElementById('adrEtapeSaisie').style.display = 'block';
+  const zone = document.getElementById('adrSaisie');
+  setTimeout(() => {
+    zone.focus();
+    zone.setSelectionRange(zone.value.length, zone.value.length);
+  }, 120);
+}
+
+function fermerSaisieAdresse(){
+  const bg = document.getElementById('modalAdresseBg');
+  bg.classList.remove('show');
+  bg.style.removeProperty('--adr-top');
+  document.getElementById('adrSuggest').style.display = 'none';
+  champAdresseEnCours = null;
+}
+
+function annulerSaisieAdresse(){ fermerSaisieAdresse(); }
+
+function validerSaisieAdresse(){
+  if(!champAdresseEnCours){ fermerSaisieAdresse(); return; }
+  const fieldId = champAdresseEnCours;
+  const el = document.getElementById(fieldId);
+  el.value = document.getElementById('adrSaisie').value.trim();
+  ajusterHauteurAdresse(el);
+  if(typeof checkAccesVehicule === 'function') checkAccesVehicule(fieldId);
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  fermerSaisieAdresse();
+}
+
+function suggererDansModal(){
+  const zone = document.getElementById('adrSaisie');
+  const box = document.getElementById('adrSuggest');
+  const saisi = zone.value.trim();
+  if(saisi.length < 2){ box.style.display='none'; box.innerHTML=''; return; }
+  const q = normaliserRecherche(saisi);
+  const mots = q.split(' ').filter(Boolean);
+  const res = chargerListeAdresses()
+    .filter(a => { const n = normaliserRecherche(a); return mots.every(m => n.includes(m)); })
+    .slice(0, 8);
+  if(res.length === 0){ box.style.display='none'; box.innerHTML=''; return; }
+  box.innerHTML = res.map(a =>
+    `<div class="addr-sugg-item" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); choisirDansModal(this)" onclick="choisirDansModal(this)" data-val="${a.replace(/"/g,'&quot;')}">${a}</div>`
+  ).join('');
+  box.style.display = 'block';
+  positionnerFenetreAdresse();
+}
+
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', positionnerFenetreAdresse);
+  window.visualViewport.addEventListener('scroll', positionnerFenetreAdresse);
+}
+
+function choisirDansModal(item){
+  document.getElementById('adrSaisie').value = item.dataset.val;
+  document.getElementById('adrSuggest').style.display = 'none';
+  validerSaisieAdresse();
+}
+
+let LISTE_ADRESSES = null;
+
+function chargerListeAdresses(){
+  if(LISTE_ADRESSES) return LISTE_ADRESSES;
+  const dl = document.getElementById('adressesBelgique');
+  LISTE_ADRESSES = dl ? Array.from(dl.options).map(o => o.value) : [];
+  return LISTE_ADRESSES;
+}
+
+function normaliserRecherche(txt){
+  return txt.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function suggererAdresses(fieldId){
+  const el = document.getElementById(fieldId);
+  const box = document.getElementById(fieldId + 'Suggest');
+  if(!el || !box) return;
+  const saisi = el.value.trim();
+  if(saisi.length < 2){ box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  const q = normaliserRecherche(saisi);
+  const mots = q.split(' ').filter(Boolean);
+  const resultats = chargerListeAdresses()
+    .filter(a => { const n = normaliserRecherche(a); return mots.every(m => n.includes(m)); })
+    .slice(0, 8);
+
+  if(resultats.length === 0){ box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  box.innerHTML = resultats.map(a =>
+    `<div class="addr-sugg-item" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); choisirAdresse('${fieldId}', this)" onclick="choisirAdresse('${fieldId}', this)" data-val="${a.replace(/"/g,'&quot;')}">${a}</div>`
+  ).join('');
+  box.style.display = 'block';
+  positionnerChampVisible(el);
+}
+
+function choisirAdresse(fieldId, item){
+  const el = document.getElementById(fieldId);
+  el.value = item.dataset.val;
+  const box = document.getElementById(fieldId + 'Suggest');
+  box.style.display = 'none'; box.innerHTML = '';
+  ajusterHauteurAdresse(el);
+  if(typeof checkAccesVehicule === 'function') checkAccesVehicule(fieldId);
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  el.blur();
+}
+
+function masquerSuggestions(fieldId){
+  const box = document.getElementById(fieldId + 'Suggest');
+  if(box){ box.style.display = 'none'; box.innerHTML = ''; }
+}
+
+function positionnerChampVisible(el){
+  const header = document.querySelector('header');
+  const hautEnTete = header ? header.getBoundingClientRect().bottom : 0;
+  const marge = 14;
+  const r = el.getBoundingClientRect();
+  const ecart = r.top - (hautEnTete + marge);
+  if(Math.abs(ecart) > 4){
+    window.scrollBy({top: ecart, behavior: 'smooth'});
+  }
+}
+
+function ajusterHauteurAdresse(el){
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 24) + 'px';
+}
+
+function agrandirAdresse(el, actif){
+  const wrap = el.closest('.input-with-btn');
+  if(!wrap) return;
+  if(actif){
+    el.blur();
+    ouvrirSaisieAdresse(el.id);
+    return;
+  } else {
+    setTimeout(() => {
+      wrap.classList.remove('editing');
+      el.style.height = '';   // repasse à la hauteur d'une seule ligne
+      el.scrollLeft = 0;      // et on revient au début du texte
+      masquerSuggestions(el.id);
+    }, 160);
+  }
+}
+
+document.addEventListener('input', (e) => {
+  if(e.target.classList && e.target.classList.contains('addr-input')) ajusterHauteurAdresse(e.target);
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && e.target.classList && e.target.classList.contains('addr-input')){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
 function effacerChamp(fieldId){
   const field = document.getElementById(fieldId);
   field.value = '';
@@ -6288,7 +6596,7 @@ async function exporterPdfGroupe(){
 document.addEventListener('focusin', (e) => {
   if(e.target.matches('input, textarea')){
     const modal = e.target.closest('.modal');
-    if(modal){
+    if(modal && !e.target.closest('#modalAdresseBg')){
       modal.style.paddingBottom = '340px';
       setTimeout(() => { e.target.scrollIntoView({block:'center', behavior:'smooth'}); }, 300);
     }
@@ -6297,7 +6605,7 @@ document.addEventListener('focusin', (e) => {
 document.addEventListener('focusout', (e) => {
   if(e.target.matches('input, textarea')){
     const modal = e.target.closest('.modal');
-    if(modal) setTimeout(() => { modal.style.paddingBottom = ''; }, 200);
+    if(modal && !e.target.closest('#modalAdresseBg')) setTimeout(() => { modal.style.paddingBottom = ''; }, 200);
   }
 });
 
