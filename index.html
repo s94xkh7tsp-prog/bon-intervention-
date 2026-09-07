@@ -205,15 +205,22 @@
   .qq-hint{font-size:13.5px; color:rgba(255,255,255,0.6); margin-top:10px;}
 
   .extras-list{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
+  .settings-category{
+    margin-bottom:12px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:16px; padding:2px 16px; overflow:hidden;
+  }
+  .settings-category:last-of-type{margin-bottom:0;}
   .extras-header{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    cursor:pointer; padding:2px 0 8px 0; user-select:none;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    cursor:pointer; padding:16px 0; user-select:none;
+  }
+  .extras-header label{
+    margin:0 !important; cursor:pointer; font-weight:700 !important; font-size:16.5px !important;
+    color:var(--white) !important; letter-spacing:0.1px;
   }
   .extras-summary{color:var(--orange); font-size:13.5px; font-weight:600; flex-shrink:0;}
-  .extras-chevron{color:var(--grey); font-size:14px; transition:transform 0.2s; flex-shrink:0;}
+  .extras-chevron{color:var(--orange); font-size:18px; transition:transform 0.2s; flex-shrink:0;}
   .extras-chevron.open{transform:rotate(180deg);}
-  .settings-category{margin-bottom:6px; border-bottom:1px solid var(--line); padding-bottom:6px;}
-  .settings-category:last-of-type{border-bottom:none;}
   .extra-item{
     display:flex; align-items:center; gap:11px; padding:13px 14px; border-radius:13px;
     color:var(--grey); font-size:15px; cursor:pointer; user-select:none;
@@ -1432,7 +1439,7 @@
         <label style="margin:0; cursor:pointer; font-weight:600;">💰 Tarifs</label>
         <span class="extras-chevron open" id="catTarifsChevron">▾</span>
       </div>
-      <div id="catTarifs" style="display:block;">
+      <div id="catTarifs" style="display:block; padding-bottom:16px;">
 
         <div class="grp">
           <div class="grp-title">Forfaits de base (€)</div>
@@ -1510,7 +1517,7 @@
         <label style="margin:0; cursor:pointer; font-weight:600;">🎨 Apparence & confort</label>
         <span class="extras-chevron" id="catApparenceChevron">▾</span>
       </div>
-      <div id="catApparence" style="display:none;">
+      <div id="catApparence" style="display:none; padding-bottom:16px;">
 
         <div class="grp">
           <div class="grp-title">Apparence</div>
@@ -1559,7 +1566,7 @@
         <label style="margin:0; cursor:pointer; font-weight:600;">🔒 Sécurité & données</label>
         <span class="extras-chevron" id="catSecuriteChevron">▾</span>
       </div>
-      <div id="catSecurite" style="display:none;">
+      <div id="catSecurite" style="display:none; padding-bottom:16px;">
 
         <div class="grp">
           <div class="grp-title">Code d'accès</div>
@@ -1593,7 +1600,7 @@
         <label style="margin:0; cursor:pointer; font-weight:600;">🔧 Entretien dépanneuse</label>
         <span class="extras-chevron" id="catEntretienChevron">▾</span>
       </div>
-      <div id="catEntretien" style="display:none;">
+      <div id="catEntretien" style="display:none; padding-bottom:16px;">
 
         <div class="grp">
           <div class="grp-title">Entretien de la dépanneuse</div>
