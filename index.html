@@ -179,6 +179,11 @@
     border-radius:14px; padding:14px 16px; margin-bottom:14px; font-size:14px; color:var(--white); line-height:1.45;
   }
   .holiday-banner .close{margin-left:auto; cursor:pointer; color:var(--grey); font-size:16px; flex-shrink:0;}
+  .banner-action{
+    flex-shrink:0; background:var(--orange); color:#fff; padding:7px 13px; border-radius:16px;
+    font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .banner-action:active{filter:brightness(0.92);}
 
   .lock-screen{
     position:fixed; inset:0; background:var(--ink); z-index:500;
@@ -660,6 +665,7 @@
   <div class="holiday-banner" id="backupBanner">
     <span>💾</span>
     <span id="backupBannerText"></span>
+    <span class="banner-action" onclick="exporterSauvegardeParMail()">Envoyer</span>
     <span class="close" onclick="document.getElementById('backupBanner').style.display='none'">✕</span>
   </div>
 
@@ -1573,7 +1579,8 @@
         <div class="grp">
           <div class="grp-title">Sauvegarde des données</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, photos) sont stockées uniquement sur ce téléphone. Fais une sauvegarde régulièrement pour ne rien perdre.</p>
-          <button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">💾 Exporter une sauvegarde complète</button>
+          <button class="ghost" style="margin-bottom:8px; border-color:rgba(232,115,12,0.35); color:var(--orange);" onclick="exporterSauvegardeParMail()">📧 Préparer et envoyer par mail (contact@jmexpressautodepannage.be)</button>
+<button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">💾 Exporter une sauvegarde complète (autre méthode)</button>
           <input type="file" id="restoreFile" accept="application/json" style="display:none;" onchange="restaurerSauvegarde(event)">
           <button class="ghost" onclick="document.getElementById('restoreFile').click()">📥 Restaurer une sauvegarde</button>
         </div>
@@ -1804,6 +1811,27 @@
     <button class="ghost" id="btnMarquerPaye" style="display:none; border-color:rgba(63,138,95,0.45); color:var(--green);" onclick="marquerPayeDepuisQr()">💰 Marquer comme payé</button>
     <button class="ghost" onclick="partagerLienPaiement()">🔗 Envoyer les coordonnées par message</button>
     <button class="ghost close-modal" onclick="closePaiement()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalNoteCreditBg">
+  <div class="modal">
+    <div class="eyebrow">Correction de facture</div>
+    <h1 class="page-title" style="font-size:24px;">Note de crédit</h1>
+    <p class="page-sub" id="ncFactureRef">—</p>
+
+    <div class="field">
+      <label>Montant à créditer (€)</label>
+      <input type="number" id="ncMontant" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+      <div class="km-mention">Laisse le montant complet pour annuler entièrement la facture, ou réduis-le pour une correction partielle.</div>
+    </div>
+    <div class="field">
+      <label>Motif (apparaît sur le document)</label>
+      <textarea id="ncMotif" rows="2" placeholder="Ex : erreur de kilométrage facturé"></textarea>
+    </div>
+
+    <button class="primary" onclick="genererNoteCredit()">Générer la note de crédit (PDF)</button>
+    <button class="ghost close-modal" onclick="closeNoteCredit()">Annuler</button>
   </div>
 </div>
 
@@ -4858,17 +4886,137 @@ function annulerEdition(){
 
 function openInvoice(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
+  if(factureEnCoursKey === null && typeof editingKey !== 'undefined' && editingKey) factureEnCoursKey = editingKey;
   document.getElementById('modalInvoiceBg').classList.add('show');
   document.getElementById('leveeSaisieAttestGrp').style.display = lastCalc.type === 'levee_saisie' ? 'block' : 'none';
   setInvoiceLang('fr');
   setTimeout(initSignatureCanvas, 50);
 }
-function closeInvoice(){ document.getElementById('modalInvoiceBg').classList.remove('show'); }
+function closeInvoice(){
+  document.getElementById('modalInvoiceBg').classList.remove('show');
+  factureEnCoursKey = null;
+}
+
+let factureEnCoursKey = null;
+
+let ncKeyEnCours = null;
+
+async function ouvrirNoteCredit(key){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    if(!d.invoiceNumber){ showToast('Aucune facture émise pour cette intervention'); return; }
+    ncKeyEnCours = key;
+    document.getElementById('ncFactureRef').textContent =
+      'Facture ' + d.invoiceNumber + ' du ' + new Date(d.invoicedDate).toLocaleDateString('fr-BE') + ' — ' + fmt(d.invoicedTotal);
+    document.getElementById('ncMontant').value = d.invoicedTotal.toFixed(2);
+    document.getElementById('ncMotif').value = '';
+    document.getElementById('modalNoteCreditBg').classList.add('show');
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); }
+}
+
+function closeNoteCredit(){
+  document.getElementById('modalNoteCreditBg').classList.remove('show');
+  ncKeyEnCours = null;
+}
+
+async function nextCreditNoteNumber(){
+  let n = 1;
+  try{
+    const res = await window.storage.get('creditNoteCounter');
+    if(res && res.value) n = parseInt(res.value) + 1;
+  }catch(e){}
+  await window.storage.set('creditNoteCounter', String(n));
+  const today = new Date();
+  const ymd = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  return 'NC-' + ymd + '-' + String(n).padStart(4,'0');
+}
+
+async function genererNoteCredit(){
+  if(!ncKeyEnCours){ showToast('Erreur : aucune facture sélectionnée'); return; }
+  const montant = parseFloat(document.getElementById('ncMontant').value);
+  if(isNaN(montant) || montant <= 0){ showToast('Indique un montant valide'); return; }
+  const motif = document.getElementById('ncMotif').value.trim();
+  showToast('Génération de la note de crédit…');
+
+  try{
+    const res = await window.storage.get(ncKeyEnCours);
+    const d = JSON.parse(res.value);
+    const ncNumber = await nextCreditNoteNumber();
+    const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[201,74,50]});
+
+    pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
+    pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 20;
+    pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
+
+    pdf.text(50, y, 'NOTE DE CRÉDIT', {font:'F2', size:15, rgb:[181,64,42]});
+    pdf.rect(50, y+5, 90, 2, {mode:'f', rgb:[201,74,50]});
+    pdf.text(400, y, 'N° ' + ncNumber, {size:10}); y += 16;
+    pdf.text(400, y, 'Date : ' + dateStr, {size:10}); y += 24;
+
+    pdf.text(50, y, 'ANNULE ET REMPLACE', {font:'F2', size:9, rgb:[181,64,42], charSpace:1.1}); y += 14;
+    pdf.text(50, y, 'Facture n° ' + d.invoiceNumber + ' du ' + new Date(d.invoicedDate).toLocaleDateString('fr-BE'), {size:10}); y += 14;
+    pdf.text(50, y, 'Montant initial : ' + fmt(d.invoicedTotal), {size:9.5, gray:0.3}); y += 24;
+
+    pdf.text(50, y, 'PRESTATION CONCERNÉE', {font:'F2', size:9, rgb:[181,64,42], charSpace:1.1}); y += 14;
+    pdf.text(50, y, typeLabelComplet(d), {size:10}); y += 14;
+    if(d.plaque){ pdf.text(50, y, 'Véhicule : ' + d.plaque, {size:9.5, gray:0.3}); y += 13; }
+    y += 8;
+
+    if(motif){
+      pdf.text(50, y, 'MOTIF', {font:'F2', size:9, rgb:[181,64,42], charSpace:1.1}); y += 14;
+      wrapText(motif, 95).forEach(l => { pdf.text(50, y, l, {size:10}); y += 13; });
+      y += 8;
+    }
+
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 24;
+    pdf.rect(50, y-16, 495, 34, {mode:'f', rgb:[252,235,230]});
+    pdf.text(64, y+5, 'MONTANT CRÉDITÉ', {font:'F2', size:11});
+    const montantTxt = '- ' + fmt(montant);
+    pdf.text(531 - (montantTxt.length * 7.2), y+6, montantTxt, {font:'F2', size:14, rgb:[181,64,42]});
+    y += 50;
+
+    pdf.text(50, y, 'Ce document annule ' + (montant >= d.invoicedTotal ? 'intégralement' : 'partiellement') + ' la facture référencée ci-dessus.', {size:8.5, gray:0.4});
+
+    const pdfBytes = pdf.build();
+    const blob = new Blob([pdfBytes], {type:'application/pdf'});
+    const fileName = ncNumber + '.pdf';
+    const file = new File([blob], fileName, {type:'application/pdf'});
+
+    d.creditNotes = d.creditNotes || [];
+    d.creditNotes.push({number: ncNumber, amount: montant, date: new Date().toISOString(), reason: motif});
+    await window.storage.set(ncKeyEnCours, JSON.stringify(d));
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Note de crédit ' + ncNumber});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }
+    showToast('Note de crédit générée');
+    closeNoteCredit();
+    loadHistory();
+  }catch(e){
+    console.error(e);
+    showToast('Erreur lors de la génération de la note de crédit');
+  }
+}
 
 async function genererFactureDepuisJournal(key){
   try{
     const res = await window.storage.get(key);
     lastCalc = JSON.parse(res.value);
+    factureEnCoursKey = key;
     openInvoice();
   }catch(e){ showToast('Impossible de retrouver cette intervention'); }
 }
@@ -5249,6 +5397,18 @@ async function genererFacture(){
       setTimeout(()=>URL.revokeObjectURL(url), 5000);
       showToast('Facture téléchargée');
     }
+    if(factureEnCoursKey){
+      try{
+        const res = await window.storage.get(factureEnCoursKey);
+        const d = JSON.parse(res.value);
+        d.invoiceNumber = invoiceNumber;
+        d.invoicedTotal = c.total;
+        d.invoicedDate = new Date().toISOString();
+        await window.storage.set(factureEnCoursKey, JSON.stringify(d));
+        loadHistory();
+      }catch(e){ /* la facture reste valable même si l'enregistrement du numéro échoue */ }
+      factureEnCoursKey = null;
+    }
     closeInvoice();
   }catch(e){
     console.error(e);
@@ -5257,6 +5417,62 @@ async function genererFacture(){
 }
 
 
+
+const EMAIL_SAUVEGARDE = 'contact@jmexpressautodepannage.be';
+
+async function exporterSauvegardeParMail(){
+  try{
+    const list = await window.storage.list();
+    const data = {};
+    const results = await Promise.all((list.keys || []).map(async (key) => {
+      try{
+        const res = await window.storage.get(key);
+        return (res && res.value !== undefined) ? {key, value: res.value} : null;
+      }catch(e){ return null; }
+    }));
+    for(const item of results){
+      if(item) data[item.key] = item.value;
+    }
+    const backup = {
+      app: 'JM Express — Bon d\'intervention',
+      version: 1,
+      exportDate: new Date().toISOString(),
+      data
+    };
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const dateStr = new Date().toISOString().slice(0,10);
+    const fileName = `JM-Express-sauvegarde_${dateStr}.json`;
+    const file = new File([blob], fileName, {type:'application/json'});
+    await window.storage.set('lastBackupDate', new Date().toISOString());
+    document.getElementById('backupBanner').style.display = 'none';
+
+    const sujet = encodeURIComponent('Sauvegarde JM Express — ' + dateStr);
+    const corps = encodeURIComponent(
+      "Sauvegarde automatique du " + dateStr + ".\n\n" +
+      "Le fichier n'a pas pu être joint automatiquement à cet e-mail (limite technique du " +
+      "navigateur) — la fenêtre de partage qui s'est ouverte permet de l'ajouter en pièce jointe " +
+      "avant l'envoi."
+    );
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file], title:'Sauvegarde JM Express — ' + dateStr});
+        showToast('Sauvegarde prête — choisis "Mail" dans la fenêtre de partage pour l\'envoyer à ' + EMAIL_SAUVEGARDE);
+        return;
+      }catch(e){ /* partage annulé : on bascule sur le lien mailto ci-dessous */ }
+    }
+    window.location.href = `mailto:${EMAIL_SAUVEGARDE}?subject=${sujet}&body=${corps}`;
+    showToast('Le fichier a aussi été téléchargé — pense à le joindre manuellement au mail');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }catch(e){
+    showToast('Erreur lors de la préparation de la sauvegarde');
+  }
+}
 
 async function exporterSauvegarde(){
   try{
@@ -6258,6 +6474,9 @@ async function loadHistory(){
         : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
       const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
       const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">✏️ Modifier</div>`;
+      const noteCreditBadge = d.invoiceNumber
+        ? `<div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red);" onclick="ouvrirNoteCredit('${it.key}')">🧾 Note de crédit</div>`
+        : '';
       const statutBadge = estAFaire(d)
         ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">🚚 À faire</div>`
         : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">✅ Fait</div>`;
@@ -6268,7 +6487,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${rechargerBadge}${factureBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
