@@ -728,7 +728,8 @@
 
     <div class="field">
       <label>Plaque d'immatriculation (optionnel)</label>
-      <input type="text" id="plaqueImmat" placeholder="Ex: 1-ABC-123" style="text-transform:uppercase;">
+      <input type="text" id="plaqueImmat" placeholder="Ex: 1-ABC-123" style="text-transform:uppercase;" oninput="chercherHistoriqueVehicule()">
+      <div id="vehiculeHistorique" style="display:none;"></div>
     </div>
 
     <div class="field">
@@ -806,6 +807,10 @@
             <button type="button" onclick="ouvrirPlans('addrTo')">🧭 Plans</button>
             <button type="button" onclick="ouvrirGoogleMaps('addrTo')">🗺️ Maps</button>
             <button type="button" onclick="ouvrirWaze('addrTo')">🚗 Waze</button>
+          </div>
+          <div class="quick-actions" style="margin-top:8px;">
+            <button type="button" onclick="ouvrirFavoris()">⭐ Mes destinations</button>
+            <button type="button" onclick="ajouterFavoriDepuisChamp()">➕ Ajouter aux favoris</button>
           </div>
           <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrTo')">🚦 Noter l'accès véhicule</button>
         </div>
@@ -1233,8 +1238,8 @@
 
     <label>Conditions</label>
     <div class="toggles">
-      <div class="toggle" id="tgNuit" onclick="toggle('tgNuit')">🌙 Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
-      <div class="toggle" id="tgWe" onclick="toggle('tgWe')">📅 Week-end</div>
+      <div class="toggle" id="tgNuit" onclick="marquerMajorationManuelle('tgNuit'); toggle('tgNuit')">🌙 Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
+      <div class="toggle" id="tgWe" onclick="marquerMajorationManuelle('tgWe'); toggle('tgWe')">📅 Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide<span class="sub">compté dans le km</span></div>
       <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
@@ -1250,10 +1255,78 @@
     </div>
 
     <div class="field">
+      <label>Donneur d'ordre (optionnel)</label>
+      <div class="field-row">
+        <select id="donneurOrdre" style="flex:1;" onchange="majDonneurOrdreUI()">
+          <option value="">— Client direct —</option>
+          <option value="assurance">Assurance</option>
+          <option value="assistance">Société d'assistance</option>
+          <option value="garage">Garage / concession</option>
+          <option value="police">Police / autorité</option>
+          <option value="leasing">Société de leasing</option>
+          <option value="autre">Autre professionnel</option>
+        </select>
+      </div>
+      <div id="donneurOrdreBox" style="display:none; margin-top:8px;">
+        <input type="text" id="donneurNom" placeholder="Nom du donneur d'ordre" style="margin-bottom:8px;">
+        <input type="text" id="refDossier" placeholder="Référence dossier / bon de commande">
+        <div class="km-mention">Ces informations apparaissent sur la facture — indispensable pour être payé par une assurance ou une société d'assistance.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Téléphone du client (optionnel)</label>
+      <div class="input-with-btn">
+        <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
+        <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler">📞</button>
+        <button type="button" class="loc-btn" onclick="smsClient()" title="SMS">💬</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Frais supplémentaire (optionnel)</label>
+      <div class="field-row">
+        <input type="text" id="fraisLibelle" placeholder="Ex : péage, carburant ajouté" style="flex:2;">
+        <input type="number" id="fraisMontant" placeholder="€" min="0" step="1" inputmode="decimal" style="flex:1;" oninput="invaliderTicketObsolete()">
+      </div>
+      <div class="km-mention">Pour tout ce qui sort de la grille : péage, carburant ajouté, pièce avancée… Le libellé apparaît sur la facture.</div>
+    </div>
+
+    <div class="field">
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="tgAnnulation" onclick="toggle('tgAnnulation'); majAnnulationUI()">🚫 Déplacement inutile / annulation</div>
+      </div>
+      <div id="annulationBox" style="display:none; margin-top:10px;">
+        <label>Montant facturé pour le déplacement</label>
+        <input type="number" id="annulationMontant" placeholder="Ex : 45" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
+        <div class="km-mention">Client absent, véhicule déjà reparti, intervention annulée sur place… Seul ce montant est facturé (le forfait de la prestation ne s'applique pas).</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="extras-header" onclick="toggleHoraires()">
+        <label style="margin:0; cursor:pointer;">⏱️ Horaires de l'intervention</label>
+        <span class="extras-summary" id="horairesSummary">Aucun</span>
+        <span class="extras-chevron" id="horairesChevron">▾</span>
+      </div>
+      <div id="horairesBox" style="display:none; padding-top:6px;">
+        <div class="km-mention" style="margin:0 0 10px 0;">Appuie sur ⏱️ pour enregistrer l'heure actuelle, ou saisis-la à la main. Utile en cas de litige ou pour justifier un temps d'attente.</div>
+        <div id="horairesRows"></div>
+        <button type="button" class="ghost" style="margin-top:8px;" onclick="effacerHoraires()">Effacer tous les horaires</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Prix annoncé au client (optionnel)</label>
+      <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
+      <div class="km-mention">Note ici ce que tu as annoncé lors de l'appel. L'appli te signalera tout écart avec le montant calculé — utile pour tenir ta parole ou justifier un supplément.</div>
+    </div>
+
+    <div class="field">
       <label>Date et heure de l'intervention</label>
       <div class="field-row">
-        <input type="date" id="interventionDate" onchange="invaliderTicketObsolete()">
-        <input type="time" id="interventionTime" onchange="invaliderTicketObsolete()">
+        <input type="date" id="interventionDate" onchange="autoMajorations()">
+        <input type="time" id="interventionTime" onchange="autoMajorations()">
       </div>
       <div class="km-mention">Par défaut : maintenant. Change-les si tu encodes plus tard — le bon gardera la vraie date de l'intervention, pas celle de la saisie.</div>
     </div>
@@ -1326,9 +1399,30 @@
       <input type="file" id="etatLieuxVideoInput" accept="video/*" capture="environment" style="display:none;" onchange="handleEtatLieuxVideo(event)">
       <button type="button" class="ghost" style="margin-bottom:8px;" onclick="document.getElementById('etatLieuxVideoInput').click()">🎥 Filmer une vidéo (reste dans tes Photos)</button>
       <div id="etatLieuxVideoNote" style="display:none; font-size:12px; color:var(--grey); margin:-4px 0 8px 0;"></div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field" style="margin-bottom:12px;">
         <label>Notes sur l'état constaté (rayures, bosses, dommages déjà présents...)</label>
         <textarea id="etatLieuxNotes" rows="3" autocorrect="on" spellcheck="true" placeholder="Ex: rayure portière arrière gauche, pare-choc avant fissuré..." style="width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <div class="extras-header" onclick="toggleChecklist()">
+          <label style="margin:0; cursor:pointer;">✅ Checklist avant départ</label>
+          <span class="extras-summary" id="checklistSummary">0/7</span>
+          <span class="extras-chevron" id="checklistChevron">▾</span>
+        </div>
+        <div id="checklistBox" style="display:none; padding-top:6px;">
+          <div id="checklistItems"></div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <label>Photos après déchargement (preuve de remise en bon état)</label>
+        <input type="file" id="dechargPhotos" accept="image/*" multiple onchange="handleDechargPhotos(event)" style="display:none;">
+        <button type="button" class="ghost" style="margin-top:0;" onclick="document.getElementById('dechargPhotos').click()">📷 Photos après déchargement</button>
+        <div id="dechargPreviewWrap" style="display:none; margin-top:8px;">
+          <div id="dechargPreviewGrid" class="epave-preview-grid"></div>
+          <button type="button" class="ghost" style="margin-top:6px;" onclick="clearDechargPhotos()">Retirer toutes les photos</button>
+        </div>
       </div>
     </div>
 
@@ -1367,6 +1461,11 @@
     <div class="km-mention" style="margin-bottom:6px;">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
     <div class="ticket-row" id="rowCtRepasse" style="display:none;"><span class="l">2ᵉ passage contrôle technique</span><span class="v" id="tkCtRepasse">—</span></div>
+    <div class="ticket-row" id="rowPrixAnnonce" style="display:none;"><span class="l" id="tkPrixAnnonceLbl">Prix annoncé</span><span class="v" id="tkPrixAnnonce">—</span></div>
+    <div class="ticket-row" id="rowFrais" style="display:none;"><span class="l" id="tkFraisLbl">Frais</span><span class="v" id="tkFrais">—</span></div>
+    <div class="ticket-row" id="rowAnnulation" style="display:none;"><span class="l">🚫 Déplacement inutile</span><span class="v" id="tkAnnulation">—</span></div>
+    <div class="ticket-addr" id="rowDonneur" style="display:none; margin-top:8px;"><span class="tag">Donneur d'ordre</span><br><span id="tkDonneur">—</span></div>
+    <div class="ticket-addr" id="rowHoraires" style="display:none; margin-top:8px;"><span class="tag">Horaires</span><br><span id="tkHoraires">—</span></div>
     <div id="extrasRows"></div>
     <div class="ticket-row" id="rowNuit" style="display:none;"><span class="l">Majoration nuit</span><span class="v" id="tkNuit">—</span></div>
     <div class="ticket-row" id="rowWe" style="display:none;"><span class="l">Majoration week-end</span><span class="v" id="tkWe">—</span></div>
@@ -1405,7 +1504,15 @@
       <input type="date" id="histDateTo" onchange="loadHistory()">
     </div>
   </div>
-  <button class="ghost" style="margin:8px 0 12px 0;" onclick="resetHistDates()">Réinitialiser les dates (tout afficher)</button>
+  <button class="ghost" style="margin:8px 0 10px 0;" onclick="resetHistDates()">Réinitialiser les dates (tout afficher)</button>
+
+  <div class="field" style="margin-bottom:10px;">
+    <label>Rechercher (plaque, adresse, type…)</label>
+    <input type="text" id="histRecherche" placeholder="Ex : 1-ABC-123" autocorrect="off" autocapitalize="characters" oninput="loadHistory()">
+  </div>
+  <div class="toggles" style="margin-bottom:12px;">
+    <div class="toggle" id="histImpayes" onclick="toggleFiltreImpayes()">💰 Impayés seulement</div>
+  </div>
 
   <div id="historySummary" class="hist-summary"></div>
   <button class="ghost" style="margin-bottom:8px;" onclick="openDashboard()">📊 Tableau de bord</button>
@@ -1785,6 +1892,16 @@
         <span class="menu-lbl">Trajets fréquents</span>
         <span class="menu-desc">Distances enregistrées</span>
       </div>
+      <div class="menu-item" onclick="closeMenu(); ouvrirRechercheGlobale();">
+        <span class="menu-ico">🔎</span>
+        <span class="menu-lbl">Recherche</span>
+        <span class="menu-desc">Plaque, client, adresse…</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); ouvrirResumeMensuel();">
+        <span class="menu-ico">📅</span>
+        <span class="menu-lbl">Résumé mensuel</span>
+        <span class="menu-desc">Bilan du mois</span>
+      </div>
       <div class="menu-item" onclick="closeMenu(); openDashboard();">
         <span class="menu-ico">📊</span>
         <span class="menu-lbl">Tableau de bord</span>
@@ -1831,6 +1948,80 @@
     <button class="ghost" id="btnMarquerPaye" style="display:none; border-color:rgba(63,138,95,0.45); color:var(--green);" onclick="marquerPayeDepuisQr()">💰 Marquer comme payé</button>
     <button class="ghost" onclick="partagerLienPaiement()">🔗 Envoyer les coordonnées par message</button>
     <button class="ghost close-modal" onclick="closePaiement()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalRechercheBg">
+  <div class="modal">
+    <div class="eyebrow">Toutes les interventions</div>
+    <h1 class="page-title" style="font-size:24px;">Recherche</h1>
+    <input type="text" id="rechGlobale" placeholder="Plaque, adresse, type, n° facture, donneur d'ordre…" autocorrect="off" oninput="lancerRechercheGlobale()">
+    <div id="rechResultats" style="margin-top:12px;"></div>
+    <button class="ghost close-modal" onclick="fermerRechercheGlobale()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalResumeBg">
+  <div class="modal">
+    <div class="eyebrow">Bilan</div>
+    <h1 class="page-title" style="font-size:24px;">Résumé mensuel</h1>
+    <div class="field">
+      <label>Mois</label>
+      <input type="month" id="resumeMois" onchange="calculerResumeMensuel()">
+    </div>
+    <div id="resumeContenu"></div>
+    <button class="ghost" onclick="partagerResumeMensuel()">🔗 Partager ce résumé</button>
+    <button class="ghost close-modal" onclick="fermerResume()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalFavorisBg">
+  <div class="modal">
+    <div class="eyebrow">Accès rapide</div>
+    <h1 class="page-title" style="font-size:24px;">Mes destinations</h1>
+    <p class="page-sub">Garages, casses, dépôts où tu déposes régulièrement.</p>
+    <div id="favorisListe"></div>
+    <button class="ghost close-modal" onclick="fermerFavoris()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalStatutPaiementBg">
+  <div class="modal">
+    <div class="eyebrow">Encaissement</div>
+    <h1 class="page-title" style="font-size:24px;">Paiement</h1>
+    <p class="page-sub" id="payTitreInterv">—</p>
+    <span id="payTotalInterv" style="display:none;"></span>
+
+    <div class="field">
+      <label>Statut</label>
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="payStatut_attente" onclick="choisirStatutPaiement('attente')">⏳ En attente</div>
+        <div class="toggle" id="payStatut_partiel" onclick="choisirStatutPaiement('partiel')">◐ Partiel</div>
+        <div class="toggle" id="payStatut_paye" onclick="choisirStatutPaiement('paye')">✅ Payé</div>
+      </div>
+    </div>
+
+    <div class="field" id="payRecuField" style="display:none;">
+      <label>Montant déjà reçu (€)</label>
+      <input type="number" id="payRecu" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="majResteDu()">
+    </div>
+
+    <div class="field">
+      <label>Moyen de paiement</label>
+      <select id="payMoyen">
+        <option value="">— Non précisé —</option>
+        <option value="Espèces">Espèces</option>
+        <option value="Virement">Virement</option>
+        <option value="Bancontact">Bancontact</option>
+        <option value="Carte">Carte</option>
+        <option value="Autre">Autre</option>
+      </select>
+    </div>
+
+    <div id="payResteDu" style="text-align:center; font-weight:700; font-size:16px; margin:4px 0 12px;">—</div>
+
+    <button class="primary" onclick="enregistrerPaiement()">Enregistrer</button>
+    <button class="ghost close-modal" onclick="fermerPaiement()">Annuler</button>
   </div>
 </div>
 
@@ -1960,6 +2151,16 @@
       <button class="ghost" style="margin-top:8px;" onclick="clearSignature()">Effacer la signature</button>
     </div>
 
+    <div class="grp" id="signatureDepotGrp" style="display:none;">
+      <div class="grp-title">Signature à la réception (professionnel)</div>
+      <p style="color:var(--grey); font-size:12px; margin:0 0 8px 0;">Fait signer la personne qui réceptionne le véhicule (garage, société d'assistance…). Preuve de remise en bon état.</p>
+      <input type="text" id="sigDepotNom" placeholder="Nom du réceptionnaire" style="margin-bottom:8px;">
+      <div class="sig-wrap">
+        <canvas id="sigCanvasDepot"></canvas>
+      </div>
+      <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasDepot')">Effacer cette signature</button>
+    </div>
+
     <button class="primary" style="margin-top:8px;" onclick="genererFacture()">Générer et partager la facture (PDF)</button>
     <button class="ghost close-modal" onclick="closeInvoice()">Fermer</button>
   </div>
@@ -2005,6 +2206,7 @@
       <div class="qq-hint">Prix indicatif — à confirmer une fois sur place</div>
     </div>
 
+    <button class="ghost" style="margin-top:12px; border-color:rgba(232,115,12,0.4); color:var(--orange);" onclick="devisVersIntervention()">🔧 Le client accepte — créer l'intervention</button>
     <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()">📅 Le client veut réserver — programmer le RDV</button>
     <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:8px;">Fermer</button>
   </div>
@@ -3859,6 +4061,45 @@ async function checkBackupReminder(){
   }
 }
 
+let majorationsForceesManuellement = {nuit:false, we:false};
+
+function estDansPlageNuit(date){
+  const [hS, mS] = NIGHT_START.split(':').map(Number);
+  const [hE, mE] = NIGHT_END.split(':').map(Number);
+  const minutes = date.getHours() * 60 + date.getMinutes();
+  const debut = hS * 60 + mS;
+  const fin = hE * 60 + mE;
+  return debut > fin ? (minutes >= debut || minutes < fin) : (minutes >= debut && minutes < fin);
+}
+
+function estWeekEndOuFerie(date){
+  const jour = date.getDay();               // 0 = dimanche, 6 = samedi
+  if(jour === 0 || jour === 6) return true;
+  const an = date.getFullYear();
+  return !!getBelgianHolidays(an).find(h => sameDay(h.date, date))
+      || !!getFrenchHolidays(an).find(h => sameDay(h.date, date));
+}
+
+function autoMajorations(){
+  const d = dateInterventionChoisie();
+  const tgNuit = document.getElementById('tgNuit');
+  const tgWe = document.getElementById('tgWe');
+  if(!tgNuit || !tgWe) return;
+
+  if(!majorationsForceesManuellement.nuit){
+    tgNuit.classList.toggle('on', estDansPlageNuit(d));
+  }
+  if(!majorationsForceesManuellement.we){
+    tgWe.classList.toggle('on', estWeekEndOuFerie(d));
+  }
+  invaliderTicketObsolete();
+}
+
+function marquerMajorationManuelle(id){
+  if(id === 'tgNuit') majorationsForceesManuellement.nuit = true;
+  if(id === 'tgWe') majorationsForceesManuellement.we = true;
+}
+
 function checkJourFerie(){
   const today = new Date();
   const be = getBelgianHolidays(today.getFullYear()).find(h => sameDay(h.date, today));
@@ -3910,6 +4151,7 @@ async function loadRates(){
   prefillDepartAddress();
   prefillInterventionDate();
   updateNightHoursLabel();
+  autoMajorations();
   checkJourFerie();
 }
 
@@ -4893,6 +5135,7 @@ async function chargerInterventionDepuisJournal(key){
 
   const setTog = (id, actif) => document.getElementById(id).classList.toggle('on', !!actif);
   setTog('tgNuit', d.nuit); setTog('tgWe', d.we); setTog('tgAuto', d.auto); setTog('tgRetour', d.retour);
+  majorationsForceesManuellement = {nuit:true, we:true};
   setTog('tgCamion', d.camionOn); setTog('tgAbandon', d.abandon);
   setTog('tgSansMoteur', d.sansMoteur); setTog('tgPasRoues', d.pasRoues);
   setTog('tgBattDeplacement', d.battDeplacement);
@@ -4902,6 +5145,19 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('minutesAttente').value = d.minutesAttente || '';
   document.getElementById('kmTarifExceptionnel').value = d.kmTarifExcept || '';
   document.getElementById('ctRepasseMontant').value = d.ctRepasse || '';
+  document.getElementById('prixAnnonce').value = d.prixAnnonce || '';
+  document.getElementById('telClient').value = d.telClient || '';
+  document.getElementById('donneurOrdre').value = d.donneurOrdre || '';
+  document.getElementById('donneurNom').value = d.donneurNom || '';
+  document.getElementById('refDossier').value = d.refDossier || '';
+  majDonneurOrdreUI();
+  ecrireChecklist(d.checklist);
+  document.getElementById('fraisLibelle').value = d.fraisLibelle || '';
+  document.getElementById('fraisMontant').value = d.fraisMontant || '';
+  document.getElementById('annulationMontant').value = d.annulationMontant || '';
+  document.getElementById('tgAnnulation').classList.toggle('on', !!d.annulation);
+  majAnnulationUI();
+  ecrireHoraires(d.horaires);
   updateGardiennageField();
   updateAttenteField();
 
@@ -4936,7 +5192,10 @@ function openInvoice(){
   document.getElementById('modalInvoiceBg').classList.add('show');
   document.getElementById('leveeSaisieAttestGrp').style.display = lastCalc.type === 'levee_saisie' ? 'block' : 'none';
   setInvoiceLang('fr');
-  setTimeout(initSignatureCanvas, 50);
+  setTimeout(() => {
+    initSignatureCanvas();
+    if(document.getElementById('signatureDepotGrp').style.display !== 'none') initSignatureCanvas('sigCanvasDepot');
+  }, 50);
 }
 function closeInvoice(){
   document.getElementById('modalInvoiceBg').classList.remove('show');
@@ -5317,6 +5576,14 @@ async function genererFacture(){
     }
     pdf.text(50, y, S.priseEnCharge + c.from, {size:9.5, gray:0.3}); y += 13;
     pdf.text(50, y, S.depose + c.to, {size:9.5, gray:0.3}); y += 13;
+    if(c.donneurOrdre){
+      const LBL = {assurance:'Assurance', assistance:"Societe d'assistance", garage:'Garage / concession',
+                   police:'Police / autorite', leasing:'Societe de leasing', autre:'Autre professionnel'};
+      const parts = [LBL[c.donneurOrdre] || c.donneurOrdre];
+      if(c.donneurNom) parts.push(c.donneurNom);
+      pdf.text(50, y, "Donneur d'ordre : " + parts.join(' - '), {size:9.5, gray:0.3}); y += 13;
+      if(c.refDossier){ pdf.text(50, y, 'Reference dossier : ' + c.refDossier, {size:9.5, gray:0.3}); y += 13; }
+    }
     if(c.km){
       const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
       pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
@@ -5411,6 +5678,14 @@ async function genererFacture(){
       const sig = await canvasSignatureToRgb('sigCanvas');
       pdf.addRgbImage('Sig', sig.width, sig.height, sig.deflatedRgb);
       pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
+    }
+    if(SIG_STATE.sigCanvasDepot && SIG_STATE.sigCanvasDepot.hasContent){
+      const nomRecep = (document.getElementById('sigDepotNom').value || '').trim();
+      pdf.text(300, sigY, 'Signature a la reception' + (nomRecep ? ' - ' + nomRecep : ''), {size:9.5, gray:0.3});
+      pdf.rect(300, sigY + 8, 220, 62, {mode:'S', gray:0.7});
+      const sig2 = await canvasSignatureToRgb('sigCanvasDepot');
+      pdf.addRgbImage('SigDepot', sig2.width, sig2.height, sig2.deflatedRgb);
+      pdf.drawImage('SigDepot', 302, sigY + 10, 216, 58);
     }
 
     const reviewY = sigY + 78;
@@ -6263,6 +6538,17 @@ function calculer(){
   const isLeveeSaisie = type === 'levee_saisie';
   const abandon = isLeveeSaisie && document.getElementById('tgAbandon').classList.contains('on');
   const ctRepasse = isLeveeSaisie ? (parseFloat(document.getElementById('ctRepasseMontant').value) || 0) : 0;
+  const prixAnnonce = parseFloat(document.getElementById('prixAnnonce').value) || 0;
+  const telClient = (document.getElementById('telClient').value || '').trim();
+  const donneurOrdre = document.getElementById('donneurOrdre').value || '';
+  const donneurNom = (document.getElementById('donneurNom').value || '').trim();
+  const refDossier = (document.getElementById('refDossier').value || '').trim();
+  const checklist = lireChecklist();
+  const horaires = lireHoraires();
+  const fraisLibelle = (document.getElementById('fraisLibelle').value || '').trim();
+  const fraisMontant = parseFloat(document.getElementById('fraisMontant').value) || 0;
+  const annulation = document.getElementById('tgAnnulation').classList.contains('on');
+  const annulationMontant = annulation ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
 
   const isEpave = type === 'epave_demolition';
   const sansMoteur = isEpave && document.getElementById('tgSansMoteur').classList.contains('on');
@@ -6284,19 +6570,21 @@ function calculer(){
     : calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
   const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
-  const subtotal = base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse;
-  const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
-  const weCost = we ? subtotal * (RATES.wePct/100) : 0;
-  const autoCost = auto ? RATES.auto : 0;
-  const battCost = battPrice > 0 ? battPrice * (1 + RATES.battMarginPct/100) : 0;
-  const battDeplacementCost = battDeplacement ? RATES.battDeplacementFee : 0;
-  const totalAvantRemise = subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost;
+  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
+  const weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
+  const autoCost = (!annulation && auto) ? RATES.auto : 0;
+  const battCost = (!annulation && battPrice > 0) ? battPrice * (1 + RATES.battMarginPct/100) : 0;
+  const battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
+  const totalAvantRemise = annulation
+    ? (annulationMontant + fraisMontant)
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant);
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -6311,6 +6599,61 @@ function calculer(){
   document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
   document.getElementById('rowCtRepasse').style.display = ctRepasse > 0 ? 'flex' : 'none';
   document.getElementById('tkCtRepasse').textContent = fmt(ctRepasse);
+  const rowF = document.getElementById('rowFrais');
+  if(fraisMontant > 0){
+    document.getElementById('tkFraisLbl').textContent = fraisLibelle || 'Frais supplémentaire';
+    document.getElementById('tkFrais').textContent = fmt(fraisMontant);
+    rowF.style.display = 'flex';
+  } else rowF.style.display = 'none';
+
+  const rowAnn = document.getElementById('rowAnnulation');
+  if(annulation){
+    document.getElementById('tkAnnulation').textContent = fmt(annulationMontant);
+    rowAnn.style.display = 'flex';
+  } else rowAnn.style.display = 'none';
+
+  const LABELS_DONNEUR = {assurance:'Assurance', assistance:"Société d'assistance", garage:'Garage / concession',
+                          police:'Police / autorité', leasing:'Société de leasing', autre:'Autre professionnel'};
+  const rowD = document.getElementById('rowDonneur');
+  if(donneurOrdre){
+    const parts = [LABELS_DONNEUR[donneurOrdre] || donneurOrdre];
+    if(donneurNom) parts.push(donneurNom);
+    if(refDossier) parts.push('Réf. ' + refDossier);
+    document.getElementById('tkDonneur').textContent = parts.join(' · ');
+    rowD.style.display = 'block';
+  } else rowD.style.display = 'none';
+
+  const rowH = document.getElementById('rowHoraires');
+  if(horaires){
+    document.getElementById('tkHoraires').textContent = ETAPES_HORAIRES
+      .filter(e => horaires[e.cle])
+      .map(e => e.label + ' ' + horaires[e.cle])
+      .join(' · ');
+    rowH.style.display = 'block';
+  } else rowH.style.display = 'none';
+
+  const rowPA = document.getElementById('rowPrixAnnonce');
+  if(prixAnnonce > 0){
+    const ecart = total - prixAnnonce;
+    const lbl = document.getElementById('tkPrixAnnonceLbl');
+    const val = document.getElementById('tkPrixAnnonce');
+    if(Math.abs(ecart) < 0.5){
+      lbl.textContent = '✅ Prix annoncé';
+      val.textContent = fmt(prixAnnonce) + ' — conforme';
+      val.style.color = 'var(--green)';
+    } else if(ecart > 0){
+      lbl.textContent = '⚠️ Prix annoncé';
+      val.textContent = fmt(prixAnnonce) + ' → +' + fmt(ecart) + ' de plus';
+      val.style.color = 'var(--red)';
+    } else {
+      lbl.textContent = 'ℹ️ Prix annoncé';
+      val.textContent = fmt(prixAnnonce) + ' → ' + fmt(ecart) + ' en moins';
+      val.style.color = 'var(--orange)';
+    }
+    rowPA.style.display = 'flex';
+  } else {
+    rowPA.style.display = 'none';
+  }
   document.getElementById('rowGeste').style.display = (kmTarifExcept !== null) ? 'flex' : 'none';
   if(kmTarifExcept !== null){
     document.getElementById('tkGeste').textContent = kmTarifExcept.toFixed(2) + ' €/km au lieu de ' + kmRateNormal.toFixed(2) + ' €/km';
@@ -6372,6 +6715,7 @@ async function enregistrer(){
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
+    if(dechargPhotosData.length > 0) entry.dechargPhotos = [...dechargPhotosData];
     if(etatLieuxVideoPrise) entry.etatLieuxVideo = true;
     const etatLieuxNotes = document.getElementById('etatLieuxNotes').value.trim();
     if(etatLieuxNotes) entry.etatLieuxNotes = etatLieuxNotes;
@@ -6390,6 +6734,20 @@ async function enregistrer(){
     document.getElementById('minutesAttente').value = '';
     document.getElementById('kmTarifExceptionnel').value = '';
     document.getElementById('ctRepasseMontant').value = '';
+    document.getElementById('prixAnnonce').value = '';
+    document.getElementById('telClient').value = '';
+    document.getElementById('donneurOrdre').value = '';
+    document.getElementById('donneurNom').value = '';
+    document.getElementById('refDossier').value = '';
+    majDonneurOrdreUI();
+    ecrireChecklist(null);
+    clearDechargPhotos();
+    document.getElementById('fraisLibelle').value = '';
+    document.getElementById('fraisMontant').value = '';
+    document.getElementById('annulationMontant').value = '';
+    document.getElementById('tgAnnulation').classList.remove('on');
+    majAnnulationUI();
+    effacerHoraires();
     document.getElementById('plaqueImmat').value = '';
     document.getElementById('tgNuit').classList.remove('on');
     document.getElementById('tgWe').classList.remove('on');
@@ -6404,6 +6762,8 @@ async function enregistrer(){
     checkAccesVehicule('addrTo');
     prefillDepartAddress();
     prefillInterventionDate();
+    majorationsForceesManuellement = {nuit:false, we:false};
+    autoMajorations();
     updateGardiennageField();
     updateAttenteField();
     updateKmLabel();
@@ -6453,6 +6813,477 @@ function resetHistDates(){
   loadHistory();
 }
 
+async function toutesLesInterventions(){
+  const list = await window.storage.list('intervention:');
+  const results = await Promise.all((list.keys || []).map(async k => {
+    try{ return {key:k, data: JSON.parse((await window.storage.get(k)).value)}; }catch(e){ return null; }
+  }));
+  return results.filter(Boolean).sort((a,b) => new Date(b.data.date) - new Date(a.data.date));
+}
+
+function ouvrirRechercheGlobale(){
+  document.getElementById('rechGlobale').value = '';
+  document.getElementById('rechResultats').innerHTML = '';
+  document.getElementById('modalRechercheBg').classList.add('show');
+  setTimeout(() => document.getElementById('rechGlobale').focus(), 250);
+}
+function fermerRechercheGlobale(){ document.getElementById('modalRechercheBg').classList.remove('show'); }
+
+let rechGlobaleTimer = null;
+function lancerRechercheGlobale(){
+  clearTimeout(rechGlobaleTimer);
+  rechGlobaleTimer = setTimeout(executerRechercheGlobale, 300);
+}
+
+async function executerRechercheGlobale(){
+  const box = document.getElementById('rechResultats');
+  const q = document.getElementById('rechGlobale').value.trim();
+  if(q.length < 2){ box.innerHTML = ''; return; }
+  const cible = normaliserRecherche(q);
+  const items = await toutesLesInterventions();
+  const trouves = items.filter(it => {
+    const d = it.data;
+    const champs = [d.plaque, d.from, d.to, d.depart, typeLabelComplet(d), d.invoiceNumber,
+                    d.donneurNom, d.refDossier, d.telClient].filter(Boolean).join(' ');
+    return normaliserRecherche(champs).includes(cible);
+  }).slice(0, 25);
+
+  if(trouves.length === 0){ box.innerHTML = '<div class="empty">Aucun résultat</div>'; return; }
+  box.innerHTML = `<div class="eyebrow" style="margin:0 0 8px 2px;">${trouves.length} résultat${trouves.length>1?'s':''}</div>` +
+    trouves.map(it => {
+      const d = it.data;
+      const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit'});
+      const st = statutPaiement(d);
+      const pastille = st === 'paye' ? '✅' : (st === 'partiel' ? '◐' : '⏳');
+      return `<div class="hist-item" style="margin-bottom:8px;" onclick="ouvrirDepuisRecherche('${it.key}')">
+        <div class="info">
+          <div class="type">${pastille} ${typeLabelComplet(d)}</div>
+          <div class="meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${d.from} → ${d.to}</div>
+        </div>
+        <div class="amt">${fmt(d.total||0)}</div>
+      </div>`;
+    }).join('');
+}
+
+function ouvrirDepuisRecherche(key){
+  fermerRechercheGlobale();
+  chargerInterventionDepuisJournal(key);
+}
+
+function ouvrirResumeMensuel(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('resumeMois').value = now.getFullYear() + '-' + pad(now.getMonth()+1);
+  document.getElementById('modalResumeBg').classList.add('show');
+  calculerResumeMensuel();
+}
+function fermerResume(){ document.getElementById('modalResumeBg').classList.remove('show'); }
+
+let dernierResumeTexte = '';
+
+async function calculerResumeMensuel(){
+  const box = document.getElementById('resumeContenu');
+  const val = document.getElementById('resumeMois').value;
+  if(!val){ box.innerHTML = ''; return; }
+  const [an, mois] = val.split('-').map(Number);
+
+  const items = (await toutesLesInterventions()).filter(it => {
+    const d = new Date(it.data.date);
+    return d.getFullYear() === an && (d.getMonth()+1) === mois;
+  });
+
+  if(items.length === 0){
+    box.innerHTML = '<div class="empty">Aucune intervention ce mois-ci</div>';
+    dernierResumeTexte = '';
+    return;
+  }
+
+  const total = items.reduce((s,it) => s + (it.data.total||0), 0);
+  const encaisse = items.reduce((s,it) => s + montantRecu(it.data), 0);
+  const impaye = items.reduce((s,it) => s + resteADevoir(it.data), 0);
+  const kmTotal = items.reduce((s,it) => s + kmReel(it.data), 0);
+  const moyenne = total / items.length;
+
+  const parType = {};
+  items.forEach(it => {
+    const t = TYPE_LABELS[it.data.type] || it.data.type;
+    parType[t] = (parType[t] || 0) + 1;
+  });
+  const topTypes = Object.entries(parType).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const nomMois = new Date(an, mois-1, 1).toLocaleDateString('fr-BE', {month:'long', year:'numeric'});
+  const ligne = (l, v, couleur) =>
+    `<div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line);">
+       <span style="color:var(--grey); font-size:14px;">${l}</span>
+       <span style="font-weight:700; font-size:15px;${couleur ? 'color:'+couleur+';' : ''}">${v}</span>
+     </div>`;
+
+  box.innerHTML = `
+    <div class="km-mention" style="margin:0 0 12px 0; text-transform:capitalize; font-weight:700; color:var(--white);">${nomMois}</div>
+    ${ligne('Interventions', items.length)}
+    ${ligne('Chiffre d\'affaires', fmt(total), 'var(--orange)')}
+    ${ligne('Encaissé', fmt(encaisse), 'var(--green)')}
+    ${ligne('Reste à encaisser', fmt(impaye), impaye > 0 ? 'var(--red)' : 'var(--green)')}
+    ${ligne('Panier moyen', fmt(moyenne))}
+    ${ligne('Kilomètres parcourus', Math.round(kmTotal) + ' km')}
+    <div class="eyebrow" style="margin:16px 0 6px 2px;">Répartition</div>
+    ${topTypes.map(([t,n]) => ligne(t, n + '×')).join('')}
+  `;
+
+  dernierResumeTexte =
+    `JM Express — Résumé ${nomMois}\n\n` +
+    `Interventions : ${items.length}\n` +
+    `Chiffre d'affaires : ${fmt(total)}\n` +
+    `Encaissé : ${fmt(encaisse)}\n` +
+    `Reste à encaisser : ${fmt(impaye)}\n` +
+    `Panier moyen : ${fmt(moyenne)}\n` +
+    `Kilomètres : ${Math.round(kmTotal)} km\n\n` +
+    topTypes.map(([t,n]) => `${t} : ${n}`).join('\n');
+}
+
+async function partagerResumeMensuel(){
+  if(!dernierResumeTexte){ showToast('Aucune donnée à partager pour ce mois'); return; }
+  try{
+    if(navigator.share){ await navigator.share({text: dernierResumeTexte}); return; }
+    await navigator.clipboard.writeText(dernierResumeTexte);
+    showToast('Résumé copié');
+  }catch(e){ /* partage annulé */ }
+}
+
+function devisVersIntervention(){
+  const qqType = document.getElementById('qqType').value;
+  const qqKm = document.getElementById('qqKm').value;
+  closeQuickQuote();
+  showTab('tabNouveau');
+
+  document.getElementById('type').value = qqType;
+  updateKmLabel();
+  document.getElementById('km').value = qqKm || '';
+
+  const paires = [['qqNuit','tgNuit'], ['qqWe','tgWe'], ['qqAuto','tgAuto'], ['qqRetour','tgRetour'], ['qqCamion','tgCamion']];
+  paires.forEach(([src, dst]) => {
+    const s = document.getElementById(src), d = document.getElementById(dst);
+    if(s && d) d.classList.toggle('on', s.classList.contains('on'));
+  });
+  majorationsForceesManuellement = {nuit:true, we:true};
+
+  if(typeof QQ_VEHICLE_TYPE !== 'undefined' && QQ_VEHICLE_TYPE) setVehicleType(QQ_VEHICLE_TYPE);
+
+  updateAdvancedSummary();
+  calculer();
+  showToast('Devis repris — complète les adresses puis enregistre');
+  setTimeout(() => document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'}), 200);
+}
+
+let FAVORIS = [];
+
+async function chargerFavoris(){
+  try{
+    const res = await window.storage.get('favorisDestinations');
+    FAVORIS = JSON.parse(res.value) || [];
+  }catch(e){ FAVORIS = []; }
+}
+
+async function sauverFavoris(){
+  try{ await window.storage.set('favorisDestinations', JSON.stringify(FAVORIS)); }catch(e){}
+}
+
+async function ajouterFavoriDepuisChamp(){
+  const adresse = (document.getElementById('addrTo').value || '').trim();
+  if(!adresse){ showToast('Indique d\'abord une adresse de dépose'); return; }
+  await chargerFavoris();
+  if(FAVORIS.some(f => normaliserRecherche(f) === normaliserRecherche(adresse))){
+    showToast('Cette destination est déjà dans tes favoris');
+    return;
+  }
+  FAVORIS.unshift(adresse);
+  FAVORIS = FAVORIS.slice(0, 30);
+  await sauverFavoris();
+  showToast('⭐ Ajouté à tes destinations');
+}
+
+async function ouvrirFavoris(){
+  await chargerFavoris();
+  afficherListeFavoris();
+  document.getElementById('modalFavorisBg').classList.add('show');
+}
+function fermerFavoris(){ document.getElementById('modalFavorisBg').classList.remove('show'); }
+
+function afficherListeFavoris(){
+  const box = document.getElementById('favorisListe');
+  if(!box) return;
+  if(FAVORIS.length === 0){
+    box.innerHTML = '<div class="empty">Aucune destination enregistrée. Saisis une adresse de dépose puis appuie sur « Ajouter aux favoris ».</div>';
+    return;
+  }
+  box.innerHTML = FAVORIS.map((f,i) => `
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <div class="addr-sugg-item" style="flex:1; border:1px solid var(--line); border-radius:14px;" onclick="choisirFavori(${i})">${f}</div>
+      <button type="button" class="loc-btn" style="width:44px; color:var(--red);" onclick="supprimerFavori(${i})" title="Retirer">✕</button>
+    </div>`).join('');
+}
+
+function choisirFavori(i){
+  const el = document.getElementById('addrTo');
+  el.value = FAVORIS[i];
+  ajusterHauteurAdresse(el);
+  if(typeof checkAccesVehicule === 'function') checkAccesVehicule('addrTo');
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  fermerFavoris();
+}
+
+async function supprimerFavori(i){
+  FAVORIS.splice(i,1);
+  await sauverFavoris();
+  afficherListeFavoris();
+}
+
+const CHECKLIST_ITEMS = [
+  'Frein à main desserré / véhicule libre',
+  'Boîte au point mort ou déverrouillée',
+  'Sangles et chaînes correctement fixées',
+  'Éclairage et signalisation du convoi OK',
+  'Aucun objet de valeur laissé dans le véhicule',
+  'Clés récupérées ou remises au bon interlocuteur',
+  'Photos de l\'état avant chargement prises'
+];
+
+function initChecklistUI(){
+  const box = document.getElementById('checklistItems');
+  if(!box || box.dataset.pret) return;
+  box.innerHTML = CHECKLIST_ITEMS.map((txt,i) =>
+    `<label class="extra-item" style="align-items:flex-start;">
+       <input type="checkbox" class="chkItem" data-i="${i}" onchange="majChecklistSummary()">
+       <span style="line-height:1.35;">${txt}</span>
+     </label>`).join('');
+  box.dataset.pret = '1';
+}
+
+function toggleChecklist(){
+  initChecklistUI();
+  const box = document.getElementById('checklistBox');
+  const chev = document.getElementById('checklistChevron');
+  const ouvert = box.style.display !== 'none';
+  box.style.display = ouvert ? 'none' : 'block';
+  chev.classList.toggle('open', !ouvert);
+}
+
+function majChecklistSummary(){
+  const items = document.querySelectorAll('.chkItem');
+  const n = [...items].filter(c => c.checked).length;
+  const el = document.getElementById('checklistSummary');
+  if(el){
+    el.textContent = n + '/' + CHECKLIST_ITEMS.length;
+    el.style.color = (n === CHECKLIST_ITEMS.length) ? 'var(--green)' : 'var(--orange)';
+  }
+}
+
+function lireChecklist(){
+  initChecklistUI();
+  const coches = [...document.querySelectorAll('.chkItem')]
+    .map((c,i) => c.checked ? i : null).filter(i => i !== null);
+  return coches.length ? coches : null;
+}
+
+function ecrireChecklist(liste){
+  initChecklistUI();
+  document.querySelectorAll('.chkItem').forEach((c,i) => {
+    c.checked = !!(liste && liste.includes(i));
+  });
+  majChecklistSummary();
+}
+
+let dechargPhotosData = [];
+
+async function handleDechargPhotos(event){
+  const files = Array.from(event.target.files || []);
+  if(files.length === 0) return;
+  showToast('Compression des photos…');
+  for(const f of files){
+    try{
+      const compressed = await compressImage(f);
+      dechargPhotosData.push(compressed);
+    }catch(e){ /* photo illisible : on passe à la suivante */ }
+  }
+  renderDechargPreviews();
+  showToast(dechargPhotosData.length + ' photo(s) après déchargement');
+  event.target.value = '';
+}
+
+function renderDechargPreviews(){
+  const wrap = document.getElementById('dechargPreviewWrap');
+  const grid = document.getElementById('dechargPreviewGrid');
+  if(!wrap || !grid) return;
+  if(dechargPhotosData.length === 0){ wrap.style.display = 'none'; grid.innerHTML = ''; return; }
+  grid.innerHTML = dechargPhotosData.map((src,i) =>
+    `<div class="epave-thumb"><img src="${src}" alt=""><span class="epave-remove" onclick="removeDechargPhoto(${i})">✕</span></div>`).join('');
+  wrap.style.display = 'block';
+}
+
+function removeDechargPhoto(i){
+  dechargPhotosData.splice(i,1);
+  renderDechargPreviews();
+}
+
+function clearDechargPhotos(){
+  dechargPhotosData = [];
+  renderDechargPreviews();
+}
+
+function majDonneurOrdreUI(){
+  const v = document.getElementById('donneurOrdre').value;
+  document.getElementById('donneurOrdreBox').style.display = v ? 'block' : 'none';
+  const sigGrp = document.getElementById('signatureDepotGrp');
+  if(sigGrp) sigGrp.style.display = (v === 'garage' || v === 'assistance' || v === 'leasing') ? 'block' : 'none';
+}
+
+function numeroClientPropre(){
+  return (document.getElementById('telClient').value || '').replace(/[^0-9+]/g, '');
+}
+function appelerClient(){
+  const n = numeroClientPropre();
+  if(!n){ showToast('Indique d\'abord un numéro de téléphone'); return; }
+  window.location.href = 'tel:' + n;
+}
+function smsClient(){
+  const n = numeroClientPropre();
+  if(!n){ showToast('Indique d\'abord un numéro de téléphone'); return; }
+  window.location.href = 'sms:' + n;
+}
+
+function majAnnulationUI(){
+  const actif = document.getElementById('tgAnnulation').classList.contains('on');
+  document.getElementById('annulationBox').style.display = actif ? 'block' : 'none';
+  invaliderTicketObsolete();
+}
+
+const ETAPES_HORAIRES = [
+  {cle:'appel',      label:"Appel reçu"},
+  {cle:'depart',     label:"Départ"},
+  {cle:'arrivee',    label:"Arrivée sur place"},
+  {cle:'chargement', label:"Chargement"},
+  {cle:'depot',      label:"Dépôt"},
+  {cle:'fin',        label:"Fin d'intervention"}
+];
+
+function initHorairesUI(){
+  const box = document.getElementById('horairesRows');
+  if(!box || box.dataset.pret) return;
+  box.innerHTML = ETAPES_HORAIRES.map(e => `
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <span style="flex:1; font-size:14px; color:var(--white);">${e.label}</span>
+      <input type="time" id="hr_${e.cle}" style="width:120px; flex:none;" onchange="majHorairesSummary()">
+      <button type="button" class="loc-btn" style="width:44px;" onclick="tamponnerHoraire('${e.cle}')" title="Maintenant">⏱️</button>
+    </div>`).join('');
+  box.dataset.pret = '1';
+}
+
+function toggleHoraires(){
+  initHorairesUI();
+  const box = document.getElementById('horairesBox');
+  const chev = document.getElementById('horairesChevron');
+  const ouvert = box.style.display !== 'none';
+  box.style.display = ouvert ? 'none' : 'block';
+  chev.classList.toggle('open', !ouvert);
+}
+
+function tamponnerHoraire(cle){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('hr_' + cle).value = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  majHorairesSummary();
+}
+
+function lireHoraires(){
+  const h = {};
+  ETAPES_HORAIRES.forEach(e => {
+    const el = document.getElementById('hr_' + e.cle);
+    if(el && el.value) h[e.cle] = el.value;
+  });
+  return Object.keys(h).length ? h : null;
+}
+
+function ecrireHoraires(h){
+  initHorairesUI();
+  ETAPES_HORAIRES.forEach(e => {
+    const el = document.getElementById('hr_' + e.cle);
+    if(el) el.value = (h && h[e.cle]) ? h[e.cle] : '';
+  });
+  majHorairesSummary();
+}
+
+function effacerHoraires(){ ecrireHoraires(null); }
+
+function majHorairesSummary(){
+  const h = lireHoraires();
+  const el = document.getElementById('horairesSummary');
+  if(!el) return;
+  if(!h){ el.textContent = 'Aucun'; return; }
+  const n = Object.keys(h).length;
+  let duree = '';
+  const debut = h.appel || h.depart;
+  if(debut && h.fin){
+    const [h1,m1] = debut.split(':').map(Number);
+    const [h2,m2] = h.fin.split(':').map(Number);
+    let min = (h2*60+m2) - (h1*60+m1);
+    if(min < 0) min += 24*60;   // intervention à cheval sur minuit
+    duree = ' · ' + Math.floor(min/60) + 'h' + String(min%60).padStart(2,'0');
+  }
+  el.textContent = n + ' étape' + (n>1?'s':'') + duree;
+}
+
+let rechercheVehiculeTimer = null;
+
+function chercherHistoriqueVehicule(){
+  clearTimeout(rechercheVehiculeTimer);
+  rechercheVehiculeTimer = setTimeout(afficherHistoriqueVehicule, 350);
+}
+
+async function afficherHistoriqueVehicule(){
+  const box = document.getElementById('vehiculeHistorique');
+  const plaque = document.getElementById('plaqueImmat').value.trim();
+  if(!box) return;
+  if(plaque.length < 4){ box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  const cible = normaliserRecherche(plaque);
+  try{
+    const list = await window.storage.list('intervention:');
+    const results = await Promise.all((list.keys || []).map(async k => {
+      try{ return {key:k, data: JSON.parse((await window.storage.get(k)).value)}; }catch(e){ return null; }
+    }));
+    const passees = results
+      .filter(it => it && it.data.plaque && normaliserRecherche(it.data.plaque) === cible)
+      .filter(it => !editingKey || it.key !== editingKey)   // on n'affiche pas celle qu'on modifie
+      .sort((a,b) => new Date(b.data.date) - new Date(a.data.date))
+      .slice(0, 4);
+
+    if(passees.length === 0){ box.style.display = 'none'; box.innerHTML = ''; return; }
+
+    const impayes = passees.filter(it => statutPaiement(it.data) !== 'paye');
+    const alerte = impayes.length > 0
+      ? `<div style="color:var(--red); font-weight:700; font-size:12.5px; margin-bottom:6px;">⚠️ ${impayes.length} intervention${impayes.length>1?'s':''} non soldée${impayes.length>1?'s':''} pour ce véhicule</div>`
+      : '';
+
+    box.innerHTML = `<div class="km-mention" style="border-left-color:var(--navy);">
+      <div style="font-weight:700; color:var(--white); margin-bottom:6px;">🚗 Déjà intervenu ${passees.length} fois sur ce véhicule</div>
+      ${alerte}
+      ${passees.map(it => {
+        const d = it.data;
+        const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit'});
+        const st = statutPaiement(d);
+        const pastille = st === 'paye' ? '✅' : (st === 'partiel' ? '◐' : '⏳');
+        return `<div style="margin-top:3px;">${pastille} ${dt} — ${typeLabelComplet(d)} · ${fmt(d.total||0)}</div>`;
+      }).join('')}
+    </div>`;
+    box.style.display = 'block';
+  }catch(e){ box.style.display = 'none'; }
+}
+
+function toggleFiltreImpayes(){
+  document.getElementById('histImpayes').classList.toggle('on');
+  loadHistory();
+}
+
 async function getFilteredHistory(){
   const fromStr = document.getElementById('histDateFrom').value;
   const toStr = document.getElementById('histDateTo').value;
@@ -6468,11 +7299,22 @@ async function getFilteredHistory(){
         return (res && res.value) ? {key, data: JSON.parse(res.value)} : null;
       }catch(e){ return null; }
     }));
+    const rechEl = document.getElementById('histRecherche');
+    const recherche = rechEl ? normaliserRecherche(rechEl.value.trim()) : '';
+    const impayesSeuls = document.getElementById('histImpayes')?.classList.contains('on');
+
     for(const item of results){
       if(!item) continue;
-      const d = new Date(item.data.date);
+      const dd = item.data;
+      const d = new Date(dd.date);
       if(from && d < from) continue;
       if(to && d > to) continue;
+      if(impayesSeuls && statutPaiement(dd) === 'paye') continue;
+      if(recherche){
+        const champs = [dd.plaque, dd.from, dd.to, dd.depart, typeLabelComplet(dd), dd.invoiceNumber]
+          .filter(Boolean).join(' ');
+        if(!normaliserRecherche(champs).includes(recherche)) continue;
+      }
       items.push(item);
     }
   }
@@ -6516,9 +7358,12 @@ async function loadHistory(){
            </div>`
         : '';
       const etatLieuxIcons = (d.etatLieuxVideo ? '🎥' : '') + (d.etatLieuxNotes ? '📝' : '');
-      const payeBadge = d.paye
-        ? `<div class="pay-badge paye" onclick="togglePaye('${it.key}')">✅ Payé</div>`
-        : `<div class="pay-badge attente" onclick="togglePaye('${it.key}')">⏳ En attente</div>`;
+      const stPay = statutPaiement(d);
+      const payeBadge = stPay === 'paye'
+        ? `<div class="pay-badge paye" onclick="ouvrirPaiement('${it.key}')">✅ Payé${(d.paiement && d.paiement.moyen) ? ' · ' + d.paiement.moyen : ''}</div>`
+        : stPay === 'partiel'
+        ? `<div class="pay-badge" style="background:rgba(232,115,12,0.12); color:var(--orange);" onclick="ouvrirPaiement('${it.key}')">◐ Partiel · reste ${fmt(resteADevoir(d))}</div>`
+        : `<div class="pay-badge attente" onclick="ouvrirPaiement('${it.key}')">⏳ En attente</div>`;
       const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
       const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">✏️ Modifier</div>`;
       const noteCreditBadge = d.invoiceNumber
@@ -6568,15 +7413,108 @@ async function voirPhoto(key, field){
   }catch(e){ showToast('Impossible d\'afficher la photo'); }
 }
 
-async function togglePaye(key){
+const MOYENS_PAIEMENT = ['Espèces', 'Virement', 'Bancontact', 'Carte', 'Autre'];
+
+function statutPaiement(d){
+  const p = d.paiement;
+  if(p && p.statut) return p.statut;
+  return d.paye ? 'paye' : 'attente';   // anciennes interventions
+}
+
+function montantRecu(d){
+  const p = d.paiement;
+  if(p && typeof p.recu === 'number') return p.recu;
+  return d.paye ? (d.total || 0) : 0;
+}
+
+function resteADevoir(d){
+  return Math.max(0, (d.total || 0) - montantRecu(d));
+}
+
+let paiementKeyEnCours = null;
+
+async function ouvrirPaiement(key){
   try{
     const res = await window.storage.get(key);
     const d = JSON.parse(res.value);
-    d.paye = !d.paye;
-    await window.storage.set(key, JSON.stringify(d));
+    paiementKeyEnCours = key;
+    document.getElementById('payTitreInterv').textContent =
+      typeLabelComplet(d) + ' — ' + fmt(d.total || 0);
+    const st = statutPaiement(d);
+    setStatutPaiementUI(st);
+    document.getElementById('payRecu').value = montantRecu(d) > 0 ? montantRecu(d).toFixed(2) : '';
+    const moyen = (d.paiement && d.paiement.moyen) || '';
+    document.getElementById('payMoyen').value = moyen;
+    document.getElementById('payTotalInterv').dataset.total = d.total || 0;
+    majResteDu();
+    document.getElementById('modalStatutPaiementBg').classList.add('show');
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); }
+}
+
+function fermerPaiement(){
+  document.getElementById('modalStatutPaiementBg').classList.remove('show');
+  paiementKeyEnCours = null;
+}
+
+function setStatutPaiementUI(st){
+  ['attente','partiel','paye'].forEach(s => {
+    const el = document.getElementById('payStatut_' + s);
+    if(el) el.classList.toggle('on', s === st);
+  });
+  document.getElementById('payRecuField').style.display = (st === 'partiel') ? 'block' : 'none';
+  majResteDu();
+}
+
+function choisirStatutPaiement(st){
+  setStatutPaiementUI(st);
+  const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
+  if(st === 'paye') document.getElementById('payRecu').value = total.toFixed(2);
+  if(st === 'attente') document.getElementById('payRecu').value = '';
+  majResteDu();
+}
+
+function statutPaiementSelectionne(){
+  return ['attente','partiel','paye'].find(s =>
+    document.getElementById('payStatut_' + s).classList.contains('on')) || 'attente';
+}
+
+function majResteDu(){
+  const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
+  const st = statutPaiementSelectionne();
+  let recu = 0;
+  if(st === 'paye') recu = total;
+  else if(st === 'partiel') recu = parseFloat(document.getElementById('payRecu').value) || 0;
+  const reste = Math.max(0, total - recu);
+  const el = document.getElementById('payResteDu');
+  el.textContent = reste > 0 ? ('Reste dû : ' + fmt(reste)) : 'Soldé';
+  el.style.color = reste > 0 ? 'var(--red)' : 'var(--green)';
+}
+
+async function enregistrerPaiement(){
+  if(!paiementKeyEnCours) return;
+  try{
+    const res = await window.storage.get(paiementKeyEnCours);
+    const d = JSON.parse(res.value);
+    const st = statutPaiementSelectionne();
+    const total = d.total || 0;
+    let recu = 0;
+    if(st === 'paye') recu = total;
+    else if(st === 'partiel') recu = Math.min(total, parseFloat(document.getElementById('payRecu').value) || 0);
+    d.paiement = {
+      statut: st,
+      recu,
+      moyen: document.getElementById('payMoyen').value || '',
+      date: new Date().toISOString()
+    };
+    d.paye = (st === 'paye');   // on garde le booléen synchronisé pour le reste de l'appli
+    await window.storage.set(paiementKeyEnCours, JSON.stringify(d));
+    showToast(st === 'paye' ? 'Marqué comme payé' : (st === 'partiel' ? 'Paiement partiel enregistré' : 'Marqué en attente'));
+    fermerPaiement();
     loadHistory();
   }catch(e){ showToast('Erreur lors de la mise à jour'); }
 }
+
+async function togglePaye(key){ ouvrirPaiement(key); }
 
 function estAFaire(d){ return d.statut === 'a_faire'; }
 
@@ -7020,6 +7958,7 @@ checkPinLock();
 loadThemeMode();
 loadTextSize();
 loadAnimSpeed();
+chargerFavoris();
 checkBackupReminder();
 checkEntretienReminder();
 setTimeout(checkGasoilReminder, 900);
