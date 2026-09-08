@@ -715,6 +715,7 @@
         <option value="demarrage">Démarrage batterie</option>
         <option value="test_batt">Test batterie / alternateur</option>
         <option value="diag">Diagnostic électronique (valise OBD)</option>
+        <option value="erreur_carburant">Erreur de carburant (vidange sur place)</option>
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
         <option value="changement_batterie">Changement de batterie (achat + montage)</option>
@@ -742,6 +743,7 @@
         <label class="extra-item" data-type="demarrage"><input type="checkbox" class="extraCheck" value="demarrage" onchange="updateExtrasSummary()"> Démarrage batterie</label>
         <label class="extra-item" data-type="test_batt"><input type="checkbox" class="extraCheck" value="test_batt" onchange="updateExtrasSummary()"> Test batterie / alternateur</label>
         <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag" onchange="updateExtrasSummary()"> Diagnostic électronique (valise OBD)</label>
+        <label class="extra-item" data-type="erreur_carburant"><input type="checkbox" class="extraCheck" value="erreur_carburant" onchange="updateExtrasSummary()"> Erreur de carburant (vidange sur place)</label>
         <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert" onchange="updateExtrasSummary()"> Transfert véhicule</label>
         <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage" onchange="updateExtrasSummary()"> Dépannage / remorquage général</label>
         <label class="extra-item" data-type="moto_remorquage"><input type="checkbox" class="extraCheck" value="moto_remorquage" onchange="updateExtrasSummary()"> Remorquage / chargement moto</label>
@@ -1457,6 +1459,7 @@
           <div class="rate-row"><label>Démarrage batterie</label><input type="number" id="r_demarrage"></div>
           <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
           <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
+          <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
           <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
           <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
           <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
@@ -3020,7 +3023,7 @@ function getIdatBytes(pngBytes){
 <script>
 const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
-  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
+  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
   changement_batterie:"Changement de batterie (achat + montage)",
   moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)",
   levee_saisie:"Transfert de levée de saisie (police → CT → entrepôt)",
@@ -3029,7 +3032,7 @@ const TYPE_LABELS = {
 };
 
 const DEFAULT_RATES = {
-  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, transfert:70, depannage:65,
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, transfert:70, depannage:65,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
@@ -3912,7 +3915,7 @@ async function loadRates(){
 
 const TYPE_LABELS_NL = {
   pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
-  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
+  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
   changement_batterie:"Batterij vervangen (aankoop + montage)",
   moto_remorquage:"Motor slepen/laden", moto_batterie:"Motorbatterij vervangen (aankoop + montage)",
   levee_saisie:"Overbrenging na inbeslagname (politie → keuring → opslag)",
@@ -3922,7 +3925,7 @@ const TYPE_LABELS_NL = {
 };
 const TYPE_LABELS_EN = {
   pneu_chg:"Tire change", pneu_rep:"Tire repair", demarrage:"Battery jump-start",
-  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
+  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
   changement_batterie:"Battery replacement (purchase + installation)",
   moto_remorquage:"Motorcycle towing/loading", moto_batterie:"Motorcycle battery replacement (purchase + installation)",
   levee_saisie:"Seizure release transfer (police → inspection → storage)",
