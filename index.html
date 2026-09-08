@@ -485,6 +485,25 @@
   .stat-val{font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; color:var(--orange); line-height:1.1;}
   .stat-lbl{font-size:11px; color:var(--grey); margin-top:4px; line-height:1.25;}
 
+  .encours-carte{
+    background:var(--navy); border-radius:20px; padding:18px; margin-bottom:6px;
+    box-shadow:0 4px 16px rgba(38,63,75,0.22);
+  }
+  html[data-theme="dark"] .encours-carte{background:#0a1014; border:1px solid var(--line);}
+  .ec-num{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.4px; color:var(--orange);}
+  .ec-type{font-size:17px; font-weight:700; color:#fff; margin-top:5px; line-height:1.25;}
+  .ec-adr{font-size:13.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.4;}
+  .ec-montant{font-family:'Oswald',sans-serif; font-size:26px; font-weight:700; color:var(--orange); margin-top:8px;}
+  .ec-actions{display:flex; gap:8px; margin-top:14px;}
+  .ec-btn{
+    flex:1; text-align:center; padding:13px 8px; border-radius:24px; font-size:14px; font-weight:700;
+    cursor:pointer; user-select:none; transition:transform .08s ease, filter .12s ease;
+  }
+  .ec-btn:active{transform:scale(0.96);}
+  .ec-btn.orange{background:var(--orange); color:#fff;}
+  .ec-btn.clair{background:rgba(255,255,255,0.12); color:#fff;}
+  .ec-plus{text-align:center; font-size:12.5px; color:rgba(255,255,255,0.55); margin-top:10px; cursor:pointer;}
+
   .accueil-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:6px;}
   .gros-bouton{
     position:relative; background:var(--panel); border:1px solid var(--line); border-radius:20px;
@@ -747,6 +766,11 @@
         <div class="stat-val" id="statEnCours">—</div>
         <div class="stat-lbl">En cours</div>
       </div>
+    </div>
+
+    <div id="encoursBloc" style="display:none;">
+      <div class="eyebrow">En cours</div>
+      <div class="encours-carte" id="encoursCarte"></div>
     </div>
 
     <div class="eyebrow">Accès rapide</div>
@@ -1897,6 +1921,41 @@
             <div class="unit-btn on" id="clientUnitEuro" onclick="setClientRemiseUnit('euro')">€</div>
             <div class="unit-btn" id="clientUnitPct" onclick="setClientRemiseUnit('pct')">%</div>
           </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="extras-header" onclick="toggleClientPro()">
+          <label style="margin:0; cursor:pointer;">🏢 Client professionnel / garage</label>
+          <span class="extras-chevron" id="clientProChevron">▾</span>
+        </div>
+        <div id="clientProBox" style="display:none; padding-top:6px;">
+          <div class="km-mention" style="margin:0 0 10px 0;">Pour les garages, assurances et sociétés d'assistance : ces conditions se reportent automatiquement quand tu sélectionnes le client.</div>
+
+          <label>Tarif km convenu (€/km)</label>
+          <input type="number" id="clientKmTarif" placeholder="Laisser vide = ton tarif habituel" min="0" step="0.05" inputmode="decimal" style="margin-bottom:10px;">
+
+          <label>Mode de facturation</label>
+          <select id="clientFacturation" style="margin-bottom:10px;">
+            <option value="">— Paiement à l'intervention —</option>
+            <option value="fin_mois">Facturation en fin de mois</option>
+            <option value="30j">Paiement à 30 jours</option>
+            <option value="60j">Paiement à 60 jours</option>
+            <option value="bon_commande">Sur bon de commande</option>
+          </select>
+
+          <label>Type de donneur d'ordre</label>
+          <select id="clientDonneurType" style="margin-bottom:10px;">
+            <option value="">— Non précisé —</option>
+            <option value="garage">Garage / concession</option>
+            <option value="assurance">Assurance</option>
+            <option value="assistance">Société d'assistance</option>
+            <option value="leasing">Société de leasing</option>
+            <option value="autre">Autre professionnel</option>
+          </select>
+
+          <label>Conditions particulières / notes</label>
+          <textarea id="clientNotes" rows="2" placeholder="Ex : facturation groupée le 30, contact M. Dupont" style="width:100%; background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:12px 14px; color:var(--white); font-family:inherit; font-size:15px; resize:vertical;"></textarea>
         </div>
       </div>
     </div>
@@ -4861,16 +4920,30 @@ function renderClientsList(){
   }
   container.innerHTML = CLIENTS.map(c => {
     const remiseTxt = c.remise > 0 ? ` · remise ${c.remise}${c.remiseUnit === 'pct' ? '%' : '€'}` : '';
+    const LBL_F = {fin_mois:'fin de mois', '30j':'30 j', '60j':'60 j', bon_commande:'bon de cde'};
+    const proTxt = [
+      c.kmTarif > 0 ? c.kmTarif.toFixed(2) + ' €/km' : '',
+      c.facturation ? (LBL_F[c.facturation] || c.facturation) : ''
+    ].filter(Boolean).join(' · ');
     return `
     <div class="route-item" onclick="applyClient('${c.id}')">
       <div class="info">
         <div class="name">${c.nom}</div>
         <div class="meta">${c.adresse || ''}${c.societe ? ' · ' + c.societe : ''}${remiseTxt}</div>
+        ${proTxt ? `<div class="meta" style="color:var(--orange);">🏢 ${proTxt}</div>` : ''}
       </div>
       <div class="del" onclick="event.stopPropagation(); deleteClient('${c.id}')">✕</div>
     </div>
   `;
   }).join('');
+}
+
+function toggleClientPro(){
+  const box = document.getElementById('clientProBox');
+  const chev = document.getElementById('clientProChevron');
+  const ouvert = box.style.display !== 'none';
+  box.style.display = ouvert ? 'none' : 'block';
+  chev.classList.toggle('open', !ouvert);
 }
 
 function openClients(){
@@ -4891,7 +4964,11 @@ async function saveNewClient(){
     societe: document.getElementById('clientSociete').value.trim(),
     vat: document.getElementById('clientVat').value.trim(),
     remise: parseFloat(document.getElementById('clientRemise').value) || 0,
-    remiseUnit: clientRemiseUnit
+    remiseUnit: clientRemiseUnit,
+    kmTarif: parseFloat(document.getElementById('clientKmTarif').value) || 0,
+    facturation: document.getElementById('clientFacturation').value || '',
+    donneurType: document.getElementById('clientDonneurType').value || '',
+    notes: (document.getElementById('clientNotes').value || '').trim()
   };
   CLIENTS.push(client);
   await persistClients();
@@ -4904,6 +4981,10 @@ async function saveNewClient(){
   document.getElementById('clientVat').value = '';
   document.getElementById('clientRemise').value = '';
   setClientRemiseUnit('euro');
+  document.getElementById('clientKmTarif').value = '';
+  document.getElementById('clientFacturation').value = '';
+  document.getElementById('clientDonneurType').value = '';
+  document.getElementById('clientNotes').value = '';
 }
 
 function applyClient(id){
@@ -4914,13 +4995,41 @@ function applyClient(id){
   document.getElementById('invClientCompany').value = c.societe || '';
   document.getElementById('invClientVat').value = c.vat || '';
   closeClients();
+
+  const rappels = [];
   if(c.remise > 0){
     document.getElementById('remise').value = c.remise;
     setRemiseUnit(c.remiseUnit || 'euro');
-    showToast('Client "' + c.nom + '" appliqué — remise habituelle pré-remplie, reclique sur "Calculer"');
-  } else {
-    showToast('Client "' + c.nom + '" appliqué à la facture');
+    rappels.push('remise ' + c.remise + (c.remiseUnit === 'pct' ? '%' : '€'));
   }
+  if(c.kmTarif > 0){
+    const el = document.getElementById('kmTarifExceptionnel');
+    if(el){ el.value = c.kmTarif; rappels.push(c.kmTarif.toFixed(2) + ' €/km convenu'); }
+  }
+  if(c.tel){
+    const t = document.getElementById('telClient');
+    if(t && !t.value) t.value = c.tel;
+  }
+  if(c.donneurType){
+    const dsel = document.getElementById('donneurOrdre');
+    if(dsel){
+      dsel.value = c.donneurType;
+      majDonneurOrdreUI();
+      const dnom = document.getElementById('donneurNom');
+      if(dnom && !dnom.value) dnom.value = c.societe || c.nom;
+    }
+  }
+  if(typeof updateAdvancedSummary === 'function') updateAdvancedSummary();
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+
+  const LBL_FACT = {fin_mois:'facturation fin de mois', '30j':'paiement à 30 jours',
+                    '60j':'paiement à 60 jours', bon_commande:'sur bon de commande'};
+  if(c.facturation) rappels.push(LBL_FACT[c.facturation] || c.facturation);
+
+  let msg = 'Client "' + c.nom + '" appliqué';
+  if(rappels.length) msg += ' — ' + rappels.join(' · ') + '. Reclique sur « Calculer ».';
+  showToast(msg);
+  if(c.notes) setTimeout(() => showToast('📝 ' + c.notes), 3200);
 }
 
 async function deleteClient(id){
@@ -5129,7 +5238,7 @@ function afficherTicketDepuisData(d){
   const kmMultiplier = d.retour ? 2 : 1;
   const estRemorquage = TYPES_REMORQUAGE.includes(d.type) || d.camionOn;
 
-  document.getElementById('tkNum').textContent = 'BON N°' + new Date(d.date).getTime().toString().slice(-6);
+  document.getElementById('tkNum').textContent = d.numero || ('BON N°' + new Date(d.date).getTime().toString().slice(-6));
   document.getElementById('tkDate').textContent = new Date(d.date).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   document.getElementById('tkDepartRow').style.display = d.depart ? 'block' : 'none';
   document.getElementById('tkDepart').textContent = d.depart || '—';
@@ -5405,6 +5514,18 @@ async function genererFactureDepuisJournal(key){
   }catch(e){ showToast('Impossible de retrouver cette intervention'); }
 }
 
+async function nextInterventionNumber(){
+  const annee = new Date().getFullYear();
+  let n = 1;
+  try{
+    const res = await window.storage.get('interventionCounter');
+    const c = JSON.parse(res.value);
+    if(c && c.annee === annee) n = (c.n || 0) + 1;
+  }catch(e){ /* premier numéro de l'année */ }
+  await window.storage.set('interventionCounter', JSON.stringify({annee, n}));
+  return 'INT-' + annee + '-' + String(n).padStart(3, '0');
+}
+
 async function nextInvoiceNumber(){
   let n = 1;
   try{
@@ -5635,6 +5756,7 @@ async function genererFacture(){
     pdf.text(50, y, S.facture, {font:'F2', size:15});
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, S.numero + invoiceNumber, {size:10});
+    if(c.numero){ y += 13; pdf.text(400, y, 'Intervention : ' + c.numero, {size:9, gray:0.4}); }
     y += 16;
     pdf.text(400, y, S.date + dateStr, {size:10});
     y += 20;
@@ -6786,10 +6908,12 @@ async function enregistrer(){
     if(editingKey){
       const ancienne = JSON.parse((await window.storage.get(editingKey)).value);
       id = editingKey;
-      entry = {...ancienne, ...lastCalc, date: ancienne.date, paye: ancienne.paye, statut: ancienne.statut};
+      entry = {...ancienne, ...lastCalc, date: ancienne.date, paye: ancienne.paye,
+               statut: ancienne.statut, numero: ancienne.numero};
+      if(!entry.numero) entry.numero = await nextInterventionNumber();
     } else {
       id = 'intervention:' + Date.now();
-      entry = {...lastCalc, paye: false, statut: 'a_faire'};
+      entry = {...lastCalc, paye: false, statut: 'a_faire', numero: await nextInterventionNumber()};
     }
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
@@ -6920,7 +7044,42 @@ async function majResumeAccueil(){
       badge.textContent = impayes.length;
       badge.style.display = impayes.length > 0 ? 'flex' : 'none';
     }
+
+    afficherInterventionEnCours(items.filter(it => estAFaire(it.data)));
   }catch(e){ /* première utilisation : rien à afficher */ }
+}
+
+function afficherInterventionEnCours(aFaire){
+  const bloc = document.getElementById('encoursBloc');
+  const carte = document.getElementById('encoursCarte');
+  if(!bloc || !carte) return;
+  if(!aFaire || aFaire.length === 0){ bloc.style.display = 'none'; return; }
+
+  const liste = [...aFaire].sort((a,b) => new Date(a.data.date) - new Date(b.data.date));
+  const it = liste[0];
+  const d = it.data;
+  const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit'});
+  const heure = new Date(d.date).toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+  const destination = (d.to && d.to !== '—') ? d.to : d.from;
+
+  carte.innerHTML = `
+    <div class="ec-num">${d.numero ? d.numero + ' · ' : ''}${dt} à ${heure}</div>
+    <div class="ec-type">${typeLabelComplet(d)}</div>
+    <div class="ec-adr">📍 ${d.from}${(d.to && d.to !== '—') ? '<br>🏁 ' + d.to : ''}</div>
+    <div class="ec-montant">${fmt(d.total || 0)}</div>
+    <div class="ec-actions">
+      <div class="ec-btn orange" onclick="reprendreEnCours('${it.key}')">✏️ Reprendre</div>
+      <a class="ec-btn clair" style="text-decoration:none;" href="${navUrl('gmaps', destination)}" target="_blank">🗺️ Y aller</a>
+      <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">✅ Faite</div>
+    </div>
+    ${liste.length > 1 ? `<div class="ec-plus" onclick="showTab('tabRoute')">+ ${liste.length - 1} autre${liste.length > 2 ? 's' : ''} à faire — voir la feuille de route</div>` : ''}
+  `;
+  bloc.style.display = 'block';
+}
+
+async function reprendreEnCours(key){
+  showTab('tabNouveau');
+  await chargerInterventionDepuisJournal(key);
 }
 
 function ouvrirImpayes(){
@@ -7499,7 +7658,7 @@ async function loadHistory(){
         ${etatLieuxThumb}
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
-          <div class="meta">${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
+          <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
           <div class="badge-row">${statutBadge}${payeBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
