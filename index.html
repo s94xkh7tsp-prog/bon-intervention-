@@ -476,6 +476,35 @@
     .card .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px;}
   }
 
+  /* PAGE D'ACCUEIL */
+  .accueil-stats{display:flex; gap:9px; margin:6px 0 4px;}
+  .stat-case{
+    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:14px 8px; text-align:center; box-shadow:0 2px 8px rgba(38,63,75,0.05);
+  }
+  .stat-val{font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; color:var(--orange); line-height:1.1;}
+  .stat-lbl{font-size:11px; color:var(--grey); margin-top:4px; line-height:1.25;}
+
+  .accueil-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:6px;}
+  .gros-bouton{
+    position:relative; background:var(--panel); border:1px solid var(--line); border-radius:20px;
+    padding:20px 12px; min-height:112px; cursor:pointer; user-select:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    box-shadow:0 2px 10px rgba(38,63,75,0.05);
+    transition:background .12s ease, transform .08s ease, border-color .12s ease;
+  }
+  .gros-bouton:active{transform:scale(0.96); background:var(--orange-soft); border-color:var(--orange);}
+  .gros-bouton.principal{background:var(--orange); border-color:var(--orange); box-shadow:0 4px 14px rgba(232,115,12,0.28);}
+  .gros-bouton.principal .gb-txt{color:#fff;}
+  .gros-bouton.principal:active{background:#d16a0b;}
+  .gb-ico{font-size:30px; line-height:1;}
+  .gb-txt{font-size:14.5px; font-weight:700; color:var(--white); text-align:center; line-height:1.25;}
+  .gb-badge{
+    position:absolute; top:9px; right:9px; min-width:24px; height:24px; padding:0 7px;
+    background:var(--red); color:#fff; border-radius:12px; font-size:12.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace;
+  }
+
   /* BARRE DE NAVIGATION EN BAS */
   .tabbar{
     position:fixed; left:0; right:0; bottom:0; z-index:40;
@@ -701,7 +730,56 @@
     <span class="edit-banner-cancel" onclick="annulerEdition()">Annuler</span>
   </div>
 
-  <section class="tab-section" id="tabNouveau">
+  <section class="tab-section" id="tabAccueil">
+    <div class="eyebrow" id="accueilDate">Aujourd'hui</div>
+    <h1 class="page-title">Bonjour Jamal</h1>
+
+    <div class="accueil-stats" id="accueilStats">
+      <div class="stat-case">
+        <div class="stat-val" id="statNb">—</div>
+        <div class="stat-lbl">Interventions</div>
+      </div>
+      <div class="stat-case">
+        <div class="stat-val" id="statCa">—</div>
+        <div class="stat-lbl">Chiffre du jour</div>
+      </div>
+      <div class="stat-case" onclick="showTab('tabRoute')">
+        <div class="stat-val" id="statEnCours">—</div>
+        <div class="stat-lbl">En cours</div>
+      </div>
+    </div>
+
+    <div class="eyebrow">Accès rapide</div>
+    <div class="accueil-grid">
+      <div class="gros-bouton principal" onclick="showTab('tabNouveau')">
+        <span class="gb-ico">🔧</span>
+        <span class="gb-txt">Nouvelle<br>intervention</span>
+      </div>
+      <div class="gros-bouton" onclick="openQuickQuote()">
+        <span class="gb-ico">📞</span>
+        <span class="gb-txt">Devis<br>rapide</span>
+      </div>
+      <div class="gros-bouton" onclick="showTab('tabHistorique')">
+        <span class="gb-ico">🕘</span>
+        <span class="gb-txt">Historique</span>
+      </div>
+      <div class="gros-bouton" onclick="ouvrirImpayes()">
+        <span class="gb-ico">💰</span>
+        <span class="gb-txt">Impayés</span>
+        <span class="gb-badge" id="gbImpayesBadge" style="display:none;">0</span>
+      </div>
+      <div class="gros-bouton" onclick="openRdv()">
+        <span class="gb-ico">📅</span>
+        <span class="gb-txt">Rendez-vous</span>
+      </div>
+      <div class="gros-bouton" onclick="openClients()">
+        <span class="gb-ico">👤</span>
+        <span class="gb-txt">Clients /<br>Garages</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-section" id="tabNouveau" style="display:none;">
   <div class="eyebrow">Bon d'intervention</div>
   <h1 class="page-title">Nouvelle course</h1>
   <p class="page-sub">Encode l'intervention, calcule le prix, puis enregistre-la dans le journal.</p>
@@ -1525,13 +1603,13 @@
 </div>
 
 <nav class="tabbar" id="tabbar">
-  <div class="tab-btn active" data-tab="tabNouveau" onclick="showTab('tabNouveau')">
+  <div class="tab-btn active" data-tab="tabAccueil" onclick="showTab('tabAccueil')">
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H4a1 1 0 0 1-1-1z"/></svg></span>
+    <span class="tab-lbl">Accueil</span>
+  </div>
+  <div class="tab-btn" data-tab="tabNouveau" onclick="showTab('tabNouveau')">
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
     <span class="tab-lbl">Nouveau</span>
-  </div>
-  <div class="tab-btn" data-tab="tabDevis" onclick="showTab('tabDevis')">
-    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-    <span class="tab-lbl">Devis</span>
   </div>
   <div class="tab-btn" data-tab="tabHistorique" onclick="showTab('tabHistorique')">
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span>
@@ -1542,9 +1620,9 @@
     <span class="tab-lbl">Route</span>
     <span class="tab-badge" id="tabRouteBadge" style="display:none;">0</span>
   </div>
-  <div class="tab-btn" data-tab="tabClients" onclick="showTab('tabClients')">
-    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-    <span class="tab-lbl">Clients</span>
+  <div class="tab-btn" data-tab="tabDevis" onclick="showTab('tabDevis')">
+    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+    <span class="tab-lbl">Devis</span>
   </div>
 </nav>
 
@@ -4326,7 +4404,7 @@ function setQqVehicleType(type){
   calculerDevisRapide();
 }
 
-let currentTab = 'tabNouveau';
+let currentTab = 'tabAccueil';
 
 function rejouerAnim(el){
   if(!el) return;
@@ -4336,7 +4414,7 @@ function rejouerAnim(el){
 }
 
 function showTab(tab){
-  const sections = {tabNouveau:'tabNouveau', tabHistorique:'tabHistorique'};
+  const sections = {tabAccueil:'tabAccueil', tabNouveau:'tabNouveau', tabHistorique:'tabHistorique'};
   if(sections[tab]){
     currentTab = tab;
     Object.values(sections).forEach(id => {
@@ -4344,6 +4422,7 @@ function showTab(tab){
       if(el) el.style.display = (id === tab) ? 'block' : 'none';
     });
     rejouerAnim(document.getElementById(tab));
+    if(tab === 'tabAccueil') majResumeAccueil();
     window.scrollTo({top:0, behavior:'smooth'});
   } else {
     if(tab === 'tabDevis') openQuickQuote();
@@ -6813,6 +6892,47 @@ function resetHistDates(){
   loadHistory();
 }
 
+async function majResumeAccueil(){
+  const dEl = document.getElementById('accueilDate');
+  if(dEl){
+    dEl.textContent = new Date().toLocaleDateString('fr-BE',
+      {weekday:'long', day:'numeric', month:'long'});
+  }
+  try{
+    const items = await toutesLesInterventions();
+    const auj = new Date();
+    const duJour = items.filter(it => {
+      const d = new Date(it.data.date);
+      return d.getFullYear() === auj.getFullYear()
+          && d.getMonth() === auj.getMonth()
+          && d.getDate() === auj.getDate();
+    });
+    const ca = duJour.reduce((s,it) => s + (it.data.total||0), 0);
+    const enCours = items.filter(it => estAFaire(it.data)).length;
+    const impayes = items.filter(it => statutPaiement(it.data) !== 'paye');
+
+    document.getElementById('statNb').textContent = duJour.length;
+    document.getElementById('statCa').textContent = ca > 0 ? fmt(ca).replace(' €','') + '€' : '0€';
+    document.getElementById('statEnCours').textContent = enCours;
+
+    const badge = document.getElementById('gbImpayesBadge');
+    if(badge){
+      badge.textContent = impayes.length;
+      badge.style.display = impayes.length > 0 ? 'flex' : 'none';
+    }
+  }catch(e){ /* première utilisation : rien à afficher */ }
+}
+
+function ouvrirImpayes(){
+  showTab('tabHistorique');
+  const f = document.getElementById('histImpayes');
+  if(f && !f.classList.contains('on')) f.classList.add('on');
+  const r = document.getElementById('histRecherche');
+  if(r) r.value = '';
+  loadHistory();
+  showToast('Filtre « Impayés » activé');
+}
+
 async function toutesLesInterventions(){
   const list = await window.storage.list('intervention:');
   const results = await Promise.all((list.keys || []).map(async k => {
@@ -7326,6 +7446,7 @@ async function loadHistory(){
   const container = document.getElementById('history');
   const summary = document.getElementById('historySummary');
   renderFeuilleDeRoute();
+  majResumeAccueil();
   try{
     const items = await getFilteredHistory();
     if(items.length === 0){
@@ -7959,6 +8080,7 @@ loadThemeMode();
 loadTextSize();
 loadAnimSpeed();
 chargerFavoris();
+setTimeout(majResumeAccueil, 400);
 checkBackupReminder();
 checkEntretienReminder();
 setTimeout(checkGasoilReminder, 900);
