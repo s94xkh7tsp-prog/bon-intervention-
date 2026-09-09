@@ -512,6 +512,17 @@
   .ec-btn:active{transform:scale(0.96);}
   .ec-btn.orange{background:var(--orange); color:#fff;}
   .ec-btn.clair{background:rgba(255,255,255,0.12); color:#fff;}
+  .ec-nav-label{
+    font-size:11px; color:rgba(255,255,255,0.55); margin-top:11px; margin-bottom:5px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .ec-nav-row{display:flex; gap:7px;}
+  .ec-nav-row a{
+    flex:1; text-align:center; text-decoration:none; padding:9px 4px; border-radius:14px;
+    background:rgba(255,255,255,0.10); color:#fff; font-size:12.5px; font-weight:600;
+    transition:background .12s ease, transform .08s ease;
+  }
+  .ec-nav-row a:active{background:rgba(255,255,255,0.22); transform:scale(0.96);}
   .ec-plus{text-align:center; font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:7px; cursor:pointer;}
 
   .accueil-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:4px;}
@@ -7134,16 +7145,29 @@ function afficherInterventionEnCours(aFaire){
   const d = it.data;
   const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit'});
   const heure = new Date(d.date).toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
-  const destination = (d.to && d.to !== '—') ? d.to : d.from;
+  const aChercher = d.from;
+  const aDeposer = (d.to && d.to !== '—') ? d.to : null;
 
   carte.innerHTML = `
     <div class="ec-num">${d.numero ? d.numero + ' · ' : ''}${dt} à ${heure}</div>
     <div class="ec-type">${typeLabelComplet(d)}</div>
     <div class="ec-adr">📍 ${d.from}${(d.to && d.to !== '—') ? '<br>🏁 ' + d.to : ''}</div>
     <div class="ec-montant">${fmt(d.total || 0)}</div>
+    <div class="ec-nav-label">📍 Étape 1 — aller chercher le véhicule</div>
+    <div class="ec-nav-row">
+      <a href="${navUrl('plans', aChercher)}" target="_blank">🧭 Plans</a>
+      <a href="${navUrl('gmaps', aChercher)}" target="_blank">🗺️ Maps</a>
+      <a href="${navUrl('waze', aChercher)}" target="_blank">🚗 Waze</a>
+    </div>
+    ${aDeposer ? `
+    <div class="ec-nav-label">🏁 Étape 2 — déposer le véhicule</div>
+    <div class="ec-nav-row">
+      <a href="${navUrl('plans', aDeposer, aChercher)}" target="_blank">🧭 Plans</a>
+      <a href="${navUrl('gmaps', aDeposer, aChercher)}" target="_blank">🗺️ Maps</a>
+      <a href="${navUrl('waze', aDeposer)}" target="_blank">🚗 Waze</a>
+    </div>` : ''}
     <div class="ec-actions">
-      <div class="ec-btn orange" onclick="reprendreEnCours('${it.key}')">✏️ Reprendre</div>
-      <a class="ec-btn clair" style="text-decoration:none;" href="${navUrl('gmaps', destination)}" target="_blank">🗺️ Y aller</a>
+      <div class="ec-btn clair" onclick="reprendreEnCours('${it.key}')">✏️ Reprendre</div>
       <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">✅ Faite</div>
     </div>
     ${liste.length > 1 ? `<div class="ec-plus" onclick="showTab('tabRoute')">+ ${liste.length - 1} autre${liste.length > 2 ? 's' : ''} à faire — voir la feuille de route</div>` : ''}
@@ -7897,11 +7921,14 @@ function openFeuilleDeRoute(){
 }
 function closeFeuilleDeRoute(){ document.getElementById('modalRouteBg').classList.remove('show'); }
 
-function navUrl(app, address){
+function navUrl(app, address, depuis){
   const a = encodeURIComponent(address);
-  if(app === 'waze')  return 'https://waze.com/ul?q=' + a + '&navigate=yes';
-  if(app === 'gmaps') return 'https://www.google.com/maps/dir/?api=1&destination=' + a + '&travelmode=driving';
-  return 'https://maps.apple.com/?daddr=' + a + '&dirflg=d';  // Plans (Apple)
+  const o = depuis ? encodeURIComponent(depuis) : null;
+  if(app === 'waze')  return 'https://waze.com/ul?q=' + a + '&navigate=yes';   // Waze part toujours de ta position
+  if(app === 'gmaps') return 'https://www.google.com/maps/dir/?api=1'
+                           + (o ? '&origin=' + o : '')
+                           + '&destination=' + a + '&travelmode=driving';
+  return 'https://maps.apple.com/?' + (o ? 'saddr=' + o + '&' : '') + 'daddr=' + a + '&dirflg=d';  // Plans (Apple)
 }
 
 async function renderFeuilleDeRoute(){
@@ -7942,6 +7969,10 @@ async function renderFeuilleDeRoute(){
         </div>
         ${etape('Prise en charge', '📍', d.from)}
         ${etape('Dépose', '🏁', d.to)}
+        ${(d.from && d.to && d.to !== '—') ? `
+        <div class="quick-actions" style="margin-top:10px;">
+          <a href="${navUrl('gmaps', d.to, d.from)}" target="_blank" class="route-nav" style="background:var(--orange-soft);">🔀 Itinéraire A → B</a>
+        </div>` : ''}
         <div class="quick-actions" style="margin-top:12px;">
           <button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Modifier / remise</button>
           <button type="button" style="color:var(--green); border-color:rgba(63,138,95,0.45);" onclick="toggleStatut('${it.key}')">✅ Faite</button>
