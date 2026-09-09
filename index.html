@@ -7155,16 +7155,16 @@ function afficherInterventionEnCours(aFaire){
     <div class="ec-montant">${fmt(d.total || 0)}</div>
     <div class="ec-nav-label">📍 Étape 1 — aller chercher le véhicule</div>
     <div class="ec-nav-row">
-      <a href="${navUrl('plans', aChercher)}" target="_blank">🧭 Plans</a>
-      <a href="${navUrl('gmaps', aChercher)}" target="_blank">🗺️ Maps</a>
-      <a href="${navUrl('waze', aChercher)}" target="_blank">🚗 Waze</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('plans', aChercher)}')">🧭 Plans</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('gmaps', aChercher)}')">🗺️ Maps</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('waze', aChercher)}')">🚗 Waze</a>
     </div>
     ${aDeposer ? `
     <div class="ec-nav-label">🏁 Étape 2 — déposer le véhicule</div>
     <div class="ec-nav-row">
-      <a href="${navUrl('plans', aDeposer, aChercher)}" target="_blank">🧭 Plans</a>
-      <a href="${navUrl('gmaps', aDeposer, aChercher)}" target="_blank">🗺️ Maps</a>
-      <a href="${navUrl('waze', aDeposer)}" target="_blank">🚗 Waze</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('plans', aDeposer, aChercher)}')">🧭 Plans</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('gmaps', aDeposer, aChercher)}')">🗺️ Maps</a>
+      <a href="javascript:void(0)" onclick="lancerNav('${navUrl('waze', aDeposer)}')">🚗 Waze</a>
     </div>` : ''}
     <div class="ec-actions">
       <div class="ec-btn clair" onclick="reprendreEnCours('${it.key}')">✏️ Reprendre</div>
@@ -7921,6 +7921,10 @@ function openFeuilleDeRoute(){
 }
 function closeFeuilleDeRoute(){ document.getElementById('modalRouteBg').classList.remove('show'); }
 
+function lancerNav(url){
+  window.location.href = url;
+}
+
 function navUrl(app, address, depuis){
   const a = encodeURIComponent(address);
   const o = depuis ? encodeURIComponent(depuis) : null;
@@ -7950,9 +7954,9 @@ async function renderFeuilleDeRoute(){
         <div class="route-step-label">${icon} ${label}</div>
         <div class="route-step-addr">${adresse}</div>
         <div class="quick-actions" style="margin-top:6px;">
-          <a href="${navUrl('plans', adresse)}" target="_blank" class="route-nav">🧭 Plans</a>
-          <a href="${navUrl('gmaps', adresse)}" target="_blank" class="route-nav">🗺️ Maps</a>
-          <a href="${navUrl('waze', adresse)}" target="_blank" class="route-nav">🚗 Waze</a>
+          <a href="javascript:void(0)" onclick="lancerNav('${navUrl('plans', adresse)}')" class="route-nav">🧭 Plans</a>
+          <a href="javascript:void(0)" onclick="lancerNav('${navUrl('gmaps', adresse)}')" class="route-nav">🗺️ Maps</a>
+          <a href="javascript:void(0)" onclick="lancerNav('${navUrl('waze', adresse)}')" class="route-nav">🚗 Waze</a>
         </div>
       </div>`;
     };
@@ -7971,7 +7975,7 @@ async function renderFeuilleDeRoute(){
         ${etape('Dépose', '🏁', d.to)}
         ${(d.from && d.to && d.to !== '—') ? `
         <div class="quick-actions" style="margin-top:10px;">
-          <a href="${navUrl('gmaps', d.to, d.from)}" target="_blank" class="route-nav" style="background:var(--orange-soft);">🔀 Itinéraire A → B</a>
+          <a href="javascript:void(0)" onclick="lancerNav('${navUrl('gmaps', d.to, d.from)}')" class="route-nav" style="background:var(--orange-soft);">🔀 Itinéraire A → B</a>
         </div>` : ''}
         <div class="quick-actions" style="margin-top:12px;">
           <button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Modifier / remise</button>
