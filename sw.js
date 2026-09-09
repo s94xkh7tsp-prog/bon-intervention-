@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v139';
+const CACHE_NAME = 'jm-express-bon-v140';
 const APP_SHELL = [
   './',
   './index.html',
@@ -31,15 +31,27 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Cache-first pour l'app (fonctionne hors ligne), réseau pour le reste (ex: polices Google Fonts)
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
   const isAppShell = url.origin === self.location.origin;
+  // La page principale (navigation) doit toujours privilégier une copie fraîche du réseau :
+  // en cache-first, une copie en cache incomplète ou corrompue (ex: coupure réseau pendant
+  // une mise à jour) serait servie à l'infini, provoquant un écran blanc permanent.
+  const estDocumentPrincipal = req.mode === 'navigate' || req.destination === 'document';
 
-  if (isAppShell) {
+  if (isAppShell && estDocumentPrincipal) {
+    event.respondWith(
+      fetch(req, {cache: 'no-store'}).then((res) => {
+        const resClone = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+        return res;
+      }).catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+    );
+  } else if (isAppShell) {
+    // Icônes, manifest : cache-first, ça fonctionne hors ligne et ça ne change presque jamais.
     event.respondWith(
       caches.match(req).then((cached) => cached || fetch(req).then((res) => {
         const resClone = res.clone();

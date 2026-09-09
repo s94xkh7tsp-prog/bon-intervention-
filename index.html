@@ -8315,6 +8315,7 @@ document.addEventListener('focusout', (e) => {
   const splash = document.getElementById('splash');
   if(!splash) return;
   const cacher = () => {
+    if(window.BOOT_ECHEC) return;
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 600);
   };
@@ -8343,21 +8344,47 @@ document.addEventListener('focusout', (e) => {
   });
 })();
 
-checkPinLock();
-loadThemeMode();
-loadTextSize();
-loadAnimSpeed();
-chargerFavoris();
-document.body.classList.add('sur-accueil');
-setTimeout(majResumeAccueil, 400);
-checkBackupReminder();
-checkEntretienReminder();
-setTimeout(checkGasoilReminder, 900);
-loadClients();
-loadAccessNotes();
-loadRates().then(updateKmLabel);
-loadHistory();
-loadRoutes();
+(async () => {
+  try{
+    await checkPinLock();
+    await loadThemeMode();
+    await loadTextSize();
+    await loadAnimSpeed();
+    await chargerFavoris();
+    document.body.classList.add('sur-accueil');
+    setTimeout(majResumeAccueil, 400);
+    await checkBackupReminder();
+    await checkEntretienReminder();
+    setTimeout(checkGasoilReminder, 900);
+    await loadClients();
+    await loadAccessNotes();
+    await loadRates().then(updateKmLabel);
+    await loadHistory();
+    await loadRoutes();
+  }catch(e){
+    console.error('Erreur au démarrage :', e);
+    window.BOOT_ECHEC = true;
+    const splash = document.getElementById('splash');
+    if(splash){
+      splash.innerHTML = `<div style="text-align:center; padding:0 30px;">
+        <div style="font-size:40px; margin-bottom:14px;">⚠️</div>
+        <div style="color:#fff; font-size:16px; margin-bottom:18px; line-height:1.4;">
+          L'appli n'a pas pu démarrer correctement.
+        </div>
+        <div onclick="location.reload()" style="background:#f2900f; color:#fff; padding:14px 28px;
+          border-radius:24px; font-weight:700; display:inline-block; cursor:pointer;">
+          Recharger l'appli
+        </div>
+      </div>`;
+      splash.classList.remove('hide');
+      splash.style.display = 'flex';
+    }
+  }
+})();
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Erreur non gérée :', event.reason);
+});
 </script>
 </body>
 </html>
