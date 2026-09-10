@@ -82,6 +82,24 @@
   .gear.emergency{background:rgba(201,74,50,0.10); border-color:rgba(201,74,50,0.3); color:var(--red); text-decoration:none;}
   .gear.emergency:active{background:#e05a4e; color:#fff;}
   .head-row-icons{display:flex; gap:8px; flex-shrink:0;}
+  /* Indicateur discret hors connexion — visible seulement quand ça arrive vraiment */
+  .hors-ligne{
+    display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:var(--red);
+    background:rgba(201,74,50,0.10); padding:4px 9px; border-radius:12px; flex-shrink:1; white-space:nowrap;
+    margin:0 8px;
+  }
+  .hl-point{width:6px; height:6px; border-radius:50%; background:var(--red); animation:hlPulse 1.6s ease-in-out infinite;}
+  @keyframes hlPulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+
+  /* Mini indicateur de chargement sur les boutons (calcul, sauvegarde, PDF) */
+  .mini-spinner{
+    display:inline-block; width:14px; height:14px; border-radius:50%;
+    border:2px solid rgba(255,255,255,0.4); border-top-color:#fff;
+    animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px;
+  }
+  button.ghost .mini-spinner{border-color:rgba(232,115,12,0.3); border-top-color:var(--orange);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  button.en-chargement{opacity:0.85; cursor:default;}
 
   .emergency-btn{
     display:flex; flex-direction:column; align-items:center; gap:4px; text-decoration:none;
@@ -355,6 +373,27 @@
     padding:8px 14px; border:1px solid var(--orange); border-radius:20px;
   }
   .edit-banner-cancel:active{background:var(--orange-dim);}
+
+  /* BANNIÈRE "REPRENDRE L'INTERVENTION EN COURS" — proposition discrète au lancement,
+     jamais un redirect forcé. Ancrée juste au-dessus de la barre de navigation. */
+  .reprise-banniere{
+    position:fixed; left:14px; right:14px; bottom:calc(84px + env(safe-area-inset-bottom));
+    z-index:120; background:var(--navy); border-radius:18px; padding:13px 14px;
+    display:flex; align-items:center; gap:11px; box-shadow:var(--shadow-lg);
+    transform:translateY(140%); opacity:0; transition:transform calc(.4s * var(--anim)) cubic-bezier(.2,.9,.25,1.05), opacity calc(.3s * var(--anim)) ease;
+    pointer-events:none;
+  }
+  .reprise-banniere.show{transform:translateY(0); opacity:1; pointer-events:auto;}
+  .reprise-icone{font-size:22px; flex-shrink:0;}
+  .reprise-texte{flex:1; min-width:0;}
+  .reprise-titre{color:#fff; font-weight:700; font-size:13.5px;}
+  .reprise-sous{color:rgba(255,255,255,0.6); font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;}
+  .reprise-btn{
+    background:var(--orange); color:#fff; font-weight:700; font-size:13px; padding:9px 15px;
+    border-radius:20px; flex-shrink:0; cursor:pointer; transition:transform .1s ease;
+  }
+  .reprise-btn:active{transform:scale(0.94);}
+  .reprise-fermer{color:rgba(255,255,255,0.45); font-size:15px; padding:4px 2px; cursor:pointer; flex-shrink:0;}
 
   /* CONFIRMATION DE CRÉATION — coche animée façon iOS, brève et non bloquante */
   .succes-overlay{
@@ -651,6 +690,40 @@
     display:flex; justify-content:space-around; align-items:stretch;
     padding:8px calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));
   }
+  /* Bouton central "+" — raccourci flottant vers Nouvelle intervention, élevé au-dessus
+     de la barre pour un vrai réflexe "vraie appli iPhone" (façon appli pro/caméra). */
+  .tab-fab{
+    position:absolute; left:50%; bottom:calc(30px + env(safe-area-inset-bottom));
+    transform:translateX(-50%); width:52px; height:52px; border-radius:50%;
+    background:var(--orange); display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow-orange), 0 0 0 4px var(--ink); cursor:pointer;
+    transition:transform .12s cubic-bezier(.2,.8,.3,1.1);
+  }
+  .tab-fab:active{transform:translateX(-50%) scale(0.9);}
+  .tab-fab svg{width:24px; height:24px;}
+  /* Déjà sur le formulaire : le "+" flottant n'a plus d'utilité, la barre d'actions
+     contextuelle prend le relais juste au-dessus de la barre de navigation. */
+  .tab-spacer{flex:1;}
+  body.sur-nouveau .tab-fab{display:none;}
+
+  body.avec-barre-actions{padding-bottom:calc(172px + env(safe-area-inset-bottom));}
+  .barre-actions-contextuelle{
+    position:fixed; left:14px; right:14px; z-index:41;
+    bottom:calc(74px + env(safe-area-inset-bottom));
+    display:none; gap:8px; background:var(--navy); border-radius:20px; padding:8px;
+    box-shadow:var(--shadow-lg);
+  }
+  .barre-actions-contextuelle.show{display:flex;}
+  .bac-btn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 4px;
+    border-radius:14px; color:rgba(255,255,255,0.75); cursor:pointer; transition:background .12s ease, transform .1s ease;
+  }
+  .bac-btn:active{transform:scale(0.94); background:rgba(255,255,255,0.08);}
+  .bac-btn svg{width:19px; height:19px;}
+  a.bac-btn{text-decoration:none;}
+  .bac-btn span{font-size:10.5px; font-weight:600;}
+  .bac-btn.principal{background:var(--orange); color:#fff;}
+  .bac-btn.principal:active{background:var(--orange); filter:brightness(0.92);}
   .tab-btn{
     flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px;
     color:var(--grey); cursor:pointer; user-select:none; position:relative; border-radius:12px;
@@ -803,6 +876,26 @@
   <div class="succes-texte">Intervention créée</div>
 </div>
 
+<div class="modal-bg" id="modalSortieBg">
+  <div class="modal" style="padding-bottom:calc(22px + env(safe-area-inset-bottom));">
+    <div class="eyebrow">Attention</div>
+    <h1 class="page-title" style="font-size:22px;">Course non enregistrée</h1>
+    <p class="page-sub">Le montant est calculé mais l'intervention n'est pas encore dans le journal. Tes saisies restent en brouillon, mais aucune fiche ne sera créée.</p>
+    <button class="primary" onclick="confirmerSortie(false)">Rester et enregistrer</button>
+    <button class="ghost close-modal" onclick="confirmerSortie(true)">Quitter quand même</button>
+  </div>
+</div>
+
+<div class="reprise-banniere" id="repriseBanniere">
+  <div class="reprise-icone">🔧</div>
+  <div class="reprise-texte">
+    <div class="reprise-titre">Intervention en cours</div>
+    <div class="reprise-sous" id="repriseSousTitre">—</div>
+  </div>
+  <div class="reprise-btn" id="repriseBtnAction">Reprendre</div>
+  <div class="reprise-fermer" onclick="fermerPropositionReprise()">✕</div>
+</div>
+
 <div class="splash" id="splash">
   <div class="splash-inner">
     <div class="splash-logo">
@@ -830,6 +923,9 @@
     <div class="brand">
       <div class="jm">JM<span>EXPRESS</span></div>
       <div class="sub">Bon d'intervention</div>
+    </div>
+    <div class="hors-ligne" id="horsLigneIndic" style="display:none;">
+      <span class="hl-point"></span> Hors ligne
     </div>
     <div class="head-row-icons">
       <div class="gear emergency" onclick="openUrgences()" title="Urgences">🚨</div>
@@ -1731,7 +1827,7 @@
 
     <button type="button" class="ghost" id="btnDocAbandon" style="display:none; margin-bottom:14px;" onclick="openAbandonDoc()">📄 Document d'abandon / cession du véhicule</button>
 
-    <button class="primary" id="btnCalculer" onclick="calculer()">Calculer le montant</button>
+    <button class="primary" id="btnCalculer" onclick="avecChargement(this, 'Calcul…', () => calculer())">Calculer le montant</button>
   </div>
 
   <div class="float-calc" id="floatCalc" onclick="calculer(); document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'start'});">
@@ -1774,7 +1870,7 @@
       <span class="lbl">Total à payer</span>
       <span class="amt" id="tkTotal">0 €</span>
     </div>
-    <button class="primary" style="margin-top:16px;" onclick="enregistrer()">Enregistrer dans le journal</button>
+    <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer dans le journal</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()">🧾 Générer la facture (PDF + signature)</button>
     <button class="ghost" onclick="genererRecu()">🧾 Reçu simple (sans mentions comptables)</button>
@@ -1822,14 +1918,11 @@
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H4a1 1 0 0 1-1-1z"/></svg></span>
     <span class="tab-lbl">Accueil</span>
   </div>
-  <div class="tab-btn" data-tab="tabNouveau" onclick="showTab('tabNouveau')">
-    <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-    <span class="tab-lbl">Nouveau</span>
-  </div>
   <div class="tab-btn" data-tab="tabHistorique" onclick="showTab('tabHistorique')">
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span>
     <span class="tab-lbl">Historique</span>
   </div>
+  <div class="tab-spacer" aria-hidden="true"></div>
   <div class="tab-btn" data-tab="tabRoute" onclick="showTab('tabRoute')">
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5"/><path d="M15 6.5V20"/></svg></span>
     <span class="tab-lbl">Route</span>
@@ -1839,7 +1932,25 @@
     <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
     <span class="tab-lbl">Devis</span>
   </div>
+  <div class="tab-fab" onclick="showTab('tabNouveau')" title="Nouvelle intervention">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
 </nav>
+
+<div class="barre-actions-contextuelle" id="barreActionsContextuelle">
+  <div class="bac-btn" onclick="appelerClient()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    <span>Appeler</span>
+  </div>
+  <a class="bac-btn" id="bacGpsBtn" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    <span id="bacGpsLabel">GPS</span>
+  </a>
+  <div class="bac-btn principal" onclick="calculer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M13 11h3M8 15h2M13 15h3"/></svg>
+    <span>Calculer</span>
+  </div>
+</div>
 
 <div class="modal-bg" id="modalBg">
   <div class="modal">
@@ -2278,10 +2389,11 @@
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle on" id="payIban1" onclick="setPayIban(1)">💼 Pro<span class="sub">…8568</span></div>
         <div class="toggle" id="payIban2" onclick="setPayIban(2)">👤 Perso<span class="sub">…8569</span></div>
+        <div class="toggle" id="payIban3" onclick="setPayIban(3)">📱 Revolut<span class="sub">lien perso</span></div>
       </div>
     </div>
 
-    <div class="field-row">
+    <div class="field-row" id="payChampsVirement">
       <div class="field">
         <label>Montant (€)</label>
         <input type="number" id="payMontant" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="renderPaiementQr()">
@@ -2556,7 +2668,7 @@
       <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasDepot')">Effacer cette signature</button>
     </div>
 
-    <button class="primary" style="margin-top:8px;" onclick="genererFacture()">Générer et partager la facture (PDF)</button>
+    <button class="primary" id="btnGenererFacture" style="margin-top:8px;" onclick="avecChargement(this, 'Génération du PDF…', () => genererFacture())">Générer et partager la facture (PDF)</button>
     <button class="ghost close-modal" onclick="closeInvoice()">Fermer</button>
   </div>
 </div>
@@ -4051,10 +4163,19 @@ function setPayIban(n){
   PAY_IBAN = n;
   document.getElementById('payIban1').classList.toggle('on', n === 1);
   document.getElementById('payIban2').classList.toggle('on', n === 2);
+  const t3 = document.getElementById('payIban3');
+  if(t3) t3.classList.toggle('on', n === 3);
+  const champsVirement = document.getElementById('payChampsVirement');
+  if(champsVirement) champsVirement.style.opacity = (n === 3) ? '0.4' : '1';
+  ['payMontant','payComm'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.disabled = (n === 3);
+  });
   renderPaiementQr();
 }
 
 function ibanChoisi(){
+  if(PAY_IBAN === 3) return {revolut: true, brut: REVOLUT_LINK, affiche: 'Revolut · ' + (REVOLUT_LINK || 'lien non configuré'), nom: 'Revolut'};
   return PAY_IBAN === 2
     ? {brut: COMPANY.iban2, affiche: COMPANY.iban2Display, nom: 'Perso'}
     : {brut: COMPANY.iban,  affiche: COMPANY.ibanDisplay,  nom: 'Pro'};
@@ -4120,9 +4241,14 @@ function renderPaiementQr(){
   const cpt = ibanChoisi();
   const montant = parseFloat(document.getElementById('payMontant').value) || 0;
   const comm = document.getElementById('payComm').value.trim();
-  document.getElementById('payIbanTxt').textContent = cpt.nom + ' · ' + cpt.affiche;
+  document.getElementById('payIbanTxt').textContent = cpt.revolut ? cpt.affiche : (cpt.nom + ' · ' + cpt.affiche);
+  if(cpt.revolut && !REVOLUT_LINK){
+    box.innerHTML = '<div style="color:#666; font-size:14px; text-align:center;">Ajoute ton lien Revolut dans ⚙️ Réglages.</div>';
+    return;
+  }
   try{
-    const qr = makeQrMatrix(buildEpcLibre(cpt.brut, montant, comm));
+    const contenu = cpt.revolut ? cpt.brut : buildEpcLibre(cpt.brut, montant, comm);
+    const qr = makeQrMatrix(contenu);
     const n = qr.getModuleCount(), cell = 8, marge = 4;
     const taille = (n + marge*2) * cell;
     let rects = '';
@@ -4141,9 +4267,15 @@ async function partagerLienPaiement(){
   const cpt = ibanChoisi();
   const montant = parseFloat(document.getElementById('payMontant').value) || 0;
   const comm = document.getElementById('payComm').value.trim();
-  let txt = `${COMPANY.name}\nIBAN : ${cpt.affiche}\nBIC : ${COMPANY.bic}`;
-  if(montant > 0) txt += `\nMontant : ${fmt(montant)}`;
-  if(comm) txt += `\nCommunication : ${comm}`;
+  let txt;
+  if(cpt.revolut){
+    txt = `${COMPANY.name}\nPaiement Revolut : ${REVOLUT_LINK}`;
+    if(montant > 0) txt += `\nMontant à payer : ${fmt(montant)}`;
+  } else {
+    txt = `${COMPANY.name}\nIBAN : ${cpt.affiche}\nBIC : ${COMPANY.bic}`;
+    if(montant > 0) txt += `\nMontant : ${fmt(montant)}`;
+    if(comm) txt += `\nCommunication : ${comm}`;
+  }
   try{
     if(navigator.share){ await navigator.share({text: txt}); return; }
     await navigator.clipboard.writeText(txt);
@@ -4739,8 +4871,12 @@ function rejouerAnim(el){
   el.style.animation = '';
 }
 
-function showTab(tab){
+function showTab(tab, forcer){
   const sections = {tabAccueil:'tabAccueil', tabNouveau:'tabNouveau', tabHistorique:'tabHistorique'};
+  if(!forcer && currentTab === 'tabNouveau' && tab !== 'tabNouveau' && lastCalc && !editingKey){
+    demanderConfirmationSortie(() => showTab(tab, true));
+    return;
+  }
   if(sections[tab]){
     currentTab = tab;
     Object.values(sections).forEach(id => {
@@ -4749,7 +4885,10 @@ function showTab(tab){
     });
     rejouerAnim(document.getElementById(tab));
     document.body.classList.toggle('sur-accueil', tab === 'tabAccueil');
+    document.body.classList.toggle('sur-nouveau', tab === 'tabNouveau');
+    if(tab !== 'tabNouveau'){ document.getElementById('barreActionsContextuelle').classList.remove('show'); document.body.classList.remove('avec-barre-actions'); }
     if(tab === 'tabAccueil') majResumeAccueil();
+    if(tab === 'tabNouveau') majBarreActionsContextuelle();
     window.scrollTo({top:0, behavior:'smooth'});
   } else {
     if(tab === 'tabDevis') openQuickQuote();
@@ -5636,6 +5775,7 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('editBanner').style.display = 'flex';
   updateAdvancedSummary();
   calculer();
+  majBarreActionsContextuelle();
   document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
   showToast('Modification en cours — ajuste puis réenregistre');
 }
@@ -6815,17 +6955,71 @@ const FERMETURE_PAR_MODAL = {
   modalInvoiceBg: closeInvoice,
   modalQuickQuoteBg: closeQuickQuote,
   modalRdvBg: closeRdv,
-  modalAbandonBg: closeAbandonDoc
+  modalAbandonBg: closeAbandonDoc,
+  modalSortieBg: () => confirmerSortie(false)
 };
+function positionnerFab(){
+  const fab = document.querySelector('.tab-fab');
+  const spacer = document.querySelector('.tab-spacer');
+  if(!fab || !spacer) return;
+  const r = spacer.getBoundingClientRect();
+  if(r.width > 0) fab.style.left = (r.left + r.width/2) + 'px';
+}
+window.addEventListener('resize', positionnerFab);
+window.addEventListener('orientationchange', () => setTimeout(positionnerFab, 200));
+
+function majIndicateurConnexion(){
+  const el = document.getElementById('horsLigneIndic');
+  if(el) el.style.display = navigator.onLine ? 'none' : 'flex';
+}
+window.addEventListener('online', majIndicateurConnexion);
+window.addEventListener('offline', majIndicateurConnexion);
+
 document.addEventListener('click', (e) => {
   if(!e.target.classList || !e.target.classList.contains('modal-bg')) return;
   const fn = FERMETURE_PAR_MODAL[e.target.id];
   if(fn) fn();
 });
 
+(function(){
+  let depart = null, modalActive = null, glisse = 0;
+  document.addEventListener('touchstart', (e) => {
+    const modal = e.target.closest('.modal');
+    if(!modal || modal.scrollTop > 4) return;
+    depart = e.touches[0].clientY;
+    modalActive = modal;
+    glisse = 0;
+  }, {passive:true});
+  document.addEventListener('touchmove', (e) => {
+    if(!modalActive || depart === null) return;
+    const delta = e.touches[0].clientY - depart;
+    if(delta > 0){
+      glisse = delta;
+      modalActive.style.transition = 'none';
+      modalActive.style.transform = `translateY(${delta}px)`;
+    }
+  }, {passive:true});
+  document.addEventListener('touchend', () => {
+    if(!modalActive) return;
+    modalActive.style.transition = '';
+    if(glisse > 110){
+      const bg = modalActive.closest('.modal-bg');
+      const fn = bg && FERMETURE_PAR_MODAL[bg.id];
+      modalActive.style.transform = '';
+      if(fn) fn();
+    } else {
+      modalActive.style.transform = '';
+    }
+    depart = null; modalActive = null; glisse = 0;
+  }, {passive:true});
+})();
+
 document.addEventListener('input', (e) => {
   const tab = document.getElementById('tabNouveau');
-  if(tab && tab.contains(e.target)) planifierSauvegardeBrouillon();
+  if(tab && tab.contains(e.target)){
+    planifierSauvegardeBrouillon();
+    if(['telClient','addrFrom','addrTo','hr_chargement'].includes(e.target.id)) majBarreActionsContextuelle();
+  }
 });
 document.addEventListener('click', (e) => {
   const tab = document.getElementById('tabNouveau');
@@ -7312,12 +7506,85 @@ async function restaurerBrouillonSiPresent(){
     if(typeof updateKmLabel === 'function') updateKmLabel();
     if(typeof majDonneurOrdreUI === 'function') majDonneurOrdreUI();
     if(typeof majAnnulationUI === 'function') majAnnulationUI();
+    if(typeof majBarreActionsContextuelle === 'function') majBarreActionsContextuelle();
     return true;
   }catch(e){ return false; }
 }
 
+let interventionProposee = null;
+function proposerReprise(it){
+  interventionProposee = it;
+  const d = it.data;
+  document.getElementById('repriseSousTitre').textContent =
+    typeLabelComplet(d) + ' · ' + d.from + (d.to && d.to !== '—' ? ' → ' + d.to : '');
+  const banniere = document.getElementById('repriseBanniere');
+  banniere.classList.add('show');
+  document.getElementById('repriseBtnAction').onclick = () => {
+    banniere.classList.remove('show');
+    reprendreEnCours(it.key);
+  };
+}
+function fermerPropositionReprise(){
+  document.getElementById('repriseBanniere').classList.remove('show');
+}
+
+function majBarreActionsContextuelle(){
+  const barre = document.getElementById('barreActionsContextuelle');
+  if(!barre) return;
+  const tel = (document.getElementById('telClient').value || '').trim();
+  const from = (document.getElementById('addrFrom').value || '').trim();
+  const visible = !!(tel || from);
+  barre.classList.toggle('show', visible);
+  document.body.classList.toggle('avec-barre-actions', visible);
+  majLibelleGpsIntelligent();
+}
+
+function vehiculeDejaCharge(){
+  const el = document.getElementById('hr_chargement');
+  return !!(el && el.value);
+}
+
+function majLibelleGpsIntelligent(){
+  const lbl = document.getElementById('bacGpsLabel');
+  const lien = document.getElementById('bacGpsBtn');
+  if(!lbl || !lien) return;
+  const charge = vehiculeDejaCharge();
+  lbl.textContent = charge ? 'GPS → dépôt' : 'GPS → départ';
+  const from = (document.getElementById('addrFrom').value || '').trim();
+  const to = (document.getElementById('addrTo').value || '').trim();
+  const cible = (charge && to && to !== '—') ? to : from;
+  lien.href = cible ? navUrl('gmaps', cible) : '#';
+}
+
+async function avecChargement(boutonEl, texteChargement, fn){
+  if(!boutonEl){ await fn(); return; }
+  const texteOriginal = boutonEl.innerHTML;
+  boutonEl.disabled = true;
+  boutonEl.classList.add('en-chargement');
+  boutonEl.innerHTML = `<span class="mini-spinner"></span> ${texteChargement}`;
+  try{
+    await fn();
+  } finally {
+    boutonEl.disabled = false;
+    boutonEl.classList.remove('en-chargement');
+    boutonEl.innerHTML = texteOriginal;
+  }
+}
+
+let actionSortieEnAttente = null;
+function demanderConfirmationSortie(callback){
+  actionSortieEnAttente = callback;
+  document.getElementById('modalSortieBg').classList.add('show');
+}
+function confirmerSortie(quitter){
+  document.getElementById('modalSortieBg').classList.remove('show');
+  const cb = actionSortieEnAttente;
+  actionSortieEnAttente = null;
+  if(quitter && cb) cb();
+}
+
 function ouvrirFicheHistorique(key){
-  showTab('tabHistorique');
+  showTab('tabHistorique', true);
   setTimeout(() => {
     const el = document.querySelector(`[data-key="${key}"]`);
     if(el){
@@ -7959,6 +8226,7 @@ function tamponnerHoraire(cle){
   const pad = n => String(n).padStart(2,'0');
   document.getElementById('hr_' + cle).value = pad(now.getHours()) + ':' + pad(now.getMinutes());
   majHorairesSummary();
+  if(cle === 'chargement') majBarreActionsContextuelle();
 }
 
 function lireHoraires(){
@@ -8882,6 +9150,8 @@ document.addEventListener('focusout', (e) => {
 (async () => {
   try{
     await checkPinLock();
+    majIndicateurConnexion();
+    positionnerFab();
     await loadThemeMode();
     await loadTextSize();
     await loadAnimSpeed();
@@ -8900,7 +9170,7 @@ document.addEventListener('focusout', (e) => {
       const enCours = (await toutesLesInterventions()).filter(it => estAFaire(it.data));
       if(enCours.length > 0){
         const plusAncienne = [...enCours].sort((a,b) => new Date(a.data.date) - new Date(b.data.date))[0];
-        await reprendreEnCours(plusAncienne.key);
+        proposerReprise(plusAncienne);
       } else {
         const restaure = await restaurerBrouillonSiPresent();
         if(restaure) showTab('tabNouveau');
