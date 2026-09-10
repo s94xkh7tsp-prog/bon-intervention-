@@ -1481,6 +1481,41 @@
     </div>
 
     <div class="field">
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()">📱 Tap to Pay (Revolut)</div>
+        <div class="toggle" id="tgPayconiq" onclick="toggle('tgPayconiq'); majApercuPayconiq()">🔲 Payconiq / Bancontact Pro</div>
+      </div>
+      <div id="apercuRevolutBox" style="display:none; margin-top:10px;">
+        <div class="km-mention" style="border-left-color:var(--orange);">
+          <div style="font-weight:700; color:var(--white); margin-bottom:6px;">💼 Pour toi uniquement — jamais affiché au client ni sur la facture</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Frais Revolut estimés</span>
+            <span id="apercuFraisMontant" style="font-weight:700; color:var(--red);">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Montant net que tu toucheras</span>
+            <span id="apercuNetRecu" style="font-weight:700; color:var(--green);">—</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">Ces frais restent à ta charge, jamais facturés au client.</div>
+        </div>
+      </div>
+      <div id="apercuPayconiqBox" style="display:none; margin-top:10px;">
+        <div class="km-mention" style="border-left-color:var(--orange);">
+          <div style="font-weight:700; color:var(--white); margin-bottom:6px;">💼 Pour toi uniquement — jamais affiché au client ni sur la facture</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Frais Payconiq estimés</span>
+            <span id="apercuPayconiqFrais" style="font-weight:700; color:var(--red);">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Montant net que tu toucheras</span>
+            <span id="apercuPayconiqNet" style="font-weight:700; color:var(--green);">—</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">Ces frais restent à ta charge, jamais facturés au client.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Date et heure de l'intervention</label>
       <div class="field-row">
         <input type="date" id="interventionDate" onchange="autoMajorations()">
@@ -1861,6 +1896,19 @@
         </div>
 
         <div class="grp">
+          <div class="grp-title">Tap to Pay (Revolut)</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Frais prélevés par Revolut sur les paiements par carte encaissés directement sur ton téléphone. Ajustable si le tarif change.</p>
+          <div class="rate-row"><label>Frais en % du montant</label><input type="number" id="r_tapPct" step="0.05"></div>
+          <div class="rate-row"><label>Frais fixe par transaction (€)</label><input type="number" id="r_tapFixe" step="0.01"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Payconiq / Bancontact Pro (CBC)</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Frais fixe par paiement scanné via ton QR commerçant CBC. S'ajoute un abonnement annuel de 18 € facturé à part par la banque (non compté ici).</p>
+          <div class="rate-row"><label>Frais fixe par paiement (€)</label><input type="number" id="r_payconiqFixe" step="0.01"></div>
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Sauvegarde de secours</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, clients, photos) sont stockées uniquement sur ce téléphone. Cette sauvegarde te permet de tout récupérer si tu perds ou changes d'appareil.</p>
           <div class="km-mention" style="margin:0 0 12px 0;">⚠️ Ce n'est <b>pas</b> un document de facturation : c'est un fichier technique, illisible tel quel (texte blanc sur fond noir), qui sert uniquement à restaurer l'appli. Pour tes documents comptables, va dans <b>Historique</b> → Exporter en Excel ou en PDF.</div>
@@ -2201,14 +2249,44 @@
 
     <div class="field">
       <label>Moyen de paiement</label>
-      <select id="payMoyen">
+      <select id="payMoyen" onchange="majFraisTapToPay(); majFraisPayconiq()">
         <option value="">— Non précisé —</option>
         <option value="Espèces">Espèces</option>
         <option value="Virement">Virement</option>
         <option value="Bancontact">Bancontact</option>
         <option value="Carte">Carte</option>
+        <option value="Tap to Pay">📱 Tap to Pay (Revolut)</option>
+        <option value="Payconiq">🔲 Payconiq / Bancontact Pro</option>
         <option value="Autre">Autre</option>
       </select>
+    </div>
+
+    <div class="field" id="tapToPayBox" style="display:none;">
+      <div class="km-mention" style="margin:0; border-left-color:var(--orange);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span>Frais Revolut (<span id="tapFraisTaux">0,8% + 0,10 €</span>)</span>
+          <span id="tapFraisMontant" style="font-weight:700; color:var(--red);">—</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>Montant net reçu</span>
+          <span id="tapNetRecu" style="font-weight:700; color:var(--green);">—</span>
+        </div>
+        <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">Ces frais restent à ta charge, jamais facturés au client.</div>
+      </div>
+    </div>
+
+    <div class="field" id="payconiqBox" style="display:none;">
+      <div class="km-mention" style="margin:0; border-left-color:var(--orange);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span>Frais Payconiq (<span id="payconiqFraisTaux">0,06 €</span> fixe)</span>
+          <span id="payconiqFraisMontant" style="font-weight:700; color:var(--red);">—</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>Montant net reçu</span>
+          <span id="payconiqNetRecu" style="font-weight:700; color:var(--green);">—</span>
+        </div>
+        <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">Ces frais restent à ta charge, jamais facturés au client. Abonnement annuel de 18 € non compté ici.</div>
+      </div>
     </div>
 
     <div id="payResteDu" style="text-align:center; font-weight:700; font-size:16px; margin:4px 0 12px;">—</div>
@@ -3436,7 +3514,9 @@ const DEFAULT_RATES = {
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   attente15minFee:10,
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
-  diesel:2.21, conso:15
+  diesel:2.21, conso:15,
+  tapPct:0.8, tapFixe:0.10,
+  payconiqFixe:0.06
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
 let RATES = {...DEFAULT_RATES};
@@ -5391,6 +5471,10 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('kmTarifExceptionnel').value = d.kmTarifExcept || '';
   document.getElementById('ctRepasseMontant').value = d.ctRepasse || '';
   document.getElementById('prixAnnonce').value = d.prixAnnonce || '';
+  document.getElementById('tgRevolut').classList.toggle('on', !!d.paiementRevolutAnticipe);
+  document.getElementById('tgPayconiq').classList.toggle('on', !!d.paiementPayconiqAnticipe);
+  majApercuRevolut(d.total);
+  majApercuPayconiq(d.total);
   document.getElementById('telClient').value = d.telClient || '';
   document.getElementById('donneurOrdre').value = d.donneurOrdre || '';
   document.getElementById('donneurNom').value = d.donneurNom || '';
@@ -6825,6 +6909,8 @@ function calculer(){
   const abandon = isLeveeSaisie && document.getElementById('tgAbandon').classList.contains('on');
   const ctRepasse = isLeveeSaisie ? (parseFloat(document.getElementById('ctRepasseMontant').value) || 0) : 0;
   const prixAnnonce = parseFloat(document.getElementById('prixAnnonce').value) || 0;
+  const paiementRevolutAnticipe = document.getElementById('tgRevolut').classList.contains('on');
+  const paiementPayconiqAnticipe = document.getElementById('tgPayconiq').classList.contains('on');
   const telClient = (document.getElementById('telClient').value || '').trim();
   const donneurOrdre = document.getElementById('donneurOrdre').value || '';
   const donneurNom = (document.getElementById('donneurNom').value || '').trim();
@@ -6870,7 +6956,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -6982,6 +7068,8 @@ function calculer(){
   if(remisePct > 10) showToast('⚠️ Remise > 10% du total — geste exceptionnel ?');
 
   document.getElementById('tkTotal').textContent = fmt(total);
+  majApercuRevolut(total);
+  majApercuPayconiq(total);
   document.getElementById('ticket').classList.add('show');
   document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
@@ -6999,6 +7087,11 @@ async function enregistrer(){
     } else {
       id = 'intervention:' + Date.now();
       entry = {...lastCalc, paye: false, statut: 'a_faire', numero: await nextInterventionNumber()};
+      if(entry.paiementRevolutAnticipe){
+        entry.paiement = {statut: 'attente', recu: 0, moyen: 'Tap to Pay', fraisTapToPay: 0, date: null};
+      } else if(entry.paiementPayconiqAnticipe){
+        entry.paiement = {statut: 'attente', recu: 0, moyen: 'Payconiq', fraisPayconiq: 0, date: null};
+      }
     }
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
@@ -7019,6 +7112,10 @@ async function enregistrer(){
     document.getElementById('tgGardiennage').classList.remove('on');
     document.getElementById('joursGardiennage').value = '';
     document.getElementById('tgAttente').classList.remove('on');
+    document.getElementById('tgRevolut').classList.remove('on');
+    document.getElementById('tgPayconiq').classList.remove('on');
+    majApercuRevolut();
+    majApercuPayconiq();
     document.getElementById('minutesAttente').value = '';
     document.getElementById('kmTarifExceptionnel').value = '';
     document.getElementById('ctRepasseMontant').value = '';
@@ -7280,6 +7377,8 @@ async function calculerResumeMensuel(){
   const impaye = items.reduce((s,it) => s + resteADevoir(it.data), 0);
   const kmTotal = items.reduce((s,it) => s + kmReel(it.data), 0);
   const moyenne = total / items.length;
+  const fraisTap = items.reduce((s,it) => s + ((it.data.paiement && it.data.paiement.fraisTapToPay) || 0), 0);
+  const fraisPay = items.reduce((s,it) => s + ((it.data.paiement && it.data.paiement.fraisPayconiq) || 0), 0);
 
   const parType = {};
   items.forEach(it => {
@@ -7303,6 +7402,8 @@ async function calculerResumeMensuel(){
     ${ligne('Reste à encaisser', fmt(impaye), impaye > 0 ? 'var(--red)' : 'var(--green)')}
     ${ligne('Panier moyen', fmt(moyenne))}
     ${ligne('Kilomètres parcourus', Math.round(kmTotal) + ' km')}
+    ${fraisTap > 0 ? ligne('Frais Tap to Pay (Revolut)', '- ' + fmt(fraisTap), 'var(--red)') : ''}
+    ${fraisPay > 0 ? ligne('Frais Payconiq (Bancontact Pro)', '- ' + fmt(fraisPay), 'var(--red)') : ''}
     <div class="eyebrow" style="margin:16px 0 6px 2px;">Répartition</div>
     ${topTypes.map(([t,n]) => ligne(t, n + '×')).join('')}
   `;
@@ -7314,7 +7415,9 @@ async function calculerResumeMensuel(){
     `Encaissé : ${fmt(encaisse)}\n` +
     `Reste à encaisser : ${fmt(impaye)}\n` +
     `Panier moyen : ${fmt(moyenne)}\n` +
-    `Kilomètres : ${Math.round(kmTotal)} km\n\n` +
+    `Kilomètres : ${Math.round(kmTotal)} km\n` +
+    (fraisTap > 0 ? `Frais Tap to Pay : ${fmt(fraisTap)}\n` : '') +
+    (fraisPay > 0 ? `Frais Payconiq : ${fmt(fraisPay)}\n\n` : '\n') +
     topTypes.map(([t,n]) => `${t} : ${n}`).join('\n');
 }
 
@@ -7824,6 +7927,8 @@ async function ouvrirPaiement(key){
     const moyen = (d.paiement && d.paiement.moyen) || '';
     document.getElementById('payMoyen').value = moyen;
     document.getElementById('payTotalInterv').dataset.total = d.total || 0;
+    majFraisTapToPay();
+    majFraisPayconiq();
     majResteDu();
     document.getElementById('modalStatutPaiementBg').classList.add('show');
   }catch(e){ showToast('Impossible de retrouver cette intervention'); }
@@ -7856,6 +7961,72 @@ function statutPaiementSelectionne(){
     document.getElementById('payStatut_' + s).classList.contains('on')) || 'attente';
 }
 
+function majApercuPayconiq(totalCourant){
+  const box = document.getElementById('apercuPayconiqBox');
+  const tg = document.getElementById('tgPayconiq');
+  if(!box || !tg) return;
+  const actif = tg.classList.contains('on');
+  box.style.display = actif ? 'block' : 'none';
+  if(!actif) return;
+
+  const total = (typeof totalCourant === 'number') ? totalCourant : (lastCalc ? lastCalc.total : 0);
+  const fixe = RATES.payconiqFixe || 0.06;
+  const net = total - fixe;
+
+  document.getElementById('apercuPayconiqFrais').textContent = '- ' + fmt(fixe);
+  document.getElementById('apercuPayconiqNet').textContent = fmt(net);
+}
+
+function majApercuRevolut(totalCourant){
+  const box = document.getElementById('apercuRevolutBox');
+  const tg = document.getElementById('tgRevolut');
+  if(!box || !tg) return;
+  const actif = tg.classList.contains('on');
+  box.style.display = actif ? 'block' : 'none';
+  if(!actif) return;
+
+  const total = (typeof totalCourant === 'number') ? totalCourant : (lastCalc ? lastCalc.total : 0);
+  const pct = RATES.tapPct || 0.8;
+  const fixe = RATES.tapFixe || 0.10;
+  const frais = total * (pct/100) + fixe;
+  const net = total - frais;
+
+  document.getElementById('apercuFraisMontant').textContent = '- ' + fmt(frais);
+  document.getElementById('apercuNetRecu').textContent = fmt(net);
+}
+
+function majFraisPayconiq(){
+  const box = document.getElementById('payconiqBox');
+  const estPayconiq = document.getElementById('payMoyen').value === 'Payconiq';
+  box.style.display = estPayconiq ? 'block' : 'none';
+  if(!estPayconiq) return;
+
+  const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
+  const fixe = RATES.payconiqFixe || 0.06;
+  const net = total - fixe;
+
+  document.getElementById('payconiqFraisTaux').textContent = fixe.toFixed(2) + ' €';
+  document.getElementById('payconiqFraisMontant').textContent = '- ' + fmt(fixe);
+  document.getElementById('payconiqNetRecu').textContent = fmt(net);
+}
+
+function majFraisTapToPay(){
+  const box = document.getElementById('tapToPayBox');
+  const estTap = document.getElementById('payMoyen').value === 'Tap to Pay';
+  box.style.display = estTap ? 'block' : 'none';
+  if(!estTap) return;
+
+  const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
+  const pct = RATES.tapPct || 0.8;
+  const fixe = RATES.tapFixe || 0.10;
+  const frais = total * (pct/100) + fixe;
+  const net = total - frais;
+
+  document.getElementById('tapFraisTaux').textContent = pct.toFixed(1).replace('.0','') + '% + ' + fixe.toFixed(2) + ' €';
+  document.getElementById('tapFraisMontant').textContent = '- ' + fmt(frais);
+  document.getElementById('tapNetRecu').textContent = fmt(net);
+}
+
 function majResteDu(){
   const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
   const st = statutPaiementSelectionne();
@@ -7878,10 +8049,23 @@ async function enregistrerPaiement(){
     let recu = 0;
     if(st === 'paye') recu = total;
     else if(st === 'partiel') recu = Math.min(total, parseFloat(document.getElementById('payRecu').value) || 0);
+    const moyen = document.getElementById('payMoyen').value || '';
+    let fraisTapToPay = 0;
+    if(moyen === 'Tap to Pay'){
+      const pct = RATES.tapPct || 0.8;
+      const fixe = RATES.tapFixe || 0.10;
+      fraisTapToPay = Math.round((total * (pct/100) + fixe) * 100) / 100;
+    }
+    let fraisPayconiq = 0;
+    if(moyen === 'Payconiq'){
+      fraisPayconiq = RATES.payconiqFixe || 0.06;
+    }
     d.paiement = {
       statut: st,
       recu,
-      moyen: document.getElementById('payMoyen').value || '',
+      moyen,
+      fraisTapToPay,
+      fraisPayconiq,
       date: new Date().toISOString()
     };
     d.paye = (st === 'paye');   // on garde le booléen synchronisé pour le reste de l'appli
