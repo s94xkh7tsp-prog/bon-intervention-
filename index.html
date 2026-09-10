@@ -18,33 +18,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#f4f2ed;
-    --panel:#fbfaf7;
-    --panel-2:#f0eee8;
-    --line:#e0ddd4;
+    --ink:#f5f3ee;
+    --panel:#ffffff;
+    --panel-2:#f1efe8;
+    --line:#e2ded3;
     --orange:#e8730c;
     --orange-soft:#fdf0e2;
     --orange-dim:#fce9d3;
-    --navy:#263f4b;
-    --white:#263f4b;
+    --navy:#1f333d;
+    --white:#22343d;
     --grey:#6d7f88;
     --green:#3f8a5f;
     --red:#c94a32;
+    --shadow-sm:0 1px 3px rgba(31,51,61,0.06), 0 1px 2px rgba(31,51,61,0.04);
+    --shadow-md:0 4px 14px rgba(31,51,61,0.09), 0 1px 3px rgba(31,51,61,0.05);
+    --shadow-lg:0 10px 30px rgba(31,51,61,0.14), 0 3px 8px rgba(31,51,61,0.06);
+    --shadow-orange:0 6px 18px rgba(232,115,12,0.24);
   }
   :root{ --anim: 1; }
   html[data-theme="dark"]{
-    --ink:#12181c;
-    --panel:#1a2228;
-    --panel-2:#212b32;
-    --line:#2e3a42;
+    --ink:#0d1216;
+    --panel:#171f25;
+    --panel-2:#1e2830;
+    --line:#2b3740;
     --orange:#f2900f;
-    --orange-soft:#33261a;
-    --orange-dim:#3d2c17;
-    --navy:#0e1418;
-    --white:#eef2f4;
-    --grey:#93a5ae;
+    --orange-soft:#332510;
+    --orange-dim:#3d2c14;
+    --navy:#0a1014;
+    --white:#f1f4f6;
+    --grey:#8fa1aa;
     --green:#5cb47f;
     --red:#e2694f;
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.35);
+    --shadow-md:0 6px 18px rgba(0,0,0,0.42);
+    --shadow-lg:0 14px 34px rgba(0,0,0,0.5);
+    --shadow-orange:0 6px 20px rgba(242,144,15,0.28);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--ink);color:var(--white);font-family:'Inter',sans-serif;}
@@ -100,8 +108,8 @@
 
   /* CARD */
   .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px;
-    box-shadow:0 2px 10px rgba(38,63,75,0.05);
+    background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:17px;
+    box-shadow:var(--shadow-sm); transition:box-shadow .18s ease;
   }
 
   /* Boutons d'action compacts sous les adresses (Maps / Waze / Accès sur une seule ligne) */
@@ -172,6 +180,12 @@
   }
   .toggle:active{transform:scale(0.96);}
   .toggle.on{background:var(--orange-soft); border-color:var(--orange); color:var(--orange);}
+  /* Nuit et Week-end/férié restent visuellement distincts des autres options — un coup d'œil
+     suffit pour repérer une majoration active, sans se mélanger avec le reste des réglages. */
+  #tgNuit.on{background:rgba(99,91,230,0.12); border-color:#635be6; color:#635be6;}
+  html[data-theme="dark"] #tgNuit.on{background:rgba(139,131,255,0.16); border-color:#8b83ff; color:#8b83ff;}
+  #tgWe.on{background:rgba(41,128,201,0.10); border-color:#2980c9; color:#2980c9;}
+  html[data-theme="dark"] #tgWe.on{background:rgba(90,170,235,0.16); border-color:#5aaaeb; color:#5aaaeb;}
   .toggle .sub{display:block; font-size:11px; font-weight:500; opacity:0.7; margin-top:3px;}
   .toggles-vehicle{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .toggles-vehicle .toggle{min-width:0; white-space:normal; word-break:break-word; line-height:1.3;}
@@ -249,8 +263,8 @@
   button.primary{
     width:100%; background:var(--orange); color:#fff; border:none; padding:16px; border-radius:30px;
     font-family:'Inter',sans-serif; font-weight:700; font-size:16.5px; letter-spacing:0.2px;
-    cursor:pointer; margin-top:6px; box-shadow:0 4px 14px rgba(232,115,12,0.28);
-    transition:transform .08s ease, box-shadow .12s ease, filter .12s ease;
+    cursor:pointer; margin-top:6px; box-shadow:var(--shadow-orange);
+    transition:transform .1s cubic-bezier(.2,.8,.3,1.1), box-shadow .12s ease, filter .12s ease;
   }
   button.primary:active{transform:scale(0.98); box-shadow:0 2px 8px rgba(232,115,12,0.22); filter:brightness(0.95);}
 
@@ -291,12 +305,17 @@
   .ticket-row .v{font-family:'JetBrains Mono',monospace;}
   .ticket-row.over-threshold .v{color:var(--red); font-weight:700;}
   .ticket-total{
-    display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin-top:16px; padding:22px;
-    background:var(--navy); border:none; border-radius:18px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin-top:16px; padding:24px;
+    background:var(--navy); border:none; border-radius:20px; box-shadow:var(--shadow-lg);
+    position:relative; overflow:hidden;
+  }
+  .ticket-total::before{
+    content:''; position:absolute; top:-40%; right:-15%; width:160px; height:160px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,115,12,0.16), transparent 70%);
   }
   html[data-theme="dark"] .ticket-total{background:#0a1014; border:1px solid var(--line);}
-  .ticket-total .lbl{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.55);}
-  .ticket-total .amt{font-family:'Oswald',sans-serif; font-size:40px; font-weight:700; color:var(--orange); line-height:1;}
+  .ticket-total .lbl{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:2.2px; text-transform:uppercase; color:rgba(255,255,255,0.6); position:relative;}
+  .ticket-total .amt{font-family:'Oswald',sans-serif; font-size:46px; font-weight:700; color:var(--orange); line-height:1; position:relative; text-shadow:0 2px 12px rgba(232,115,12,0.35);}
   .ticket-addr{font-size:15px; margin:8px 0; color:var(--white); line-height:1.45;}
   .ticket-addr .tag{color:var(--grey); font-size:10.5px; text-transform:uppercase; letter-spacing:1.6px; font-family:'JetBrains Mono',monospace;}
 
@@ -304,8 +323,10 @@
   .hist-item{
     background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:17px 18px; margin-bottom:12px;
     display:flex; justify-content:space-between; align-items:center; gap:12px;
-    box-shadow:0 2px 10px rgba(38,63,75,0.05);
+    box-shadow:var(--shadow-sm); transition:border-color .3s ease, box-shadow .3s ease, transform .15s ease;
   }
+  .hist-item:active{transform:scale(0.985);}
+  .hist-item.fiche-surlignee{border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-soft), var(--shadow-md);}
   .hist-item .info{flex:1; min-width:0;}
   .hist-item .type{font-size:16px; font-weight:700; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hist-item .meta{font-size:13px; color:var(--grey); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -335,11 +356,36 @@
   }
   .edit-banner-cancel:active{background:var(--orange-dim);}
 
+  /* CONFIRMATION DE CRÉATION — coche animée façon iOS, brève et non bloquante */
+  .succes-overlay{
+    position:fixed; inset:0; z-index:300; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:14px; background:rgba(15,24,29,0.55); backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity calc(0.22s * var(--anim)) ease;
+  }
+  .succes-overlay.show{opacity:1;}
+  .succes-cercle{
+    width:84px; height:84px; border-radius:50%; background:var(--green); display:flex;
+    align-items:center; justify-content:center; box-shadow:0 8px 28px rgba(63,138,95,0.4);
+    transform:scale(0.5); transition:transform calc(0.35s * var(--anim)) cubic-bezier(.34,1.56,.64,1);
+  }
+  .succes-overlay.show .succes-cercle{transform:scale(1);}
+  .succes-anneau{stroke:rgba(255,255,255,0.35); stroke-width:2;}
+  .succes-coche{
+    stroke:#fff; stroke-width:4; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:34; stroke-dashoffset:34; transition:stroke-dashoffset calc(0.3s * var(--anim)) ease calc(0.15s * var(--anim));
+  }
+  .succes-overlay.show .succes-coche{stroke-dashoffset:0;}
+  .succes-texte{
+    color:#fff; font-weight:700; font-size:15px; opacity:0; transform:translateY(4px);
+    transition:opacity calc(0.25s * var(--anim)) ease calc(0.2s * var(--anim)), transform calc(0.25s * var(--anim)) ease calc(0.2s * var(--anim));
+  }
+  .succes-overlay.show .succes-texte{opacity:1; transform:translateY(0);}
+
   /* ÉCRAN DE LANCEMENT — première impression de l'appli */
   .splash{
     position:fixed; inset:0; z-index:200; background:linear-gradient(160deg, #0d2a48, #071a30 55%, #04101f);
     display:flex; align-items:center; justify-content:center;
-    transition:opacity calc(.45s * var(--anim)) ease, visibility calc(.45s * var(--anim)) ease;
+    transition:opacity calc(.3s * var(--anim)) ease, visibility calc(.3s * var(--anim)) ease;
   }
   .splash.hide{opacity:0; visibility:hidden;}
   .splash-inner{text-align:center; padding:0 24px; width:100%; max-width:420px;}
@@ -472,7 +518,7 @@
     button.ghost{padding:13px; font-size:14.5px;}
     .modal{max-height:92vh;}
     .float-calc{bottom:calc(66px + env(safe-area-inset-bottom)); padding:11px 20px; font-size:14px;}
-    .ticket-total .amt{font-size:32px;}
+    .ticket-total .amt{font-size:36px;}
     .qq-amount{font-size:40px;}
     /* Deux colonnes pour le formulaire quand la largeur le permet */
     .card .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px;}
@@ -490,8 +536,10 @@
   .accueil-stats{display:flex; gap:7px; margin:2px 0 0;}
   .stat-case{
     flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:10px 6px; text-align:center; box-shadow:0 2px 8px rgba(38,63,75,0.05);
+    padding:10px 6px; text-align:center; box-shadow:var(--shadow-sm);
+    cursor:pointer; transition:transform .12s ease;
   }
+  .stat-case:active{transform:scale(0.95);}
   .stat-val{font-family:'Oswald',sans-serif; font-size:21px; font-weight:700; color:var(--orange); line-height:1.1;}
   .stat-lbl{font-size:10px; color:var(--grey); margin-top:2px; line-height:1.2;}
 
@@ -525,18 +573,34 @@
   .ec-nav-row a:active{background:rgba(255,255,255,0.22); transform:scale(0.96);}
   .ec-plus{text-align:center; font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:7px; cursor:pointer;}
 
+  /* Progression Départ → Sur place → Chargé → Déposé → Terminé */
+  .ec-stepper{display:flex; align-items:flex-start; margin:14px 0 12px;}
+  .ec-step{display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;}
+  .ec-step-puce{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; background:rgba(255,255,255,0.10); color:rgba(255,255,255,0.45);
+    border:2px solid rgba(255,255,255,0.14); transition:all .2s ease;
+  }
+  .ec-step.atteint .ec-step-puce{background:var(--orange); color:#fff; border-color:var(--orange);}
+  .ec-step.actif .ec-step-puce{box-shadow:0 0 0 4px rgba(232,115,12,0.25);}
+  .ec-step-lbl{font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); margin-top:5px; text-align:center; line-height:1.2;}
+  .ec-step.atteint .ec-step-lbl{color:rgba(255,255,255,0.9);}
+  .ec-step-heure{font-size:8.5px; color:rgba(232,115,12,0.85); margin-top:1px; font-family:'JetBrains Mono',monospace;}
+  .ec-step-trait{flex:0 0 16px; height:2px; background:rgba(255,255,255,0.12); margin-top:13px;}
+  .ec-step-trait.fait{background:var(--orange);}
+
   .accueil-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:4px;}
   .gros-bouton{
     position:relative; background:var(--panel); border:1px solid var(--line); border-radius:16px;
     padding:12px 6px; min-height:84px; cursor:pointer; user-select:none;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    box-shadow:0 2px 10px rgba(38,63,75,0.05);
-    transition:background .12s ease, transform .08s ease, border-color .12s ease;
+    box-shadow:var(--shadow-sm);
+    transition:background .14s ease, transform .1s cubic-bezier(.2,.8,.3,1.1), border-color .12s ease, box-shadow .14s ease;
   }
   /* Le bouton principal occupe toute la largeur, au-dessus des cinq autres */
   .gros-bouton.principal{grid-column:1 / -1; min-height:66px; flex-direction:row; gap:11px;}
   .gros-bouton:active{transform:scale(0.96); background:var(--orange-soft); border-color:var(--orange);}
-  .gros-bouton.principal{background:var(--orange); border-color:var(--orange); box-shadow:0 4px 14px rgba(232,115,12,0.28);}
+  .gros-bouton.principal{background:var(--orange); border-color:var(--orange); box-shadow:var(--shadow-orange);}
   .gros-bouton.principal .gb-txt{color:#fff;}
   .gros-bouton.principal:active{background:#d16a0b;}
   .gb-ico{font-size:23px; line-height:1;}
@@ -728,6 +792,16 @@
 </style>
 </head>
 <body>
+
+<div class="succes-overlay" id="succesOverlay">
+  <div class="succes-cercle">
+    <svg viewBox="0 0 52 52" width="56" height="56">
+      <circle class="succes-anneau" cx="26" cy="26" r="24" fill="none"/>
+      <path class="succes-coche" fill="none" d="M14 27l7 7 17-17"/>
+    </svg>
+  </div>
+  <div class="succes-texte">Intervention créée</div>
+</div>
 
 <div class="splash" id="splash">
   <div class="splash-inner">
@@ -1484,7 +1558,9 @@
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()">📱 Tap to Pay (Revolut)</div>
         <div class="toggle" id="tgPayconiq" onclick="toggle('tgPayconiq'); majApercuPayconiq()">🔲 Payconiq / Bancontact Pro</div>
+        <div class="toggle" id="tgRevlink" onclick="toggle('tgRevlink'); majApercuRevlink()">🔗 Lien/QR Revolut</div>
       </div>
+      <button type="button" class="ghost" style="margin-top:8px;" onclick="ouvrirQrRevolut()">📲 Afficher mon QR Revolut au client</button>
       <div id="apercuRevolutBox" style="display:none; margin-top:10px;">
         <div class="km-mention" style="border-left-color:var(--orange);">
           <div style="font-weight:700; color:var(--white); margin-bottom:6px;">💼 Pour toi uniquement — jamais affiché au client ni sur la facture</div>
@@ -1513,7 +1589,31 @@
           <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">Ces frais restent à ta charge, jamais facturés au client.</div>
         </div>
       </div>
+      <div id="apercuRevlinkBox" style="display:none; margin-top:10px;">
+        <div class="km-mention" style="border-left-color:var(--orange);">
+          <div style="font-weight:700; color:var(--white); margin-bottom:6px;">💼 Pour toi uniquement — jamais affiché au client ni sur la facture</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Frais estimés (variable)</span>
+            <span id="apercuRevlinkFrais" style="font-weight:700; color:var(--red);">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Montant net estimé</span>
+            <span id="apercuRevlinkNet" style="font-weight:700; color:var(--green);">—</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">⚠️ Estimation seulement, le taux réel dépend du mode de paiement choisi par le client. Ces frais restent à ta charge, jamais facturés au client.</div>
+        </div>
+      </div>
     </div>
+
+<div class="modal-bg" id="modalQrRevolutBg">
+  <div class="modal">
+    <div class="eyebrow">Paiement</div>
+    <h1 class="page-title" style="font-size:24px;">QR Revolut</h1>
+    <p class="page-sub">Le client scanne pour te payer directement via Revolut.</p>
+    <div id="qrRevolutBox" style="background:#fff; padding:20px; border-radius:20px; display:flex; justify-content:center; align-items:center; min-height:260px;"></div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalQrRevolutBg').classList.remove('show')">Fermer</button>
+  </div>
+</div>
 
     <div class="field">
       <label>Date et heure de l'intervention</label>
@@ -1909,6 +2009,15 @@
         </div>
 
         <div class="grp">
+          <div class="grp-title">Lien/QR de paiement Revolut</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">⚠️ Le client choisit comment il paie via ce lien (carte belge, étrangère, virement...) — le taux réel varie selon son choix. Ceci n'est qu'une estimation basée sur le cas le plus courant (carte belge).</p>
+          <div class="rate-row"><label>Frais estimés en %</label><input type="number" id="r_revlinkPct" step="0.1"></div>
+          <div class="rate-row"><label>Frais fixe estimé (€)</label><input type="number" id="r_revlinkFixe" step="0.01"></div>
+          <label style="display:block; margin-top:10px;">Ton lien de paiement (revolut.me/tonpseudo)</label>
+          <input type="text" id="r_revolutLink" placeholder="https://revolut.me/tonpseudo">
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Sauvegarde de secours</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, clients, photos) sont stockées uniquement sur ce téléphone. Cette sauvegarde te permet de tout récupérer si tu perds ou changes d'appareil.</p>
           <div class="km-mention" style="margin:0 0 12px 0;">⚠️ Ce n'est <b>pas</b> un document de facturation : c'est un fichier technique, illisible tel quel (texte blanc sur fond noir), qui sert uniquement à restaurer l'appli. Pour tes documents comptables, va dans <b>Historique</b> → Exporter en Excel ou en PDF.</div>
@@ -2249,7 +2358,7 @@
 
     <div class="field">
       <label>Moyen de paiement</label>
-      <select id="payMoyen" onchange="majFraisTapToPay(); majFraisPayconiq()">
+      <select id="payMoyen" onchange="majFraisTapToPay(); majFraisPayconiq(); majFraisRevlink()">
         <option value="">— Non précisé —</option>
         <option value="Espèces">Espèces</option>
         <option value="Virement">Virement</option>
@@ -2257,8 +2366,23 @@
         <option value="Carte">Carte</option>
         <option value="Tap to Pay">📱 Tap to Pay (Revolut)</option>
         <option value="Payconiq">🔲 Payconiq / Bancontact Pro</option>
+        <option value="Lien Revolut">🔗 Lien/QR Revolut</option>
         <option value="Autre">Autre</option>
       </select>
+    </div>
+
+    <div class="field" id="revlinkBox" style="display:none;">
+      <div class="km-mention" style="margin:0; border-left-color:var(--orange);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span>Frais estimés (<span id="revlinkFraisTaux">1% + 0,20 €</span>)</span>
+          <span id="revlinkFraisMontant" style="font-weight:700; color:var(--red);">—</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>Montant net estimé</span>
+          <span id="revlinkNetRecu" style="font-weight:700; color:var(--green);">—</span>
+        </div>
+        <div style="font-size:11.5px; color:var(--grey); border-top:1px dashed var(--line); padding-top:8px;">⚠️ Estimation seulement : le taux réel dépend du mode de paiement choisi par le client (jusqu'à 2,8% pour une carte étrangère). Ces frais restent à ta charge, jamais facturés au client.</div>
+      </div>
     </div>
 
     <div class="field" id="tapToPayBox" style="display:none;">
@@ -3516,11 +3640,13 @@ const DEFAULT_RATES = {
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
   diesel:2.21, conso:15,
   tapPct:0.8, tapFixe:0.10,
-  payconiqFixe:0.06
+  payconiqFixe:0.06,
+  revlinkPct:1.0, revlinkFixe:0.20
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
+let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
 
@@ -4409,6 +4535,10 @@ async function loadRates(){
     if(res2 && res2.value) BASE_ADDRESS = res2.value;
   }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
   try{
+    const res2b = await window.storage.get('revolutLink');
+    if(res2b && res2b.value) REVOLUT_LINK = res2b.value;
+  }catch(e){ /* pas encore de lien Revolut enregistré */ }
+  try{
     const res3 = await window.storage.get('nightHours');
     if(res3 && res3.value){
       const parsed = JSON.parse(res3.value);
@@ -4562,6 +4692,7 @@ function fillSettingsForm(){
     if(el) el.value = RATES[k];
   });
   document.getElementById('r_baseAddress').value = BASE_ADDRESS;
+  document.getElementById('r_revolutLink').value = REVOLUT_LINK;
   document.getElementById('r_nightStart').value = NIGHT_START;
   document.getElementById('r_nightEnd').value = NIGHT_END;
   document.getElementById('r_pinCode').value = PIN_CODE || '';
@@ -5473,8 +5604,10 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('prixAnnonce').value = d.prixAnnonce || '';
   document.getElementById('tgRevolut').classList.toggle('on', !!d.paiementRevolutAnticipe);
   document.getElementById('tgPayconiq').classList.toggle('on', !!d.paiementPayconiqAnticipe);
+  document.getElementById('tgRevlink').classList.toggle('on', !!d.paiementRevlinkAnticipe);
   majApercuRevolut(d.total);
   majApercuPayconiq(d.total);
+  majApercuRevlink(d.total);
   document.getElementById('telClient').value = d.telClient || '';
   document.getElementById('donneurOrdre').value = d.donneurOrdre || '';
   document.getElementById('donneurNom').value = d.donneurNom || '';
@@ -6213,11 +6346,13 @@ async function saveSettings(){
     if(el) RATES[k] = parseFloat(el.value) || 0;
   });
   BASE_ADDRESS = document.getElementById('r_baseAddress').value.trim();
+  REVOLUT_LINK = document.getElementById('r_revolutLink').value.trim();
   NIGHT_START = document.getElementById('r_nightStart').value || '20:00';
   NIGHT_END = document.getElementById('r_nightEnd').value || '08:00';
   try{
     await window.storage.set('rates', JSON.stringify(RATES));
     await window.storage.set('baseAddress', BASE_ADDRESS);
+    await window.storage.set('revolutLink', REVOLUT_LINK);
     await window.storage.set('nightHours', JSON.stringify({start:NIGHT_START, end:NIGHT_END}));
     showToast('Tarifs enregistrés');
   }catch(e){ showToast('Erreur d\'enregistrement'); }
@@ -6660,6 +6795,45 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+const FERMETURE_PAR_MODAL = {
+  modalQrRevolutBg: () => document.getElementById('modalQrRevolutBg').classList.remove('show'),
+  modalBg: closeSettings,
+  modalRoutesBg: closeRoutes,
+  modalClientsBg: closeClients,
+  modalDashboardBg: closeDashboard,
+  modalAdresseBg: annulerSaisieAdresse,
+  modalMenuBg: closeMenu,
+  modalPaiementBg: closePaiement,
+  modalRechercheBg: fermerRechercheGlobale,
+  modalResumeBg: fermerResume,
+  modalFavorisBg: fermerFavoris,
+  modalStatutPaiementBg: fermerPaiement,
+  modalNoteCreditBg: closeNoteCredit,
+  modalAvisBg: closeAvis,
+  modalRouteBg: closeFeuilleDeRoute,
+  modalUrgencesBg: closeUrgences,
+  modalInvoiceBg: closeInvoice,
+  modalQuickQuoteBg: closeQuickQuote,
+  modalRdvBg: closeRdv,
+  modalAbandonBg: closeAbandonDoc
+};
+document.addEventListener('click', (e) => {
+  if(!e.target.classList || !e.target.classList.contains('modal-bg')) return;
+  const fn = FERMETURE_PAR_MODAL[e.target.id];
+  if(fn) fn();
+});
+
+document.addEventListener('input', (e) => {
+  const tab = document.getElementById('tabNouveau');
+  if(tab && tab.contains(e.target)) planifierSauvegardeBrouillon();
+});
+document.addEventListener('click', (e) => {
+  const tab = document.getElementById('tabNouveau');
+  if(tab && tab.contains(e.target) && e.target.classList && e.target.classList.contains('toggle')){
+    planifierSauvegardeBrouillon();
+  }
+});
+
 function effacerChamp(fieldId){
   const field = document.getElementById(fieldId);
   field.value = '';
@@ -6911,6 +7085,7 @@ function calculer(){
   const prixAnnonce = parseFloat(document.getElementById('prixAnnonce').value) || 0;
   const paiementRevolutAnticipe = document.getElementById('tgRevolut').classList.contains('on');
   const paiementPayconiqAnticipe = document.getElementById('tgPayconiq').classList.contains('on');
+  const paiementRevlinkAnticipe = document.getElementById('tgRevlink').classList.contains('on');
   const telClient = (document.getElementById('telClient').value || '').trim();
   const donneurOrdre = document.getElementById('donneurOrdre').value || '';
   const donneurNom = (document.getElementById('donneurNom').value || '').trim();
@@ -6956,7 +7131,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -7070,8 +7245,87 @@ function calculer(){
   document.getElementById('tkTotal').textContent = fmt(total);
   majApercuRevolut(total);
   majApercuPayconiq(total);
+  majApercuRevlink(total);
   document.getElementById('ticket').classList.add('show');
   document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function afficherSuccesCreation(key){
+  const overlay = document.getElementById('succesOverlay');
+  overlay.classList.add('show');
+  await new Promise(r => setTimeout(r, 850));
+  overlay.classList.remove('show');
+  await new Promise(r => setTimeout(r, 200));
+  ouvrirFicheHistorique(key);
+}
+
+const CHAMPS_BROUILLON = [
+  'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','remise',
+  'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
+  'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
+  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage'
+];
+const TOGGLES_BROUILLON = [
+  'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
+  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink'
+];
+
+let brouillonTimer = null;
+function planifierSauvegardeBrouillon(){
+  clearTimeout(brouillonTimer);
+  brouillonTimer = setTimeout(sauvegarderBrouillon, 500);
+}
+
+async function sauvegarderBrouillon(){
+  try{
+    const etat = {};
+    CHAMPS_BROUILLON.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) etat[id] = el.value;
+    });
+    TOGGLES_BROUILLON.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) etat[id] = el.classList.contains('on');
+    });
+    const nonVide = CHAMPS_BROUILLON.some(id => etat[id]) || TOGGLES_BROUILLON.some(id => etat[id]);
+    if(nonVide) await window.storage.set('formDraft', JSON.stringify(etat));
+    else await effacerBrouillon();
+  }catch(e){ /* la saisie continue même si l'enregistrement du brouillon échoue */ }
+}
+
+async function effacerBrouillon(){
+  try{ await window.storage.delete('formDraft'); }catch(e){}
+}
+
+async function restaurerBrouillonSiPresent(){
+  try{
+    const res = await window.storage.get('formDraft');
+    const etat = JSON.parse(res.value);
+    CHAMPS_BROUILLON.forEach(id => {
+      const el = document.getElementById(id);
+      if(el && etat[id] !== undefined) el.value = etat[id];
+    });
+    TOGGLES_BROUILLON.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle('on', !!etat[id]);
+    });
+    if(typeof updateKmLabel === 'function') updateKmLabel();
+    if(typeof majDonneurOrdreUI === 'function') majDonneurOrdreUI();
+    if(typeof majAnnulationUI === 'function') majAnnulationUI();
+    return true;
+  }catch(e){ return false; }
+}
+
+function ouvrirFicheHistorique(key){
+  showTab('tabHistorique');
+  setTimeout(() => {
+    const el = document.querySelector(`[data-key="${key}"]`);
+    if(el){
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      el.classList.add('fiche-surlignee');
+      setTimeout(() => el.classList.remove('fiche-surlignee'), 2200);
+    }
+  }, 350);
 }
 
 async function enregistrer(){
@@ -7091,6 +7345,8 @@ async function enregistrer(){
         entry.paiement = {statut: 'attente', recu: 0, moyen: 'Tap to Pay', fraisTapToPay: 0, date: null};
       } else if(entry.paiementPayconiqAnticipe){
         entry.paiement = {statut: 'attente', recu: 0, moyen: 'Payconiq', fraisPayconiq: 0, date: null};
+      } else if(entry.paiementRevlinkAnticipe){
+        entry.paiement = {statut: 'attente', recu: 0, moyen: 'Lien Revolut', fraisRevlink: 0, date: null};
       }
     }
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
@@ -7101,6 +7357,7 @@ async function enregistrer(){
     const etatLieuxNotes = document.getElementById('etatLieuxNotes').value.trim();
     if(etatLieuxNotes) entry.etatLieuxNotes = etatLieuxNotes;
     await window.storage.set(id, JSON.stringify(entry));
+    const idNouvellementCree = editingKey ? null : id;   // seulement pour une création, pas une modification
     showToast(editingKey ? 'Intervention modifiée' : 'Intervention enregistrée');
     editingKey = null;
     document.getElementById('editBanner').style.display = 'none';
@@ -7114,8 +7371,10 @@ async function enregistrer(){
     document.getElementById('tgAttente').classList.remove('on');
     document.getElementById('tgRevolut').classList.remove('on');
     document.getElementById('tgPayconiq').classList.remove('on');
+    document.getElementById('tgRevlink').classList.remove('on');
     majApercuRevolut();
     majApercuPayconiq();
+    majApercuRevlink();
     document.getElementById('minutesAttente').value = '';
     document.getElementById('kmTarifExceptionnel').value = '';
     document.getElementById('ctRepasseMontant').value = '';
@@ -7155,6 +7414,8 @@ async function enregistrer(){
     document.getElementById('ticket').classList.remove('show');
     lastCalc = null;
     loadHistory();
+    await effacerBrouillon();
+    if(idNouvellementCree) afficherSuccesCreation(idNouvellementCree);
   }catch(e){ showToast('Erreur d\'enregistrement — les photos sont peut-être trop volumineuses'); }
 }
 
@@ -7231,6 +7492,31 @@ async function majResumeAccueil(){
   }catch(e){ /* première utilisation : rien à afficher */ }
 }
 
+function renderProgressionStepper(d){
+  const etapes = [
+    {cle:'depart',     label:'Départ',    icon:'🚗'},
+    {cle:'arrivee',    label:'Sur place', icon:'📍'},
+    {cle:'chargement', label:'Chargé',    icon:'📦'},
+    {cle:'depot',      label:'Déposé',    icon:'🏁'},
+    {cle:'fin',        label:'Terminé',   icon:'✅'}
+  ];
+  const h = d.horaires || {};
+  let dernierIndexAtteint = -1;
+  etapes.forEach((e,i) => { if(h[e.cle]) dernierIndexAtteint = i; });
+
+  return `<div class="ec-stepper">
+    ${etapes.map((e,i) => {
+      const atteint = i <= dernierIndexAtteint;
+      const actif = i === dernierIndexAtteint;
+      return `<div class="ec-step ${atteint ? 'atteint' : ''} ${actif ? 'actif' : ''}">
+        <div class="ec-step-puce">${atteint ? '✓' : (i+1)}</div>
+        <div class="ec-step-lbl">${e.label}</div>
+        ${h[e.cle] ? `<div class="ec-step-heure">${h[e.cle]}</div>` : ''}
+      </div>${i < etapes.length-1 ? `<div class="ec-step-trait ${i < dernierIndexAtteint ? 'fait' : ''}"></div>` : ''}`;
+    }).join('')}
+  </div>`;
+}
+
 function afficherInterventionEnCours(aFaire){
   const bloc = document.getElementById('encoursBloc');
   const carte = document.getElementById('encoursCarte');
@@ -7250,6 +7536,7 @@ function afficherInterventionEnCours(aFaire){
     <div class="ec-type">${typeLabelComplet(d)}</div>
     <div class="ec-adr">📍 ${d.from}${(d.to && d.to !== '—') ? '<br>🏁 ' + d.to : ''}</div>
     <div class="ec-montant">${fmt(d.total || 0)}</div>
+    ${renderProgressionStepper(d)}
     <div class="ec-nav-label">📍 Étape 1 — aller chercher le véhicule</div>
     <div class="ec-nav-row">
       <a href="${navUrl('plans', aChercher)}">🧭 Plans</a>
@@ -7805,6 +8092,7 @@ async function getFilteredHistory(){
 async function loadHistory(){
   const container = document.getElementById('history');
   const summary = document.getElementById('historySummary');
+  const scrollAvant = window.scrollY;
   renderFeuilleDeRoute();
   majResumeAccueil();
   try{
@@ -7853,7 +8141,7 @@ async function loadHistory(){
       const statutBadge = estAFaire(d)
         ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">🚚 À faire</div>`
         : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">✅ Fait</div>`;
-      return `<div class="hist-item">
+      return `<div class="hist-item" data-key="${it.key}">
         ${photoThumb}
         ${epaveThumb}
         ${etatLieuxThumb}
@@ -7866,6 +8154,7 @@ async function loadHistory(){
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
       </div>`;
     }).join('');
+    requestAnimationFrame(() => window.scrollTo({top: scrollAvant, behavior:'instant'}));
   }catch(e){
     container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
     summary.innerHTML = '';
@@ -7929,6 +8218,7 @@ async function ouvrirPaiement(key){
     document.getElementById('payTotalInterv').dataset.total = d.total || 0;
     majFraisTapToPay();
     majFraisPayconiq();
+    majFraisRevlink();
     majResteDu();
     document.getElementById('modalStatutPaiementBg').classList.add('show');
   }catch(e){ showToast('Impossible de retrouver cette intervention'); }
@@ -7959,6 +8249,24 @@ function choisirStatutPaiement(st){
 function statutPaiementSelectionne(){
   return ['attente','partiel','paye'].find(s =>
     document.getElementById('payStatut_' + s).classList.contains('on')) || 'attente';
+}
+
+function majApercuRevlink(totalCourant){
+  const box = document.getElementById('apercuRevlinkBox');
+  const tg = document.getElementById('tgRevlink');
+  if(!box || !tg) return;
+  const actif = tg.classList.contains('on');
+  box.style.display = actif ? 'block' : 'none';
+  if(!actif) return;
+
+  const total = (typeof totalCourant === 'number') ? totalCourant : (lastCalc ? lastCalc.total : 0);
+  const pct = RATES.revlinkPct || 1.0;
+  const fixe = RATES.revlinkFixe || 0.20;
+  const frais = total * (pct/100) + fixe;
+  const net = total - frais;
+
+  document.getElementById('apercuRevlinkFrais').textContent = '~ -' + fmt(frais);
+  document.getElementById('apercuRevlinkNet').textContent = '~ ' + fmt(net);
 }
 
 function majApercuPayconiq(totalCourant){
@@ -7993,6 +8301,46 @@ function majApercuRevolut(totalCourant){
 
   document.getElementById('apercuFraisMontant').textContent = '- ' + fmt(frais);
   document.getElementById('apercuNetRecu').textContent = fmt(net);
+}
+
+function majFraisRevlink(){
+  const box = document.getElementById('revlinkBox');
+  const estRevlink = document.getElementById('payMoyen').value === 'Lien Revolut';
+  box.style.display = estRevlink ? 'block' : 'none';
+  if(!estRevlink) return;
+
+  const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
+  const pct = RATES.revlinkPct || 1.0;
+  const fixe = RATES.revlinkFixe || 0.20;
+  const frais = total * (pct/100) + fixe;
+  const net = total - frais;
+
+  document.getElementById('revlinkFraisTaux').textContent = pct.toFixed(1).replace('.0','') + '% + ' + fixe.toFixed(2) + ' €';
+  document.getElementById('revlinkFraisMontant').textContent = '~ -' + fmt(frais);
+  document.getElementById('revlinkNetRecu').textContent = '~ ' + fmt(net);
+}
+
+function ouvrirQrRevolut(){
+  if(!REVOLUT_LINK){
+    showToast('Ajoute ton lien Revolut dans ⚙️ Réglages d\'abord');
+    return;
+  }
+  const box = document.getElementById('qrRevolutBox');
+  try{
+    const qr = makeQrMatrix(REVOLUT_LINK);
+    const n = qr.getModuleCount(), cell = 8, marge = 4;
+    const taille = (n + marge*2) * cell;
+    let rects = '';
+    for(let r=0; r<n; r++){
+      for(let c=0; c<n; c++){
+        if(qr.isDark(r,c)) rects += `<rect x="${(c+marge)*cell}" y="${(r+marge)*cell}" width="${cell}" height="${cell}" fill="#000"/>`;
+      }
+    }
+    box.innerHTML = `<svg viewBox="0 0 ${taille} ${taille}" style="width:100%; max-width:260px; height:auto;" xmlns="http://www.w3.org/2000/svg"><rect width="${taille}" height="${taille}" fill="#fff"/>${rects}</svg>`;
+  }catch(e){
+    box.innerHTML = '<div style="color:#666; font-size:14px; text-align:center;">QR indisponible.</div>';
+  }
+  document.getElementById('modalQrRevolutBg').classList.add('show');
 }
 
 function majFraisPayconiq(){
@@ -8060,12 +8408,19 @@ async function enregistrerPaiement(){
     if(moyen === 'Payconiq'){
       fraisPayconiq = RATES.payconiqFixe || 0.06;
     }
+    let fraisRevlink = 0;
+    if(moyen === 'Lien Revolut'){
+      const pct = RATES.revlinkPct || 1.0;
+      const fixe = RATES.revlinkFixe || 0.20;
+      fraisRevlink = Math.round((total * (pct/100) + fixe) * 100) / 100;
+    }
     d.paiement = {
       statut: st,
       recu,
       moyen,
       fraisTapToPay,
       fraisPayconiq,
+      fraisRevlink,
       date: new Date().toISOString()
     };
     d.paye = (st === 'paye');   // on garde le booléen synchronisé pour le reste de l'appli
@@ -8497,11 +8852,11 @@ document.addEventListener('focusout', (e) => {
   const cacher = () => {
     if(window.BOOT_ECHEC) return;
     splash.classList.add('hide');
-    setTimeout(() => splash.remove(), 600);
+    setTimeout(() => splash.remove(), 350);
   };
   const debut = Date.now();
   const quandPret = () => {
-    const reste = Math.max(0, 950 - (Date.now() - debut));
+    const reste = Math.max(0, 600 - (Date.now() - debut));
     setTimeout(cacher, reste);
   };
   if(document.readyState === 'complete') quandPret();
@@ -8541,6 +8896,16 @@ document.addEventListener('focusout', (e) => {
     await loadRates().then(updateKmLabel);
     await loadHistory();
     await loadRoutes();
+    try{
+      const enCours = (await toutesLesInterventions()).filter(it => estAFaire(it.data));
+      if(enCours.length > 0){
+        const plusAncienne = [...enCours].sort((a,b) => new Date(a.data.date) - new Date(b.data.date))[0];
+        await reprendreEnCours(plusAncienne.key);
+      } else {
+        const restaure = await restaurerBrouillonSiPresent();
+        if(restaure) showTab('tabNouveau');
+      }
+    }catch(e){ /* pas bloquant : on reste sur l'accueil par défaut */ }
   }catch(e){
     console.error('Erreur au démarrage :', e);
     window.BOOT_ECHEC = true;
