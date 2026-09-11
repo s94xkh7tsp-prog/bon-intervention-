@@ -2377,7 +2377,7 @@
         <span class="menu-lbl">Résumé mensuel</span>
         <span class="menu-desc">Bilan du mois</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); genererDocumentFrais();">
+      <div class="menu-item" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
         <span class="menu-ico">🧾</span>
         <span class="menu-lbl">Frais pro (PDF)</span>
         <span class="menu-desc">Pour le comptable</span>
@@ -2394,6 +2394,16 @@
       </div>
     </div>
     <button class="ghost close-modal" onclick="closeMenu()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAnneeFraisBg">
+  <div class="modal">
+    <div class="eyebrow">Comptabilité</div>
+    <h1 class="page-title" style="font-size:24px;">Frais professionnels</h1>
+    <p class="page-sub">Choisis l'exercice à transmettre à ton comptable.</p>
+    <div id="listeAnneesFrais"></div>
+    <button class="ghost close-modal" onclick="fermerChoixAnneeFrais()">Annuler</button>
   </div>
 </div>
 
@@ -4666,10 +4676,37 @@ async function enregistrerFraisPaye(categorie, libelle, montant, dateEcheance){
   }catch(e){ /* le décalage d'échéance reste valable même si l'historique échoue */ }
 }
 
-async function genererDocumentFrais(){
+async function ouvrirChoixAnneeFrais(){
+  const registre = await litRegistreFrais();
+  if(registre.length === 0){
+    showToast('Aucun frais enregistré — marque d\'abord un paiement comme « Payé »');
+    return;
+  }
+  const parAnnee = {};
+  registre.forEach(f => {
+    const an = f.paye.slice(0,4);
+    parAnnee[an] = parAnnee[an] || {n:0, total:0};
+    parAnnee[an].n++;
+    parAnnee[an].total += f.montant;
+  });
+  const annees = Object.keys(parAnnee).sort().reverse();
+  document.getElementById('listeAnneesFrais').innerHTML = annees.map(an => `
+    <div class="menu-item" onclick="fermerChoixAnneeFrais(); genererDocumentFrais(${an});">
+      <span class="menu-ico">🧾</span>
+      <span class="menu-lbl">Exercice ${an}</span>
+      <span class="menu-desc">${parAnnee[an].n} paiement${parAnnee[an].n > 1 ? 's' : ''} · ${fmt(parAnnee[an].total)}</span>
+    </div>`).join('');
+  document.getElementById('modalAnneeFraisBg').classList.add('show');
+}
+
+function fermerChoixAnneeFrais(){
+  document.getElementById('modalAnneeFraisBg').classList.remove('show');
+}
+
+async function genererDocumentFrais(annee){
   try{
     const registre = await litRegistreFrais();
-    const anneeChoisie = new Date().getFullYear();
+    const anneeChoisie = annee || new Date().getFullYear();
     const toutes = registre
       .filter(f => f.paye.startsWith(String(anneeChoisie)))
       .sort((a,b) => a.paye.localeCompare(b.paye));
@@ -7175,7 +7212,8 @@ const FERMETURE_PAR_MODAL = {
   modalQuickQuoteBg: closeQuickQuote,
   modalRdvBg: closeRdv,
   modalAbandonBg: closeAbandonDoc,
-  modalSortieBg: () => confirmerSortie(false)
+  modalSortieBg: () => confirmerSortie(false),
+  modalAnneeFraisBg: fermerChoixAnneeFrais
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
