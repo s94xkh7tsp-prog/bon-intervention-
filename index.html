@@ -972,6 +972,20 @@
     <span class="close" onclick="document.getElementById('entretienBanner').style.display='none'">✕</span>
   </div>
 
+  <div class="holiday-banner" id="pubBanner">
+    <span>📣</span>
+    <span id="pubBannerText"></span>
+    <button class="banner-action" onclick="marquerPubPayee()">Payé</button>
+    <span class="close" onclick="document.getElementById('pubBanner').style.display='none'">✕</span>
+  </div>
+
+  <div class="holiday-banner" id="assuranceBanner">
+    <span>🛡️</span>
+    <span id="assuranceBannerText"></span>
+    <button class="banner-action" onclick="marquerAssurancePayee()">Payé</button>
+    <span class="close" onclick="document.getElementById('assuranceBanner').style.display='none'">✕</span>
+  </div>
+
   <div class="route-bar" onclick="openFeuilleDeRoute()">
     <span class="route-bar-icon">🗺️</span>
     <span class="route-bar-text">Feuille de route</span>
@@ -2362,6 +2376,11 @@
         <span class="menu-ico">📅</span>
         <span class="menu-lbl">Résumé mensuel</span>
         <span class="menu-desc">Bilan du mois</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); genererDocumentFrais();">
+        <span class="menu-ico">🧾</span>
+        <span class="menu-lbl">Frais pro (PDF)</span>
+        <span class="menu-desc">Pour le comptable</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openDashboard();">
         <span class="menu-ico">📊</span>
@@ -4532,6 +4551,196 @@ async function checkEntretienReminder(){
       document.getElementById('entretienBanner').style.display = 'flex';
     }
   }catch(e){ /* pas encore d'échéances enregistrées */ }
+}
+
+const PUB_MONTANT = 300;
+const PUB_MOIS_INTERVALLE = 3;
+const PUB_ECHEANCE_INITIALE = '2026-11-30';
+const PUB_ALERTE_JOURS = 10;
+
+async function prochaineEcheancePub(){
+  try{
+    const res = await window.storage.get('pubEcheance');
+    if(res && res.value) return res.value;
+  }catch(e){ /* première utilisation : on part de l'échéance initiale */ }
+  return PUB_ECHEANCE_INITIALE;
+}
+
+async function checkPubReminder(){
+  try{
+    const echeanceStr = await prochaineEcheancePub();
+    const echeance = new Date(echeanceStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const joursRestants = Math.ceil((echeance - today) / (1000*60*60*24));
+    if(joursRestants > PUB_ALERTE_JOURS) return;
+
+    const dateLisible = echeance.toLocaleDateString('fr-BE', {day:'numeric', month:'long'});
+    let texte;
+    if(joursRestants < 0) texte = `Guillaume (publicité) : ${fmt(PUB_MONTANT)} en retard depuis ${Math.abs(joursRestants)} j — échéance du ${dateLisible}`;
+    else if(joursRestants === 0) texte = `Guillaume (publicité) : ${fmt(PUB_MONTANT)} à payer aujourd'hui`;
+    else texte = `Guillaume (publicité) : ${fmt(PUB_MONTANT)} à payer dans ${joursRestants} j (${dateLisible})`;
+
+    document.getElementById('pubBannerText').textContent = texte;
+    document.getElementById('pubBanner').style.display = 'flex';
+  }catch(e){ /* pas bloquant */ }
+}
+
+async function marquerPubPayee(){
+  try{
+    const actuelle = new Date((await prochaineEcheancePub()) + 'T00:00:00');
+    const suivante = new Date(actuelle.getFullYear(), actuelle.getMonth() + 1 + PUB_MOIS_INTERVALLE, 0);
+    const iso = suivante.toISOString().slice(0,10);
+    await window.storage.set('pubEcheance', iso);
+    await enregistrerFraisPaye('publicite', 'Guillaume — publicité / page pro', PUB_MONTANT, actuelle);
+    document.getElementById('pubBanner').style.display = 'none';
+    const lisible = suivante.toLocaleDateString('fr-BE', {day:'numeric', month:'long', year:'numeric'});
+    showToast('Noté — prochain paiement de Guillaume le ' + lisible);
+  }catch(e){ showToast('Impossible d\'enregistrer — réessaie'); }
+}
+
+const ASSUR_MONTANT = 996;
+const ASSUR_MOIS_INTERVALLE = 6;
+const ASSUR_ECHEANCE_INITIALE = '2026-11-10';
+const ASSUR_ALERTE_JOURS = 10;
+
+async function prochaineEcheanceAssurance(){
+  try{
+    const res = await window.storage.get('assuranceEcheance');
+    if(res && res.value) return res.value;
+  }catch(e){ /* première utilisation */ }
+  return ASSUR_ECHEANCE_INITIALE;
+}
+
+async function checkAssuranceReminder(){
+  try{
+    const echeanceStr = await prochaineEcheanceAssurance();
+    const echeance = new Date(echeanceStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const joursRestants = Math.ceil((echeance - today) / (1000*60*60*24));
+    if(joursRestants > ASSUR_ALERTE_JOURS) return;
+
+    const dateLisible = echeance.toLocaleDateString('fr-BE', {day:'numeric', month:'long'});
+    let texte;
+    if(joursRestants < 0) texte = `Assurance camion : ${fmt(ASSUR_MONTANT)} en retard depuis ${Math.abs(joursRestants)} j — échéance du ${dateLisible}`;
+    else if(joursRestants === 0) texte = `Assurance camion : ${fmt(ASSUR_MONTANT)} à payer aujourd'hui`;
+    else texte = `Assurance camion : ${fmt(ASSUR_MONTANT)} à payer dans ${joursRestants} j (${dateLisible})`;
+
+    document.getElementById('assuranceBannerText').textContent = texte;
+    document.getElementById('assuranceBanner').style.display = 'flex';
+  }catch(e){ /* pas bloquant */ }
+}
+
+async function marquerAssurancePayee(){
+  try{
+    const actuelle = new Date((await prochaineEcheanceAssurance()) + 'T00:00:00');
+    const suivante = new Date(actuelle.getFullYear(), actuelle.getMonth() + ASSUR_MOIS_INTERVALLE, actuelle.getDate());
+    const iso = suivante.toISOString().slice(0,10);
+    await window.storage.set('assuranceEcheance', iso);
+    await enregistrerFraisPaye('assurance', 'Assurance camion (semestre)', ASSUR_MONTANT, actuelle);
+    document.getElementById('assuranceBanner').style.display = 'none';
+    const lisible = suivante.toLocaleDateString('fr-BE', {day:'numeric', month:'long', year:'numeric'});
+    showToast('Noté — prochaine assurance le ' + lisible);
+  }catch(e){ showToast('Impossible d\'enregistrer — réessaie'); }
+}
+
+async function litRegistreFrais(){
+  try{
+    const res = await window.storage.get('registreFrais');
+    return JSON.parse(res.value);
+  }catch(e){ return []; }
+}
+
+async function enregistrerFraisPaye(categorie, libelle, montant, dateEcheance){
+  try{
+    const registre = await litRegistreFrais();
+    registre.push({
+      categorie,
+      libelle,
+      montant,
+      echeance: dateEcheance.toISOString().slice(0,10),
+      paye: new Date().toISOString().slice(0,10)
+    });
+    await window.storage.set('registreFrais', JSON.stringify(registre));
+  }catch(e){ /* le décalage d'échéance reste valable même si l'historique échoue */ }
+}
+
+async function genererDocumentFrais(){
+  try{
+    const registre = await litRegistreFrais();
+    const anneeChoisie = new Date().getFullYear();
+    const toutes = registre
+      .filter(f => f.paye.startsWith(String(anneeChoisie)))
+      .sort((a,b) => a.paye.localeCompare(b.paye));
+    const LIGNES_MAX = 30;
+    const tronque = toutes.length > LIGNES_MAX;
+    const lignes = tronque ? toutes.slice(-LIGNES_MAX) : toutes;
+
+    if(toutes.length === 0){
+      showToast('Aucun frais enregistré pour ' + anneeChoisie + ' — marque d\'abord un paiement comme "Payé"');
+      return;
+    }
+
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+
+    pdf.text(50, y, 'FRAIS PROFESSIONNELS ' + anneeChoisie, {font:'F2', size:15}); y += 20;
+    pdf.text(50, y, 'Document interne destiné à la comptabilité', {size:9.5, gray:0.35}); y += 13;
+    pdf.text(50, y, COMPANY.name + ' — TVA ' + COMPANY.tva, {size:9.5, gray:0.35}); y += 13;
+    pdf.text(50, y, 'Établi le ' + new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'}), {size:9.5, gray:0.35});
+    y += 26;
+
+    pdf.rect(50, y - 10, 495, 20, {mode:'f', rgb:[242,242,238]});
+    pdf.text(56, y + 3, 'Date de paiement', {font:'F2', size:9});
+    pdf.text(160, y + 3, 'Poste de frais', {font:'F2', size:9});
+    pdf.text(400, y + 3, 'Échéance', {font:'F2', size:9});
+    pdf.text(495, y + 3, 'Montant', {font:'F2', size:9});
+    y += 24;
+
+    const total = toutes.reduce((s,f) => s + f.montant, 0);
+    for(const f of lignes){
+      const datePaye = f.paye.split('-').reverse().join('/');
+      const dateEch = f.echeance.split('-').reverse().join('/');
+      pdf.text(56, y, datePaye, {size:9.5});
+      pdf.text(160, y, f.libelle.slice(0, 42), {size:9.5});
+      pdf.text(400, y, dateEch, {size:9.5, gray:0.4});
+      pdf.text(495, y, fmt(f.montant), {size:9.5});
+      y += 16;
+    }
+
+    y += 6;
+    pdf.rect(50, y, 495, 1.2, {mode:'f', rgb:[210,206,196]});
+    y += 18;
+    pdf.text(160, y, 'TOTAL DES FRAIS ' + anneeChoisie, {font:'F2', size:11});
+    pdf.text(495, y, fmt(total), {font:'F2', size:12});
+    y += 26;
+    if(tronque){
+      pdf.text(160, y - 12, '(' + lignes.length + ' derniers paiements affichés sur ' + toutes.length + ' — total calculé sur l\'année complète)', {size:8, gray:0.5});
+    }
+    pdf.text(50, y, 'Frais récurrents suivis : assurance camion (semestriel), publicité / page pro (trimestriel).', {size:8.5, gray:0.45});
+
+    const pdfBytes = pdf.build();
+    const blob = new Blob([pdfBytes], {type:'application/pdf'});
+    const fileName = 'JM-Express_Frais-pro_' + anneeChoisie + '.pdf';
+    const file = new File([blob], fileName, {type:'application/pdf'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Frais professionnels ' + anneeChoisie});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    showToast('Document de frais généré');
+  }catch(e){
+    showToast('Erreur lors de la génération du document de frais');
+  }
 }
 
 const GASOIL_ECART_ALERTE = 0.20;   // en €/L
@@ -9170,6 +9379,8 @@ document.addEventListener('focusout', (e) => {
     setTimeout(majResumeAccueil, 400);
     await checkBackupReminder();
     await checkEntretienReminder();
+    await checkPubReminder();
+    await checkAssuranceReminder();
     setTimeout(checkGasoilReminder, 900);
     await loadClients();
     await loadAccessNotes();
