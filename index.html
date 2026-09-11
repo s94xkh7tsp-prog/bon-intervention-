@@ -1061,7 +1061,7 @@
 
     <div class="field">
       <label>Type d'intervention</label>
-      <select id="type" onchange="updateKmLabel()">
+      <select id="type" onchange="updateKmLabel(); avertirSiEnliseChoisi()">
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
         <option value="demarrage">Démarrage batterie</option>
@@ -5606,10 +5606,13 @@ function majBlocEnlise(){
   if(!bloc) return;
   const estEnlise = document.getElementById('type').value === 'desembourbement';
   bloc.style.display = estEnlise ? 'block' : 'none';
-  if(estEnlise && !AVERTISSEMENT_ENLISE_VU){
-    AVERTISSEMENT_ENLISE_VU = true;
-    document.getElementById('modalEnliseBg').classList.add('show');
-  }
+}
+
+function avertirSiEnliseChoisi(){
+  if(document.getElementById('type').value !== 'desembourbement') return;
+  if(AVERTISSEMENT_ENLISE_VU) return;
+  AVERTISSEMENT_ENLISE_VU = true;
+  document.getElementById('modalEnliseBg').classList.add('show');
 }
 
 function fermerAvertissementEnlise(){
