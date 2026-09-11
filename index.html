@@ -91,6 +91,16 @@
   .hl-point{width:6px; height:6px; border-radius:50%; background:var(--red); animation:hlPulse 1.6s ease-in-out infinite;}
   @keyframes hlPulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
 
+  /* QR Revolut : fenêtre centrée et compacte — un QR se présente au client, il doit être
+     bien visible au milieu de l'écran, pas collé en bas comme un formulaire. */
+  #modalQrRevolutBg{align-items:center; padding:16px;}
+  #modalQrRevolutBg .modal{
+    border-radius:26px; max-width:340px; padding:22px 20px 20px; max-height:none;
+  }
+  #modalQrRevolutBg .page-sub{margin-bottom:14px;}
+  #modalQrRevolutBg #qrRevolutBox{min-height:0; padding:16px;}
+  #modalQrRevolutBg .close-modal{margin-top:14px;}
+
   /* Mini indicateur de chargement sur les boutons (calcul, sauvegarde, PDF) */
   .mini-spinner{
     display:inline-block; width:14px; height:14px; border-radius:50%;
