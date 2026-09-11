@@ -1670,6 +1670,48 @@
       </div>
     </div>
 
+    <div class="field" id="blocEnlise" style="display:none;">
+      <label>Niveau de difficulté</label>
+      <div class="toggles" style="margin-bottom:10px;">
+        <div class="toggle" id="diffLeger" onclick="setDifficulteEnlise('leger')">Léger</div>
+        <div class="toggle" id="diffModere" onclick="setDifficulteEnlise('modere')">Modéré</div>
+        <div class="toggle" id="diffDifficile" onclick="setDifficulteEnlise('difficile')">Difficile</div>
+        <div class="toggle" id="diffComplexe" onclick="setDifficulteEnlise('complexe')">Complexe</div>
+      </div>
+
+      <div class="extras-header" onclick="toggleManutList()">
+        <label style="margin:0; cursor:pointer;">+ Manutentions effectuées</label>
+        <span class="extras-summary" id="manutSummary">Aucune</span>
+        <span class="extras-chevron" id="manutChevron">▾</span>
+      </div>
+      <div class="extras-list" id="manutList" style="display:none;">
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Dégagement des roues"> Dégagement des roues</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Plaques / cales"> Plaques / cales</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Cordage ou sanglage supplémentaire"> Cordage ou sanglage supplémentaire</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Mouflage"> Mouflage</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Repositionnement de la dépanneuse"> Repositionnement de la dépanneuse</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Changement de point de traction"> Changement de point de traction</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Plusieurs tentatives"> Plusieurs tentatives</label>
+        <label class="extra-item"><input type="checkbox" class="manutCheck" value="Autre" id="manutAutreCheck" onchange="majManutAutre()"> Autre</label>
+        <input type="text" id="manutAutreTxt" placeholder="Précise la manutention effectuée" style="display:none; margin-top:8px;">
+
+        <div class="field-row" style="margin-top:12px;">
+          <div class="field" style="margin-bottom:0;">
+            <label>Temps de cette opération (min)</label>
+            <input type="number" id="manutMinutes" placeholder="0" min="0" step="5" inputmode="numeric">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Supplément (€)</label>
+            <input type="number" id="manutSupp" placeholder="0" min="0" step="5" inputmode="decimal">
+          </div>
+        </div>
+        <button type="button" class="ghost" style="margin-top:10px;" onclick="ajouterOperationEnlise()">➕ Ajouter cette opération</button>
+        <div class="km-mention" style="margin-top:8px;">Tu peux enregistrer plusieurs opérations au fur et à mesure, jusqu'à la sortie complète du véhicule.</div>
+      </div>
+
+      <div id="listeOperationsEnlise" style="margin-top:10px;"></div>
+    </div>
+
     <div class="field">
       <label>Prix annoncé au client (optionnel)</label>
       <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
@@ -1867,7 +1909,9 @@
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
     <div class="ticket-row" id="rowCtRepasse" style="display:none;"><span class="l">2ᵉ passage contrôle technique</span><span class="v" id="tkCtRepasse">—</span></div>
     <div class="ticket-row" id="rowPrixAnnonce" style="display:none;"><span class="l" id="tkPrixAnnonceLbl">Prix annoncé</span><span class="v" id="tkPrixAnnonce">—</span></div>
+    <div class="ticket-row" id="rowManut" style="display:none;"><span class="l" id="tkManutLbl">Manutention</span><span class="v" id="tkManut">—</span></div>
     <div class="ticket-row" id="rowFrais" style="display:none;"><span class="l" id="tkFraisLbl">Frais</span><span class="v" id="tkFrais">—</span></div>
+    <div class="ticket-addr" id="rowEnliseDetail" style="display:none; margin-top:8px;"><span class="tag">Désembourbement</span><br><span id="tkEnliseDetail">—</span></div>
     <div class="ticket-row" id="rowAnnulation" style="display:none;"><span class="l">🚫 Déplacement inutile</span><span class="v" id="tkAnnulation">—</span></div>
     <div class="ticket-addr" id="rowDonneur" style="display:none; margin-top:8px;"><span class="tag">Donneur d'ordre</span><br><span id="tkDonneur">—</span></div>
     <div class="ticket-addr" id="rowHoraires" style="display:none; margin-top:8px;"><span class="tag">Horaires</span><br><span id="tkHoraires">—</span></div>
@@ -2403,6 +2447,19 @@
       </div>
     </div>
     <button class="ghost close-modal" onclick="closeMenu()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalEnliseBg">
+  <div class="modal">
+    <div class="eyebrow">Véhicule enlisé</div>
+    <h1 class="page-title" style="font-size:22px;">Tarif susceptible d'évoluer</h1>
+    <p style="font-size:14.5px; line-height:1.55; color:var(--white); margin:0 0 16px;">
+      Le tarif est établi sur la base des informations communiquées lors de la demande d'intervention.
+      En fonction de la situation réellement constatée sur place, du niveau d'enlisement et des
+      manutentions ou moyens supplémentaires nécessaires, un supplément pourra être appliqué.
+    </p>
+    <button class="primary" onclick="fermerAvertissementEnlise()">J'ai compris</button>
   </div>
 </div>
 
@@ -4726,6 +4783,131 @@ async function enregistrerFraisPaye(categorie, libelle, montant, dateEcheance){
   }catch(e){ /* le décalage d'échéance reste valable même si l'historique échoue */ }
 }
 
+let DIFFICULTE_ENLISE = '';
+let OPERATIONS_ENLISE = [];
+
+const LABELS_DIFFICULTE = {leger:'Léger', modere:'Modéré', difficile:'Difficile', complexe:'Complexe'};
+
+function setDifficulteEnlise(niveau){
+  DIFFICULTE_ENLISE = (DIFFICULTE_ENLISE === niveau) ? '' : niveau;
+  ['leger','modere','difficile','complexe'].forEach(n => {
+    const id = 'diff' + n.charAt(0).toUpperCase() + n.slice(1);
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('on', DIFFICULTE_ENLISE === n);
+  });
+  invaliderTicketObsolete();
+  planifierSauvegardeBrouillon();
+}
+
+function toggleManutList(){
+  const l = document.getElementById('manutList');
+  const c = document.getElementById('manutChevron');
+  const ouvert = l.style.display !== 'none';
+  l.style.display = ouvert ? 'none' : 'block';
+  c.textContent = ouvert ? '▾' : '▴';
+}
+
+function majManutAutre(){
+  const coche = document.getElementById('manutAutreCheck').checked;
+  document.getElementById('manutAutreTxt').style.display = coche ? 'block' : 'none';
+}
+
+function ajouterOperationEnlise(){
+  const cochees = [...document.querySelectorAll('.manutCheck:checked')].map(c => c.value);
+  const minutes = parseInt(document.getElementById('manutMinutes').value) || 0;
+  const supp = parseFloat(document.getElementById('manutSupp').value) || 0;
+  const autreTxt = (document.getElementById('manutAutreTxt').value || '').trim();
+
+  const libelles = cochees.map(v => (v === 'Autre' && autreTxt) ? autreTxt : v).filter(v => v !== 'Autre');
+
+  if(libelles.length === 0 && minutes === 0 && supp === 0){
+    showToast('Coche au moins une manutention, un temps ou un supplément');
+    return;
+  }
+
+  OPERATIONS_ENLISE.push({libelles, minutes, supp});
+
+  document.querySelectorAll('.manutCheck').forEach(c => c.checked = false);
+  document.getElementById('manutAutreTxt').value = '';
+  document.getElementById('manutAutreTxt').style.display = 'none';
+  document.getElementById('manutMinutes').value = '';
+  document.getElementById('manutSupp').value = '';
+
+  renderOperationsEnlise();
+  invaliderTicketObsolete();
+  planifierSauvegardeBrouillon();
+  showToast('Opération ajoutée');
+}
+
+function supprimerOperationEnlise(i){
+  OPERATIONS_ENLISE.splice(i, 1);
+  renderOperationsEnlise();
+  invaliderTicketObsolete();
+  planifierSauvegardeBrouillon();
+}
+
+function renderOperationsEnlise(){
+  const box = document.getElementById('listeOperationsEnlise');
+  if(!box) return;
+  if(OPERATIONS_ENLISE.length === 0){
+    box.innerHTML = '';
+    majManutSummary();
+    return;
+  }
+  const totalMin = OPERATIONS_ENLISE.reduce((s,o) => s + o.minutes, 0);
+  const totalSupp = OPERATIONS_ENLISE.reduce((s,o) => s + o.supp, 0);
+  box.innerHTML = OPERATIONS_ENLISE.map((o,i) => `
+    <div class="hist-item" style="padding:11px 13px; margin-bottom:7px;">
+      <div class="info">
+        <div style="font-size:13.5px; font-weight:600; color:var(--white);">${o.libelles.join(', ') || 'Manutention'}</div>
+        <div style="font-size:11.5px; color:var(--grey); margin-top:2px;">
+          ${o.minutes > 0 ? o.minutes + ' min' : 'sans durée'}${o.supp > 0 ? ' · ' + fmt(o.supp) : ''}
+        </div>
+      </div>
+      <div class="loc-btn" style="width:34px; height:34px;" onclick="supprimerOperationEnlise(${i})">✕</div>
+    </div>`).join('')
+    + `<div class="km-mention" style="margin-top:4px; border-left-color:var(--orange);">
+         <strong>${OPERATIONS_ENLISE.length} opération${OPERATIONS_ENLISE.length > 1 ? 's' : ''}</strong>
+         · ${totalMin} min de manutention${totalSupp > 0 ? ' · supplément ' + fmt(totalSupp) : ''}
+       </div>`;
+  majManutSummary();
+}
+
+function majManutSummary(){
+  const el = document.getElementById('manutSummary');
+  if(!el) return;
+  if(OPERATIONS_ENLISE.length === 0){ el.textContent = 'Aucune'; return; }
+  const totalMin = OPERATIONS_ENLISE.reduce((s,o) => s + o.minutes, 0);
+  el.textContent = OPERATIONS_ENLISE.length + ' op. · ' + totalMin + ' min';
+}
+
+let AVERTISSEMENT_ENLISE_VU = false;
+function majBlocEnlise(){
+  const bloc = document.getElementById('blocEnlise');
+  if(!bloc) return;
+  const estEnlise = document.getElementById('type').value === 'desembourbement';
+  bloc.style.display = estEnlise ? 'block' : 'none';
+  if(estEnlise && !AVERTISSEMENT_ENLISE_VU){
+    AVERTISSEMENT_ENLISE_VU = true;
+    document.getElementById('modalEnliseBg').classList.add('show');
+  }
+}
+
+function fermerAvertissementEnlise(){
+  document.getElementById('modalEnliseBg').classList.remove('show');
+}
+
+function resumeEnlise(d){
+  const parts = [];
+  if(d.difficulteEnlise) parts.push('Difficulté : ' + (LABELS_DIFFICULTE[d.difficulteEnlise] || d.difficulteEnlise));
+  const ops = d.operationsEnlise || [];
+  const totalMin = ops.reduce((s,o) => s + (o.minutes||0), 0);
+  if(totalMin > 0) parts.push('Manutention : ' + totalMin + ' min');
+  const libelles = [...new Set(ops.flatMap(o => o.libelles || []))];
+  if(libelles.length > 0) parts.push(libelles.slice(0, 5).join(', '));
+  return parts.join(' · ');
+}
+
 let PLEIN_LIEU = 'normal';
 
 function setPleinLieu(lieu){
@@ -6134,6 +6316,16 @@ async function chargerInterventionDepuisJournal(key){
   ecrireChecklist(d.checklist);
   document.getElementById('fraisLibelle').value = d.fraisLibelle || '';
   document.getElementById('fraisMontant').value = d.fraisMontant || '';
+  DIFFICULTE_ENLISE = d.difficulteEnlise || '';
+  OPERATIONS_ENLISE = (d.operationsEnlise || []).map(o => ({...o}));
+  setDifficulteEnlise(DIFFICULTE_ENLISE || '__aucun__');
+  DIFFICULTE_ENLISE = d.difficulteEnlise || '';
+  ['leger','modere','difficile','complexe'].forEach(n => {
+    const el = document.getElementById('diff' + n.charAt(0).toUpperCase() + n.slice(1));
+    if(el) el.classList.toggle('on', DIFFICULTE_ENLISE === n);
+  });
+  renderOperationsEnlise();
+  majBlocEnlise();
   document.getElementById('annulationMontant').value = d.annulationMontant || '';
   document.getElementById('tgAnnulation').classList.toggle('on', !!d.annulation);
   majAnnulationUI();
@@ -6585,6 +6777,15 @@ async function genererFacture(){
       y += 2;
     }
 
+    const txtEnliseInv = resumeEnlise(c);
+    if(txtEnliseInv){
+      y += 8;
+      pdf.text(50, y, 'DÉSEMBOURBEMENT', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
+      wrapText(txtEnliseInv, 95).slice(0, 4).forEach(ligne => {
+        pdf.text(50, y, ligne, {size:8.5, gray:0.3}); y += 12;
+      });
+    }
+
     if(etatLieuxNotesInv){
       y += 8;
       pdf.text(50, y, S.etatConstate, {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
@@ -6939,6 +7140,7 @@ function updateKmLabel(){
 
   document.getElementById('epavePhotoField').style.display = (isEpave || isLeveeSaisie) ? 'block' : 'none';
   document.getElementById('etatLieuxField').style.display = TYPES_REMORQUAGE.includes(type) ? 'block' : 'none';
+  majBlocEnlise();
   document.getElementById('ctRepasseField').style.display = isLeveeSaisie ? 'block' : 'none';
   updateAbandonDocButton();
 
@@ -7337,7 +7539,8 @@ const FERMETURE_PAR_MODAL = {
   modalAbandonBg: closeAbandonDoc,
   modalSortieBg: () => confirmerSortie(false),
   modalAnneeFraisBg: fermerChoixAnneeFrais,
-  modalPleinBg: fermerPlein
+  modalPleinBg: fermerPlein,
+  modalEnliseBg: fermerAvertissementEnlise
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
@@ -7669,6 +7872,11 @@ function calculer(){
   const horaires = lireHoraires();
   const fraisLibelle = (document.getElementById('fraisLibelle').value || '').trim();
   const fraisMontant = parseFloat(document.getElementById('fraisMontant').value) || 0;
+  const estEnlise = type === 'desembourbement';
+  const difficulteEnlise = estEnlise ? DIFFICULTE_ENLISE : '';
+  const operationsEnlise = estEnlise ? OPERATIONS_ENLISE.map(o => ({...o})) : [];
+  const manutMinutes = operationsEnlise.reduce((s,o) => s + (o.minutes||0), 0);
+  const manutSupp = operationsEnlise.reduce((s,o) => s + (o.supp||0), 0);
   const annulation = document.getElementById('tgAnnulation').classList.contains('on');
   const annulationMontant = annulation ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
 
@@ -7700,13 +7908,13 @@ function calculer(){
   const battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
   const totalAvantRemise = annulation
     ? (annulationMontant + fraisMontant)
-    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant);
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp);
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -7721,6 +7929,20 @@ function calculer(){
   document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
   document.getElementById('rowCtRepasse').style.display = ctRepasse > 0 ? 'flex' : 'none';
   document.getElementById('tkCtRepasse').textContent = fmt(ctRepasse);
+  const rowM = document.getElementById('rowManut');
+  if(manutSupp > 0){
+    document.getElementById('tkManutLbl').textContent = 'Manutention' + (manutMinutes > 0 ? ' (' + manutMinutes + ' min)' : '');
+    document.getElementById('tkManut').textContent = fmt(manutSupp);
+    rowM.style.display = 'flex';
+  } else rowM.style.display = 'none';
+
+  const rowE = document.getElementById('rowEnliseDetail');
+  const txtE = resumeEnlise({difficulteEnlise, operationsEnlise});
+  if(txtE){
+    document.getElementById('tkEnliseDetail').textContent = txtE;
+    rowE.style.display = 'block';
+  } else rowE.style.display = 'none';
+
   const rowF = document.getElementById('rowFrais');
   if(fraisMontant > 0){
     document.getElementById('tkFraisLbl').textContent = fraisLibelle || 'Frais supplémentaire';
@@ -8034,6 +8256,13 @@ async function enregistrer(){
     majDonneurOrdreUI();
     ecrireChecklist(null);
     clearDechargPhotos();
+    DIFFICULTE_ENLISE = '';
+    OPERATIONS_ENLISE = [];
+    ['leger','modere','difficile','complexe'].forEach(n => {
+      const el = document.getElementById('diff' + n.charAt(0).toUpperCase() + n.slice(1));
+      if(el) el.classList.remove('on');
+    });
+    renderOperationsEnlise();
     document.getElementById('fraisLibelle').value = '';
     document.getElementById('fraisMontant').value = '';
     document.getElementById('annulationMontant').value = '';
