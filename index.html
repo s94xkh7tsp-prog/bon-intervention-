@@ -1086,6 +1086,15 @@
     </div>
 
     <div class="field">
+      <label>Téléphone du client (optionnel)</label>
+      <div class="input-with-btn">
+        <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
+        <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler">📞</button>
+        <button type="button" class="loc-btn" onclick="smsClient()" title="SMS">💬</button>
+      </div>
+    </div>
+
+    <div class="field">
       <div class="extras-header" onclick="toggleExtrasList()">
         <label style="margin:0; cursor:pointer;">+ Prestations supplémentaires (optionnel)</label>
         <span class="extras-summary" id="extrasSummary">Aucune</span>
@@ -1588,6 +1597,13 @@
         <div id="kmHint" style="display:none; font-size:12.5px; color:var(--grey); margin-top:8px; line-height:1.45;">≈ Estimation par itinéraire (trajet le plus court retenu). Tu peux corriger le chiffre à la main si Maps te donne autre chose.</div>
         <div class="km-mention">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
       </div>
+
+    </div>
+
+    <div class="field">
+      <label>Prix annoncé au client (optionnel)</label>
+      <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
+      <div class="km-mention">Note ici ce que tu as annoncé lors de l'appel. L'appli te signalera tout écart avec le montant calculé — utile pour tenir ta parole ou justifier un supplément.</div>
     </div>
 
     <label>Conditions</label>
@@ -1602,13 +1618,38 @@
       <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
     </div>
 
-    <div class="field" id="ctRepasseField" style="display:none;">
-      <label>2ᵉ passage au contrôle technique (véhicule recalé)</label>
-      <input type="number" id="ctRepasseMontant" placeholder="Montant en € — laisser vide si non concerné" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
-      <div class="km-mention">Le forfait de levée de saisie couvre un aller-retour au contrôle technique. Si le véhicule est recalé et doit y retourner après réparation, indique ici le montant de ce transport supplémentaire.</div>
-    </div>
+    
+
+    
+
+    
+
+    
 
     <div class="field">
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="tgAnnulation" onclick="toggle('tgAnnulation'); majAnnulationUI()">🚫 Déplacement inutile / annulation</div>
+      </div>
+      
+    </div>
+
+        <div class="field">
+      <div class="extras-header" onclick="togglePlusOptions()">
+        <label style="margin:0; cursor:pointer;">+ Plus d'options</label>
+        <span class="extras-summary" id="plusOptionsSummary">Aucune</span>
+        <span class="extras-chevron" id="plusOptionsChevron">▾</span>
+      </div>
+      <div class="extras-list" id="plusOptionsList" style="display:none;">
+        <div class="field">
+      <label>Date et heure de l'intervention</label>
+      <div class="field-row">
+        <input type="date" id="interventionDate" onchange="autoMajorations()">
+        <input type="time" id="interventionTime" onchange="autoMajorations()">
+      </div>
+      <div class="km-mention">Par défaut : maintenant. Change-les si tu encodes plus tard — le bon gardera la vraie date de l'intervention, pas celle de la saisie.</div>
+    </div>
+
+        <div class="field">
       <label>Donneur d'ordre (optionnel)</label>
       <div class="field-row">
         <select id="donneurOrdre" style="flex:1;" onchange="majDonneurOrdreUI()">
@@ -1628,16 +1669,7 @@
       </div>
     </div>
 
-    <div class="field">
-      <label>Téléphone du client (optionnel)</label>
-      <div class="input-with-btn">
-        <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
-        <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler">📞</button>
-        <button type="button" class="loc-btn" onclick="smsClient()" title="SMS">💬</button>
-      </div>
-    </div>
-
-    <div class="field">
+        <div class="field">
       <label>Frais supplémentaire (optionnel)</label>
       <div class="field-row">
         <input type="text" id="fraisLibelle" placeholder="Ex : péage, carburant ajouté" style="flex:2;">
@@ -1646,18 +1678,35 @@
       <div class="km-mention">Pour tout ce qui sort de la grille : péage, carburant ajouté, pièce avancée… Le libellé apparaît sur la facture.</div>
     </div>
 
-    <div class="field">
-      <div class="toggles" style="margin-bottom:0;">
-        <div class="toggle" id="tgAnnulation" onclick="toggle('tgAnnulation'); majAnnulationUI()">🚫 Déplacement inutile / annulation</div>
-      </div>
-      <div id="annulationBox" style="display:none; margin-top:10px;">
+        <div id="annulationBox" style="display:none; margin-top:10px;">
         <label>Montant facturé pour le déplacement</label>
         <input type="number" id="annulationMontant" placeholder="Ex : 45" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
         <div class="km-mention">Client absent, véhicule déjà reparti, intervention annulée sur place… Seul ce montant est facturé (le forfait de la prestation ne s'applique pas).</div>
       </div>
+
+        <div class="field" id="ctRepasseField" style="display:none;">
+      <label>2ᵉ passage au contrôle technique (véhicule recalé)</label>
+      <input type="number" id="ctRepasseMontant" placeholder="Montant en € — laisser vide si non concerné" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
+      <div class="km-mention">Le forfait de levée de saisie couvre un aller-retour au contrôle technique. Si le véhicule est recalé et doit y retourner après réparation, indique ici le montant de ce transport supplémentaire.</div>
     </div>
 
-    <div class="field">
+        <div class="field">
+      <label>Origine du client (facultatif)</label>
+      <select id="origineClient" onchange="planifierSauvegardeBrouillon()">
+        <option value="">— Non précisé —</option>
+        <option value="google">Google / recherche web</option>
+        <option value="regulier">Client régulier</option>
+        <option value="garage">Garage</option>
+        <option value="assistance">Assistance / assurance</option>
+        <option value="reseaux">Facebook / Snap / réseaux</option>
+        <option value="bouche">Bouche-à-oreille</option>
+        <option value="autre">Autre</option>
+      </select>
+    </div>
+      </div>
+    </div>
+
+<div class="field">
       <div class="extras-header" onclick="toggleHoraires()">
         <label style="margin:0; cursor:pointer;">⏱️ Horaires de l'intervention</label>
         <span class="extras-summary" id="horairesSummary">Aucun</span>
@@ -1667,6 +1716,33 @@
         <div class="km-mention" style="margin:0 0 10px 0;">Appuie sur ⏱️ pour enregistrer l'heure actuelle, ou saisis-la à la main. Utile en cas de litige ou pour justifier un temps d'attente.</div>
         <div id="horairesRows"></div>
         <button type="button" class="ghost" style="margin-top:8px;" onclick="effacerHoraires()">Effacer tous les horaires</button>
+      </div>
+    </div>
+
+    <div class="field" id="blocSupplement" style="display:none;">
+      <div class="km-mention" style="border-left-color:var(--red); margin:0 0 10px;">
+        <strong id="suppTexte">—</strong><br>
+        Fais valider ce supplément au client avant de terminer l'intervention.
+      </div>
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="tgSuppInforme" onclick="toggleSuppInforme()">✅ Client informé du supplément</div>
+      </div>
+      <div id="blocSuppDetail" style="display:none; margin-top:10px;">
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0;">
+            <label>Heure d'information</label>
+            <input type="time" id="suppHeure" oninput="planifierSauvegardeBrouillon()">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Montant accepté (€)</label>
+            <input type="number" id="suppMontant" min="0" step="1" inputmode="decimal" oninput="planifierSauvegardeBrouillon()">
+          </div>
+        </div>
+        <label style="margin-top:10px;">Signature du client (facultatif)</label>
+        <div class="sig-wrap">
+          <canvas id="sigCanvasSupp"></canvas>
+        </div>
+        <button type="button" class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasSupp')">Effacer la signature</button>
       </div>
     </div>
 
@@ -1712,11 +1788,9 @@
       <div id="listeOperationsEnlise" style="margin-top:10px;"></div>
     </div>
 
-    <div class="field">
-      <label>Prix annoncé au client (optionnel)</label>
-      <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
-      <div class="km-mention">Note ici ce que tu as annoncé lors de l'appel. L'appli te signalera tout écart avec le montant calculé — utile pour tenir ta parole ou justifier un supplément.</div>
-    </div>
+    
+
+    
 
     <div class="field">
       <div class="toggles" style="margin-bottom:0;">
@@ -1769,14 +1843,7 @@
       </div>
     </div>
 
-    <div class="field">
-      <label>Date et heure de l'intervention</label>
-      <div class="field-row">
-        <input type="date" id="interventionDate" onchange="autoMajorations()">
-        <input type="time" id="interventionTime" onchange="autoMajorations()">
-      </div>
-      <div class="km-mention">Par défaut : maintenant. Change-les si tu encodes plus tard — le bon gardera la vraie date de l'intervention, pas celle de la saisie.</div>
-    </div>
+    
 
     <div class="field">
       <div class="extras-header" onclick="toggleAdvancedOptions()">
@@ -1785,7 +1852,23 @@
         <span class="extras-chevron" id="advancedChevron">▾</span>
       </div>
       <div id="advancedOptions" style="display:none; margin-top:12px;">
-        <label>Type de véhicule</label>
+        <label>Contrôle du véhicule (facultatif)</label>
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0;">
+            <label>Poids estimé (kg)</label>
+            <input type="number" id="vehPoids" placeholder="0" min="0" step="50" inputmode="numeric" oninput="verifierCapaciteVehicule()">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Hauteur (m)</label>
+            <input type="number" id="vehHauteur" placeholder="0.00" min="0" step="0.05" inputmode="decimal" oninput="verifierCapaciteVehicule()">
+          </div>
+        </div>
+        <div class="toggles" style="margin:10px 0 0;">
+          <div class="toggle" id="tgSousSol" onclick="toggle('tgSousSol'); verifierCapaciteVehicule()">🅿️ Parking / sous-sol</div>
+        </div>
+        <div id="alerteCapacite" class="km-mention" style="display:none; border-left-color:var(--red); margin-top:10px;"></div>
+
+        <label style="margin-top:14px;">Type de véhicule</label>
         <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
           <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')">🚗 Normale</div>
           <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')">🚙 SUV / 4x4</div>
@@ -1832,6 +1915,108 @@
       <div id="receiptPreviewWrap" style="display:none; margin-top:8px;">
         <img id="receiptPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearReceiptPhoto()">Retirer la photo</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="extras-header" onclick="toggleTracabilite()">
+        <label style="margin:0; cursor:pointer;">+ Traçabilité (incident, documents, remise pro)</label>
+        <span class="extras-summary" id="tracSummary">Aucune</span>
+        <span class="extras-chevron" id="tracChevron">▾</span>
+      </div>
+      <div class="extras-list" id="tracList" style="display:none;">
+
+        <div class="toggles" style="margin-bottom:0;">
+          <div class="toggle" id="tgIncident" onclick="toggleIncident()">⚠️ Incident pendant l'intervention</div>
+        </div>
+        <div id="blocIncident" style="display:none; margin-top:10px;">
+          <div class="field" style="margin-bottom:10px;">
+            <label>Description de l'incident</label>
+            <textarea id="incidentDesc" rows="3" autocorrect="on" spellcheck="true" placeholder="Ex: rayure constatée sur l'aile droite pendant le treuillage..." style="width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--white); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field" style="margin-bottom:0;">
+              <label>Date</label>
+              <input type="date" id="incidentDate">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>Heure</label>
+              <input type="time" id="incidentHeure">
+            </div>
+          </div>
+          <div class="field" style="margin:10px 0 0;">
+            <label>Témoin éventuel (nom, téléphone)</label>
+            <input type="text" id="incidentTemoin" placeholder="Facultatif">
+          </div>
+          <input type="file" id="incidentPhotosInput" accept="image/*" multiple onchange="handleIncidentPhotos(event)" style="display:none;">
+          <button type="button" class="ghost" style="margin-top:10px;" onclick="document.getElementById('incidentPhotosInput').click()">📷 Photos de l'incident</button>
+          <div id="incidentPreviewWrap" style="display:none; margin-top:8px;">
+            <div id="incidentPreviewGrid" class="epave-preview-grid"></div>
+            <button type="button" class="ghost" style="margin-top:6px;" onclick="clearIncidentPhotos()">Retirer toutes les photos</button>
+          </div>
+          <div class="toggles" style="margin-top:10px;">
+            <div class="toggle" id="tgIncidentRefus" onclick="toggle('tgIncidentRefus'); planifierSauvegardeBrouillon()">✋ Le client refuse de signer</div>
+          </div>
+          <div id="blocIncidentSig" style="margin-top:10px;">
+            <label>Signature du client (facultatif)</label>
+            <div class="sig-wrap"><canvas id="sigCanvasIncident"></canvas></div>
+            <button type="button" class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasIncident')">Effacer la signature</button>
+          </div>
+        </div>
+
+        <div style="height:1px; background:var(--line); margin:16px 0;"></div>
+
+        <label>Documents joints au dossier</label>
+        <input type="file" id="docsInput" accept="image/*,application/pdf" multiple onchange="handleDocuments(event)" style="display:none;">
+        <select id="docType" style="margin-bottom:8px;">
+          <option value="Ordre de mission">Ordre de mission</option>
+          <option value="Bon de commande">Bon de commande</option>
+          <option value="Document d'assurance">Document d'assurance</option>
+          <option value="Autre document">Autre document</option>
+        </select>
+        <button type="button" class="ghost" onclick="document.getElementById('docsInput').click()">📎 Ajouter un document</button>
+        <div id="docsListe" style="margin-top:8px;"></div>
+
+        <div style="height:1px; background:var(--line); margin:16px 0;"></div>
+
+        <div class="toggles" style="margin-bottom:0;">
+          <div class="toggle" id="tgRemisePro" onclick="toggleRemisePro()">🔧 Remise / réception par un professionnel</div>
+        </div>
+        <div id="blocRemisePro" style="display:none; margin-top:10px;">
+          <div class="field" style="margin-bottom:10px;">
+            <label>Véhicule remis par (nom)</label>
+            <input type="text" id="remisParNom" placeholder="Ex: Garage Dupont — M. Dupont">
+            <div class="field-row" style="margin-top:8px;">
+              <div class="field" style="margin-bottom:0;">
+                <label>Heure de remise</label>
+                <input type="time" id="remisParHeure">
+              </div>
+              <div class="field" style="margin-bottom:0; display:flex; align-items:flex-end;">
+                <button type="button" class="ghost" style="margin:0;" onclick="tamponnerHeurePro('remisParHeure')">⏱ Maintenant</button>
+              </div>
+            </div>
+            <label style="margin-top:10px;">Signature</label>
+            <div class="sig-wrap"><canvas id="sigCanvasRemisPar"></canvas></div>
+            <button type="button" class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasRemisPar')">Effacer</button>
+          </div>
+          <div style="height:1px; background:var(--line); margin:14px 0;"></div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Véhicule réceptionné par (nom)</label>
+            <input type="text" id="recuParNom" placeholder="Ex: Carrosserie Martin — M. Martin">
+            <div class="field-row" style="margin-top:8px;">
+              <div class="field" style="margin-bottom:0;">
+                <label>Heure de réception</label>
+                <input type="time" id="recuParHeure">
+              </div>
+              <div class="field" style="margin-bottom:0; display:flex; align-items:flex-end;">
+                <button type="button" class="ghost" style="margin:0;" onclick="tamponnerHeurePro('recuParHeure')">⏱ Maintenant</button>
+              </div>
+            </div>
+            <label style="margin-top:10px;">Signature</label>
+            <div class="sig-wrap"><canvas id="sigCanvasRecuPar"></canvas></div>
+            <button type="button" class="ghost" style="margin-top:8px;" onclick="clearSignature('sigCanvasRecuPar')">Effacer</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2032,6 +2217,8 @@
           <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
+          <div class="rate-row"><label>Capacité max dépanneuse (kg)</label><input type="number" id="r_capacitePoids" step="100"></div>
+          <div class="rate-row"><label>Hauteur max chargée (m)</label><input type="number" id="r_capaciteHauteur" step="0.05"></div>
           <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
           <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
           <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
@@ -2745,9 +2932,14 @@
         <label>Nom du client *</label>
         <input type="text" id="invClientName" placeholder="Nom / société" autocorrect="on" spellcheck="true">
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field">
         <label>Adresse du client (optionnel)</label>
         <input type="text" id="invClientAddress" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Délai de paiement (jours)</label>
+        <input type="number" id="invDelaiPaiement" value="30" min="0" step="1" inputmode="numeric">
+        <div class="km-mention" style="margin-top:6px;">La date d'échéance sera calculée et imprimée sur la facture. Les pros paient souvent à 30 jours.</div>
       </div>
     </div>
 
@@ -2859,9 +3051,35 @@
       <div class="qq-hint">Prix indicatif — à confirmer une fois sur place</div>
     </div>
 
+    <div class="field" style="margin-top:14px;">
+      <label>Nom du client (pour enregistrer le devis)</label>
+      <input type="text" id="qqClientNom" placeholder="Ex: M. Dupont">
+    </div>
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0;">
+        <label>Téléphone</label>
+        <input type="tel" id="qqClientTel" placeholder="0470 ...">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Validité (jours)</label>
+        <input type="number" id="qqValidite" value="15" min="1" step="1" inputmode="numeric">
+      </div>
+    </div>
+    <button class="primary" style="margin-top:12px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrerDevis())">💾 Enregistrer le devis</button>
+    <button class="ghost" style="margin-top:8px;" onclick="ouvrirListeDevis()">📋 Mes devis enregistrés</button>
     <button class="ghost" style="margin-top:12px; border-color:rgba(232,115,12,0.4); color:var(--orange);" onclick="devisVersIntervention()">🔧 Le client accepte — créer l'intervention</button>
     <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()">📅 Le client veut réserver — programmer le RDV</button>
     <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:8px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalListeDevisBg">
+  <div class="modal">
+    <div class="eyebrow">Commercial</div>
+    <h1 class="page-title" style="font-size:24px;">Mes devis</h1>
+    <p class="page-sub">Retrouve, partage ou transforme un devis en intervention.</p>
+    <div id="listeDevisContenu"></div>
+    <button class="ghost close-modal" onclick="fermerListeDevis()">Fermer</button>
   </div>
 </div>
 
@@ -3897,6 +4115,7 @@ const DEFAULT_RATES = {
   attente15minFee:10,
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
   diesel:2.40, dieselAutoroute:2.60, conso:15,
+  capacitePoids:3500, capaciteHauteur:2.00,
   tapPct:0.8, tapFixe:0.10,
   payconiqFixe:0.06,
   revlinkPct:1.0, revlinkFixe:0.20
@@ -4782,6 +5001,506 @@ async function enregistrerFraisPaye(categorie, libelle, montant, dateEcheance){
     await window.storage.set('registreFrais', JSON.stringify(registre));
   }catch(e){ /* le décalage d'échéance reste valable même si l'historique échoue */ }
 }
+
+function lireSignatureDataUrl(canvasId){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas || !canvas.width) return '';
+  try{
+    const ctx = canvas.getContext('2d');
+    const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let aDuTrace = false;
+    for(let i = 0; i < px.length; i += 4){
+      if(px[i] < 200 || px[i+1] < 200 || px[i+2] < 200){ aDuTrace = true; break; }
+    }
+    return aDuTrace ? canvas.toDataURL('image/png') : '';
+  }catch(e){ return ''; }
+}
+
+async function relancerFacture(key){
+  try{
+    const d = JSON.parse((await window.storage.get(key)).value);
+    const reste = resteADevoir(d);
+    const montant = reste > 0 ? reste : (d.invoicedTotal || d.total || 0);
+    const aujourdhui = new Date().toISOString().slice(0,10);
+    const echu = d.invoiceEcheance && d.invoiceEcheance < aujourdhui;
+    const echLisible = d.invoiceEcheance ? d.invoiceEcheance.split('-').reverse().join('/') : '';
+
+    let txt = 'Bonjour,\n\n';
+    txt += echu
+      ? `Sauf erreur de notre part, la facture ${d.invoiceNumber} (échéance du ${echLisible}) reste impayée à ce jour.\n\n`
+      : `Nous vous rappelons que la facture ${d.invoiceNumber} arrive à échéance le ${echLisible}.\n\n`;
+    txt += `Montant : ${fmt(montant)}\n`;
+    txt += `Intervention : ${typeLabelComplet(d)}${d.plaque ? ' — ' + d.plaque : ''}\n`;
+    txt += `Date : ${new Date(d.date).toLocaleDateString('fr-BE')}\n\n`;
+    txt += `Paiement par virement :\n${COMPANY.ibanDisplay} (${COMPANY.bic})\nCommunication : ${d.invoiceNumber}\n\n`;
+    txt += `Si le règlement a déjà été effectué, merci de ne pas tenir compte de ce message.\n\n`;
+    txt += `Cordialement,\n${COMPANY.name}\n${COMPANY.phone}`;
+
+    if(navigator.share){
+      try{ await navigator.share({text: txt}); return; }catch(e){ /* partage annulé */ }
+    }
+    await navigator.clipboard.writeText(txt);
+    showToast('Relance copiée — colle-la dans ton mail ou WhatsApp');
+  }catch(e){ showToast('Impossible de préparer la relance'); }
+}
+
+async function nextDevisNumber(){
+  const annee = new Date().getFullYear();
+  let n = 1;
+  try{
+    const res = await window.storage.get('devisCounter');
+    const c = JSON.parse(res.value);
+    n = (c.annee === annee) ? c.n + 1 : 1;
+  }catch(e){ n = 1; }
+  await window.storage.set('devisCounter', JSON.stringify({annee, n}));
+  return 'DEV-' + annee + '-' + String(n).padStart(3, '0');
+}
+
+async function tousLesDevis(){
+  try{
+    const list = await window.storage.list('devis:');
+    const res = await Promise.all((list.keys || []).map(async k => {
+      try{ return {key: k, data: JSON.parse((await window.storage.get(k)).value)}; }
+      catch(e){ return null; }
+    }));
+    return res.filter(Boolean).sort((a,b) => new Date(b.data.date) - new Date(a.data.date));
+  }catch(e){ return []; }
+}
+
+function lireParamsDevis(){
+  return {
+    type: document.getElementById('qqType').value,
+    km: parseFloat(document.getElementById('qqKm').value) || 0,
+    nuit: document.getElementById('qqNuit').classList.contains('on'),
+    we: document.getElementById('qqWe').classList.contains('on'),
+    auto: document.getElementById('qqAuto').classList.contains('on'),
+    retour: document.getElementById('qqRetour').classList.contains('on'),
+    camionOn: document.getElementById('qqCamion').classList.contains('on'),
+    vehicleType: (typeof QQ_VEHICLE_TYPE !== 'undefined') ? QQ_VEHICLE_TYPE : '',
+    total: parseFloat((document.getElementById('qqResult').textContent || '0').replace(/[^0-9,.-]/g,'').replace(',','.')) || 0
+  };
+}
+
+async function enregistrerDevis(){
+  const params = lireParamsDevis();
+  if(params.total <= 0){ showToast('Calcule d\'abord le montant du devis'); return; }
+  const nom = (document.getElementById('qqClientNom').value || '').trim();
+  const tel = (document.getElementById('qqClientTel').value || '').trim();
+  const validite = parseInt(document.getElementById('qqValidite').value) || 15;
+  try{
+    const numero = await nextDevisNumber();
+    const now = new Date();
+    const echeance = new Date(now.getTime() + validite * 86400000);
+    const devis = {
+      numero, ...params,
+      clientNom: nom, clientTel: tel,
+      validiteJours: validite,
+      date: now.toISOString(),
+      valableJusquau: echeance.toISOString().slice(0,10),
+      statut: 'en_attente'
+    };
+    const cle = 'devis:' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    await window.storage.set(cle, JSON.stringify(devis));
+    showToast('Devis ' + numero + ' enregistré');
+    document.getElementById('qqClientNom').value = '';
+    document.getElementById('qqClientTel').value = '';
+  }catch(e){ showToast('Impossible d\'enregistrer le devis'); }
+}
+
+async function ouvrirListeDevis(){
+  const box = document.getElementById('listeDevisContenu');
+  document.getElementById('modalListeDevisBg').classList.add('show');
+  box.innerHTML = '<div class="empty">Chargement…</div>';
+  const devis = await tousLesDevis();
+  if(devis.length === 0){
+    box.innerHTML = '<div class="empty">Aucun devis enregistré pour le moment</div>';
+    return;
+  }
+  const aujourdhui = new Date().toISOString().slice(0,10);
+  box.innerHTML = devis.map(d => {
+    const v = d.data;
+    const perime = v.valableJusquau < aujourdhui;
+    const dateLisible = new Date(v.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'numeric'});
+    return `<div class="hist-item" style="flex-direction:column; align-items:stretch; gap:9px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+        <div style="min-width:0;">
+          <div style="font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--orange);">${v.numero}</div>
+          <div style="font-size:14.5px; font-weight:700; color:var(--white); margin-top:2px;">${v.clientNom || 'Client non précisé'}</div>
+          <div style="font-size:11.5px; color:var(--grey); margin-top:2px;">${TYPE_LABELS[v.type] || v.type} · ${v.km} km · ${dateLisible}</div>
+        </div>
+        <div style="text-align:right; flex-shrink:0;">
+          <div style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:var(--orange);">${fmt(v.total)}</div>
+          <div class="pay-badge ${perime ? 'attente' : 'fait'}" style="margin-top:4px; display:inline-block;">${perime ? '⏳ Expiré' : '✅ Valable'}</div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--grey);">Valable jusqu'au ${v.valableJusquau.split('-').reverse().join('/')}</div>
+      <div class="quick-actions">
+        <button type="button" class="ghost" style="margin:0;" onclick="partagerDevisPdf('${d.key}')">📄 PDF</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="devisEnregistreVersIntervention('${d.key}')">🔧 Intervention</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="supprimerDevis('${d.key}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fermerListeDevis(){ document.getElementById('modalListeDevisBg').classList.remove('show'); }
+
+async function supprimerDevis(key){
+  try{
+    await window.storage.delete(key);
+    showToast('Devis supprimé');
+    ouvrirListeDevis();
+  }catch(e){ showToast('Suppression impossible'); }
+}
+
+async function devisEnregistreVersIntervention(key){
+  try{
+    const v = JSON.parse((await window.storage.get(key)).value);
+    fermerListeDevis();
+    closeQuickQuote();
+    showTab('tabNouveau', true);
+    document.getElementById('type').value = v.type;
+    updateKmLabel();
+    document.getElementById('km').value = v.km || '';
+    document.getElementById('telClient').value = v.clientTel || '';
+    [['nuit','tgNuit'],['we','tgWe'],['auto','tgAuto'],['retour','tgRetour'],['camionOn','tgCamion']].forEach(([cle,id]) => {
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle('on', !!v[cle]);
+    });
+    majorationsForceesManuellement = {nuit:true, we:true};
+    if(v.vehicleType) setVehicleType(v.vehicleType);
+    document.getElementById('prixAnnonce').value = v.total || '';
+    updateAdvancedSummary();
+    calculer();
+    majBarreActionsContextuelle();
+    showToast('Devis ' + v.numero + ' repris — complète les adresses');
+  }catch(e){ showToast('Impossible de retrouver ce devis'); }
+}
+
+async function partagerDevisPdf(key){
+  try{
+    const v = JSON.parse((await window.storage.get(key)).value);
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+
+    pdf.text(50, y, 'DEVIS', {font:'F2', size:20}); y += 20;
+    pdf.text(50, y, v.numero, {size:10.5, gray:0.3}); y += 14;
+    pdf.text(50, y, COMPANY.name + ' — TVA ' + COMPANY.tva, {size:9, gray:0.4}); y += 12;
+    pdf.text(50, y, COMPANY.phone + ' · ' + COMPANY.email, {size:9, gray:0.4}); y += 24;
+
+    if(v.clientNom || v.clientTel){
+      pdf.text(50, y, 'CLIENT', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
+      if(v.clientNom){ pdf.text(50, y, v.clientNom, {size:10}); y += 13; }
+      if(v.clientTel){ pdf.text(50, y, v.clientTel, {size:9.5, gray:0.35}); y += 13; }
+      y += 8;
+    }
+
+    pdf.text(50, y, 'PRESTATION', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 15;
+    pdf.text(50, y, TYPE_LABELS[v.type] || v.type, {size:11}); y += 15;
+    if(v.km > 0){ pdf.text(50, y, 'Distance estimée : ' + v.km + ' km' + (v.retour ? ' (aller-retour)' : ''), {size:9.5, gray:0.3}); y += 13; }
+    const conditions = [];
+    if(v.nuit) conditions.push('intervention de nuit');
+    if(v.we) conditions.push('week-end / jour férié');
+    if(v.auto) conditions.push('autoroute');
+    if(conditions.length) { pdf.text(50, y, 'Conditions : ' + conditions.join(', '), {size:9.5, gray:0.3}); y += 13; }
+    y += 12;
+
+    pdf.rect(50, y, 495, 1.2, {mode:'f', rgb:[210,206,196]}); y += 20;
+    pdf.text(50, y, 'MONTANT ESTIMÉ', {font:'F2', size:11}); 
+    pdf.text(495, y, fmt(v.total), {font:'F2', size:15});
+    y += 26;
+    pdf.text(50, y, 'Devis valable jusqu\'au ' + v.valableJusquau.split('-').reverse().join('/') + '.', {size:9, gray:0.35}); y += 12;
+    pdf.text(50, y, 'Prix indicatif établi sur la base des informations communiquées. Le montant final peut', {size:8.5, gray:0.45}); y += 11;
+    pdf.text(50, y, 'varier selon la situation constatée sur place (accessibilité, manutentions supplémentaires).', {size:8.5, gray:0.45});
+
+    const bytes = pdf.build();
+    const blob = new Blob([bytes], {type:'application/pdf'});
+    const fileName = v.numero + '.pdf';
+    const file = new File([blob], fileName, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Devis ' + v.numero});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }catch(e){ showToast('Erreur lors de la génération du devis'); }
+}
+
+let incidentPhotosData = [];
+let documentsData = [];
+
+function togglePlusOptions(){
+  const l = document.getElementById('plusOptionsList');
+  const c = document.getElementById('plusOptionsChevron');
+  const ouvert = l.style.display !== 'none';
+  l.style.display = ouvert ? 'none' : 'block';
+  c.textContent = ouvert ? '▾' : '▴';
+}
+
+function majPlusOptionsSummary(){
+  const el = document.getElementById('plusOptionsSummary');
+  if(!el) return;
+  const parts = [];
+  const donneur = document.getElementById('donneurOrdre');
+  if(donneur && donneur.value) parts.push('donneur d\'ordre');
+  const frais = parseFloat((document.getElementById('fraisMontant') || {}).value) || 0;
+  if(frais > 0) parts.push('frais ' + fmt(frais));
+  const tgAnn = document.getElementById('tgAnnulation');
+  if(tgAnn && tgAnn.classList.contains('on')) parts.push('déplacement inutile');
+  const ct = parseFloat((document.getElementById('ctRepasseMontant') || {}).value) || 0;
+  if(ct > 0) parts.push('2ᵉ passage CT');
+  const orig = document.getElementById('origineClient');
+  if(orig && orig.value) parts.push(LABELS_ORIGINE[orig.value] || 'origine');
+  el.textContent = parts.length ? parts.join(' · ') : 'Aucune';
+}
+
+function toggleTracabilite(){
+  const l = document.getElementById('tracList');
+  const c = document.getElementById('tracChevron');
+  const ouvert = l.style.display !== 'none';
+  l.style.display = ouvert ? 'none' : 'block';
+  c.textContent = ouvert ? '▾' : '▴';
+}
+
+function majTracSummary(){
+  const el = document.getElementById('tracSummary');
+  if(!el) return;
+  const parts = [];
+  if(document.getElementById('tgIncident').classList.contains('on')) parts.push('incident');
+  if(documentsData.length > 0) parts.push(documentsData.length + ' doc.');
+  if(document.getElementById('tgRemisePro').classList.contains('on')) parts.push('remise pro');
+  el.textContent = parts.length ? parts.join(' · ') : 'Aucune';
+}
+
+function toggleIncident(){
+  const tg = document.getElementById('tgIncident');
+  tg.classList.toggle('on');
+  const actif = tg.classList.contains('on');
+  document.getElementById('blocIncident').style.display = actif ? 'block' : 'none';
+  if(actif){
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const dEl = document.getElementById('incidentDate');
+    const hEl = document.getElementById('incidentHeure');
+    if(!dEl.value) dEl.value = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());
+    if(!hEl.value) hEl.value = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    setTimeout(() => initSignatureCanvas('sigCanvasIncident'), 60);
+  }
+  majTracSummary();
+  planifierSauvegardeBrouillon();
+}
+
+async function handleIncidentPhotos(event){
+  const files = Array.from(event.target.files || []);
+  if(files.length === 0) return;
+  for(const file of files){
+    try{
+      incidentPhotosData.push(await compressImageToBase64(file, 900, 0.6));
+    }catch(e){ /* on continue avec les autres photos */ }
+  }
+  event.target.value = '';
+  renderIncidentPreview();
+  showToast(incidentPhotosData.length + ' photo(s) d\'incident');
+}
+
+function renderIncidentPreview(){
+  const wrap = document.getElementById('incidentPreviewWrap');
+  const grid = document.getElementById('incidentPreviewGrid');
+  if(!wrap) return;
+  if(incidentPhotosData.length === 0){ wrap.style.display = 'none'; grid.innerHTML = ''; return; }
+  grid.innerHTML = incidentPhotosData.map((src,i) =>
+    `<div class="thumb-wrap"><img src="${src}"><div class="rm" onclick="removeIncidentPhoto(${i})">✕</div></div>`
+  ).join('');
+  wrap.style.display = 'block';
+}
+
+function removeIncidentPhoto(i){ incidentPhotosData.splice(i,1); renderIncidentPreview(); }
+function clearIncidentPhotos(){ incidentPhotosData = []; renderIncidentPreview(); }
+
+function lireIncident(){
+  const tg = document.getElementById('tgIncident');
+  if(!tg || !tg.classList.contains('on')) return null;
+  return {
+    description: (document.getElementById('incidentDesc').value || '').trim(),
+    date: document.getElementById('incidentDate').value || '',
+    heure: document.getElementById('incidentHeure').value || '',
+    temoin: (document.getElementById('incidentTemoin').value || '').trim(),
+    photos: [...incidentPhotosData],
+    refusSignature: document.getElementById('tgIncidentRefus').classList.contains('on'),
+    signature: lireSignatureDataUrl('sigCanvasIncident')
+  };
+}
+
+async function handleDocuments(event){
+  const files = Array.from(event.target.files || []);
+  if(files.length === 0) return;
+  const type = document.getElementById('docType').value;
+  for(const file of files){
+    try{
+      if(file.type === 'application/pdf'){
+        const b64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+        documentsData.push({type, nom: file.name, format: 'pdf', data: b64});
+      } else {
+        documentsData.push({type, nom: file.name, format: 'image', data: await compressImageToBase64(file, 1100, 0.65)});
+      }
+    }catch(e){ /* on continue avec les autres fichiers */ }
+  }
+  event.target.value = '';
+  renderDocumentsListe();
+  majTracSummary();
+  showToast(documentsData.length + ' document(s) joint(s)');
+}
+
+function renderDocumentsListe(){
+  const box = document.getElementById('docsListe');
+  if(!box) return;
+  if(documentsData.length === 0){ box.innerHTML = ''; return; }
+  box.innerHTML = documentsData.map((d,i) => `
+    <div class="hist-item" style="padding:10px 12px; margin-bottom:6px;">
+      <div class="info">
+        <div style="font-size:13px; font-weight:600; color:var(--white);">${d.type}</div>
+        <div style="font-size:11px; color:var(--grey); margin-top:2px;">${d.format === 'pdf' ? '📄' : '🖼'} ${d.nom.slice(0,28)}</div>
+      </div>
+      <div class="loc-btn" style="width:32px; height:32px;" onclick="removeDocument(${i})">✕</div>
+    </div>`).join('');
+}
+
+function removeDocument(i){
+  documentsData.splice(i,1);
+  renderDocumentsListe();
+  majTracSummary();
+}
+
+function toggleRemisePro(){
+  const tg = document.getElementById('tgRemisePro');
+  tg.classList.toggle('on');
+  const actif = tg.classList.contains('on');
+  document.getElementById('blocRemisePro').style.display = actif ? 'block' : 'none';
+  if(actif){
+    setTimeout(() => { initSignatureCanvas('sigCanvasRemisPar'); initSignatureCanvas('sigCanvasRecuPar'); }, 60);
+  }
+  majTracSummary();
+  planifierSauvegardeBrouillon();
+}
+
+function tamponnerHeurePro(champId){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById(champId).value = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  planifierSauvegardeBrouillon();
+}
+
+function lireRemisePro(){
+  const tg = document.getElementById('tgRemisePro');
+  if(!tg || !tg.classList.contains('on')) return null;
+  return {
+    remisPar: {
+      nom: (document.getElementById('remisParNom').value || '').trim(),
+      heure: document.getElementById('remisParHeure').value || '',
+      signature: lireSignatureDataUrl('sigCanvasRemisPar')
+    },
+    recuPar: {
+      nom: (document.getElementById('recuParNom').value || '').trim(),
+      heure: document.getElementById('recuParHeure').value || '',
+      signature: lireSignatureDataUrl('sigCanvasRecuPar')
+    }
+  };
+}
+
+function majBlocSupplement(prixAnnonce, total){
+  const bloc = document.getElementById('blocSupplement');
+  if(!bloc) return;
+  const ecart = total - prixAnnonce;
+  const pertinent = prixAnnonce > 0 && ecart > 0.5;
+  bloc.style.display = pertinent ? 'block' : 'none';
+  if(!pertinent) return;
+  document.getElementById('suppTexte').textContent =
+    'Supplément de ' + fmt(ecart) + ' par rapport aux ' + fmt(prixAnnonce) + ' annoncés.';
+  const champMontant = document.getElementById('suppMontant');
+  if(!champMontant.value) champMontant.value = total.toFixed(2);
+}
+
+function toggleSuppInforme(){
+  const tg = document.getElementById('tgSuppInforme');
+  tg.classList.toggle('on');
+  const actif = tg.classList.contains('on');
+  document.getElementById('blocSuppDetail').style.display = actif ? 'block' : 'none';
+  if(actif){
+    const champH = document.getElementById('suppHeure');
+    if(!champH.value){
+      const now = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      champH.value = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    }
+    setTimeout(() => initSignatureCanvas('sigCanvasSupp'), 60);
+  }
+  planifierSauvegardeBrouillon();
+}
+
+function lireSupplementClient(){
+  const tg = document.getElementById('tgSuppInforme');
+  if(!tg || !tg.classList.contains('on')) return null;
+  return {
+    informe: true,
+    heure: document.getElementById('suppHeure').value || '',
+    montantAccepte: parseFloat(document.getElementById('suppMontant').value) || 0,
+    signature: lireSignatureDataUrl('sigCanvasSupp')
+  };
+}
+
+function verifierCapaciteVehicule(){
+  const box = document.getElementById('alerteCapacite');
+  if(!box) return;
+  const poids = parseFloat(document.getElementById('vehPoids').value) || 0;
+  const hauteur = parseFloat(document.getElementById('vehHauteur').value) || 0;
+  const sousSol = document.getElementById('tgSousSol').classList.contains('on');
+  const capP = RATES.capacitePoids || 0;
+  const capH = RATES.capaciteHauteur || 0;
+
+  const alertes = [];
+  if(poids > 0 && capP > 0 && poids > capP){
+    alertes.push('⚠️ Poids estimé de ' + poids + ' kg supérieur à ta capacité de ' + capP + ' kg.');
+  }
+  if(hauteur > 0 && capH > 0 && (hauteur + 0.30) > capH && sousSol){
+    alertes.push('⚠️ Véhicule de ' + hauteur.toFixed(2) + ' m en sous-sol : une fois chargé il dépassera ' + capH.toFixed(2) + ' m — vérifie la hauteur sous plafond avant de descendre.');
+  } else if(hauteur > 0 && capH > 0 && hauteur > capH){
+    alertes.push('⚠️ Hauteur de ' + hauteur.toFixed(2) + ' m supérieure à ta limite chargée de ' + capH.toFixed(2) + ' m.');
+  }
+  if(sousSol && poids > 0 && capP > 0 && poids > capP * 0.85){
+    alertes.push('Sous-sol avec un véhicule lourd : prévois éventuellement un treuillage depuis la rampe plutôt qu\'un chargement sur place.');
+  }
+
+  if(alertes.length > 0){
+    box.innerHTML = alertes.join('<br><br>');
+    box.style.display = 'block';
+  } else box.style.display = 'none';
+  planifierSauvegardeBrouillon();
+}
+
+function lireControleVehicule(){
+  const poids = parseFloat(document.getElementById('vehPoids').value) || 0;
+  const hauteur = parseFloat(document.getElementById('vehHauteur').value) || 0;
+  const sousSol = document.getElementById('tgSousSol').classList.contains('on');
+  if(poids === 0 && hauteur === 0 && !sousSol) return null;
+  return {poids, hauteur, sousSol};
+}
+
+const LABELS_ORIGINE = {
+  google:'Google / web', regulier:'Client régulier', garage:'Garage',
+  assistance:'Assistance / assurance', reseaux:'Réseaux sociaux',
+  bouche:'Bouche-à-oreille', autre:'Autre'
+};
 
 let DIFFICULTE_ENLISE = '';
 let OPERATIONS_ENLISE = [];
@@ -6072,6 +6791,29 @@ async function renderDashboard(){
       tendanceHtml = `<div class="rate-row"><label>Évolution vs 30 j précédents</label><span style="color:${couleur};">${signe}${variation.toFixed(0)}%</span></div>`;
     }
 
+    const parOrigine = {};
+    let nbAvecOrigine = 0;
+    items.forEach(d => {
+      if(!d.origineClient) return;
+      nbAvecOrigine++;
+      parOrigine[d.origineClient] = parOrigine[d.origineClient] || {n:0, ca:0};
+      parOrigine[d.origineClient].n++;
+      parOrigine[d.origineClient].ca += (d.total || 0);
+    });
+    let origineHtml = '';
+    if(nbAvecOrigine > 0){
+      const tri = Object.entries(parOrigine).sort((a,b) => b[1].n - a[1].n);
+      origineHtml = `
+        <div class="grp">
+          <div class="grp-title">Origine des clients</div>
+          ${tri.map(([k,v]) => {
+            const pct = Math.round(v.n / nbAvecOrigine * 100);
+            return `<div class="rate-row"><label>${LABELS_ORIGINE[k] || k}</label><span>${v.n} · ${pct}% · ${fmt(v.ca)}</span></div>`;
+          }).join('')}
+          ${nbAvecOrigine < items.length ? `<div style="font-size:11.5px; color:var(--grey); margin-top:8px;">${items.length - nbAvecOrigine} intervention(s) sans origine renseignée</div>` : ''}
+        </div>`;
+    }
+
     container.innerHTML = `
       <div class="grp">
         <div class="grp-title">Vue d'ensemble</div>
@@ -6087,6 +6829,7 @@ async function renderDashboard(){
         <div class="rate-row"><label>Chiffre d'affaires (30 derniers jours)</label><span>${fmt(revenu30)}</span></div>
         ${tendanceHtml}
       </div>
+      ${origineHtml}
     `;
   }catch(e){
     container.innerHTML = '<div class="empty">Erreur lors du calcul des statistiques</div>';
@@ -6316,6 +7059,40 @@ async function chargerInterventionDepuisJournal(key){
   ecrireChecklist(d.checklist);
   document.getElementById('fraisLibelle').value = d.fraisLibelle || '';
   document.getElementById('fraisMontant').value = d.fraisMontant || '';
+  document.getElementById('origineClient').value = d.origineClient || '';
+  const cv = d.controleVehicule || {};
+  document.getElementById('vehPoids').value = cv.poids || '';
+  document.getElementById('vehHauteur').value = cv.hauteur || '';
+  document.getElementById('tgSousSol').classList.toggle('on', !!cv.sousSol);
+  verifierCapaciteVehicule();
+  const inc = d.incident;
+  const tgI = document.getElementById('tgIncident');
+  tgI.classList.toggle('on', !!inc);
+  document.getElementById('blocIncident').style.display = inc ? 'block' : 'none';
+  document.getElementById('incidentDesc').value = (inc && inc.description) || '';
+  document.getElementById('incidentDate').value = (inc && inc.date) || '';
+  document.getElementById('incidentHeure').value = (inc && inc.heure) || '';
+  document.getElementById('incidentTemoin').value = (inc && inc.temoin) || '';
+  document.getElementById('tgIncidentRefus').classList.toggle('on', !!(inc && inc.refusSignature));
+  incidentPhotosData = (inc && inc.photos) ? [...inc.photos] : [];
+  renderIncidentPreview();
+  documentsData = d.documents ? d.documents.map(x => ({...x})) : [];
+  renderDocumentsListe();
+  const rp = d.remisePro;
+  const tgR = document.getElementById('tgRemisePro');
+  tgR.classList.toggle('on', !!rp);
+  document.getElementById('blocRemisePro').style.display = rp ? 'block' : 'none';
+  document.getElementById('remisParNom').value = (rp && rp.remisPar && rp.remisPar.nom) || '';
+  document.getElementById('remisParHeure').value = (rp && rp.remisPar && rp.remisPar.heure) || '';
+  document.getElementById('recuParNom').value = (rp && rp.recuPar && rp.recuPar.nom) || '';
+  document.getElementById('recuParHeure').value = (rp && rp.recuPar && rp.recuPar.heure) || '';
+  majTracSummary();
+  const sc = d.supplementClient;
+  const tgS = document.getElementById('tgSuppInforme');
+  tgS.classList.toggle('on', !!(sc && sc.informe));
+  document.getElementById('blocSuppDetail').style.display = (sc && sc.informe) ? 'block' : 'none';
+  document.getElementById('suppHeure').value = (sc && sc.heure) || '';
+  document.getElementById('suppMontant').value = (sc && sc.montantAccepte) || '';
   DIFFICULTE_ENLISE = d.difficulteEnlise || '';
   OPERATIONS_ENLISE = (d.operationsEnlise || []).map(o => ({...o}));
   setDifficulteEnlise(DIFFICULTE_ENLISE || '__aucun__');
@@ -6741,6 +7518,12 @@ async function genererFacture(){
     pdf.text(50, y, S.facture, {font:'F2', size:15});
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, S.numero + invoiceNumber, {size:10});
+    {
+      const delaiPdf = parseInt(document.getElementById('invDelaiPaiement').value);
+      const joursPdf = isNaN(delaiPdf) ? 30 : delaiPdf;
+      const echPdf = new Date(Date.now() + joursPdf * 86400000);
+      pdf.text(400, y + 13, 'Échéance : ' + echPdf.toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'}), {size:9, gray:0.35});
+    }
     if(c.numero){ y += 13; pdf.text(400, y, 'Intervention : ' + c.numero, {size:9, gray:0.4}); }
     y += 16;
     pdf.text(400, y, S.date + dateStr, {size:10});
@@ -6920,6 +7703,10 @@ async function genererFacture(){
         d.invoiceNumber = invoiceNumber;
         d.invoicedTotal = c.total;
         d.invoicedDate = new Date().toISOString();
+        const delai = parseInt(document.getElementById('invDelaiPaiement').value);
+        const jours = isNaN(delai) ? 30 : delai;
+        d.invoiceDelai = jours;
+        d.invoiceEcheance = new Date(Date.now() + jours * 86400000).toISOString().slice(0,10);
         await window.storage.set(factureEnCoursKey, JSON.stringify(d));
         loadHistory();
       }catch(e){ /* la facture reste valable même si l'enregistrement du numéro échoue */ }
@@ -7540,7 +8327,8 @@ const FERMETURE_PAR_MODAL = {
   modalSortieBg: () => confirmerSortie(false),
   modalAnneeFraisBg: fermerChoixAnneeFrais,
   modalPleinBg: fermerPlein,
-  modalEnliseBg: fermerAvertissementEnlise
+  modalEnliseBg: fermerAvertissementEnlise,
+  modalListeDevisBg: fermerListeDevis
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
@@ -7602,6 +8390,7 @@ document.addEventListener('input', (e) => {
   const tab = document.getElementById('tabNouveau');
   if(tab && tab.contains(e.target)){
     planifierSauvegardeBrouillon();
+    majPlusOptionsSummary();
     if(['telClient','addrFrom','addrTo','hr_chargement'].includes(e.target.id)) majBarreActionsContextuelle();
   }
 });
@@ -7872,6 +8661,8 @@ function calculer(){
   const horaires = lireHoraires();
   const fraisLibelle = (document.getElementById('fraisLibelle').value || '').trim();
   const fraisMontant = parseFloat(document.getElementById('fraisMontant').value) || 0;
+  const origineClient = document.getElementById('origineClient').value || '';
+  const controleVehicule = lireControleVehicule();
   const estEnlise = type === 'desembourbement';
   const difficulteEnlise = estEnlise ? DIFFICULTE_ENLISE : '';
   const operationsEnlise = estEnlise ? OPERATIONS_ENLISE.map(o => ({...o})) : [];
@@ -7914,7 +8705,7 @@ function calculer(){
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -7975,6 +8766,9 @@ function calculer(){
       .join(' · ');
     rowH.style.display = 'block';
   } else rowH.style.display = 'none';
+
+  majBlocSupplement(prixAnnonce, total);
+  majPlusOptionsSummary();
 
   const rowPA = document.getElementById('rowPrixAnnonce');
   if(prixAnnonce > 0){
@@ -8059,12 +8853,14 @@ async function afficherSuccesCreation(key){
 const CHAMPS_BROUILLON = [
   'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','remise',
   'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
+  'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
+  'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
   'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
   'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage'
 ];
 const TOGGLES_BROUILLON = [
   'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
-  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink'
+  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink','tgSousSol','tgSuppInforme','tgIncident','tgIncidentRefus','tgRemisePro'
 ];
 
 let brouillonTimer = null;
@@ -8208,9 +9004,23 @@ async function enregistrer(){
       entry = {...ancienne, ...lastCalc, date: ancienne.date, paye: ancienne.paye,
                statut: ancienne.statut, numero: ancienne.numero};
       if(!entry.numero) entry.numero = await nextInterventionNumber();
+      const suppMaj = lireSupplementClient();
+      if(suppMaj) entry.supplementClient = suppMaj;
+      const incMaj = lireIncident();
+      if(incMaj) entry.incident = incMaj;
+      if(documentsData.length > 0) entry.documents = [...documentsData];
+      const rpMaj = lireRemisePro();
+      if(rpMaj) entry.remisePro = rpMaj;
     } else {
       id = 'intervention:' + Date.now();
       entry = {...lastCalc, paye: false, statut: 'a_faire', numero: await nextInterventionNumber()};
+      const supp = lireSupplementClient();
+      if(supp) entry.supplementClient = supp;
+      const inc = lireIncident();
+      if(inc) entry.incident = inc;
+      if(documentsData.length > 0) entry.documents = [...documentsData];
+      const rp = lireRemisePro();
+      if(rp) entry.remisePro = rp;
       if(entry.paiementRevolutAnticipe){
         entry.paiement = {statut: 'attente', recu: 0, moyen: 'Tap to Pay', fraisTapToPay: 0, date: null};
       } else if(entry.paiementPayconiqAnticipe){
@@ -8256,6 +9066,25 @@ async function enregistrer(){
     majDonneurOrdreUI();
     ecrireChecklist(null);
     clearDechargPhotos();
+    document.getElementById('origineClient').value = '';
+    document.getElementById('vehPoids').value = '';
+    document.getElementById('vehHauteur').value = '';
+    document.getElementById('tgSousSol').classList.remove('on');
+    document.getElementById('alerteCapacite').style.display = 'none';
+    incidentPhotosData = [];
+    documentsData = [];
+    renderIncidentPreview();
+    renderDocumentsListe();
+    ['tgIncident','tgIncidentRefus','tgRemisePro'].forEach(id => document.getElementById(id).classList.remove('on'));
+    document.getElementById('blocIncident').style.display = 'none';
+    document.getElementById('blocRemisePro').style.display = 'none';
+    ['incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
+    majTracSummary();
+    document.getElementById('tgSuppInforme').classList.remove('on');
+    document.getElementById('blocSuppDetail').style.display = 'none';
+    document.getElementById('blocSupplement').style.display = 'none';
+    document.getElementById('suppHeure').value = '';
+    document.getElementById('suppMontant').value = '';
     DIFFICULTE_ENLISE = '';
     OPERATIONS_ENLISE = [];
     ['leger','modere','difficile','complexe'].forEach(n => {
@@ -9012,6 +9841,20 @@ async function loadHistory(){
         ? `<div class="pay-badge" style="background:rgba(232,115,12,0.12); color:var(--orange);" onclick="ouvrirPaiement('${it.key}')">◐ Partiel · reste ${fmt(resteADevoir(d))}</div>`
         : `<div class="pay-badge attente" onclick="ouvrirPaiement('${it.key}')">⏳ En attente</div>`;
       const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
+      let echeanceBadge = '';
+      if(d.invoiceEcheance && statutPaiement(d) !== 'paye'){
+        const aujourdhui = new Date().toISOString().slice(0,10);
+        const echu = d.invoiceEcheance < aujourdhui;
+        const jours = Math.ceil((new Date(d.invoiceEcheance + 'T00:00:00') - new Date(aujourdhui + 'T00:00:00')) / 86400000);
+        const libelle = echu
+          ? '⏰ Échu depuis ' + Math.abs(jours) + ' j'
+          : (jours === 0 ? '📅 Échoit aujourd\'hui' : '📅 À échoir (' + jours + ' j)');
+        const couleur = echu
+          ? 'background:rgba(201,74,50,0.14); color:var(--red);'
+          : 'background:rgba(41,128,201,0.10); color:#2980c9;';
+        echeanceBadge = `<div class="pay-badge" style="${couleur}">${libelle}</div>`
+          + `<div class="pay-badge" style="background:var(--orange-soft); color:var(--orange);" onclick="relancerFacture('${it.key}')">📨 Relancer</div>`;
+      }
       const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">✏️ Modifier</div>`;
       const noteCreditBadge = d.invoiceNumber
         ? `<div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red);" onclick="ouvrirNoteCredit('${it.key}')">🧾 Note de crédit</div>`
@@ -9026,7 +9869,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
         <div class="del" onclick="supprimer('${it.key}')">✕</div>
