@@ -2041,7 +2041,8 @@
 
         <div class="grp">
           <div class="grp-title">Coût de revient carburant (indicatif)</div>
-          <div class="rate-row"><label>Prix gasoil (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
+          <div class="rate-row"><label>Prix gasoil station (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
+          <div class="rate-row"><label>Prix gasoil autoroute (€/L)</label><input type="number" id="r_dieselAutoroute" step="0.01"></div>
           <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
           <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
         </div>
@@ -2377,6 +2378,11 @@
         <span class="menu-lbl">Résumé mensuel</span>
         <span class="menu-desc">Bilan du mois</span>
       </div>
+      <div class="menu-item" onclick="closeMenu(); ouvrirPlein();">
+        <span class="menu-ico">⛽</span>
+        <span class="menu-lbl">Plein de gasoil</span>
+        <span class="menu-desc">Litres, prix, autoroute</span>
+      </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
         <span class="menu-ico">🧾</span>
         <span class="menu-lbl">Frais pro (PDF)</span>
@@ -2394,6 +2400,47 @@
       </div>
     </div>
     <button class="ghost close-modal" onclick="closeMenu()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalPleinBg">
+  <div class="modal">
+    <div class="eyebrow">Carburant</div>
+    <h1 class="page-title" style="font-size:24px;">Plein de gasoil</h1>
+    <p class="page-sub">Note tes pleins : ils partent dans tes frais pro et servent à suivre ton vrai coût au km.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Litres</label>
+        <input type="number" id="pleinLitres" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="majTotalPlein()">
+      </div>
+      <div class="field">
+        <label>Prix au litre (€)</label>
+        <input type="number" id="pleinPrixL" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="majTotalPlein()">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Lieu du plein</label>
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle on" id="pleinLieuNormal" onclick="setPleinLieu('normal')">⛽ Station normale</div>
+        <div class="toggle" id="pleinLieuAutoroute" onclick="setPleinLieu('autoroute')">🛣️ Autoroute</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="pleinDate">
+    </div>
+
+    <div class="ticket-total" style="margin-top:14px;">
+      <span class="lbl">Total du plein</span>
+      <span class="amt" id="pleinTotal">0,00 €</span>
+    </div>
+    <div id="pleinSurcout" class="km-mention" style="display:none; border-left-color:var(--orange); margin-top:10px;"></div>
+
+    <button class="primary" onclick="enregistrerPlein()">Enregistrer le plein</button>
+    <button class="ghost close-modal" onclick="fermerPlein()">Annuler</button>
   </div>
 </div>
 
@@ -3789,7 +3836,7 @@ const DEFAULT_RATES = {
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   attente15minFee:10,
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
-  diesel:2.21, conso:15,
+  diesel:2.40, dieselAutoroute:2.60, conso:15,
   tapPct:0.8, tapFixe:0.10,
   payconiqFixe:0.06,
   revlinkPct:1.0, revlinkFixe:0.20
@@ -4674,6 +4721,79 @@ async function enregistrerFraisPaye(categorie, libelle, montant, dateEcheance){
     });
     await window.storage.set('registreFrais', JSON.stringify(registre));
   }catch(e){ /* le décalage d'échéance reste valable même si l'historique échoue */ }
+}
+
+let PLEIN_LIEU = 'normal';
+
+function setPleinLieu(lieu){
+  PLEIN_LIEU = lieu;
+  document.getElementById('pleinLieuNormal').classList.toggle('on', lieu === 'normal');
+  document.getElementById('pleinLieuAutoroute').classList.toggle('on', lieu === 'autoroute');
+  const attendu = lieu === 'autoroute' ? RATES.dieselAutoroute : RATES.diesel;
+  if(attendu) document.getElementById('pleinPrixL').value = attendu.toFixed(2);
+  majTotalPlein();
+}
+
+function majTotalPlein(){
+  const litres = parseFloat(document.getElementById('pleinLitres').value) || 0;
+  const prixL = parseFloat(document.getElementById('pleinPrixL').value) || 0;
+  const total = litres * prixL;
+  document.getElementById('pleinTotal').textContent = fmt(total);
+
+  const box = document.getElementById('pleinSurcout');
+  const ref = RATES.diesel || 0;
+  if(PLEIN_LIEU === 'autoroute' && litres > 0 && prixL > 0 && ref > 0 && prixL > ref){
+    const surcout = (prixL - ref) * litres;
+    box.innerHTML = `Payé ${prixL.toFixed(2)} €/L au lieu de ${ref.toFixed(2)} €/L (ton prix de référence) : `
+      + `<strong>${fmt(surcout)} de plus</strong> sur ce plein.`;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function ouvrirPlein(){
+  document.getElementById('pleinLitres').value = '';
+  document.getElementById('pleinPrixL').value = RATES.diesel ? RATES.diesel.toFixed(2) : '';
+  setPleinLieu('normal');
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('pleinDate').value = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());
+  majTotalPlein();
+  document.getElementById('modalPleinBg').classList.add('show');
+}
+
+function fermerPlein(){
+  document.getElementById('modalPleinBg').classList.remove('show');
+}
+
+async function enregistrerPlein(){
+  const litres = parseFloat(document.getElementById('pleinLitres').value) || 0;
+  const prixL = parseFloat(document.getElementById('pleinPrixL').value) || 0;
+  const dateStr = document.getElementById('pleinDate').value;
+  if(litres <= 0 || prixL <= 0){ showToast('Indique les litres et le prix au litre'); return; }
+  if(!dateStr){ showToast('Indique la date du plein'); return; }
+
+  const total = Math.round(litres * prixL * 100) / 100;
+  const lieuLbl = PLEIN_LIEU === 'autoroute' ? 'autoroute' : 'station';
+  const libelle = `Gasoil ${litres.toFixed(2)} L à ${prixL.toFixed(2)} €/L (${lieuLbl})`;
+
+  try{
+    const registre = await litRegistreFrais();
+    registre.push({
+      categorie: 'gasoil',
+      libelle,
+      montant: total,
+      echeance: dateStr,
+      paye: dateStr,
+      litres,
+      prixL,
+      lieu: PLEIN_LIEU
+    });
+    await window.storage.set('registreFrais', JSON.stringify(registre));
+    fermerPlein();
+    showToast('Plein enregistré — ' + fmt(total));
+  }catch(e){ showToast('Impossible d\'enregistrer le plein'); }
 }
 
 async function ouvrirChoixAnneeFrais(){
@@ -7213,7 +7333,8 @@ const FERMETURE_PAR_MODAL = {
   modalRdvBg: closeRdv,
   modalAbandonBg: closeAbandonDoc,
   modalSortieBg: () => confirmerSortie(false),
-  modalAnneeFraisBg: fermerChoixAnneeFrais
+  modalAnneeFraisBg: fermerChoixAnneeFrais,
+  modalPleinBg: fermerPlein
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
