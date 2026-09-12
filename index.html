@@ -101,6 +101,17 @@
   #modalQrRevolutBg #qrRevolutBox{min-height:0; padding:16px;}
   #modalQrRevolutBg .close-modal{margin-top:14px;}
 
+  /* Résumé compact en haut de Nouvelle course : l'essentiel d'un coup d'œil */
+  .resume-compact{
+    background:var(--navy); border-radius:16px; padding:12px 14px; margin-bottom:14px;
+    display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; box-shadow:var(--shadow-md);
+  }
+  .rc-item{font-size:12.5px; color:rgba(255,255,255,0.92); display:flex; align-items:center; gap:4px;}
+  .rc-item .rc-lbl{color:rgba(255,255,255,0.45); font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; font-family:'JetBrains Mono',monospace;}
+  .rc-sep{color:rgba(255,255,255,0.22);}
+  .rc-cond{background:rgba(255,255,255,0.12); padding:2px 7px; border-radius:8px; font-size:11px; font-weight:600;}
+  .rc-prix{color:var(--orange); font-weight:700;}
+
   /* Mini indicateur de chargement sur les boutons (calcul, sauvegarde, PDF) */
   .mini-spinner{
     display:inline-block; width:14px; height:14px; border-radius:50%;
@@ -1059,6 +1070,8 @@
   <p class="page-sub">Encode l'intervention, calcule le prix, puis enregistre-la dans le journal.</p>
   <div class="card">
 
+    <div id="resumeCompact" class="resume-compact" style="display:none;"></div>
+
     <div class="field">
       <label>Type d'intervention</label>
       <select id="type" onchange="updateKmLabel(); avertirSiEnliseChoisi()">
@@ -1069,6 +1082,9 @@
         <option value="diag">Diagnostic électronique (valise OBD)</option>
         <option value="erreur_carburant">Erreur de carburant (vidange sur place)</option>
         <option value="desembourbement">Désembourbement / treuillage</option>
+        <option value="ct_passage">Contrôle technique — passage</option>
+        <option value="ct_repassage">Contrôle technique — repassage / revisite</option>
+        <option value="ct_accidente">Contrôle technique — véhicule accidenté (transport)</option>
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
         <option value="changement_batterie">Changement de batterie (achat + montage)</option>
@@ -1719,6 +1735,31 @@
       </div>
     </div>
 
+    <div class="field" id="blocCT" style="display:none;">
+      <div id="blocCtOfficiels">
+        <label>Frais officiels du contrôle technique (€)</label>
+        <input type="number" id="ctFraisOfficiels" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon()">
+        <div class="toggles" style="margin:10px 0 0;">
+          <div class="toggle" id="tgCtFraisAvances" onclick="toggle('tgCtFraisAvances'); majMentionCtFrais(); invaliderTicketObsolete()">💳 Frais avancés par moi</div>
+        </div>
+        <div class="km-mention" id="mentionCtFrais" style="margin-top:8px;">Décoché : le client paie les frais officiels directement au centre — ils apparaissent sur le bon pour information, sans être facturés.</div>
+      </div>
+
+      <div id="blocCtPrestataire" style="display:none; margin-top:14px;">
+        <label>Frais prestataire / présentation CT (€)</label>
+        <input type="number" id="ctFraisPrestataire" placeholder="170" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon()">
+        <div class="km-mention" style="margin-top:8px;">Montant facturé par le prestataire qui présente le véhicule au contrôle (contrôle compris). Facturé séparément de ton transport.</div>
+      </div>
+
+      <div class="field" style="margin:14px 0 0;">
+        <label>Km du retour / dépôt après contrôle (optionnel)</label>
+        <input type="number" id="ctKmRetour" placeholder="0" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon()">
+        <div class="km-mention" style="margin-top:8px;">Deuxième trajet après le contrôle (ramener le véhicule au garage ou chez le client), facturé à ton tarif km habituel.</div>
+      </div>
+
+      <div class="km-mention" style="margin-top:10px;">⏱ Pour le temps d'attente sur place, utilise « Minutes d'attente » dans les options avancées.</div>
+    </div>
+
     <div class="field" id="blocSupplement" style="display:none;">
       <div class="km-mention" style="border-left-color:var(--red); margin:0 0 10px;">
         <strong id="suppTexte">—</strong><br>
@@ -2094,6 +2135,9 @@
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
     <div class="ticket-row" id="rowCtRepasse" style="display:none;"><span class="l">2ᵉ passage contrôle technique</span><span class="v" id="tkCtRepasse">—</span></div>
     <div class="ticket-row" id="rowPrixAnnonce" style="display:none;"><span class="l" id="tkPrixAnnonceLbl">Prix annoncé</span><span class="v" id="tkPrixAnnonce">—</span></div>
+    <div class="ticket-row" id="rowCtRetour" style="display:none;"><span class="l" id="tkCtRetourLbl">Retour après contrôle</span><span class="v" id="tkCtRetour">—</span></div>
+    <div class="ticket-row" id="rowCtOfficiels" style="display:none;"><span class="l" id="tkCtOfficielsLbl">Frais officiels CT</span><span class="v" id="tkCtOfficiels">—</span></div>
+    <div class="ticket-row" id="rowCtPrestataire" style="display:none;"><span class="l">Présentation CT par prestataire</span><span class="v" id="tkCtPrestataire">—</span></div>
     <div class="ticket-row" id="rowManut" style="display:none;"><span class="l" id="tkManutLbl">Manutention</span><span class="v" id="tkManut">—</span></div>
     <div class="ticket-row" id="rowFrais" style="display:none;"><span class="l" id="tkFraisLbl">Frais</span><span class="v" id="tkFrais">—</span></div>
     <div class="ticket-addr" id="rowEnliseDetail" style="display:none; margin-top:8px;"><span class="tag">Désembourbement</span><br><span id="tkEnliseDetail">—</span></div>
@@ -2116,6 +2160,7 @@
       <span class="amt" id="tkTotal">0 €</span>
     </div>
     <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer dans le journal</button>
+    <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 18px rgba(63,138,95,0.24);" onclick="ouvrirVerificationFin()">✅ Terminer l'intervention</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()">🧾 Générer la facture (PDF + signature)</button>
     <button class="ghost" onclick="genererRecu()">🧾 Reçu simple (sans mentions comptables)</button>
@@ -2142,7 +2187,7 @@
 
   <div class="field" style="margin-bottom:10px;">
     <label>Rechercher (plaque, adresse, type…)</label>
-    <input type="text" id="histRecherche" placeholder="Ex : 1-ABC-123" autocorrect="off" autocapitalize="characters" oninput="loadHistory()">
+    <input type="text" id="histRecherche" placeholder="Plaque, tél., n° bon, donneur d'ordre..." autocorrect="off" autocapitalize="characters" oninput="loadHistory()">
   </div>
   <div class="toggles" style="margin-bottom:12px;">
     <div class="toggle" id="histImpayes" onclick="toggleFiltreImpayes()">💰 Impayés seulement</div>
@@ -2217,6 +2262,10 @@
           <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
+          <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
+          <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
+          <div class="rate-row"><label>CT — véhicule accidenté (transport)</label><input type="number" id="r_ct_accidente"></div>
+          <div class="rate-row"><label>CT — frais prestataire / présentation (€)</label><input type="number" id="r_ctPrestataireFee"></div>
           <div class="rate-row"><label>Capacité max dépanneuse (kg)</label><input type="number" id="r_capacitePoids" step="100"></div>
           <div class="rate-row"><label>Hauteur max chargée (m)</label><input type="number" id="r_capaciteHauteur" step="0.05"></div>
           <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
@@ -3070,6 +3119,17 @@
     <button class="ghost" style="margin-top:12px; border-color:rgba(232,115,12,0.4); color:var(--orange);" onclick="devisVersIntervention()">🔧 Le client accepte — créer l'intervention</button>
     <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()">📅 Le client veut réserver — programmer le RDV</button>
     <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:8px;">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalFinBg">
+  <div class="modal">
+    <div class="eyebrow">Clôture</div>
+    <h1 class="page-title" style="font-size:22px;">Terminer l'intervention</h1>
+    <p class="page-sub">Vérification rapide avant d'enregistrer.</p>
+    <div id="verifFinListe"></div>
+    <button class="primary" id="btnFinConfirmer" style="background:var(--green); box-shadow:0 6px 18px rgba(63,138,95,0.24);" onclick="confirmerFinIntervention()">Enregistrer et terminer</button>
+    <button class="ghost close-modal" onclick="fermerVerificationFin()">Revenir au formulaire</button>
   </div>
 </div>
 
@@ -4096,7 +4156,7 @@ function getIdatBytes(pngBytes){
 <script>
 const TYPE_LABELS = {
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
-  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", desembourbement:"Désembourbement / treuillage", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
+  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", desembourbement:"Désembourbement / treuillage", ct_passage:"Contrôle technique — passage", ct_repassage:"Contrôle technique — repassage / revisite", ct_accidente:"Contrôle technique — véhicule accidenté (transport)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
   changement_batterie:"Changement de batterie (achat + montage)",
   moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)",
   levee_saisie:"Transfert de levée de saisie (police → CT → entrepôt)",
@@ -4115,12 +4175,13 @@ const DEFAULT_RATES = {
   attente15minFee:10,
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
   diesel:2.40, dieselAutoroute:2.60, conso:15,
+  ct_passage:90, ct_repassage:70, ct_accidente:70, ctPrestataireFee:170,
   capacitePoids:3500, capaciteHauteur:2.00,
   tapPct:0.8, tapFixe:0.10,
   payconiqFixe:0.06,
   revlinkPct:1.0, revlinkFixe:0.20
 };
-const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement'];
+const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
@@ -5232,6 +5293,185 @@ async function partagerDevisPdf(key){
   }catch(e){ showToast('Erreur lors de la génération du devis'); }
 }
 
+const TYPES_CT = ['ct_passage', 'ct_repassage', 'ct_accidente'];
+
+function majBlocCT(){
+  const bloc = document.getElementById('blocCT');
+  if(!bloc) return;
+  const type = document.getElementById('type').value;
+  const estCT = TYPES_CT.includes(type);
+  bloc.style.display = estCT ? 'block' : 'none';
+  if(!estCT) return;
+
+  const accidente = type === 'ct_accidente';
+  document.getElementById('blocCtPrestataire').style.display = accidente ? 'block' : 'none';
+  document.getElementById('blocCtOfficiels').style.display = accidente ? 'none' : 'block';
+  if(accidente){
+    const champ = document.getElementById('ctFraisPrestataire');
+    if(!champ.value && RATES.ctPrestataireFee) champ.value = RATES.ctPrestataireFee;
+  }
+  majMentionCtFrais();
+}
+
+function majMentionCtFrais(){
+  const el = document.getElementById('mentionCtFrais');
+  if(!el) return;
+  const avances = document.getElementById('tgCtFraisAvances').classList.contains('on');
+  el.textContent = avances
+    ? 'Frais avancés par toi : ils sont ajoutés au total et refacturés au client.'
+    : 'Le client paie les frais officiels directement au centre — ils apparaissent sur le bon pour information, sans être facturés.';
+}
+
+function lireDonneesCT(type){
+  if(!TYPES_CT.includes(type)) return null;
+  const officiels = parseFloat(document.getElementById('ctFraisOfficiels').value) || 0;
+  const prestataire = parseFloat(document.getElementById('ctFraisPrestataire').value) || 0;
+  const kmRetour = parseFloat(document.getElementById('ctKmRetour').value) || 0;
+  const avances = document.getElementById('tgCtFraisAvances').classList.contains('on');
+  const accidente = type === 'ct_accidente';
+  return {
+    fraisOfficiels: accidente ? 0 : officiels,
+    fraisOfficielsAvances: accidente ? false : avances,
+    fraisPrestataire: accidente ? prestataire : 0,
+    kmRetour
+  };
+}
+
+function resumeCT(d){
+  const ct = d.donneesCT;
+  if(!ct) return '';
+  const parts = [];
+  if(ct.kmRetour > 0) parts.push('Retour / dépôt après contrôle : ' + ct.kmRetour + ' km');
+  if(ct.fraisOfficiels > 0){
+    parts.push(ct.fraisOfficielsAvances
+      ? 'Frais officiels CT avancés : ' + fmt(ct.fraisOfficiels)
+      : 'Frais officiels CT payés directement par le client au centre : ' + fmt(ct.fraisOfficiels) + ' (non facturés)');
+  }
+  if(ct.fraisPrestataire > 0){
+    parts.push('Présentation au contrôle assurée par un prestataire disposant des plaques nécessaires.');
+  }
+  return parts.join(' · ');
+}
+
+function majResumeCompact(){
+  const box = document.getElementById('resumeCompact');
+  if(!box) return;
+  const type = document.getElementById('type').value;
+  const plaque = (document.getElementById('plaqueImmat').value || '').trim();
+  const km = parseFloat(document.getElementById('km').value) || 0;
+  const pa = parseFloat(document.getElementById('prixAnnonce').value) || 0;
+
+  const conds = [];
+  if(document.getElementById('tgNuit').classList.contains('on')) conds.push('Nuit');
+  if(document.getElementById('tgWe').classList.contains('on')) conds.push('WE');
+  if(document.getElementById('tgAuto').classList.contains('on')) conds.push('Autoroute');
+  if(document.getElementById('tgRetour').classList.contains('on')) conds.push('Retour à vide');
+  if(document.getElementById('tgCamion').classList.contains('on')) conds.push('Camion');
+
+  const parts = [];
+  parts.push(`<span class="rc-item">${(TYPE_LABELS[type] || type).slice(0, 34)}</span>`);
+  if(plaque) parts.push(`<span class="rc-item"><span class="rc-lbl">plaque</span>${plaque}</span>`);
+  if(km > 0) parts.push(`<span class="rc-item"><span class="rc-lbl">km</span>${km}</span>`);
+  conds.forEach(c => parts.push(`<span class="rc-cond">${c}</span>`));
+  if(pa > 0) parts.push(`<span class="rc-item"><span class="rc-lbl">annoncé</span><span class="rc-prix">${fmt(pa)}</span></span>`);
+
+  const utile = plaque || km > 0 || pa > 0 || conds.length > 0;
+  box.innerHTML = utile ? parts.join('<span class="rc-sep">•</span>') : '';
+  box.style.display = utile ? 'flex' : 'none';
+}
+
+const OPTIONS_PAR_TYPE = {
+  gardiennage: ['transfert','depannage','levee_saisie','epave_demolition','moto_remorquage','desembourbement'],
+  ctRepasse: ['levee_saisie']
+};
+
+function majOptionsPertinentes(){
+  const type = document.getElementById('type').value;
+  const gard = document.getElementById('tgGardiennage');
+  if(gard){
+    const pertinent = OPTIONS_PAR_TYPE.gardiennage.includes(type);
+    const bloc = gard.closest('.toggles') || gard;
+    bloc.style.display = pertinent ? '' : 'none';
+    const champ = document.getElementById('joursGardiennage');
+    if(champ && !pertinent){
+      const p = champ.closest('.field');
+      if(p) p.style.display = 'none';
+    }
+  }
+  const ct = document.getElementById('ctRepasseMontant');
+  if(ct){
+    const p = ct.closest('.field');
+    if(p) p.style.display = OPTIONS_PAR_TYPE.ctRepasse.includes(type) ? '' : 'none';
+  }
+}
+
+function ouvrirVerificationFin(){
+  const box = document.getElementById('verifFinListe');
+  const type = document.getElementById('type').value;
+  const estRemorquage = TYPES_REMORQUAGE.includes(type);
+  const lignes = [];
+
+  const calculFait = !!lastCalc;
+  lignes.push({ok: calculFait, txt: calculFait ? 'Montant calculé : ' + fmt(lastCalc.total) : 'Montant pas encore calculé — appuie sur « Calculer »'});
+
+  if(estRemorquage){
+    const nbApres = (typeof dechargPhotosData !== 'undefined') ? dechargPhotosData.length : 0;
+    lignes.push({ok: nbApres > 0, txt: nbApres > 0 ? nbApres + ' photo(s) après déchargement' : 'Aucune photo après déchargement (preuve de remise en bon état)'});
+  }
+
+  const tgSupp = document.getElementById('tgSuppInforme');
+  const blocSupp = document.getElementById('blocSupplement');
+  if(blocSupp && blocSupp.style.display === 'block'){
+    const informe = tgSupp && tgSupp.classList.contains('on');
+    lignes.push({ok: informe, txt: informe ? 'Client informé du supplément' : 'Supplément non validé par le client'});
+  }
+
+  const inc = document.getElementById('tgIncident');
+  if(inc && inc.classList.contains('on')){
+    const sig = lireSignatureDataUrl('sigCanvasIncident');
+    const refus = document.getElementById('tgIncidentRefus').classList.contains('on');
+    lignes.push({ok: !!sig || refus, txt: sig ? 'Incident signé par le client' : (refus ? 'Incident : refus de signature noté' : 'Incident sans signature ni refus noté')});
+  }
+
+  const rp = document.getElementById('tgRemisePro');
+  if(rp && rp.classList.contains('on')){
+    const nom = (document.getElementById('recuParNom').value || '').trim();
+    lignes.push({ok: !!nom, txt: nom ? 'Réceptionné par ' + nom : 'Nom du réceptionnaire non renseigné'});
+  }
+
+  box.innerHTML = lignes.map(l => `
+    <div class="hist-item" style="padding:11px 13px; margin-bottom:7px;">
+      <div class="info" style="display:flex; align-items:center; gap:9px;">
+        <span style="font-size:16px;">${l.ok ? '✅' : '⚠️'}</span>
+        <span style="font-size:13.5px; color:${l.ok ? 'var(--white)' : 'var(--red)'};">${l.txt}</span>
+      </div>
+    </div>`).join('')
+    + `<div class="km-mention" style="margin-top:4px;">Les points en orange sont des rappels : tu peux enregistrer malgré tout.</div>`;
+
+  document.getElementById('modalFinBg').classList.add('show');
+}
+
+function fermerVerificationFin(){
+  document.getElementById('modalFinBg').classList.remove('show');
+}
+
+async function confirmerFinIntervention(){
+  fermerVerificationFin();
+  if(!lastCalc){ showToast('Calcule d\'abord le montant'); return; }
+  const cleEnCours = editingKey;
+  await enregistrer();
+  try{
+    const cible = cleEnCours || Object.keys(localStorage)
+      .filter(k => k.startsWith('jm_intervention:')).sort().pop()?.replace('jm_','');
+    if(cible){
+      const d = JSON.parse((await window.storage.get(cible)).value);
+      d.statut = 'fait';
+      await window.storage.set(cible, JSON.stringify(d));
+      await loadHistory();
+    }
+  }catch(e){ /* l'intervention est enregistrée, seul le statut n'a pas pu passer à « fait » */ }
+}
+
 let incidentPhotosData = [];
 let documentsData = [];
 
@@ -5975,7 +6215,7 @@ async function loadRates(){
 
 const TYPE_LABELS_NL = {
   pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
-  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", desembourbement:"Losmaken / takelen uit modder", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
+  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", desembourbement:"Losmaken / takelen uit modder", ct_passage:"Technische keuring — aanbieding", ct_repassage:"Technische keuring — herkeuring", ct_accidente:"Technische keuring — beschadigd voertuig (transport)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
   changement_batterie:"Batterij vervangen (aankoop + montage)",
   moto_remorquage:"Motor slepen/laden", moto_batterie:"Motorbatterij vervangen (aankoop + montage)",
   levee_saisie:"Overbrenging na inbeslagname (politie → keuring → opslag)",
@@ -5985,7 +6225,7 @@ const TYPE_LABELS_NL = {
 };
 const TYPE_LABELS_EN = {
   pneu_chg:"Tire change", pneu_rep:"Tire repair", demarrage:"Battery jump-start",
-  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", desembourbement:"Winching out / bogged vehicle recovery", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
+  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", desembourbement:"Winching out / bogged vehicle recovery", ct_passage:"Roadworthiness test — presentation", ct_repassage:"Roadworthiness test — re-test", ct_accidente:"Roadworthiness test — damaged vehicle (transport)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
   changement_batterie:"Battery replacement (purchase + installation)",
   moto_remorquage:"Motorcycle towing/loading", moto_batterie:"Motorcycle battery replacement (purchase + installation)",
   levee_saisie:"Seizure release transfer (police → inspection → storage)",
@@ -7063,6 +7303,12 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('fraisLibelle').value = d.fraisLibelle || '';
   document.getElementById('fraisMontant').value = d.fraisMontant || '';
   document.getElementById('origineClient').value = d.origineClient || '';
+  const dct = d.donneesCT || {};
+  document.getElementById('ctFraisOfficiels').value = dct.fraisOfficiels || '';
+  document.getElementById('ctFraisPrestataire').value = dct.fraisPrestataire || '';
+  document.getElementById('ctKmRetour').value = dct.kmRetour || '';
+  document.getElementById('tgCtFraisAvances').classList.toggle('on', !!dct.fraisOfficielsAvances);
+  majBlocCT();
   const cv = d.controleVehicule || {};
   document.getElementById('vehPoids').value = cv.poids || '';
   document.getElementById('vehHauteur').value = cv.hauteur || '';
@@ -7106,6 +7352,9 @@ async function chargerInterventionDepuisJournal(key){
   });
   renderOperationsEnlise();
   majBlocEnlise();
+  majOptionsPertinentes();
+  majBlocCT();
+  majResumeCompact();
   document.getElementById('annulationMontant').value = d.annulationMontant || '';
   document.getElementById('tgAnnulation').classList.toggle('on', !!d.annulation);
   majAnnulationUI();
@@ -7931,6 +8180,9 @@ function updateKmLabel(){
   document.getElementById('epavePhotoField').style.display = (isEpave || isLeveeSaisie) ? 'block' : 'none';
   document.getElementById('etatLieuxField').style.display = TYPES_REMORQUAGE.includes(type) ? 'block' : 'none';
   majBlocEnlise();
+  majOptionsPertinentes();
+  majBlocCT();
+  majResumeCompact();
   document.getElementById('ctRepasseField').style.display = isLeveeSaisie ? 'block' : 'none';
   updateAbandonDocButton();
 
@@ -8331,7 +8583,8 @@ const FERMETURE_PAR_MODAL = {
   modalAnneeFraisBg: fermerChoixAnneeFrais,
   modalPleinBg: fermerPlein,
   modalEnliseBg: fermerAvertissementEnlise,
-  modalListeDevisBg: fermerListeDevis
+  modalListeDevisBg: fermerListeDevis,
+  modalFinBg: fermerVerificationFin
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
@@ -8394,6 +8647,7 @@ document.addEventListener('input', (e) => {
   if(tab && tab.contains(e.target)){
     planifierSauvegardeBrouillon();
     majPlusOptionsSummary();
+    majResumeCompact();
     if(['telClient','addrFrom','addrTo','hr_chargement'].includes(e.target.id)) majBarreActionsContextuelle();
   }
 });
@@ -8401,6 +8655,8 @@ document.addEventListener('click', (e) => {
   const tab = document.getElementById('tabNouveau');
   if(tab && tab.contains(e.target) && e.target.classList && e.target.classList.contains('toggle')){
     planifierSauvegardeBrouillon();
+    majResumeCompact();
+    majPlusOptionsSummary();
   }
 });
 
@@ -8666,6 +8922,9 @@ function calculer(){
   const fraisMontant = parseFloat(document.getElementById('fraisMontant').value) || 0;
   const origineClient = document.getElementById('origineClient').value || '';
   const controleVehicule = lireControleVehicule();
+  const donneesCT = lireDonneesCT(type);
+  const ctOfficielsCost = (donneesCT && donneesCT.fraisOfficielsAvances) ? donneesCT.fraisOfficiels : 0;
+  const ctPrestataireCost = donneesCT ? donneesCT.fraisPrestataire : 0;
   const estEnlise = type === 'desembourbement';
   const difficulteEnlise = estEnlise ? DIFFICULTE_ENLISE : '';
   const operationsEnlise = estEnlise ? OPERATIONS_ENLISE.map(o => ({...o})) : [];
@@ -8687,6 +8946,7 @@ function calculer(){
   const gesteHorsPlage = gesteDemande && km > RATES.gesteKmMax;
   const kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
   const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
+  const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
   const kmMultiplier = retour ? 2 : 1;
   const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
   const kmCost = kmTarifExcept !== null
@@ -8702,13 +8962,13 @@ function calculer(){
   const battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
   const totalAvantRemise = annulation
     ? (annulationMontant + fraisMontant)
-    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp);
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
 
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
   const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
   const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -8723,6 +8983,27 @@ function calculer(){
   document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
   document.getElementById('rowCtRepasse').style.display = ctRepasse > 0 ? 'flex' : 'none';
   document.getElementById('tkCtRepasse').textContent = fmt(ctRepasse);
+  const rowCtR = document.getElementById('rowCtRetour');
+  if(ctRetourCost > 0){
+    document.getElementById('tkCtRetourLbl').textContent = 'Transport JM Express — retour après contrôle (' + donneesCT.kmRetour + ' km)';
+    document.getElementById('tkCtRetour').textContent = fmt(ctRetourCost);
+    rowCtR.style.display = 'flex';
+  } else rowCtR.style.display = 'none';
+
+  const rowCtO = document.getElementById('rowCtOfficiels');
+  if(donneesCT && donneesCT.fraisOfficiels > 0){
+    const av = donneesCT.fraisOfficielsAvances;
+    document.getElementById('tkCtOfficielsLbl').textContent = av ? 'Frais officiels CT (avancés)' : 'Frais officiels CT (payés par le client)';
+    document.getElementById('tkCtOfficiels').textContent = av ? fmt(donneesCT.fraisOfficiels) : fmt(donneesCT.fraisOfficiels) + ' — non facturé';
+    rowCtO.style.display = 'flex';
+  } else rowCtO.style.display = 'none';
+
+  const rowCtP = document.getElementById('rowCtPrestataire');
+  if(ctPrestataireCost > 0){
+    document.getElementById('tkCtPrestataire').textContent = fmt(ctPrestataireCost);
+    rowCtP.style.display = 'flex';
+  } else rowCtP.style.display = 'none';
+
   const rowM = document.getElementById('rowManut');
   if(manutSupp > 0){
     document.getElementById('tkManutLbl').textContent = 'Manutention' + (manutMinutes > 0 ? ' (' + manutMinutes + ' min)' : '');
@@ -8772,6 +9053,7 @@ function calculer(){
 
   majBlocSupplement(prixAnnonce, total);
   majPlusOptionsSummary();
+  majResumeCompact();
 
   const rowPA = document.getElementById('rowPrixAnnonce');
   if(prixAnnonce > 0){
@@ -8857,13 +9139,14 @@ const CHAMPS_BROUILLON = [
   'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','remise',
   'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
   'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
+  'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
   'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
   'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
   'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage'
 ];
 const TOGGLES_BROUILLON = [
   'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
-  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink','tgSousSol','tgSuppInforme','tgIncident','tgIncidentRefus','tgRemisePro'
+  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink','tgSousSol','tgSuppInforme','tgIncident','tgIncidentRefus','tgRemisePro','tgCtFraisAvances'
 ];
 
 let brouillonTimer = null;
@@ -9083,6 +9366,9 @@ async function enregistrer(){
     document.getElementById('blocRemisePro').style.display = 'none';
     ['incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
     majTracSummary();
+    setTimeout(majResumeCompact, 50);
+    ['ctFraisOfficiels','ctFraisPrestataire','ctKmRetour'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('tgCtFraisAvances').classList.remove('on');
     document.getElementById('tgSuppInforme').classList.remove('on');
     document.getElementById('blocSuppDetail').style.display = 'none';
     document.getElementById('blocSupplement').style.display = 'none';
@@ -9788,7 +10074,8 @@ async function getFilteredHistory(){
       if(to && d > to) continue;
       if(impayesSeuls && statutPaiement(dd) === 'paye') continue;
       if(recherche){
-        const champs = [dd.plaque, dd.from, dd.to, dd.depart, typeLabelComplet(dd), dd.invoiceNumber]
+        const champs = [dd.plaque, dd.from, dd.to, dd.depart, typeLabelComplet(dd), dd.invoiceNumber,
+                        dd.telClient, dd.donneurNom, dd.donneurOrdre, dd.refDossier, dd.numero]
           .filter(Boolean).join(' ');
         if(!normaliserRecherche(champs).includes(recherche)) continue;
       }
