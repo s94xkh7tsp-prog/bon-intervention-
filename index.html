@@ -458,6 +458,18 @@
 
   /* BANNIÈRE "REPRENDRE L'INTERVENTION EN COURS" — proposition discrète au lancement,
      jamais un redirect forcé. Ancrée juste au-dessus de la barre de navigation. */
+  /* Liens de vérification d'itinéraire : présentés comme les boutons de l'appli.
+     Ce sont de vrais <a href> sans target, condition d'une bascule fiable vers
+     l'application de navigation sur iPhone. */
+  .lien-verif{
+    flex:1; min-height:44px; display:flex; align-items:center; justify-content:center;
+    text-decoration:none; background:var(--panel); color:var(--grey);
+    border:1px solid var(--line); border-radius:20px; padding:10px 4px;
+    font-size:13px; font-weight:600; font-family:'Inter',sans-serif;
+    transition:background .12s ease, transform .08s ease, color .12s ease;
+  }
+  .lien-verif:active{background:var(--orange-soft); color:var(--orange); transform:scale(0.96);}
+
   /* Bandeau de mise à jour : évite d'avoir à supprimer et réinstaller l'appli. */
   .maj-banniere{
     position:fixed; top:0; left:0; right:0; z-index:210;
@@ -2230,6 +2242,7 @@
     <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
     <div class="km-mention" style="margin-bottom:6px;">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
+    <div id="blocVerifKm" style="display:none; margin:8px 0 6px;"></div>
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
     <div class="ticket-row" id="rowCtRepasse" style="display:none;"><span class="l">2ᵉ passage contrôle technique</span><span class="v" id="tkCtRepasse">—</span></div>
     <div class="ticket-row" id="rowPrixAnnonce" style="display:none;"><span class="l" id="tkPrixAnnonceLbl">Prix annoncé</span><span class="v" id="tkPrixAnnonce">—</span></div>
@@ -5614,7 +5627,112 @@ function resumeCT(d){
   return parts.join(' · ');
 }
 
-const APP_VERSION = 'jm-express-bon-v181';
+
+const VERIF_KM_SEUIL_PCT = 20;      // écart toléré avant alerte
+let VERIF_KM_CACHE = {};            // évite de réinterroger pour les mêmes adresses
+let verifKmEnCours = false;
+
+function cleAdresses(depart, from, to){
+  const n = s => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return n(depart) + '|' + n(from) + '|' + n(to);
+}
+
+async function mesurerDistanceRoutiere(depart, from, to){
+  const adresses = depart ? [depart, from, to] : [from, to];
+  const geos = [];
+  for(let i = 0; i < adresses.length; i++){
+    if(i > 0) await new Promise(r => setTimeout(r, 1100));  // limite du service : 1 req/s
+    geos.push(await geocodeAddress(adresses[i]));
+  }
+  let total = 0;
+  for(let i = 0; i < geos.length - 1; i++){
+    const a = geos[i], b = geos[i+1];
+    const url = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&alternatives=true`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(!data.routes || !data.routes.length) throw new Error('Itinéraire introuvable');
+    total += Math.min(...data.routes.map(r => r.distance)) / 1000;
+  }
+  return total;
+}
+
+async function verifierCoherenceKm(){
+  const box = document.getElementById('blocVerifKm');
+  if(!box) return;
+  const depart = (document.getElementById('addrDepart').value || '').trim();
+  const from = (document.getElementById('addrFrom').value || '').trim();
+  const to = (document.getElementById('addrTo').value || '').trim();
+  const kmAppli = parseFloat(document.getElementById('km').value) || 0;
+
+  if(!from || !to || kmAppli <= 0){ box.style.display = 'none'; return; }
+  if(!navigator.onLine){ box.style.display = 'none'; return; }
+  if(verifKmEnCours) return;
+
+  const cle = cleAdresses(depart, from, to);
+  let kmReel = VERIF_KM_CACHE[cle];
+
+  if(kmReel === undefined){
+    verifKmEnCours = true;
+    box.style.display = 'block';
+    box.innerHTML = `<div class="km-mention" style="margin:0;">Vérification de la distance…</div>`;
+    try{
+      kmReel = await mesurerDistanceRoutiere(depart, from, to);
+      VERIF_KM_CACHE[cle] = kmReel;
+    }catch(e){
+      box.innerHTML = `<div class="km-mention" style="margin:0;">Distance non vérifiable pour le moment (adresse introuvable ou service indisponible).</div>`;
+      verifKmEnCours = false;
+      return;
+    }
+    verifKmEnCours = false;
+  }
+
+  afficherVerifKm(kmAppli, kmReel, depart, from, to);
+}
+
+function afficherVerifKm(kmAppli, kmReel, depart, from, to){
+  const box = document.getElementById('blocVerifKm');
+  const ecartPct = kmAppli > 0 ? Math.abs(kmAppli - kmReel) / kmAppli * 100 : 0;
+  const concorde = ecartPct <= VERIF_KM_SEUIL_PCT;
+  const fmtKm = n => n.toFixed(1).replace('.', ',');
+
+  const enc = encodeURIComponent;
+  const urlMaps = depart
+    ? `https://www.google.com/maps/dir/?api=1&origin=${enc(depart)}&waypoints=${enc(from)}&destination=${enc(to)}&travelmode=driving`
+    : `https://www.google.com/maps/dir/?api=1&origin=${enc(from)}&destination=${enc(to)}&travelmode=driving`;
+  const urlWaze = `https://waze.com/ul?q=${enc(to)}&navigate=yes`;
+
+  const liens = `<div class="quick-actions" style="margin-top:9px;">
+      <a href="${urlMaps}" class="lien-verif">Voir dans Maps</a>
+      <a href="${urlWaze}" class="lien-verif">Waze</a>
+    </div>`;
+
+  if(concorde){
+    box.innerHTML = `<div class="km-mention" style="margin:0; border-left-color:var(--green); background:rgba(63,138,95,0.08); padding:10px 12px; border-radius:10px; opacity:1;">
+        <span style="color:var(--green); font-weight:700;">✓ Distance vérifiée : ${fmtKm(kmReel)} km</span>
+      </div>${liens}`;
+  } else {
+    box.innerHTML = `<div class="km-mention" style="margin:0; border-left-color:var(--orange); background:var(--orange-soft); padding:10px 12px; border-radius:10px; opacity:1;">
+        <span style="color:var(--orange); font-weight:700;">⚠️ Écart de distance</span><br>
+        Appli : <strong>${fmtKm(kmAppli)} km</strong> · Itinéraire : <strong>${fmtKm(kmReel)} km</strong>
+        <span style="color:var(--grey);"> (${ecartPct.toFixed(0)} % d'écart)</span><br>
+        <span style="font-size:10.5px; color:var(--grey);">Un détour ou un retour à vide peut expliquer l'écart — rien n'est modifié sans ton accord.</span>
+      </div>
+      <button type="button" class="ghost" style="margin-top:9px;" onclick="appliquerDistanceVerifiee(${kmReel.toFixed(1)})">Utiliser la distance vérifiée (${fmtKm(kmReel)} km)</button>
+      ${liens}`;
+  }
+  box.style.display = 'block';
+}
+
+function appliquerDistanceVerifiee(km){
+  document.getElementById('km').value = km;
+  document.getElementById('kmHint').style.display = 'block';
+  invaliderTicketObsolete();
+  majResumeCompact();
+  showToast('Distance mise à jour : ' + String(km).replace('.', ',') + ' km — recalcule le montant');
+  document.getElementById('blocVerifKm').style.display = 'none';
+}
+
+const APP_VERSION = 'jm-express-bon-v182';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -8757,6 +8875,8 @@ async function toggleAccesVehicule(fieldId){
 }
 
 function invaliderTicketObsolete(){
+  const bv = document.getElementById('blocVerifKm');
+  if(bv) bv.style.display = 'none';
   if(lastCalc){
     document.getElementById('ticket').classList.remove('show');
     lastCalc = null;
@@ -9349,6 +9469,7 @@ async function calculerDistance(){
     }
     document.getElementById('km').value = totalKm.toFixed(1);
     document.getElementById('kmHint').style.display = 'block';
+    VERIF_KM_CACHE[cleAdresses(depart, from, to)] = totalKm;
     invaliderTicketObsolete();
 
     if(totalKm > 250){
@@ -10396,6 +10517,7 @@ function calculer(){
 
   majBlocSupplement(prixAnnonce, total);
   majPlusOptionsSummary();
+  setTimeout(() => { verifierCoherenceKm().catch(() => {}); }, 150);
   majResumeCompact();
 
   const rowPA = document.getElementById('rowPrixAnnonce');
