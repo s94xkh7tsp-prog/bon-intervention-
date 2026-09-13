@@ -2543,6 +2543,14 @@
         </div>
 
         <div class="grp">
+          <div class="grp-title">Version de l'application</div>
+          <div class="rate-row"><label>Version installée</label><span id="versionInstallee" style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">—</span></div>
+          <div class="rate-row"><label>Version publiée</label><span id="versionPubliee" style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">—</span></div>
+          <button class="ghost" style="margin-top:8px;" onclick="avecChargement(this, 'Vérification…', () => verifierVersionManuelle())">Vérifier les mises à jour</button>
+          <div class="km-mention" id="mentionVersion" style="margin-top:8px;">Tes données ne sont jamais effacées par une mise à jour.</div>
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Avancé / Maintenance</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">
             Moteur de calcul des tarifs. Le <strong>nouveau moteur</strong> est celui recommandé :
@@ -5606,7 +5614,32 @@ function resumeCT(d){
   return parts.join(' · ');
 }
 
-const APP_VERSION = 'jm-express-bon-v179';
+const APP_VERSION = 'jm-express-bon-v180';
+
+async function verifierVersionManuelle(){
+  const inst = document.getElementById('versionInstallee');
+  const pub = document.getElementById('versionPubliee');
+  const mention = document.getElementById('mentionVersion');
+  if(inst) inst.textContent = APP_VERSION.replace('jm-express-bon-', '');
+  if(pub) pub.textContent = '…';
+  try{
+    const res = await fetch('sw.js?verif=' + Date.now(), {cache:'no-store'});
+    const txt = await res.text();
+    const m = txt.match(/CACHE_NAME\s*=\s*'([^']+)'/);
+    const publiee = m ? m[1] : null;
+    if(pub) pub.textContent = publiee ? publiee.replace('jm-express-bon-', '') : 'inconnue';
+    if(!publiee) return;
+    if(publiee === APP_VERSION){
+      if(mention) mention.textContent = 'Tu es à jour.';
+    } else {
+      if(mention) mention.innerHTML = '<strong>Une nouvelle version est disponible.</strong> Utilise le bandeau en haut de l\'écran, ou recharge l\'appli.';
+      document.getElementById('majBanniere').classList.add('show');
+    }
+  }catch(e){
+    if(pub) pub.textContent = 'hors ligne';
+    if(mention) mention.textContent = 'Impossible de vérifier : pas de connexion.';
+  }
+}
 
 async function verifierMiseAJour(){
   if(!navigator.onLine) return;
@@ -6736,6 +6769,8 @@ function fillSettingsForm(){
   document.getElementById('r_baseAddress').value = BASE_ADDRESS;
   document.getElementById('r_revolutLink').value = REVOLUT_LINK;
   majAffichageMoteur();
+  const vi = document.getElementById('versionInstallee');
+  if(vi) vi.textContent = APP_VERSION.replace('jm-express-bon-', '');
   document.getElementById('r_nightStart').value = NIGHT_START;
   document.getElementById('r_nightEnd').value = NIGHT_END;
   document.getElementById('r_pinCode').value = PIN_CODE || '';
