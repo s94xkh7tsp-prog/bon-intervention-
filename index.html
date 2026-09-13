@@ -112,6 +112,17 @@
   .rc-cond{background:rgba(255,255,255,0.12); padding:2px 7px; border-radius:8px; font-size:11px; font-weight:600;}
   .rc-prix{color:var(--orange); font-weight:700;}
 
+  /* Les icônes vectorielles ne suivent pas la taille de police : on les dimensionne
+     explicitement là où elles doivent être imposantes. */
+  .gb-ico svg{width:25px; height:25px;}
+  .gros-bouton.principal .gb-ico svg{width:29px; height:29px; stroke-width:2.2;}
+  .gear svg{width:21px; height:21px;}
+  .menu-ico svg{width:19px; height:19px;}
+  .bac-btn svg{width:21px; height:21px;}
+  @media (max-height: 700px){
+    body.sur-accueil .gb-ico svg{width:21px; height:21px;}
+  }
+
   /* Mini indicateur de chargement sur les boutons (calcul, sauvegarde, PDF) */
   .mini-spinner{
     display:inline-block; width:14px; height:14px; border-radius:50%;
@@ -172,7 +183,8 @@
     background:var(--orange-soft); border:1px solid var(--orange-dim); border-radius:14px;
     padding:14px 16px; margin-bottom:14px; font-size:14px; color:var(--white); line-height:1.5;
   }
-  .hist-summary b{color:var(--orange);}
+  /* Un montant ne doit jamais se casser avec le « € » seul sur la ligne suivante */
+  .hist-summary b{color:var(--orange); white-space:nowrap;}
   input[type=text], input[type=number], input[type=tel], input[type=date], input[type=time], input[type=password], select, textarea{
     width:100%; background:var(--panel); border:1px solid var(--line); color:var(--white);
     padding:14px 15px; border-radius:13px; font-size:16px; font-family:'Inter',sans-serif; outline:none;
@@ -209,7 +221,9 @@
   .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
   .dot.hollow{background:transparent; border:1.5px solid var(--grey);}
   .dash{width:1.5px; height:34px; background:repeating-linear-gradient(var(--line),var(--line) 3px, transparent 3px, transparent 6px);}
-  .route-fields{flex:1;}
+  /* min-width:0 est indispensable : sans lui, un enfant flex refuse de se comprimer
+     sous la largeur de son contenu et pousse toute la colonne hors de l'écran. */
+  .route-fields{flex:1; min-width:0;}
 
   .toggles{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:13px;}
   .toggle{
@@ -369,10 +383,10 @@
   .hist-item .info{flex:1; min-width:0;}
   .hist-item .type{font-size:16px; font-weight:700; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hist-item .meta{font-size:13px; color:var(--grey); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px;}
   .pay-badge{
-    display:inline-block; padding:7px 13px; border-radius:11px; font-size:12.5px; font-weight:700;
-    cursor:pointer; user-select:none; letter-spacing:0.1px;
+    display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border-radius:9px; font-size:11.5px; font-weight:700;
+    cursor:pointer; user-select:none; letter-spacing:0.1px; white-space:nowrap;
     border:1px solid transparent; transition:transform .1s ease;
   }
   .pay-badge:active{transform:scale(0.95);}
@@ -616,6 +630,7 @@
   .ec-montant{font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--orange); margin-top:5px;}
   .ec-actions{display:flex; gap:7px; margin-top:10px;}
   .ec-btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
     flex:1; text-align:center; padding:11px 6px; border-radius:22px; font-size:13px; font-weight:700;
     cursor:pointer; user-select:none; transition:transform .08s ease, filter .12s ease;
   }
@@ -630,7 +645,7 @@
   .ec-nav-row a{
     flex:1; text-align:center; text-decoration:none; padding:12px 4px; border-radius:14px;
     background:rgba(255,255,255,0.10); color:#fff; font-size:13px; font-weight:700;
-    min-height:44px; display:flex; align-items:center; justify-content:center;
+    min-height:44px; display:flex; align-items:center; justify-content:center; gap:6px;
     transition:background .12s ease, transform .1s cubic-bezier(.2,.8,.3,1.1);
   }
   .ec-nav-row a:active{background:rgba(255,255,255,0.22); transform:scale(0.96);}
@@ -936,7 +951,7 @@
 <div class="lock-screen" id="lockScreen" style="display:none;">
   <div class="lock-box">
     <div class="jm" style="margin-bottom:24px;">JM<span>EXPRESS</span></div>
-    <button class="primary" id="faceIdUnlockBtn" style="display:none; margin-bottom:16px;" onclick="deverrouillerFaceId()">🔓 Déverrouiller avec Face ID</button>
+    <button class="primary" id="faceIdUnlockBtn" style="display:none; margin-bottom:16px;" onclick="deverrouillerFaceId()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="4.5" y="11" width="15" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg> Déverrouiller avec Face ID</button>
     <label style="color:var(--grey); font-size:13px; margin-bottom:10px; display:block;">Code d'accès</label>
     <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="lockInput" class="lock-input" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter') tryUnlock()">
     <button class="primary" style="margin-top:16px;" onclick="tryUnlock()">Déverrouiller</button>
@@ -954,8 +969,8 @@
       <span class="hl-point"></span> Hors ligne
     </div>
     <div class="head-row-icons">
-      <div class="gear emergency" onclick="openUrgences()" title="Urgences">🚨</div>
-      <div class="gear" onclick="openQuickQuote()" title="Devis rapide">📞</div>
+      <div class="gear emergency" onclick="openUrgences()" title="Urgences"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 19h14"/><path d="M7 19v-5a5 5 0 0 1 10 0v5"/><path d="M12 4V2M4.5 8 3 6.8M19.5 8 21 6.8"/></svg></div>
+      <div class="gear" onclick="openQuickQuote()" title="Devis rapide"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></div>
       <div class="gear" onclick="openMenu()" title="Menu">⋯</div>
     </div>
   </div>
@@ -1042,28 +1057,28 @@
     <div class="eyebrow">Accès rapide</div>
     <div class="accueil-grid">
       <div class="gros-bouton principal" onclick="showTab('tabNouveau')">
-        <span class="gb-ico">🔧</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg></span>
         <span class="gb-txt">Nouvelle intervention</span>
       </div>
       <div class="gros-bouton" onclick="openQuickQuote()">
-        <span class="gb-ico">📞</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></span>
         <span class="gb-txt">Devis</span>
       </div>
       <div class="gros-bouton" onclick="showTab('tabHistorique')">
-        <span class="gb-ico">🕘</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
         <span class="gb-txt">Historique</span>
       </div>
       <div class="gros-bouton" onclick="ouvrirImpayes()">
-        <span class="gb-ico">💰</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5M9 12h4"/></svg></span>
         <span class="gb-txt">Impayés</span>
         <span class="gb-badge" id="gbImpayesBadge" style="display:none;">0</span>
       </div>
       <div class="gros-bouton" onclick="openRdv()">
-        <span class="gb-ico">📅</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="gb-txt">RDV</span>
       </div>
       <div class="gros-bouton" onclick="openClients()">
-        <span class="gb-ico">👤</span>
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg></span>
         <span class="gb-txt">Clients</span>
       </div>
     </div>
@@ -1110,8 +1125,8 @@
       <label>Téléphone du client (optionnel)</label>
       <div class="input-with-btn">
         <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
-        <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler">📞</button>
-        <button type="button" class="loc-btn" onclick="smsClient()" title="SMS">💬</button>
+        <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></button>
+        <button type="button" class="loc-btn" onclick="smsClient()" title="SMS"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></button>
       </div>
     </div>
 
@@ -1148,8 +1163,8 @@
       <div class="input-with-btn">
         <textarea rows="1" id="addrDepart" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrDepart'); invaliderTicketObsolete()" readonly onclick="ouvrirSaisieAdresse('addrDepart')"></textarea>
         <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrDepart')" onclick="effacerChamp('addrDepart')" title="Effacer">✕</button>
-        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrDepart')" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse">🎤</button>
-        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrDepart')" onclick="useMyLocation('addrDepart')" title="Utiliser ma position">📍</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrDepart')" onclick="dicterAdresse('addrDepart')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrDepart')" onclick="useMyLocation('addrDepart')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
       </div>
           <div class="addr-suggest" id="addrDepartSuggest" style="display:none;"></div>
     </div>
@@ -1166,37 +1181,37 @@
           <div class="input-with-btn">
             <textarea rows="1" id="addrFrom" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrFrom'); checkAccesVehicule('addrFrom'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrFrom')" readonly onclick="ouvrirSaisieAdresse('addrFrom')"></textarea>
             <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrFrom')" onclick="effacerChamp('addrFrom')" title="Effacer">✕</button>
-            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrFrom')" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse">🎤</button>
-            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrFrom')" onclick="useMyLocation('addrFrom')" title="Utiliser ma position">📍</button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrFrom')" onclick="dicterAdresse('addrFrom')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrFrom')" onclick="useMyLocation('addrFrom')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
           </div>
           <div class="addr-suggest" id="addrFromSuggest" style="display:none;"></div>
           <div class="access-hint" id="addrFromAccessHint" style="display:none;"></div>
           <div class="quick-actions">
-            <button type="button" onclick="ouvrirPlans('addrFrom')">🧭 Plans</button>
-            <button type="button" onclick="ouvrirGoogleMaps('addrFrom')">🗺️ Maps</button>
-            <button type="button" onclick="ouvrirWaze('addrFrom')">🚗 Waze</button>
+            <button type="button" onclick="ouvrirPlans('addrFrom')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5 11 11l-1.5 3.5L13 13z"/></svg> Plans</button>
+            <button type="button" onclick="ouvrirGoogleMaps('addrFrom')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5"/><path d="M15 6.5V20"/></svg> Maps</button>
+            <button type="button" onclick="ouvrirWaze('addrFrom')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Waze</button>
           </div>
-          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrFrom')">🚦 Noter l'accès véhicule</button>
+          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrFrom')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="7" y="2.5" width="10" height="16" rx="3"/><path d="M12 21v1"/><circle cx="12" cy="6.5" r="1.3"/><circle cx="12" cy="10.5" r="1.3"/><circle cx="12" cy="14.5" r="1.3"/></svg> Noter l'accès véhicule</button>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
             <textarea rows="1" id="addrTo" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrTo'); checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')" readonly onclick="ouvrirSaisieAdresse('addrTo')"></textarea>
             <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrTo')" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
-            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrTo')" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse">🎤</button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrTo')" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
           </div>
           <div class="addr-suggest" id="addrToSuggest" style="display:none;"></div>
           <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
           <div class="quick-actions">
-            <button type="button" onclick="ouvrirPlans('addrTo')">🧭 Plans</button>
-            <button type="button" onclick="ouvrirGoogleMaps('addrTo')">🗺️ Maps</button>
-            <button type="button" onclick="ouvrirWaze('addrTo')">🚗 Waze</button>
+            <button type="button" onclick="ouvrirPlans('addrTo')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5 11 11l-1.5 3.5L13 13z"/></svg> Plans</button>
+            <button type="button" onclick="ouvrirGoogleMaps('addrTo')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5"/><path d="M15 6.5V20"/></svg> Maps</button>
+            <button type="button" onclick="ouvrirWaze('addrTo')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Waze</button>
           </div>
           <div class="quick-actions" style="margin-top:8px;">
-            <button type="button" onclick="ouvrirFavoris()">⭐ Mes destinations</button>
-            <button type="button" onclick="ajouterFavoriDepuisChamp()">➕ Ajouter aux favoris</button>
+            <button type="button" onclick="ouvrirFavoris()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Mes destinations</button>
+            <button type="button" onclick="ajouterFavoriDepuisChamp()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg> Ajouter aux favoris</button>
           </div>
-          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrTo')">🚦 Noter l'accès véhicule</button>
+          <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrTo')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="7" y="2.5" width="10" height="16" rx="3"/><path d="M12 21v1"/><circle cx="12" cy="6.5" r="1.3"/><circle cx="12" cy="10.5" r="1.3"/><circle cx="12" cy="14.5" r="1.3"/></svg> Noter l'accès véhicule</button>
         </div>
       </div>
     </div>
@@ -1607,9 +1622,9 @@
       <option value="Wavre">
     </datalist>
 
-    <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()">📏 Calculer la distance automatiquement</button>
+    <button class="ghost" style="margin-top:10px;" onclick="calculerDistance()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m3 15 6-6 9 9-6 6z"/><path d="M8.5 9.5 11 12M11 7l2.5 2.5M13.5 4.5 16 7"/></svg> Calculer la distance automatiquement</button>
     <button class="ghost" style="margin-top:8px;" onclick="openRoutes()">🚏 Trajets fréquents (fonctionne hors ligne)</button>
-    <button class="ghost" style="margin-top:8px;" onclick="openClients()">👤 Clients enregistrés</button>
+    <button class="ghost" style="margin-top:8px;" onclick="openClients()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg> Clients enregistrés</button>
 
     <div class="kmrow" style="margin-top:14px;">
       <div class="field">
@@ -1629,13 +1644,13 @@
 
     <label>Conditions</label>
     <div class="toggles">
-      <div class="toggle" id="tgNuit" onclick="marquerMajorationManuelle('tgNuit'); toggle('tgNuit')">🌙 Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
-      <div class="toggle" id="tgWe" onclick="marquerMajorationManuelle('tgWe'); toggle('tgWe')">📅 Week-end</div>
-      <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')">🛣️ Autoroute</div>
+      <div class="toggle" id="tgNuit" onclick="marquerMajorationManuelle('tgNuit'); toggle('tgNuit')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg> Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
+      <div class="toggle" id="tgWe" onclick="marquerMajorationManuelle('tgWe'); toggle('tgWe')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Week-end</div>
+      <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3 4 21M17 3l3 18M12 4v3M12 11v3M12 18v3"/></svg> Autoroute</div>
       <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide<span class="sub">compté dans le km</span></div>
-      <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;">🔋 Déplacement achat batterie</div>
-      <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;">🚗 Abandon par le propriétaire</div>
-      <div class="toggle" id="tgSansMoteur" onclick="toggle('tgSansMoteur')" style="display:none;">🔧 Sans moteur</div>
+      <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Déplacement achat batterie</div>
+      <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Abandon par le propriétaire</div>
+      <div class="toggle" id="tgSansMoteur" onclick="toggle('tgSansMoteur')" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg> Sans moteur</div>
       <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
     </div>
 
@@ -1745,7 +1760,7 @@
         <label>Frais officiels du contrôle technique (€)</label>
         <input type="number" id="ctFraisOfficiels" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon()">
         <div class="toggles" style="margin:10px 0 0;">
-          <div class="toggle" id="tgCtFraisAvances" onclick="toggle('tgCtFraisAvances'); majMentionCtFrais(); invaliderTicketObsolete()">💳 Frais avancés par moi</div>
+          <div class="toggle" id="tgCtFraisAvances" onclick="toggle('tgCtFraisAvances'); majMentionCtFrais(); invaliderTicketObsolete()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg> Frais avancés par moi</div>
         </div>
         <div class="km-mention" id="mentionCtFrais" style="margin-top:8px;">Décoché : le client paie les frais officiels directement au centre — ils apparaissent sur le bon pour information, sans être facturés.</div>
       </div>
@@ -1771,7 +1786,7 @@
         Fais valider ce supplément au client avant de terminer l'intervention.
       </div>
       <div class="toggles" style="margin-bottom:0;">
-        <div class="toggle" id="tgSuppInforme" onclick="toggleSuppInforme()">✅ Client informé du supplément</div>
+        <div class="toggle" id="tgSuppInforme" onclick="toggleSuppInforme()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Client informé du supplément</div>
       </div>
       <div id="blocSuppDetail" style="display:none; margin-top:10px;">
         <div class="field-row">
@@ -1827,7 +1842,7 @@
             <input type="number" id="manutSupp" placeholder="0" min="0" step="5" inputmode="decimal">
           </div>
         </div>
-        <button type="button" class="ghost" style="margin-top:10px;" onclick="ajouterOperationEnlise()">➕ Ajouter cette opération</button>
+        <button type="button" class="ghost" style="margin-top:10px;" onclick="ajouterOperationEnlise()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg> Ajouter cette opération</button>
         <div class="km-mention" style="margin-top:8px;">Tu peux enregistrer plusieurs opérations au fur et à mesure, jusqu'à la sortie complète du véhicule.</div>
       </div>
 
@@ -1840,9 +1855,9 @@
 
     <div class="field">
       <div class="toggles" style="margin-bottom:0;">
-        <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()">📱 Tap to Pay (Revolut)</div>
+        <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 19h2"/></svg> Tap to Pay (Revolut)</div>
         <div class="toggle" id="tgPayconiq" onclick="toggle('tgPayconiq'); majApercuPayconiq()">🔲 Payconiq / Bancontact Pro</div>
-        <div class="toggle" id="tgRevlink" onclick="toggle('tgRevlink'); majApercuRevlink()">🔗 Lien/QR Revolut</div>
+        <div class="toggle" id="tgRevlink" onclick="toggle('tgRevlink'); majApercuRevlink()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M10 13a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7L11.5 6"/><path d="M14 11a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7L12.5 18"/></svg> Lien/QR Revolut</div>
       </div>
       <button type="button" class="ghost" style="margin-top:8px;" onclick="ouvrirQrRevolut()">📲 Afficher mon QR Revolut au client</button>
       <div id="apercuRevolutBox" style="display:none; margin-top:10px;">
@@ -1910,22 +1925,22 @@
           </div>
         </div>
         <div class="toggles" style="margin:10px 0 0;">
-          <div class="toggle" id="tgSousSol" onclick="toggle('tgSousSol'); verifierCapaciteVehicule()">🅿️ Parking / sous-sol</div>
+          <div class="toggle" id="tgSousSol" onclick="toggle('tgSousSol'); verifierCapaciteVehicule()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M10 17V8h2.8a2.6 2.6 0 0 1 0 5.2H10"/></svg> Parking / sous-sol</div>
         </div>
         <div id="alerteCapacite" class="km-mention" style="display:none; border-left-color:var(--red); margin-top:10px;"></div>
 
         <label style="margin-top:14px;">Type de véhicule</label>
         <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
-          <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')">🚗 Normale</div>
-          <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')">🚙 SUV / 4x4</div>
-          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')">🔋 Électrique/Hybride</div>
-          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
+          <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
+          <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
+          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
+          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
         </div>
         <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
           ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
         </div>
         <div class="toggles" style="margin-bottom:8px;">
-          <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;">🚛 Avec le camion</div>
+          <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> Avec le camion</div>
           <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField(); updateAdvancedSummary()">🏚️ Gardiennage (jours suppl.)</div>
           <div class="toggle" id="tgAttente" onclick="toggle('tgAttente'); updateAttenteField(); updateAdvancedSummary()">⏱️ Temps d'attente</div>
         </div>
@@ -1957,7 +1972,7 @@
     <label>Photo facture d'achat (pièce/batterie, optionnel)</label>
     <div class="photo-row">
       <input type="file" id="receiptPhoto" accept="image/*" onchange="handleReceiptPhoto(event)" style="display:none;">
-      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('receiptPhoto').click()">📷 Photographier / choisir une facture</button>
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('receiptPhoto').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photographier / choisir une facture</button>
       <div id="receiptPreviewWrap" style="display:none; margin-top:8px;">
         <img id="receiptPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearReceiptPhoto()">Retirer la photo</button>
@@ -1973,7 +1988,7 @@
       <div class="extras-list" id="tracList" style="display:none;">
 
         <div class="toggles" style="margin-bottom:0;">
-          <div class="toggle" id="tgIncident" onclick="toggleIncident()">⚠️ Incident pendant l'intervention</div>
+          <div class="toggle" id="tgIncident" onclick="toggleIncident()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 3.5 2.5 20h19z"/><path d="M12 9.5v4.5M12 17h.01"/></svg> Incident pendant l'intervention</div>
         </div>
         <div id="blocIncident" style="display:none; margin-top:10px;">
           <div class="field" style="margin-bottom:10px;">
@@ -1995,7 +2010,7 @@
             <input type="text" id="incidentTemoin" placeholder="Facultatif">
           </div>
           <input type="file" id="incidentPhotosInput" accept="image/*" multiple onchange="handleIncidentPhotos(event)" style="display:none;">
-          <button type="button" class="ghost" style="margin-top:10px;" onclick="document.getElementById('incidentPhotosInput').click()">📷 Photos de l'incident</button>
+          <button type="button" class="ghost" style="margin-top:10px;" onclick="document.getElementById('incidentPhotosInput').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photos de l'incident</button>
           <div id="incidentPreviewWrap" style="display:none; margin-top:8px;">
             <div id="incidentPreviewGrid" class="epave-preview-grid"></div>
             <button type="button" class="ghost" style="margin-top:6px;" onclick="clearIncidentPhotos()">Retirer toutes les photos</button>
@@ -2020,13 +2035,13 @@
           <option value="Document d'assurance">Document d'assurance</option>
           <option value="Autre document">Autre document</option>
         </select>
-        <button type="button" class="ghost" onclick="document.getElementById('docsInput').click()">📎 Ajouter un document</button>
+        <button type="button" class="ghost" onclick="document.getElementById('docsInput').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7l8.5-8.5a3.5 3.5 0 0 1 5 5L10.5 19a2 2 0 0 1-3-3l8-8"/></svg> Ajouter un document</button>
         <div id="docsListe" style="margin-top:8px;"></div>
 
         <div style="height:1px; background:var(--line); margin:16px 0;"></div>
 
         <div class="toggles" style="margin-bottom:0;">
-          <div class="toggle" id="tgRemisePro" onclick="toggleRemisePro()">🔧 Remise / réception par un professionnel</div>
+          <div class="toggle" id="tgRemisePro" onclick="toggleRemisePro()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg> Remise / réception par un professionnel</div>
         </div>
         <div id="blocRemisePro" style="display:none; margin-top:10px;">
           <div class="field" style="margin-bottom:10px;">
@@ -2069,7 +2084,7 @@
     <div class="photo-row" id="etatLieuxField" style="display:none;">
       <label>État des lieux avant chargement (protection en cas de litige)</label>
       <input type="file" id="etatLieuxPhotos" accept="image/*" multiple onchange="handleEtatLieuxPhotos(event)" style="display:none;">
-      <button type="button" class="ghost" style="margin-bottom:8px;" onclick="document.getElementById('etatLieuxPhotos').click()">📷 Photos de l'état du véhicule</button>
+      <button type="button" class="ghost" style="margin-bottom:8px;" onclick="document.getElementById('etatLieuxPhotos').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photos de l'état du véhicule</button>
       <div id="etatLieuxPreviewWrap" style="display:none; margin-top:8px; margin-bottom:8px;">
         <div id="etatLieuxPreviewGrid" class="epave-preview-grid"></div>
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearEtatLieuxPhotos()">Retirer toutes les photos</button>
@@ -2096,7 +2111,7 @@
       <div class="field" style="margin-bottom:0;">
         <label>Photos après déchargement (preuve de remise en bon état)</label>
         <input type="file" id="dechargPhotos" accept="image/*" multiple onchange="handleDechargPhotos(event)" style="display:none;">
-        <button type="button" class="ghost" style="margin-top:0;" onclick="document.getElementById('dechargPhotos').click()">📷 Photos après déchargement</button>
+        <button type="button" class="ghost" style="margin-top:0;" onclick="document.getElementById('dechargPhotos').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photos après déchargement</button>
         <div id="dechargPreviewWrap" style="display:none; margin-top:8px;">
           <div id="dechargPreviewGrid" class="epave-preview-grid"></div>
           <button type="button" class="ghost" style="margin-top:6px;" onclick="clearDechargPhotos()">Retirer toutes les photos</button>
@@ -2107,14 +2122,14 @@
     <div class="photo-row" id="epavePhotoField" style="display:none;">
       <label>Photos de l'épave (état du véhicule à la prise en charge)</label>
       <input type="file" id="epavePhotos" accept="image/*" multiple onchange="handleEpavePhotos(event)" style="display:none;">
-      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('epavePhotos').click()">📷 Ajouter des photos de l'épave</button>
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('epavePhotos').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Ajouter des photos de l'épave</button>
       <div id="epavePreviewWrap" style="display:none; margin-top:8px;">
         <div id="epavePreviewGrid" class="epave-preview-grid"></div>
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearEpavePhotos()">Retirer toutes les photos</button>
       </div>
     </div>
 
-    <button type="button" class="ghost" id="btnDocAbandon" style="display:none; margin-bottom:14px;" onclick="openAbandonDoc()">📄 Document d'abandon / cession du véhicule</button>
+    <button type="button" class="ghost" id="btnDocAbandon" style="display:none; margin-bottom:14px;" onclick="openAbandonDoc()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg> Document d'abandon / cession du véhicule</button>
 
     <button class="primary" id="btnCalculer" onclick="avecChargement(this, 'Calcul…', () => calculer())">Calculer le montant</button>
   </div>
@@ -2165,44 +2180,62 @@
       <span class="amt" id="tkTotal">0 €</span>
     </div>
     <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer dans le journal</button>
-    <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()">✅ Terminer l'intervention</button>
+    <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer l'intervention</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
-    <button class="ghost" onclick="openInvoice()">🧾 Générer la facture (PDF + signature)</button>
-    <button class="ghost" onclick="genererRecu()">🧾 Reçu simple (sans mentions comptables)</button>
-    <button class="ghost" onclick="openAvis()">⭐ Demander un avis (QR à scanner)</button>
+    <button class="ghost" onclick="openInvoice()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Générer la facture (PDF + signature)</button>
+    <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Reçu simple (sans mentions comptables)</button>
+    <button class="ghost" onclick="openAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Demander un avis (QR à scanner)</button>
   </div>
   </section>
 
   <section class="tab-section" id="tabHistorique" style="display:none;">
   <div class="eyebrow">Carnet local</div>
   <h1 class="page-title">Historique</h1>
-  <p class="page-sub">Toutes tes interventions enregistrées, filtrables par période.</p>
-
-  <div class="field-row">
-    <div class="field" style="margin-bottom:0;">
-      <label>Du</label>
-      <input type="date" id="histDateFrom" onchange="loadHistory()">
-    </div>
-    <div class="field" style="margin-bottom:0;">
-      <label>Au</label>
-      <input type="date" id="histDateTo" onchange="loadHistory()">
-    </div>
-  </div>
-  <button class="ghost" style="margin:8px 0 10px 0;" onclick="resetHistDates()">Réinitialiser les dates (tout afficher)</button>
+  <p class="page-sub">Toutes tes interventions enregistrées.</p>
 
   <div class="field" style="margin-bottom:10px;">
-    <label>Rechercher (plaque, adresse, type…)</label>
+    <div class="extras-header" onclick="toggleFiltresDates()">
+      <label style="margin:0; cursor:pointer;">+ Filtrer par période</label>
+      <span class="extras-summary" id="filtresDatesSummary">Tout</span>
+      <span class="extras-chevron" id="filtresDatesChevron">▾</span>
+    </div>
+    <div class="extras-list" id="filtresDatesList" style="display:none;">
+      <div class="field-row">
+        <div class="field" style="margin-bottom:0;">
+          <label>Du</label>
+          <input type="date" id="histDateFrom" onchange="loadHistory(); majFiltresDatesSummary()">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Au</label>
+          <input type="date" id="histDateTo" onchange="loadHistory(); majFiltresDatesSummary()">
+        </div>
+      </div>
+      <button class="ghost" style="margin:10px 0 0 0;" onclick="resetHistDates(); majFiltresDatesSummary()">Réinitialiser (tout afficher)</button>
+    </div>
+  </div>
+
+  <div class="field" style="margin-bottom:10px;">
+    <label>Rechercher (plaque, tél., n° bon, donneur…)</label>
     <input type="text" id="histRecherche" placeholder="Plaque, tél., n° bon, donneur d'ordre..." autocorrect="off" autocapitalize="characters" oninput="loadHistory()">
   </div>
   <div class="toggles" style="margin-bottom:12px;">
-    <div class="toggle" id="histImpayes" onclick="toggleFiltreImpayes()">💰 Impayés seulement</div>
+    <div class="toggle" id="histImpayes" onclick="toggleFiltreImpayes()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5M9 12h4"/></svg> Impayés seulement</div>
   </div>
 
   <div id="historySummary" class="hist-summary"></div>
-  <button class="ghost" style="margin-bottom:8px;" onclick="openDashboard()">📊 Tableau de bord</button>
-  <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()">📊 Exporter en Excel (comptabilité)</button>
-  <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()">🧾 Exporter en PDF groupé</button>
-  <button class="ghost" style="margin-bottom:12px; color:var(--red); border-color:rgba(201,74,50,0.35);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
+  <div class="field" style="margin-bottom:12px;">
+    <div class="extras-header" onclick="toggleOutilsHistorique()">
+      <label style="margin:0; cursor:pointer;">+ Outils</label>
+      <span class="extras-summary" id="outilsHistoSummary">Bord, Excel, PDF</span>
+      <span class="extras-chevron" id="outilsHistoChevron">▾</span>
+    </div>
+    <div class="extras-list" id="outilsHistoList" style="display:none;">
+      <button class="ghost" style="margin-bottom:8px;" onclick="openDashboard()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> Tableau de bord</button>
+      <button class="ghost" style="margin-bottom:8px;" onclick="exporterCsv()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> Exporter en Excel (comptabilité)</button>
+      <button class="ghost" style="margin-bottom:8px;" onclick="exporterPdfGroupe()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Exporter en PDF groupé</button>
+      <button class="ghost" style="margin-bottom:0; color:var(--red); border-color:rgba(201,74,50,0.35);" onclick="viderHistoriqueFiltre()">🗑️ Supprimer ces interventions du journal (après export)</button>
+    </div>
+  </div>
   <div id="history" class="stagger"></div>
   </section>
 
@@ -2405,7 +2438,7 @@
           <div id="faceIdSection" style="display:none;">
             <div style="border-top:1px solid var(--line); margin:4px 0 12px 0;"></div>
             <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;" id="faceIdStatus">Face ID / Touch ID non activé.</p>
-            <button class="ghost" id="faceIdBtn" onclick="activerFaceId()">🔓 Activer Face ID / Touch ID</button>
+            <button class="ghost" id="faceIdBtn" onclick="activerFaceId()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="4.5" y="11" width="15" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg> Activer Face ID / Touch ID</button>
           </div>
         </div>
 
@@ -2632,57 +2665,57 @@
     <h1 class="page-title" style="font-size:26px;">Menu</h1>
     <div class="menu-grid">
       <div class="menu-item" onclick="closeMenu(); openRdv();">
-        <span class="menu-ico">📅</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Rendez-vous</span>
         <span class="menu-desc">Programmer une course</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openPaiement();">
-        <span class="menu-ico">💳</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg></span>
         <span class="menu-lbl">QR de paiement</span>
         <span class="menu-desc">Faire payer sur place</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openAvis();">
-        <span class="menu-ico">⭐</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg></span>
         <span class="menu-lbl">Demander un avis</span>
         <span class="menu-desc">QR à faire scanner</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openClients();">
-        <span class="menu-ico">👤</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg></span>
         <span class="menu-lbl">Clients</span>
         <span class="menu-desc">Carnet d'adresses</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openRoutes();">
-        <span class="menu-ico">🚏</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 5h11v6H6"/><path d="M4 21h8"/></svg></span>
         <span class="menu-lbl">Trajets fréquents</span>
         <span class="menu-desc">Distances enregistrées</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirRechercheGlobale();">
-        <span class="menu-ico">🔎</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg></span>
         <span class="menu-lbl">Recherche</span>
         <span class="menu-desc">Plaque, client, adresse…</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirResumeMensuel();">
-        <span class="menu-ico">📅</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Résumé mensuel</span>
         <span class="menu-desc">Bilan du mois</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirPlein();">
-        <span class="menu-ico">⛽</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v16M4 21h11M5 11h9"/><path d="M14 8h2.5a2 2 0 0 1 2 2v7a1.7 1.7 0 0 0 3.4 0V9l-2-3"/></svg></span>
         <span class="menu-lbl">Plein de gasoil</span>
         <span class="menu-desc">Litres, prix, autoroute</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
-        <span class="menu-ico">🧾</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>
         <span class="menu-lbl">Frais pro (PDF)</span>
         <span class="menu-desc">Pour le comptable</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openDashboard();">
-        <span class="menu-ico">📊</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
         <span class="menu-lbl">Tableau de bord</span>
         <span class="menu-desc">Chiffres et tendances</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openSettings();">
-        <span class="menu-ico">⚙️</span>
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M4.2 6.5l2.6 1.5M17.2 16l2.6 1.5M4.2 17.5l2.6-1.5M17.2 8l2.6-1.5"/></svg></span>
         <span class="menu-lbl">Réglages</span>
         <span class="menu-desc">Tarifs et préférences</span>
       </div>
@@ -2725,7 +2758,7 @@
       <label>Lieu du plein</label>
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle on" id="pleinLieuNormal" onclick="setPleinLieu('normal')">⛽ Station normale</div>
-        <div class="toggle" id="pleinLieuAutoroute" onclick="setPleinLieu('autoroute')">🛣️ Autoroute</div>
+        <div class="toggle" id="pleinLieuAutoroute" onclick="setPleinLieu('autoroute')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3 4 21M17 3l3 18M12 4v3M12 11v3M12 18v3"/></svg> Autoroute</div>
       </div>
     </div>
 
@@ -2775,8 +2808,8 @@
       <label>Compte à créditer</label>
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle on" id="payIban1" onclick="setPayIban(1)">💼 Pro<span class="sub">…8568</span></div>
-        <div class="toggle" id="payIban2" onclick="setPayIban(2)">👤 Perso<span class="sub">…8569</span></div>
-        <div class="toggle" id="payIban3" onclick="setPayIban(3)">📱 Revolut<span class="sub">lien perso</span></div>
+        <div class="toggle" id="payIban2" onclick="setPayIban(2)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg> Perso<span class="sub">…8569</span></div>
+        <div class="toggle" id="payIban3" onclick="setPayIban(3)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 19h2"/></svg> Revolut<span class="sub">lien perso</span></div>
       </div>
     </div>
 
@@ -2794,8 +2827,8 @@
     <div id="payQrBox" style="background:#fff; padding:20px; border-radius:20px; display:flex; justify-content:center; align-items:center; min-height:260px;"></div>
     <div id="payIbanTxt" style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--grey); margin-top:12px;"></div>
 
-    <button class="ghost" id="btnMarquerPaye" style="display:none; border-color:rgba(63,138,95,0.45); color:var(--green);" onclick="marquerPayeDepuisQr()">💰 Marquer comme payé</button>
-    <button class="ghost" onclick="partagerLienPaiement()">🔗 Envoyer les coordonnées par message</button>
+    <button class="ghost" id="btnMarquerPaye" style="display:none; border-color:rgba(63,138,95,0.45); color:var(--green);" onclick="marquerPayeDepuisQr()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5M9 12h4"/></svg> Marquer comme payé</button>
+    <button class="ghost" onclick="partagerLienPaiement()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M10 13a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7L11.5 6"/><path d="M14 11a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7L12.5 18"/></svg> Envoyer les coordonnées par message</button>
     <button class="ghost close-modal" onclick="closePaiement()">Fermer</button>
   </div>
 </div>
@@ -2819,7 +2852,7 @@
       <input type="month" id="resumeMois" onchange="calculerResumeMensuel()">
     </div>
     <div id="resumeContenu"></div>
-    <button class="ghost" onclick="partagerResumeMensuel()">🔗 Partager ce résumé</button>
+    <button class="ghost" onclick="partagerResumeMensuel()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M10 13a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7L11.5 6"/><path d="M14 11a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7L12.5 18"/></svg> Partager ce résumé</button>
     <button class="ghost close-modal" onclick="fermerResume()">Fermer</button>
   </div>
 </div>
@@ -2844,9 +2877,9 @@
     <div class="field">
       <label>Statut</label>
       <div class="toggles" style="margin-bottom:0;">
-        <div class="toggle" id="payStatut_attente" onclick="choisirStatutPaiement('attente')">⏳ En attente</div>
+        <div class="toggle" id="payStatut_attente" onclick="choisirStatutPaiement('attente')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3h10M7 21h10"/><path d="M8 3v3.5L12 11l4-4.5V3M8 21v-3.5L12 13l4 4.5V21"/></svg> En attente</div>
         <div class="toggle" id="payStatut_partiel" onclick="choisirStatutPaiement('partiel')">◐ Partiel</div>
-        <div class="toggle" id="payStatut_paye" onclick="choisirStatutPaiement('paye')">✅ Payé</div>
+        <div class="toggle" id="payStatut_paye" onclick="choisirStatutPaiement('paye')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Payé</div>
       </div>
     </div>
 
@@ -2946,7 +2979,7 @@
     <h1 class="page-title" style="font-size:28px;">Votre avis</h1>
     <p class="page-sub">Faites scanner ce code au client — ça prend 30 secondes et ça fait vivre l'entreprise.</p>
     <div id="avisQrBox" style="background:#fff; padding:20px; border-radius:20px; display:flex; justify-content:center; align-items:center; min-height:260px;"></div>
-    <button class="ghost" style="margin-top:14px;" onclick="partagerLienAvis()">🔗 Envoyer le lien par message</button>
+    <button class="ghost" style="margin-top:14px;" onclick="partagerLienAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M10 13a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7L11.5 6"/><path d="M14 11a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7L12.5 18"/></svg> Envoyer le lien par message</button>
     <button class="ghost close-modal" onclick="closeAvis()">Fermer</button>
   </div>
 </div>
@@ -2981,7 +3014,7 @@
 
     <div class="grp">
       <div class="grp-title">Client</div>
-      <button class="ghost" style="margin-bottom:10px;" onclick="openClientPicker()">👤 Choisir un client enregistré</button>
+      <button class="ghost" style="margin-bottom:10px;" onclick="openClientPicker()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg> Choisir un client enregistré</button>
       <div class="field">
         <label>Nom du client *</label>
         <input type="text" id="invClientName" placeholder="Nom / société" autocorrect="on" spellcheck="true">
@@ -3082,21 +3115,21 @@
 
     <label>Type de véhicule</label>
     <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
-      <div class="toggle on" id="qqVtNormale" onclick="setQqVehicleType('normale')">🚗 Normale</div>
-      <div class="toggle" id="qqVtSuv" onclick="setQqVehicleType('suv')">🚙 SUV / 4x4</div>
-      <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')">🔋 Électrique/Hybride</div>
-      <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')">🚐 Utilitaire/Camionnette</div>
+      <div class="toggle on" id="qqVtNormale" onclick="setQqVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
+      <div class="toggle" id="qqVtSuv" onclick="setQqVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
+      <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
+      <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
     </div>
     <div id="qqCapaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
       ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
     </div>
 
     <div class="toggles" style="margin-bottom:16px;">
-      <div class="toggle" id="qqNuit" onclick="toggle('qqNuit'); calculerDevisRapide()">🌙 Nuit<span class="sub" id="qqNightHoursLabel">20h-8h</span></div>
-      <div class="toggle" id="qqWe" onclick="toggle('qqWe'); calculerDevisRapide()">📅 Week-end</div>
-      <div class="toggle" id="qqAuto" onclick="toggle('qqAuto'); calculerDevisRapide()">🛣️ Autoroute</div>
+      <div class="toggle" id="qqNuit" onclick="toggle('qqNuit'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg> Nuit<span class="sub" id="qqNightHoursLabel">20h-8h</span></div>
+      <div class="toggle" id="qqWe" onclick="toggle('qqWe'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Week-end</div>
+      <div class="toggle" id="qqAuto" onclick="toggle('qqAuto'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3 4 21M17 3l3 18M12 4v3M12 11v3M12 18v3"/></svg> Autoroute</div>
       <div class="toggle" id="qqRetour" onclick="toggle('qqRetour'); calculerDevisRapide()">↩️ Retour à vide</div>
-      <div class="toggle" id="qqCamion" onclick="toggle('qqCamion'); calculerDevisRapide()">🚛 Avec le camion</div>
+      <div class="toggle" id="qqCamion" onclick="toggle('qqCamion'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> Avec le camion</div>
     </div>
 
     <div class="qq-result">
@@ -3121,8 +3154,8 @@
     </div>
     <button class="primary" style="margin-top:12px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrerDevis())">💾 Enregistrer le devis</button>
     <button class="ghost" style="margin-top:8px;" onclick="ouvrirListeDevis()">📋 Mes devis enregistrés</button>
-    <button class="ghost" style="margin-top:12px; border-color:rgba(232,115,12,0.4); color:var(--orange);" onclick="devisVersIntervention()">🔧 Le client accepte — créer l'intervention</button>
-    <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()">📅 Le client veut réserver — programmer le RDV</button>
+    <button class="ghost" style="margin-top:12px; border-color:rgba(232,115,12,0.4); color:var(--orange);" onclick="devisVersIntervention()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg> Le client accepte — créer l'intervention</button>
+    <button class="ghost" style="margin-top:12px;" onclick="openRdvFromQuickQuote()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Le client veut réserver — programmer le RDV</button>
     <button class="ghost close-modal" onclick="closeQuickQuote()" style="margin-top:8px;">Fermer</button>
   </div>
 </div>
@@ -3199,7 +3232,7 @@
       <input type="text" id="rdvNotes" placeholder="Ex: prix annoncé, précisions...">
     </div>
 
-    <button class="primary" style="margin-top:12px;" onclick="genererRdv()">📅 Ajouter au calendrier iPhone</button>
+    <button class="primary" style="margin-top:12px;" onclick="genererRdv()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Ajouter au calendrier iPhone</button>
     <button class="ghost close-modal" onclick="closeRdv()" style="margin-top:8px;">Fermer</button>
 
     <div class="grp" style="margin-top:20px;">
@@ -3245,7 +3278,7 @@
     <div class="photo-row">
       <label>Photo de la plaque châssis (optionnel, comme preuve)</label>
       <input type="file" id="chassisPhoto" accept="image/*" onchange="handleChassisPhoto(event)" style="display:none;">
-      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('chassisPhoto').click()">📷 Photographier / choisir</button>
+      <button type="button" class="ghost" style="margin-bottom:0;" onclick="document.getElementById('chassisPhoto').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photographier / choisir</button>
       <div id="chassisPreviewWrap" style="display:none; margin-top:8px;">
         <img id="chassisPreview" style="max-width:120px; max-height:120px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);">
         <button type="button" class="ghost" style="margin-top:6px;" onclick="clearChassisPhoto()">Retirer la photo</button>
@@ -5201,12 +5234,25 @@ async function ouvrirListeDevis(){
       </div>
       <div style="font-size:11px; color:var(--grey);">Valable jusqu'au ${v.valableJusquau.split('-').reverse().join('/')}</div>
       <div class="quick-actions">
-        <button type="button" class="ghost" style="margin:0;" onclick="partagerDevisPdf('${d.key}')">📄 PDF</button>
-        <button type="button" class="ghost" style="margin:0;" onclick="devisEnregistreVersIntervention('${d.key}')">🔧 Intervention</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="partagerDevisPdf('${d.key}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg> PDF</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="partagerMessageDevis('${d.key}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg> Message</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="devisEnregistreVersIntervention('${d.key}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg> Intervention</button>
         <button type="button" class="ghost" style="margin:0;" onclick="supprimerDevis('${d.key}')">🗑</button>
       </div>
     </div>`;
   }).join('');
+}
+
+async function partagerMessageDevis(key){
+  try{
+    const v = JSON.parse((await window.storage.get(key)).value);
+    const message = texteDevisClient(v);
+    if(navigator.share){
+      try{ await navigator.share({text: message}); return; }catch(e){ /* partage annulé */ }
+    }
+    await navigator.clipboard.writeText(message);
+    showToast('Message copié — colle-le dans WhatsApp');
+  }catch(e){ showToast('Impossible de préparer le message'); }
 }
 
 function fermerListeDevis(){ document.getElementById('modalListeDevisBg').classList.remove('show'); }
@@ -5241,6 +5287,19 @@ async function devisEnregistreVersIntervention(key){
     majBarreActionsContextuelle();
     showToast('Devis ' + v.numero + ' repris — complète les adresses');
   }catch(e){ showToast('Impossible de retrouver ce devis'); }
+}
+
+function texteDevisClient(v){
+  const nom = (v.clientNom || '').trim();
+  const ech = v.valableJusquau ? v.valableJusquau.split('-').reverse().join('/') : '';
+  let t = nom ? `Bonjour ${nom},\n\n` : 'Bonjour,\n\n';
+  t += `Voici votre devis ${v.numero} pour : ${TYPE_LABELS[v.type] || v.type}.\n\n`;
+  t += `Montant estimé : ${fmt(v.total)}\n`;
+  if(ech) t += `Devis valable jusqu'au ${ech}\n`;
+  t += `\nCe montant est établi sur la base des informations communiquées et peut varier selon la situation constatée sur place.\n\n`;
+  t += `Je reste à votre disposition pour convenir d'une intervention.\n\n`;
+  t += `${COMPANY.name}\n${COMPANY.phone}`;
+  return t;
 }
 
 async function partagerDevisPdf(key){
@@ -5286,8 +5345,11 @@ async function partagerDevisPdf(key){
     const blob = new Blob([bytes], {type:'application/pdf'});
     const fileName = v.numero + '.pdf';
     const file = new File([blob], fileName, {type:'application/pdf'});
+    const message = texteDevisClient(v);
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title:'Devis ' + v.numero});
+      try{ await navigator.clipboard.writeText(message); }catch(e){}
+      await navigator.share({files:[file], title:'Devis ' + v.numero, text: message});
+      showToast('Devis partagé — le message est copié si besoin');
     } else {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -5297,6 +5359,24 @@ async function partagerDevisPdf(key){
     }
   }catch(e){ showToast('Erreur lors de la génération du devis'); }
 }
+
+function ico(d, taille){
+  const s = taille || 15;
+  return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;">${d}</svg>`;
+}
+const ICO = {
+  boussole: '<circle cx="12" cy="12" r="9"/><path d="M14.5 9.5 11 11l-1.5 3.5L13 13z"/>',
+  carte:    '<path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5"/><path d="M15 6.5V20"/>',
+  voiture:  '<path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/>',
+  check:    '<path d="M20 6 9 17l-5-5"/>',
+  horloge:  '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  crayon:   '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  recu:     '<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  camion:   '<path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/>',
+  fleches:  '<path d="M4 7h12l-3-3M20 17H8l3 3"/>',
+  pin:      '<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>',
+  drapeau:  '<path d="M5 21V4"/><path d="M5 5h9l-1.5 3L14 11H5z"/>'
+};
 
 const TYPES_CT = ['ct_passage', 'ct_repassage', 'ct_accidente'];
 
@@ -5503,6 +5583,34 @@ function majPlusOptionsSummary(){
   const orig = document.getElementById('origineClient');
   if(orig && orig.value) parts.push(LABELS_ORIGINE[orig.value] || 'origine');
   el.textContent = parts.length ? parts.join(' · ') : 'Aucune';
+}
+
+function toggleFiltresDates(){
+  const l = document.getElementById('filtresDatesList');
+  const c = document.getElementById('filtresDatesChevron');
+  const ouvert = l.style.display !== 'none';
+  l.style.display = ouvert ? 'none' : 'block';
+  c.textContent = ouvert ? '▾' : '▴';
+}
+
+function majFiltresDatesSummary(){
+  const el = document.getElementById('filtresDatesSummary');
+  if(!el) return;
+  const du = document.getElementById('histDateFrom').value;
+  const au = document.getElementById('histDateTo').value;
+  const fmtD = s => s ? s.split('-').reverse().slice(0,2).join('/') : '';
+  if(du && au) el.textContent = fmtD(du) + ' → ' + fmtD(au);
+  else if(du) el.textContent = 'depuis ' + fmtD(du);
+  else if(au) el.textContent = "jusqu'au " + fmtD(au);
+  else el.textContent = 'Tout';
+}
+
+function toggleOutilsHistorique(){
+  const l = document.getElementById('outilsHistoList');
+  const c = document.getElementById('outilsHistoChevron');
+  const ouvert = l.style.display !== 'none';
+  l.style.display = ouvert ? 'none' : 'block';
+  c.textContent = ouvert ? '▾' : '▴';
 }
 
 function toggleTracabilite(){
@@ -5964,7 +6072,7 @@ async function ouvrirChoixAnneeFrais(){
   const annees = Object.keys(parAnnee).sort().reverse();
   document.getElementById('listeAnneesFrais').innerHTML = annees.map(an => `
     <div class="menu-item" onclick="fermerChoixAnneeFrais(); genererDocumentFrais(${an});">
-      <span class="menu-ico">🧾</span>
+      <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>
       <span class="menu-lbl">Exercice ${an}</span>
       <span class="menu-desc">${parAnnee[an].n} paiement${parAnnee[an].n > 1 ? 's' : ''} · ${fmt(parAnnee[an].total)}</span>
     </div>`).join('');
@@ -9534,25 +9642,25 @@ function afficherInterventionEnCours(aFaire){
   carte.innerHTML = `
     <div class="ec-num">${d.numero ? d.numero + ' · ' : ''}${dt} à ${heure}</div>
     <div class="ec-type">${typeLabelComplet(d)}</div>
-    <div class="ec-adr">📍 ${d.from}${(d.to && d.to !== '—') ? '<br>🏁 ' + d.to : ''}</div>
+    <div class="ec-adr">${ico(ICO.pin,13)} ${d.from}${(d.to && d.to !== '—') ? '<br>' + ico(ICO.drapeau,13) + ' ' + d.to : ''}</div>
     <div class="ec-montant">${fmt(d.total || 0)}</div>
     ${renderProgressionStepper(d)}
-    <div class="ec-nav-label">📍 Étape 1 — aller chercher le véhicule</div>
+    <div class="ec-nav-label">${ico(ICO.pin,12)} Étape 1 — aller chercher le véhicule</div>
     <div class="ec-nav-row">
-      <a href="${navUrl('plans', aChercher)}">🧭 Plans</a>
-      <a href="${navUrl('gmaps', aChercher)}">🗺️ Maps</a>
-      <a href="${navUrl('waze', aChercher)}">🚗 Waze</a>
+      <a href="${navUrl('plans', aChercher)}">${ico(ICO.boussole)} Plans</a>
+      <a href="${navUrl('gmaps', aChercher)}">${ico(ICO.carte)} Maps</a>
+      <a href="${navUrl('waze', aChercher)}">${ico(ICO.voiture)} Waze</a>
     </div>
     ${aDeposer ? `
-    <div class="ec-nav-label">🏁 Étape 2 — déposer le véhicule</div>
+    <div class="ec-nav-label">${ico(ICO.drapeau,12)} Étape 2 — déposer le véhicule</div>
     <div class="ec-nav-row">
-      <a href="${navUrl('plans', aDeposer, aChercher)}">🧭 Plans</a>
-      <a href="${navUrl('gmaps', aDeposer, aChercher)}">🗺️ Maps</a>
-      <a href="${navUrl('waze', aDeposer)}">🚗 Waze</a>
+      <a href="${navUrl('plans', aDeposer, aChercher)}">${ico(ICO.boussole)} Plans</a>
+      <a href="${navUrl('gmaps', aDeposer, aChercher)}">${ico(ICO.carte)} Maps</a>
+      <a href="${navUrl('waze', aDeposer)}">${ico(ICO.voiture)} Waze</a>
     </div>` : ''}
     <div class="ec-actions">
-      <div class="ec-btn clair" onclick="reprendreEnCours('${it.key}')">✏️ Reprendre</div>
-      <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">✅ Faite</div>
+      <div class="ec-btn clair" onclick="reprendreEnCours('${it.key}')">${ico(ICO.crayon)} Reprendre</div>
+      <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">${ico(ICO.check)} Faite</div>
     </div>
     ${liste.length > 1 ? `<div class="ec-plus" onclick="showTab('tabRoute')">+ ${liste.length - 1} autre${liste.length > 2 ? 's' : ''} à faire — voir la feuille de route</div>` : ''}
   `;
@@ -10131,11 +10239,11 @@ async function loadHistory(){
       const etatLieuxIcons = (d.etatLieuxVideo ? '🎥' : '') + (d.etatLieuxNotes ? '📝' : '');
       const stPay = statutPaiement(d);
       const payeBadge = stPay === 'paye'
-        ? `<div class="pay-badge paye" onclick="ouvrirPaiement('${it.key}')">✅ Payé${(d.paiement && d.paiement.moyen) ? ' · ' + d.paiement.moyen : ''}</div>`
+        ? `<div class="pay-badge paye" onclick="ouvrirPaiement('${it.key}')">${ico(ICO.check,13)} Payé${(d.paiement && d.paiement.moyen) ? ' · ' + d.paiement.moyen : ''}</div>`
         : stPay === 'partiel'
         ? `<div class="pay-badge" style="background:rgba(232,115,12,0.12); color:var(--orange);" onclick="ouvrirPaiement('${it.key}')">◐ Partiel · reste ${fmt(resteADevoir(d))}</div>`
-        : `<div class="pay-badge attente" onclick="ouvrirPaiement('${it.key}')">⏳ En attente</div>`;
-      const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">🧾 Facture</div>`;
+        : `<div class="pay-badge attente" onclick="ouvrirPaiement('${it.key}')">${ico(ICO.horloge,13)} En attente</div>`;
+      const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">${ico(ICO.recu,13)} Facture</div>`;
       let echeanceBadge = '';
       if(d.invoiceEcheance && statutPaiement(d) !== 'paye'){
         const aujourdhui = new Date().toISOString().slice(0,10);
@@ -10150,13 +10258,13 @@ async function loadHistory(){
         echeanceBadge = `<div class="pay-badge" style="${couleur}">${libelle}</div>`
           + `<div class="pay-badge" style="background:var(--orange-soft); color:var(--orange);" onclick="relancerFacture('${it.key}')">📨 Relancer</div>`;
       }
-      const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">✏️ Modifier</div>`;
+      const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">${ico(ICO.crayon,13)} Modifier</div>`;
       const noteCreditBadge = d.invoiceNumber
         ? `<div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red);" onclick="ouvrirNoteCredit('${it.key}')">🧾 Note de crédit</div>`
         : '';
       const statutBadge = estAFaire(d)
-        ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">🚚 À faire</div>`
-        : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">✅ Fait</div>`;
+        ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">${ico(ICO.camion,13)} À faire</div>`
+        : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">${ico(ICO.check,13)} Fait</div>`;
       return `<div class="hist-item" data-key="${it.key}">
         ${photoThumb}
         ${epaveThumb}
@@ -10505,9 +10613,9 @@ async function renderFeuilleDeRoute(){
         <div class="route-step-label">${icon} ${label}</div>
         <div class="route-step-addr">${adresse}</div>
         <div class="quick-actions" style="margin-top:6px;">
-          <a href="${navUrl('plans', adresse)}" class="route-nav">🧭 Plans</a>
-          <a href="${navUrl('gmaps', adresse)}" class="route-nav">🗺️ Maps</a>
-          <a href="${navUrl('waze', adresse)}" class="route-nav">🚗 Waze</a>
+          <a href="${navUrl('plans', adresse)}" class="route-nav">${ico(ICO.boussole)} Plans</a>
+          <a href="${navUrl('gmaps', adresse)}" class="route-nav">${ico(ICO.carte)} Maps</a>
+          <a href="${navUrl('waze', adresse)}" class="route-nav">${ico(ICO.voiture)} Waze</a>
         </div>
       </div>`;
     };
@@ -10526,11 +10634,11 @@ async function renderFeuilleDeRoute(){
         ${etape('Dépose', '🏁', d.to)}
         ${(d.from && d.to && d.to !== '—') ? `
         <div class="quick-actions" style="margin-top:10px;">
-          <a href="${navUrl('gmaps', d.to, d.from)}" class="route-nav" style="background:var(--orange-soft);">🔀 Itinéraire A → B</a>
+          <a href="${navUrl('gmaps', d.to, d.from)}" class="route-nav" style="background:var(--orange-soft);">${ico(ICO.fleches)} Itinéraire A → B</a>
         </div>` : ''}
         <div class="quick-actions" style="margin-top:12px;">
           <button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Modifier / remise</button>
-          <button type="button" style="color:var(--green); border-color:rgba(63,138,95,0.45);" onclick="toggleStatut('${it.key}')">✅ Faite</button>
+          <button type="button" style="color:var(--green); border-color:rgba(63,138,95,0.45);" onclick="toggleStatut('${it.key}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Faite</button>
         </div>
       </div>`;
     }).join('');
