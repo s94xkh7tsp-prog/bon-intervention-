@@ -2512,6 +2512,21 @@
         </div>
 
         <div class="grp">
+          <div class="grp-title">Avancé / Maintenance</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">
+            Moteur de calcul des tarifs. Le <strong>nouveau moteur</strong> est celui recommandé :
+            c'est lui qui est utilisé normalement, et il a été validé sur plus de 5 000 scénarios.
+            L'ancien moteur n'est qu'un <strong>mode de secours</strong>, à n'activer que si tu
+            constates une anomalie de prix.
+          </p>
+          <div class="toggles" style="margin-bottom:0;">
+            <div class="toggle on" id="tgMoteurNouveau" onclick="demanderChangementMoteur(true)">✅ Nouveau moteur<span class="sub">recommandé</span></div>
+            <div class="toggle" id="tgMoteurAncien" onclick="demanderChangementMoteur(false)">⚠️ Ancien moteur<span class="sub">secours</span></div>
+          </div>
+          <div class="km-mention" id="mentionMoteur" style="margin-top:10px;">Moteur actuel : nouveau moteur (recommandé).</div>
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Sauvegarde de secours</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, clients, photos) sont stockées uniquement sur ce téléphone. Cette sauvegarde te permet de tout récupérer si tu perds ou changes d'appareil.</p>
           <div class="km-mention" style="margin:0 0 12px 0;">⚠️ Ce n'est <b>pas</b> un document de facturation : c'est un fichier technique, illisible tel quel (texte blanc sur fond noir), qui sert uniquement à restaurer l'appli. Pour tes documents comptables, va dans <b>Historique</b> → Exporter en Excel ou en PDF.</div>
@@ -2750,6 +2765,11 @@
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v16M4 21h11M5 11h9"/><path d="M14 8h2.5a2 2 0 0 1 2 2v7a1.7 1.7 0 0 0 3.4 0V9l-2-3"/></svg></span>
         <span class="menu-lbl">Plein de gasoil</span>
         <span class="menu-desc">Litres, prix, autoroute</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); ouvrirDemandesWa();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></span>
+        <span class="menu-lbl">Demandes WhatsApp</span>
+        <span class="menu-desc">Mode simulé</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>
@@ -3207,6 +3227,16 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modalMoteurBg">
+  <div class="modal">
+    <div class="eyebrow">Maintenance</div>
+    <h1 class="page-title" style="font-size:22px;" id="moteurTitre">Changer de moteur de calcul</h1>
+    <p style="font-size:14.5px; line-height:1.55; color:var(--white); margin:0 0 16px;" id="moteurTexte">—</p>
+    <button class="primary" id="moteurConfirmer" onclick="confirmerChangementMoteur()">Confirmer</button>
+    <button class="ghost close-modal" onclick="fermerChangementMoteur()">Annuler</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalFinBg">
   <div class="modal">
     <div class="eyebrow">Clôture</div>
@@ -3215,6 +3245,62 @@
     <div id="verifFinListe"></div>
     <button class="primary" id="btnFinConfirmer" style="background:var(--green); box-shadow:0 6px 18px rgba(63,138,95,0.24);" onclick="confirmerFinIntervention()">Enregistrer et terminer</button>
     <button class="ghost close-modal" onclick="fermerVerificationFin()">Revenir au formulaire</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalWaEnvoiBg">
+  <div class="modal">
+    <div class="eyebrow">Validation</div>
+    <h1 class="page-title" style="font-size:22px;">Valider et envoyer ?</h1>
+    <p class="page-sub">Voici exactement ce que le client recevra.</p>
+    <div class="ticket-total" style="margin-top:0;">
+      <span class="lbl">Montant qui partira</span>
+      <span class="amt" id="waEnvoiMontant">—</span>
+    </div>
+    <div class="km-mention" id="waEnvoiEcart" style="display:none; border-left-color:var(--red); margin-top:10px;"></div>
+    <label style="margin-top:14px;">Message au client</label>
+    <div id="waEnvoiMessage" style="background:var(--panel-2); border:1px solid var(--line); border-radius:13px; padding:14px; font-size:13.5px; line-height:1.5; color:var(--white); white-space:pre-wrap;">—</div>
+    <div class="km-mention" style="margin-top:10px;">Mode simulé : rien n'est expédié. Le message sera simplement copié.</div>
+    <button class="primary" onclick="waConfirmerEnvoi()">Confirmer l'envoi</button>
+    <button class="ghost close-modal" onclick="fermerWaEnvoi()">Revenir sans envoyer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalWaBg">
+  <div class="modal">
+    <div class="eyebrow">Mode simulé</div>
+    <h1 class="page-title" style="font-size:24px;">Demandes WhatsApp</h1>
+    <p class="page-sub" id="waCompteur">—</p>
+    <div class="km-mention" style="border-left-color:var(--orange); margin-bottom:12px;">
+      Aucun message n'est réellement envoyé : ton numéro WhatsApp n'est pas encore connecté.
+    </div>
+    <button class="ghost" style="margin-bottom:10px;" onclick="fermerDemandesWa(); ouvrirSimuWa();">Simuler un message client</button>
+    <div id="waListe"></div>
+    <button class="ghost close-modal" onclick="fermerDemandesWa()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalSimuWaBg">
+  <div class="modal">
+    <div class="eyebrow">Mode simulé</div>
+    <h1 class="page-title" style="font-size:24px;">Simuler un client</h1>
+    <p class="page-sub">Écris ce qu'un client t'enverrait sur WhatsApp.</p>
+    <div class="field">
+      <label>Message du client</label>
+      <textarea id="simuWaTexte" rows="3" placeholder="Ex : Bonjour, accident à Gilly, il faut remorquer ma BMW vers Jumet, 0470 11 22 33" style="width:100%; background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:14px 15px; color:var(--white); font-family:inherit; font-size:16px; resize:vertical;"></textarea>
+    </div>
+    <div class="field">
+      <label>Conditions au moment de l'appel</label>
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="simuWaNuit" onclick="toggle('simuWaNuit')">Nuit</div>
+        <div class="toggle" id="simuWaWe" onclick="toggle('simuWaWe')">Week-end</div>
+      </div>
+    </div>
+    <button class="primary" onclick="avecChargement(this, 'Analyse…', () => simulerMessageClient())">Envoyer le message simulé</button>
+    <div id="simuWaResultat"></div>
+    <button class="ghost" style="margin-top:10px;" onclick="reinitialiserSimuWa()">Nouvelle conversation</button>
+    <button class="ghost" style="margin-top:6px;" onclick="fermerSimuWa(); ouvrirDemandesWa();">Voir les demandes</button>
+    <button class="ghost close-modal" onclick="fermerSimuWa()">Fermer</button>
   </div>
 </div>
 
@@ -5485,6 +5571,65 @@ function resumeCT(d){
   return parts.join(' · ');
 }
 
+let moteurChoixEnAttente = null;
+
+function demanderChangementMoteur(versNouveau){
+  if(versNouveau === MOTEUR_ACTIF) return;
+  moteurChoixEnAttente = versNouveau;
+  const titre = document.getElementById('moteurTitre');
+  const texte = document.getElementById('moteurTexte');
+  const btn = document.getElementById('moteurConfirmer');
+  if(versNouveau){
+    titre.textContent = 'Revenir au nouveau moteur ?';
+    texte.textContent = 'Le nouveau moteur est celui recommandé et validé. C\'est le choix normal.';
+    btn.textContent = 'Activer le nouveau moteur';
+    btn.style.background = '';
+  } else {
+    titre.textContent = 'Passer en mode de secours ?';
+    texte.textContent = "L'ancien moteur n'est qu'une solution de secours, à utiliser seulement si tu constates une anomalie de prix. Les montants calculés devraient être identiques. N'active ce mode que si tu sais pourquoi tu le fais.";
+    btn.textContent = 'Passer en mode de secours';
+    btn.style.background = 'var(--red)';
+  }
+  document.getElementById('modalMoteurBg').classList.add('show');
+}
+
+function fermerChangementMoteur(){
+  moteurChoixEnAttente = null;
+  document.getElementById('modalMoteurBg').classList.remove('show');
+  majAffichageMoteur();
+}
+
+async function confirmerChangementMoteur(){
+  if(moteurChoixEnAttente === null) return;
+  MOTEUR_ACTIF = moteurChoixEnAttente;
+  moteurChoixEnAttente = null;
+  document.getElementById('modalMoteurBg').classList.remove('show');
+  try{ await window.storage.set('moteurActif', MOTEUR_ACTIF ? '1' : '0'); }catch(e){}
+  majAffichageMoteur();
+  if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  showToast(MOTEUR_ACTIF ? 'Nouveau moteur activé' : 'Mode de secours activé');
+}
+
+function majAffichageMoteur(){
+  const n = document.getElementById('tgMoteurNouveau');
+  const a = document.getElementById('tgMoteurAncien');
+  const m = document.getElementById('mentionMoteur');
+  if(!n || !a) return;
+  n.classList.toggle('on', MOTEUR_ACTIF);
+  a.classList.toggle('on', !MOTEUR_ACTIF);
+  if(m) m.textContent = MOTEUR_ACTIF
+    ? 'Moteur actuel : nouveau moteur (recommandé).'
+    : '⚠️ Mode de secours actif — repasse au nouveau moteur dès que possible.';
+}
+
+async function chargerChoixMoteur(){
+  try{
+    const res = await window.storage.get('moteurActif');
+    if(res && res.value === '0') MOTEUR_ACTIF = false;
+  }catch(e){ /* jamais changé : on reste sur le nouveau moteur */ }
+  majAffichageMoteur();
+}
+
 function majResumeCompact(){
   const box = document.getElementById('resumeCompact');
   if(!box) return;
@@ -6519,6 +6664,7 @@ function fillSettingsForm(){
   });
   document.getElementById('r_baseAddress').value = BASE_ADDRESS;
   document.getElementById('r_revolutLink').value = REVOLUT_LINK;
+  majAffichageMoteur();
   document.getElementById('r_nightStart').value = NIGHT_START;
   document.getElementById('r_nightEnd').value = NIGHT_END;
   document.getElementById('r_pinCode').value = PIN_CODE || '';
@@ -8755,7 +8901,11 @@ const FERMETURE_PAR_MODAL = {
   modalPleinBg: fermerPlein,
   modalEnliseBg: fermerAvertissementEnlise,
   modalListeDevisBg: fermerListeDevis,
-  modalFinBg: fermerVerificationFin
+  modalFinBg: fermerVerificationFin,
+  modalMoteurBg: fermerChangementMoteur,
+  modalWaBg: fermerDemandesWa,
+  modalWaEnvoiBg: fermerWaEnvoi,
+  modalSimuWaBg: fermerSimuWa
 };
 function positionnerFab(){
   const fab = document.querySelector('.tab-fab');
@@ -9051,6 +9201,822 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 1800);
 }
 
+
+function moteurKmCost(km, kmRate, kmMultiplier, estRemorquage, RATES){
+  if(!estRemorquage || km <= RATES.kmDegressifSeuil){
+    return km * kmRate * kmMultiplier;
+  }
+  const seuil = RATES.kmDegressifSeuil;
+  return (seuil * kmRate + (km - seuil) * RATES.km_remorque_reduit) * kmMultiplier;
+}
+
+/**
+ * Calcule le montant d'une intervention.
+ *
+ * @param {object} d      Données de l'intervention (voir champs ci-dessous)
+ * @param {object} RATES  Les tarifs, tels que configurés dans l'application
+ * @param {object} CTX    { TYPES_REMORQUAGE, TYPES_CT, TYPE_LABELS }
+ * @returns {object}      Même structure que `lastCalc`, total inclus
+ */
+function calculerTarif(d, RATES, CTX){
+  const TYPES_REMORQUAGE = CTX.TYPES_REMORQUAGE;
+  const TYPES_CT = CTX.TYPES_CT || [];
+  const TYPE_LABELS = CTX.TYPE_LABELS || {};
+
+  const type = d.type;
+  const plaque = (d.plaque || '').trim().toUpperCase();
+  const depart = (d.depart || '').trim();
+  const from = (d.from || '').trim() || '—';
+  const to = (d.to || '').trim() || '—';
+  const km = parseFloat(d.km) || 0;
+  const nuit = !!d.nuit;
+  const we = !!d.we;
+  const auto = !!d.auto;
+  const retour = !!d.retour;
+
+  const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
+  const battDeplacement = isBatt && !!d.battDeplacement;
+  const battPrice = isBatt ? (parseFloat(d.battPrice) || 0) : 0;
+
+  const extras = (d.extras || []).map(code => ({
+    type: code, label: TYPE_LABELS[code], cost: RATES[code]
+  }));
+  const extrasCost = extras.reduce((sum, e) => sum + e.cost, 0);
+
+  const gardiennageOn = !!d.gardiennageOn;
+  const joursGardiennage = gardiennageOn ? (parseInt(d.joursGardiennage) || 0) : 0;
+  const gardiennageCost = joursGardiennage * RATES.gardiennageJour;
+
+  const attenteOn = !!d.attenteOn;
+  const minutesAttente = attenteOn ? (parseInt(d.minutesAttente) || 0) : 0;
+  const attenteCost = Math.ceil(minutesAttente / 15) * RATES.attente15minFee;
+
+  const isLeveeSaisie = type === 'levee_saisie';
+  const abandon = isLeveeSaisie && !!d.abandon;
+  const ctRepasse = isLeveeSaisie ? (parseFloat(d.ctRepasse) || 0) : 0;
+
+  const prixAnnonce = parseFloat(d.prixAnnonce) || 0;
+  const paiementRevolutAnticipe = !!d.paiementRevolutAnticipe;
+  const paiementPayconiqAnticipe = !!d.paiementPayconiqAnticipe;
+  const paiementRevlinkAnticipe = !!d.paiementRevlinkAnticipe;
+  const telClient = (d.telClient || '').trim();
+  const donneurOrdre = d.donneurOrdre || '';
+  const donneurNom = (d.donneurNom || '').trim();
+  const refDossier = (d.refDossier || '').trim();
+  const checklist = d.checklist || {};
+  const horaires = d.horaires || {};
+  const fraisLibelle = (d.fraisLibelle || '').trim();
+  const fraisMontant = parseFloat(d.fraisMontant) || 0;
+  const origineClient = d.origineClient || '';
+  const controleVehicule = d.controleVehicule || null;
+
+  const donneesCT = TYPES_CT.includes(type) ? (d.donneesCT || null) : null;
+  const ctOfficielsCost = (donneesCT && donneesCT.fraisOfficielsAvances) ? donneesCT.fraisOfficiels : 0;
+  const ctPrestataireCost = donneesCT ? donneesCT.fraisPrestataire : 0;
+
+  const estEnlise = type === 'desembourbement';
+  const difficulteEnlise = estEnlise ? (d.difficulteEnlise || '') : '';
+  const operationsEnlise = estEnlise ? (d.operationsEnlise || []).map(o => ({...o})) : [];
+  const manutMinutes = operationsEnlise.reduce((s,o) => s + (o.minutes||0), 0);
+  const manutSupp = operationsEnlise.reduce((s,o) => s + (o.supp||0), 0);
+
+  const annulation = !!d.annulation;
+  const annulationMontant = annulation ? (parseFloat(d.annulationMontant) || 0) : 0;
+
+  const isEpave = type === 'epave_demolition';
+  const sansMoteur = isEpave && !!d.sansMoteur;
+  const pasRoues = isEpave && !!d.pasRoues;
+  const pasRouesFee = pasRoues ? RATES.epaveSansRouesFee : 0;
+
+  const base = RATES[type];
+  const camionOn = !!d.camionOn;
+  const kmRateNormal = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
+
+  const kmExcept = parseFloat(d.kmTarifExceptionnel);
+  const gesteDemande = (!isNaN(kmExcept) && kmExcept > 0);
+  const gesteHorsPlage = gesteDemande && km > RATES.gesteKmMax;
+  const kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
+  const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
+
+  const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
+  const kmMultiplier = retour ? 2 : 1;
+  const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
+  const kmCost = kmTarifExcept !== null
+    ? km * kmTarifExcept * kmMultiplier
+    : moteurKmCost(km, kmRate, kmMultiplier, estRemorquage, RATES);
+
+  const VEHICLE_TYPE = d.vehicleType || 'normale';
+  const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
+  const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
+
+  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
+  const weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
+  const autoCost = (!annulation && auto) ? RATES.auto : 0;
+  const battCost = (!annulation && battPrice > 0) ? battPrice * (1 + RATES.battMarginPct/100) : 0;
+  const battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
+  const totalAvantRemise = annulation
+    ? (annulationMontant + fraisMontant)
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
+
+  const remiseValue = parseFloat(d.remiseValue) || 0;
+  const remiseUnit = d.remiseUnit || 'eur';
+  const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
+  const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
+
+  return {
+    type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto,
+    base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce,
+    paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe,
+    nuitCost, weCost, autoCost, extras, extrasCost,
+    battPrice, battCost, battDeplacement, battDeplacementCost,
+    joursGardiennage, gardiennageCost, minutesAttente, attenteCost,
+    abandon, sansMoteur, pasRoues, pasRouesFee,
+    vehicleType: VEHICLE_TYPE, vehicleFee,
+    remiseValue, remiseUnit, remiseAmount,
+    telClient, horaires, fraisLibelle, fraisMontant,
+    origineClient, controleVehicule, donneesCT,
+    ctOfficielsCost, ctPrestataireCost, ctRetourCost,
+    difficulteEnlise, operationsEnlise, manutMinutes, manutSupp,
+    annulation, annulationMontant,
+    donneurOrdre, donneurNom, refDossier, checklist,
+    total
+  };
+}
+
+
+let MOTEUR_ACTIF = true;
+
+
+function MOTEUR_kmCost(km, kmRate, kmMultiplier, estRemorquage, tarifs) {
+  if (!estRemorquage || km <= tarifs.kmDegressifSeuil) {
+    return km * kmRate * kmMultiplier;
+  }
+  const seuil = tarifs.kmDegressifSeuil;
+  return (seuil * kmRate + (km - seuil) * tarifs.km_remorque_reduit) * kmMultiplier;
+}
+
+/**
+ * Calcule le montant d'une intervention.
+ *
+ * @param {object} d      Données de l'intervention (voir DONNEES_PAR_DEFAUT)
+ * @param {object} tarifs Les tarifs (équivalent de RATES dans l'application)
+ * @param {object} config { typesRemorquage: [...] }
+ * @returns {object} Le détail complet + le total, dans la même structure que lastCalc
+ */
+function MOTEUR_calculerTarif(d, tarifs, config) {
+  const typesRemorquage = config.typesRemorquage;
+  const type = d.type;
+
+  const extras = (d.extras || []).map(t => ({ type: t, cost: tarifs[t] }));
+  const extrasCost = extras.reduce((sum, e) => sum + e.cost, 0);
+
+  const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
+  const battDeplacement = isBatt && !!d.battDeplacement;
+  const battPrice = isBatt ? (d.battPrice || 0) : 0;
+
+  const joursGardiennage = d.gardiennageOn ? (d.joursGardiennage || 0) : 0;
+  const gardiennageCost = joursGardiennage * tarifs.gardiennageJour;
+
+  const minutesAttente = d.attenteOn ? (d.minutesAttente || 0) : 0;
+  const attenteCost = Math.ceil(minutesAttente / 15) * tarifs.attente15minFee;
+
+  const isLeveeSaisie = type === 'levee_saisie';
+  const ctRepasse = isLeveeSaisie ? (d.ctRepasseMontant || 0) : 0;
+
+  const donneesCT = d.donneesCT || null;
+  const ctOfficielsCost = (donneesCT && donneesCT.fraisOfficielsAvances) ? donneesCT.fraisOfficiels : 0;
+  const ctPrestataireCost = donneesCT ? donneesCT.fraisPrestataire : 0;
+
+  const estEnlise = type === 'desembourbement';
+  const operationsEnlise = estEnlise ? (d.operationsEnlise || []).map(o => ({ ...o })) : [];
+  const manutMinutes = operationsEnlise.reduce((s, o) => s + (o.minutes || 0), 0);
+  const manutSupp = operationsEnlise.reduce((s, o) => s + (o.supp || 0), 0);
+
+  const annulation = !!d.annulation;
+  const annulationMontant = annulation ? (d.annulationMontant || 0) : 0;
+
+  const isEpave = type === 'epave_demolition';
+  const pasRoues = isEpave && !!d.pasRoues;
+  const pasRouesFee = pasRoues ? tarifs.epaveSansRouesFee : 0;
+
+  const base = tarifs[type];
+  const camionOn = !!d.camionOn;
+  const kmRateNormal = (typesRemorquage.includes(type) || camionOn)
+    ? tarifs.km_remorque
+    : tarifs.km_deplacement;
+
+  const km = d.km || 0;
+  const kmExcept = (d.kmTarifExceptionnel === undefined || d.kmTarifExceptionnel === null || d.kmTarifExceptionnel === '')
+    ? NaN
+    : parseFloat(d.kmTarifExceptionnel);
+  const gesteDemande = (!isNaN(kmExcept) && kmExcept > 0);
+  const gesteHorsPlage = gesteDemande && km > tarifs.gesteKmMax;
+  const kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
+  const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
+
+  const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
+  const kmMultiplier = d.retour ? 2 : 1;
+  const estRemorquage = typesRemorquage.includes(type) || camionOn;
+  const kmCost = kmTarifExcept !== null
+    ? km * kmTarifExcept * kmMultiplier
+    : MOTEUR_kmCost(km, kmRate, kmMultiplier, estRemorquage, tarifs);
+
+  const vehicleFeeMap = {
+    suv: tarifs.vehiculeSuvFee,
+    electrique: tarifs.vehiculeElectriqueFee,
+    utilitaire: tarifs.vehiculeUtilitaireFee
+  };
+  const vehicleFee = vehicleFeeMap[d.vehicleType] || 0;
+
+  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const nuitCost = (!annulation && d.nuit) ? subtotal * (tarifs.nuitPct / 100) : 0;
+  const weCost = (!annulation && d.we) ? subtotal * (tarifs.wePct / 100) : 0;
+  const autoCost = (!annulation && d.auto) ? tarifs.auto : 0;
+  const battCost = (!annulation && battPrice > 0) ? battPrice * (1 + tarifs.battMarginPct / 100) : 0;
+  const battDeplacementCost = (!annulation && battDeplacement) ? tarifs.battDeplacementFee : 0;
+
+  const fraisMontant = d.fraisMontant || 0;
+
+  const totalAvantRemise = annulation
+    ? (annulationMontant + fraisMontant)
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost
+       + gardiennageCost + attenteCost + fraisMontant + manutSupp
+       + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
+
+  const remiseValue = d.remiseValue || 0;
+  const remiseUnit = d.remiseUnit || 'euro';
+  const remiseAmount = remiseValue <= 0
+    ? 0
+    : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue / 100) : remiseValue);
+  const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
+
+  return {
+    type, km, retour: !!d.retour, camionOn, nuit: !!d.nuit, we: !!d.we, auto: !!d.auto,
+    base, kmCost, kmTarifExcept, kmRateNormal, kmRate, kmMultiplier, estRemorquage,
+    gesteDemande, gesteHorsPlage,
+    ctRepasse, nuitCost, weCost, autoCost,
+    extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost,
+    joursGardiennage, gardiennageCost, minutesAttente, attenteCost,
+    pasRoues, pasRouesFee, vehicleType: d.vehicleType || '', vehicleFee,
+    remiseValue, remiseUnit, remiseAmount,
+    fraisMontant, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost,
+    operationsEnlise, manutMinutes, manutSupp,
+    annulation, annulationMontant,
+    subtotal, totalAvantRemise, total
+  };
+}
+
+const MOTEUR_DONNEES_PAR_DEFAUT = {
+  type: 'depannage',
+  km: 0,
+  nuit: false, we: false, auto: false, retour: false, camionOn: false,
+  vehicleType: 'normale',
+  extras: [],
+  battPrice: 0, battDeplacement: false,
+  gardiennageOn: false, joursGardiennage: 0,
+  attenteOn: false, minutesAttente: 0,
+  ctRepasseMontant: 0,
+  donneesCT: null,
+  operationsEnlise: [],
+  pasRoues: false,
+  fraisMontant: 0,
+  annulation: false, annulationMontant: 0,
+  remiseValue: 0, remiseUnit: 'euro',
+  kmTarifExceptionnel: null
+};
+
+
+
+const WA_CHAMPS = {
+  typePrestation:'string', lieuPriseEnCharge:'string', lieuDestination:'string',
+  vehiculeMarqueModele:'string', vehiculePlaque:'string', categorieVehicule:'string',
+  descriptionPanne:'string', rouleEncore:'boolean', surRoues:'boolean',
+  enSousSol:'boolean', autoroute:'boolean', telephone:'string', nomClient:'string',
+  urgence:'string', notes:'string'
+};
+const WA_MOTIFS_PRIX = /prix|tarif|montant|cout|coût|total|euro|eur|€|estimation|devis|facture|somme|price|amount|fee|rate/i;
+
+function waValiderExtraction(brut){
+  if(!brut || typeof brut !== 'object' || Array.isArray(brut)) return {ok:false, donnees:{}, rejets:['sortie invalide']};
+  const donnees = {}, rejets = [];
+  for(const [cle, val] of Object.entries(brut)){
+    if(WA_MOTIFS_PRIX.test(cle)){ rejets.push('champ refusé (montant) : ' + cle); continue; }
+    if(!(cle in WA_CHAMPS)){ rejets.push('hors schéma : ' + cle); continue; }
+    if(val === null || val === undefined || val === '') continue;
+    if(WA_CHAMPS[cle] === 'boolean'){
+      if(typeof val !== 'boolean'){ rejets.push('type invalide : ' + cle); continue; }
+      donnees[cle] = val;
+    } else {
+      if(typeof val !== 'string'){ rejets.push('type invalide : ' + cle); continue; }
+      const s = val.trim(); if(!s) continue;
+      if(WA_MOTIFS_PRIX.test(s) && /\d/.test(s)){ rejets.push('valeur refusée (montant) : ' + cle); continue; }
+      donnees[cle] = s.slice(0,300);
+    }
+  }
+  return {ok:true, donnees, rejets};
+}
+
+const WA_INDISPENSABLES = [
+  {champ:'typePrestation', question:"De quel type d'intervention avez-vous besoin (remorquage, batterie, pneu, autre) ?"},
+  {champ:'lieuPriseEnCharge', question:"Où se trouve le véhicule exactement (rue et commune) ?"},
+  {champ:'lieuDestination', question:"Où faut-il emmener le véhicule (garage, domicile, autre) ?"}
+];
+const WA_UTILES = [
+  {champ:'vehiculeMarqueModele', question:"Quelle est la marque et le modèle du véhicule ?"},
+  {champ:'descriptionPanne', question:"Que se passe-t-il avec le véhicule ?"},
+  {champ:'telephone', question:"À quel numéro peut-on vous joindre ?"}
+];
+const WA_FLOU = /^(je ne sais pas|aucune idée|sais pas|peu importe|\?+)$/i;
+
+function waEvaluerSuffisance(d){
+  const manquants = WA_INDISPENSABLES.filter(r => !d[r.champ]);
+  const ambigus = WA_INDISPENSABLES.filter(r => d[r.champ] && WA_FLOU.test(String(d[r.champ]).trim()));
+  const bloquants = [...manquants, ...ambigus.filter(a => !manquants.includes(a))];
+  const utilesManquants = WA_UTILES.filter(r => !d[r.champ]);
+  return {
+    peutCalculer: bloquants.length === 0,
+    bloquants: bloquants.map(r => r.champ),
+    questions: bloquants.length ? bloquants.map(r => r.question) : utilesManquants.map(r => r.question),
+    utilesManquants: utilesManquants.map(r => r.champ)
+  };
+}
+
+const WA_PRESTATIONS = [
+  [/remorqu|d[ée]pann|tract|emmener|tirer|accident|percut|collision/i, 'depannage'],
+  [/batterie|d[ée]marre pas|ne d[ée]marre/i, 'changement_batterie'],
+  [/pneu|crev/i, 'pneu_chg'],
+  [/carburant|mauvais plein|erreur de plein/i, 'erreur_carburant'],
+  [/embourb|enlis|boue|foss[ée]|treuil/i, 'desembourbement'],
+  [/contr[ôo]le technique|\bCT\b/i, 'ct_passage'],
+  [/transfert|convoyage/i, 'transfert']
+];
+const WA_CATEGORIES = [[/suv|4x4|jeep/i,'suv'],[/[ée]lectrique|hybride|tesla|zoe/i,'electrique'],[/utilitaire|camionnette|fourgon|sprinter/i,'utilitaire']];
+const WA_MARQUES = /\b(audi|bmw|mercedes|volkswagen|vw|renault|peugeot|citro[ëe]n|ford|opel|toyota|fiat|skoda|seat|volvo|kia|hyundai|dacia|nissan|mazda|tesla)\b(?:\s+([A-Z0-9][\w\-]{0,9}))?/i;
+
+function waExtraire(messages){
+  const texte = messages.filter(m => m.de === 'client').map(m => m.texte).join('\n');
+  const out = {};
+  for(const [re,v] of WA_PRESTATIONS){ if(re.test(texte)){ out.typePrestation = v; break; } }
+  for(const [re,v] of WA_CATEGORIES){ if(re.test(texte)){ out.categorieVehicule = v; break; } }
+
+  const trouves = [];
+  const tl = texte.toLowerCase();
+  const candidats = new Set();
+  try{
+    if(typeof ROUTES !== 'undefined' && Array.isArray(ROUTES)){
+      ROUTES.forEach(r => { if(r.from) candidats.add(r.from); if(r.to) candidats.add(r.to); });
+    }
+    if(typeof FAVORIS !== 'undefined' && Array.isArray(FAVORIS)){
+      FAVORIS.forEach(f => candidats.add(typeof f === 'string' ? f : (f.adresse || f.nom || '')));
+    }
+  }catch(e){ /* rien d'enregistré : on se rabat sur la détection ci-dessous */ }
+  for(const nom of candidats){
+    if(!nom) continue;
+    const court = String(nom).split(',')[0].trim();
+    if(court.length > 3 && tl.includes(court.toLowerCase()) && !trouves.includes(court)) trouves.push(court);
+  }
+  if(trouves.length < 2){
+    const re = /\b(?:[àa]|de|depuis|sur)\s+([A-ZÉÈÀ][\wÀ-ÿ'’\-]{3,24})/g;
+    let m;
+    while((m = re.exec(texte)) !== null){
+      const v = m[1].trim();
+      if(!trouves.includes(v) && !/^(Bonjour|Merci|Monsieur|Madame)$/i.test(v)) trouves.push(v);
+    }
+  }
+  const mDest = texte.match(/(?:vers|jusqu'?[àa]|direction|d[ée]poser [àa]|emmener [àa]|garage [àa])\s+([A-ZÉÈÀ][\wÀ-ÿ'’\- ]{2,40})/i);
+  if(mDest) out.lieuDestination = mDest[1].trim().replace(/[.,;].*$/, '');
+  if(trouves.length) out.lieuPriseEnCharge = trouves[0];
+  if(trouves.length > 1 && !out.lieuDestination) out.lieuDestination = trouves[1];
+
+  const mPl = texte.match(/\b\d-[A-Z]{3}-\d{3}\b/i); if(mPl) out.vehiculePlaque = mPl[0].toUpperCase();
+  const mTel = texte.match(/\b0\d{2,3}[\s./]?\d{2}[\s./]?\d{2}[\s./]?\d{2}\b/); if(mTel) out.telephone = mTel[0].trim();
+  const mV = texte.match(WA_MARQUES);
+  if(mV){ const mod = mV[2]; out.vehiculeMarqueModele = (mod && /\d|^[A-Z]{1,4}$/.test(mod)) ? (mV[1]+' '+mod) : mV[1]; }
+  if(/ne roule plus|ne roule pas|plus roulable/i.test(texte)) out.rouleEncore = false;
+  if(/accident|tonneau|roues bloqu/i.test(texte)) out.surRoues = false;
+  if(/sous[- ]sol|parking souterrain/i.test(texte)) out.enSousSol = true;
+  if(/autoroute|\bE4\d|\bE1\d|\bR3\b|ring/i.test(texte)) out.autoroute = true;
+  if(/urgent|tout de suite|imm[ée]diat|au plus vite/i.test(texte)) out.urgence = 'immediate';
+  const mP = texte.match(/(?:probl[èe]me|panne|souci)\s*:?\s*([^.\n]{4,90})/i);
+  if(mP) out.descriptionPanne = mP[1].trim();
+  else if(out.typePrestation === 'changement_batterie') out.descriptionPanne = 'Ne démarre pas';
+  const mN = texte.match(/(?:je suis|c'est)\s+(?:monsieur |madame |m\. |mme )?([A-ZÉÈ][\wÀ-ÿ\-]{2,20})/);
+  if(mN) out.nomClient = mN[1];
+  return out;
+}
+
+function waVersDonneesIntervention(d, ctx){
+  ctx = ctx || {};
+  return {
+    type: d.typePrestation,
+    km: (typeof ctx.km === 'number') ? ctx.km : 0,
+    nuit: !!ctx.nuit, we: !!ctx.we, auto: !!d.autoroute,
+    retour: !!ctx.retour, camionOn: !!ctx.camionOn,
+    vehicleType: ['normale','suv','electrique','utilitaire'].includes(d.categorieVehicule) ? d.categorieVehicule : 'normale',
+    extras: [], pasRoues: false, fraisMontant: 0,
+    annulation: false, annulationMontant: 0,
+    remiseValue: 0, remiseUnit: 'euro', kmTarifExceptionnel: null,
+    gardiennageOn: false, joursGardiennage: 0,
+    attenteOn: false, minutesAttente: 0,
+    ctRepasseMontant: 0, donneesCT: null, operationsEnlise: [],
+    battPrice: 0, battDeplacement: false
+  };
+}
+
+function waSignalements(d){
+  const s = [];
+  if(d.rouleEncore === false) s.push('Le véhicule ne roule plus.');
+  if(d.surRoues === false) s.push('Pas sur ses roues : treuillage probable.');
+  if(d.enSousSol) s.push('En sous-sol : vérifier la hauteur.');
+  if(d.autoroute) s.push('Sur autoroute : majoration appliquée.');
+  if(d.urgence === 'immediate') s.push('Urgence déclarée par le client.');
+  return s;
+}
+
+function waEmpreinteTarifs(){
+  const cles = Object.keys(RATES).sort();
+  const s = cles.map(k => k + '=' + RATES[k]).join(';');
+  let h = 5381;
+  for(let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+
+async function waTraiter(messages, ctx){
+  const {donnees, rejets} = waValiderExtraction(waExtraire(messages));
+  const suff = waEvaluerSuffisance(donnees);
+  if(!suff.peutCalculer){
+    return {etat:'questions', donnees, rejets, questions:suff.questions, bloquants:suff.bloquants, proposition:null};
+  }
+  const km = await waEstimerKm(donnees.lieuPriseEnCharge, donnees.lieuDestination);
+  if(km === null){
+    return {etat:'distance_inconnue', donnees, rejets, questions:[], proposition:null,
+            motif:'Distance non déterminée — aucune estimation produite.'};
+  }
+  const di = waVersDonneesIntervention(donnees, {...(ctx||{}), km});
+  const detail = MOTEUR_calculerTarif(di, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+  if(typeof detail.base !== 'number' || isNaN(detail.total)){
+    return {etat:'prestation_inconnue', donnees, rejets, questions:[], proposition:null,
+            motif:'Prestation absente de tes tarifs — aucune estimation.'};
+  }
+  return {
+    etat:'proposition', donnees, rejets, questions:[],
+    utilesManquants: suff.utilesManquants,
+    proposition:{
+      statut:'en_attente', creeeLe:new Date().toISOString(),
+      donneesClient:donnees, donneesIntervention:di, km, detail, total:detail.total,
+      empreinteTarifs: waEmpreinteTarifs(),
+      mention:'Tarif à confirmer par le dépanneur.',
+      signalements: waSignalements(donnees)
+    }
+  };
+}
+
+async function waEstimerKm(depart, arrivee){
+  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  try{
+    const routes = (typeof ROUTES !== 'undefined' && Array.isArray(ROUTES)) ? ROUTES : [];
+    const x = norm(depart), y = norm(arrivee);
+    for(const r of routes){
+      const a = norm(r.from), b = norm(r.to);
+      if(!a || !b) continue;
+      if((a.includes(x) || x.includes(a)) && (b.includes(y) || y.includes(b))) return r.km;
+      if((a.includes(y) || y.includes(a)) && (b.includes(x) || x.includes(b))) return r.km;
+    }
+  }catch(e){ /* aucun trajet enregistré */ }
+  return null;
+}
+
+async function waEnregistrerDemande(res, messages){
+  const cle = 'demandeWa:' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+  const d = {
+    id: cle, etat: res.etat, creeeLe: new Date().toISOString(),
+    messages: messages.map(m => ({...m})),
+    donnees: res.donnees, questions: res.questions || [],
+    bloquants: res.bloquants || [], motif: res.motif || '',
+    utilesManquants: res.utilesManquants || [],
+    proposition: res.proposition || null,
+    statut: res.proposition ? 'en_attente' : 'incomplete'
+  };
+  await window.storage.set(cle, JSON.stringify(d));
+  return d;
+}
+
+async function waToutesLesDemandes(){
+  try{
+    const list = await window.storage.list('demandeWa:');
+    const res = await Promise.all((list.keys||[]).map(async k => {
+      try{ return JSON.parse((await window.storage.get(k)).value); }catch(e){ return null; }
+    }));
+    return res.filter(Boolean).sort((a,b) => new Date(b.creeeLe) - new Date(a.creeeLe));
+  }catch(e){ return []; }
+}
+
+async function ouvrirDemandesWa(){
+  const box = document.getElementById('waListe');
+  document.getElementById('modalWaBg').classList.add('show');
+  box.innerHTML = '<div class="empty">Chargement…</div>';
+  const demandes = await waToutesLesDemandes();
+  const enAttente = demandes.filter(d => d.statut === 'en_attente' || d.statut === 'incomplete');
+  document.getElementById('waCompteur').textContent = enAttente.length
+    ? enAttente.length + ' en attente' : 'Aucune en attente';
+  if(!demandes.length){
+    box.innerHTML = '<div class="empty">Aucune demande. Utilise « Simuler un message client » pour tester.</div>';
+    return;
+  }
+  box.innerHTML = demandes.map(d => waCarteDemande(d)).join('');
+}
+
+function waCarteDemande(d){
+  const c = d.donnees || {};
+  const p = d.proposition;
+  const badge = d.statut === 'envoye'
+    ? '<div class="pay-badge paye">Envoyée</div>'
+    : d.statut === 'refuse'
+      ? '<div class="pay-badge attente">Refusée</div>'
+      : d.statut === 'converti'
+        ? '<div class="pay-badge fait">Convertie</div>'
+        : p ? '<div class="pay-badge facture">À valider</div>'
+            : '<div class="pay-badge attente">Incomplète</div>';
+  const heure = new Date(d.creeeLe).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+  let corps = '';
+  if(p){
+    const det = p.detail;
+    const lignes = [
+      ['Forfait', det.base], ['Kilométrage', det.kmCost],
+      ['Nuit', det.nuitCost], ['Week-end', det.weCost], ['Autoroute', det.autoCost],
+      ['Supplément véhicule', det.vehicleFee]
+    ].filter(l => l[1] > 0);
+    corps = `
+      <div style="font-size:12.5px; color:var(--grey); margin-top:6px;">
+        ${c.lieuPriseEnCharge} → ${c.lieuDestination} · ${p.km} km
+      </div>
+      <div style="margin-top:9px; padding-top:9px; border-top:1px solid var(--line);">
+        ${lignes.map(l => `<div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--grey);"><span>${l[0]}</span><span>${fmt(l[1])}</span></div>`).join('')}
+        <div style="display:flex; justify-content:space-between; margin-top:6px; font-weight:700; color:var(--white);">
+          <span>Total proposé</span><span style="color:var(--orange); font-size:16px;">${fmt(p.total)}</span>
+        </div>
+        <div style="font-size:11px; color:var(--grey); margin-top:4px;">${p.mention}</div>
+      </div>
+      ${p.signalements.length ? `<div class="km-mention" style="margin-top:8px; border-left-color:var(--orange);">${p.signalements.map(s => '⚠ ' + s).join('<br>')}</div>` : ''}
+      ${(d.utilesManquants && d.utilesManquants.length) ? `<div style="font-size:11px; color:var(--grey); margin-top:6px;">Non renseigné : ${d.utilesManquants.join(', ')}</div>` : ''}`;
+  } else {
+    corps = `
+      <div class="km-mention" style="margin-top:8px; border-left-color:var(--red);">
+        ${d.motif || 'Informations insuffisantes — aucune estimation calculée.'}
+        ${d.questions.length ? '<br><br><strong>À demander au client :</strong><br>' + d.questions.map(q => '• ' + q).join('<br>') : ''}
+      </div>`;
+  }
+
+  const actions = (d.statut === 'en_attente' || d.statut === 'incomplete') ? `
+      <div class="quick-actions" style="margin-top:10px;">
+        ${p ? `<button type="button" class="ghost" style="margin:0;" onclick="waValider('${d.id}')">✓ Valider</button>` : ''}
+        <button type="button" class="ghost" style="margin:0;" onclick="waModifier('${d.id}')">Modifier</button>
+        <button type="button" class="ghost" style="margin:0; color:var(--red);" onclick="waRefuser('${d.id}')">Refuser</button>
+      </div>
+      ${p ? `<div class="quick-actions" style="margin-top:6px;">
+        <button type="button" class="ghost" style="margin:0;" onclick="waVersDevis('${d.id}')">→ Devis</button>
+        <button type="button" class="ghost" style="margin:0;" onclick="waVersIntervention('${d.id}')">→ Intervention</button>
+      </div>` : ''}` : '';
+
+  return `<div class="hist-item" style="flex-direction:column; align-items:stretch;" data-wa="${d.id}">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+      <div style="min-width:0;">
+        <div style="font-size:14.5px; font-weight:700; color:var(--white);">${c.nomClient || 'Client WhatsApp'}</div>
+        <div style="font-size:11.5px; color:var(--grey);">${heure}${c.telephone ? ' · ' + c.telephone : ''}</div>
+      </div>
+      ${badge}
+    </div>
+    ${corps}
+    ${actions}
+  </div>`;
+}
+
+function fermerDemandesWa(){ document.getElementById('modalWaBg').classList.remove('show'); }
+
+let waEnvoiEnAttente = null;
+
+async function waValider(id){
+  try{
+    const d = JSON.parse((await window.storage.get(id)).value);
+    if(!d.proposition){ showToast('Aucune estimation à valider'); return; }
+    if(d.statut !== 'en_attente'){
+      showToast('Cette demande est déjà « ' + d.statut + ' »');
+      return;
+    }
+
+    const recalc = MOTEUR_calculerTarif(d.proposition.donneesIntervention, RATES,
+                                        {typesRemorquage: TYPES_REMORQUAGE});
+    const ancien = d.proposition.total;
+    const empreinteActuelle = waEmpreinteTarifs();
+    const ecart = (recalc.total !== ancien);
+
+    if(ecart){
+      d.proposition.detail = recalc;
+      d.proposition.total = recalc.total;
+      d.proposition.recalculeALaValidation = true;
+    }
+    d.proposition.empreinteTarifs = empreinteActuelle;
+
+    const message = waComposerReponse(d);
+    waEnvoiEnAttente = {id, demande: d, message, ancien, ecart};
+
+    document.getElementById('waEnvoiMontant').textContent = fmt(recalc.total);
+    document.getElementById('waEnvoiEcart').style.display = ecart ? 'block' : 'none';
+    if(ecart){
+      document.getElementById('waEnvoiEcart').innerHTML =
+        '<strong>Tarifs modifiés depuis l\'estimation.</strong><br>' +
+        'Estimation initiale : ' + fmt(ancien) + '<br>' +
+        'Montant recalculé avec tes tarifs actuels : <strong>' + fmt(recalc.total) + '</strong><br>' +
+        'C\'est ce montant qui partira.';
+    }
+    document.getElementById('waEnvoiMessage').textContent = message;
+    document.getElementById('modalWaEnvoiBg').classList.add('show');
+  }catch(e){ showToast('Impossible de préparer cette validation'); }
+}
+
+function fermerWaEnvoi(){
+  waEnvoiEnAttente = null;
+  document.getElementById('modalWaEnvoiBg').classList.remove('show');
+}
+
+async function waConfirmerEnvoi(){
+  if(!waEnvoiEnAttente){ showToast('Rien à confirmer'); return; }
+  const {id, demande, message} = waEnvoiEnAttente;
+  try{
+    demande.statut = 'envoye';
+    demande.envoyeLe = new Date().toISOString();
+    demande.messageEnvoye = message;
+    await window.storage.set(id, JSON.stringify(demande));
+    waEnvoiEnAttente = null;
+    document.getElementById('modalWaEnvoiBg').classList.remove('show');
+    try{ await navigator.clipboard.writeText(message); }catch(e){}
+    showToast('Validé — message copié (mode simulé, rien n\'est expédié)');
+    ouvrirDemandesWa();
+  }catch(e){ showToast('Enregistrement impossible'); }
+}
+
+function waComposerReponse(d){
+  const p = d.proposition, c = d.donneesClient || d.donnees || {};
+  let t = (c.nomClient ? 'Bonjour ' + c.nomClient + ',\n\n' : 'Bonjour,\n\n');
+  t += 'Pour ' + (TYPE_LABELS[p.donneesIntervention.type] || p.donneesIntervention.type).toLowerCase() + '\n';
+  t += 'de ' + c.lieuPriseEnCharge + ' vers ' + c.lieuDestination + ' (' + p.km + ' km) :\n\n';
+  t += 'Estimation : ' + fmt(p.total) + '\n\n';
+  t += 'Ce montant est établi sur la base des informations communiquées et peut varier selon la situation constatée sur place.\n\n';
+  t += COMPANY.name + '\n' + COMPANY.phone;
+  return t;
+}
+
+async function waRefuser(id){
+  try{
+    const d = JSON.parse((await window.storage.get(id)).value);
+    if(d.statut === 'envoye'){ showToast('Demande déjà envoyée — refus impossible'); return; }
+    d.statut = 'refuse'; d.refuseLe = new Date().toISOString();
+    await window.storage.set(id, JSON.stringify(d));
+    showToast('Demande refusée');
+    ouvrirDemandesWa();
+  }catch(e){ showToast('Action impossible'); }
+}
+
+async function waModifier(id){ await waRemplirFormulaire(id, 'Demande reprise — ajuste puis recalcule'); }
+async function waVersIntervention(id){ await waRemplirFormulaire(id, 'Demande convertie — vérifie et enregistre', true); }
+
+async function waRemplirFormulaire(id, message, marquerConverti){
+  try{
+    const d = JSON.parse((await window.storage.get(id)).value);
+    const c = d.donnees || {};
+    const di = d.proposition ? d.proposition.donneesIntervention : null;
+    fermerDemandesWa();
+    showTab('tabNouveau', true);
+
+    if(c.typePrestation){ document.getElementById('type').value = c.typePrestation; updateKmLabel(); }
+    if(c.vehiculePlaque) document.getElementById('plaqueImmat').value = c.vehiculePlaque;
+    if(c.telephone) document.getElementById('telClient').value = c.telephone;
+    if(c.lieuPriseEnCharge) document.getElementById('addrFrom').value = c.lieuPriseEnCharge;
+    if(c.lieuDestination) document.getElementById('addrTo').value = c.lieuDestination;
+    if(d.proposition) document.getElementById('km').value = d.proposition.km;
+    if(c.categorieVehicule) setVehicleType(c.categorieVehicule);
+    if(di){
+      document.getElementById('tgAuto').classList.toggle('on', !!di.auto);
+      document.getElementById('tgNuit').classList.toggle('on', !!di.nuit);
+      document.getElementById('tgWe').classList.toggle('on', !!di.we);
+      majorationsForceesManuellement = {nuit:true, we:true};
+    }
+    const notes = [];
+    if(c.vehiculeMarqueModele) notes.push(c.vehiculeMarqueModele);
+    if(c.descriptionPanne) notes.push(c.descriptionPanne);
+    if(notes.length && document.getElementById('fraisLibelle').value === '') {
+      const el = document.getElementById('etatLieuxNotes');
+      if(el && !el.value) el.value = 'Demande WhatsApp : ' + notes.join(' — ');
+    }
+
+    updateAdvancedSummary();
+    majBarreActionsContextuelle();
+    majResumeCompact();
+    calculer();
+
+    if(marquerConverti){
+      d.statut = 'converti'; d.convertiLe = new Date().toISOString();
+      await window.storage.set(id, JSON.stringify(d));
+    }
+    showToast(message);
+  }catch(e){ showToast('Impossible de reprendre cette demande'); }
+}
+
+async function waVersDevis(id){
+  try{
+    const d = JSON.parse((await window.storage.get(id)).value);
+    if(!d.proposition){ showToast('Aucune estimation à convertir'); return; }
+    const c = d.donnees || {}, di = d.proposition.donneesIntervention;
+    fermerDemandesWa();
+    openQuickQuote();
+    setTimeout(async () => {
+      document.getElementById('qqType').value = di.type;
+      document.getElementById('qqKm').value = d.proposition.km;
+      ['qqNuit','qqWe','qqAuto','qqRetour','qqCamion'].forEach((idt,i) => {
+        const el = document.getElementById(idt);
+        if(el) el.classList.toggle('on', [di.nuit, di.we, di.auto, di.retour, di.camionOn][i]);
+      });
+      if(typeof setQqVehicleType === 'function') setQqVehicleType(di.vehicleType || 'normale');
+      if(c.nomClient) document.getElementById('qqClientNom').value = c.nomClient;
+      if(c.telephone) document.getElementById('qqClientTel').value = c.telephone;
+      calculerDevisRapide();
+      d.statut = 'converti'; d.convertiLe = new Date().toISOString();
+      await window.storage.set(id, JSON.stringify(d));
+      showToast('Demande convertie en devis — vérifie puis enregistre');
+    }, 400);
+  }catch(e){ showToast('Conversion impossible'); }
+}
+
+function ouvrirSimuWa(){
+  document.getElementById('simuWaTexte').value = '';
+  document.getElementById('simuWaResultat').innerHTML = '';
+  document.getElementById('modalSimuWaBg').classList.add('show');
+}
+function fermerSimuWa(){ document.getElementById('modalSimuWaBg').classList.remove('show'); }
+
+let waConversationEnCours = [];
+
+async function simulerMessageClient(){
+  const texte = (document.getElementById('simuWaTexte').value || '').trim();
+  if(!texte){ showToast('Écris un message client à simuler'); return; }
+  waConversationEnCours.push({de:'client', texte, horodatage:new Date().toISOString()});
+
+  const ctx = {
+    nuit: document.getElementById('simuWaNuit').classList.contains('on'),
+    we: document.getElementById('simuWaWe').classList.contains('on')
+  };
+  const res = await waTraiter(waConversationEnCours, ctx);
+  const box = document.getElementById('simuWaResultat');
+
+  let html = '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">';
+  html += '<div class="eyebrow" style="margin-bottom:8px;">Conversation simulée</div>';
+  for(const m of waConversationEnCours){
+    const moi = m.de === 'assistant';
+    html += `<div style="margin-bottom:7px; text-align:${moi ? 'right' : 'left'};">
+      <span style="display:inline-block; max-width:85%; padding:8px 11px; border-radius:13px; font-size:13px;
+        background:${moi ? 'var(--orange-soft)' : 'var(--panel-2)'}; color:var(--white);">${m.texte}</span></div>`;
+  }
+
+  if(res.etat === 'questions'){
+    const q = res.questions.join(' ');
+    waConversationEnCours.push({de:'assistant', texte:q, horodatage:new Date().toISOString()});
+    html += `<div style="margin-bottom:7px; text-align:right;">
+      <span style="display:inline-block; max-width:85%; padding:8px 11px; border-radius:13px; font-size:13px; background:var(--orange-soft); color:var(--white);">${q}</span></div>`;
+    html += `<div class="km-mention" style="border-left-color:var(--red); margin-top:10px;">
+      <strong>Aucune estimation calculée</strong> — il manque : ${res.bloquants.join(', ')}.<br>
+      Réponds à la place du client ci-dessus pour continuer.</div>`;
+  } else if(res.etat === 'proposition'){
+    const p = res.proposition;
+    html += `<div class="km-mention" style="border-left-color:var(--green); margin-top:10px;">
+      <strong>Informations suffisantes</strong> — estimation calculée par ton moteur tarifaire :
+      <strong style="color:var(--orange);">${fmt(p.total)}</strong> (${p.km} km).<br>
+      La demande est enregistrée en attente de ta validation.</div>`;
+    await waEnregistrerDemande(res, waConversationEnCours);
+    waConversationEnCours = [];
+  } else {
+    html += `<div class="km-mention" style="border-left-color:var(--red); margin-top:10px;">
+      <strong>Aucune estimation</strong> — ${res.motif || res.etat}.<br>
+      La demande t'est transmise sans prix.</div>`;
+    await waEnregistrerDemande(res, waConversationEnCours);
+    waConversationEnCours = [];
+  }
+  if(res.rejets && res.rejets.length){
+    html += `<div class="km-mention" style="margin-top:8px; font-size:10.5px;">Champs rejetés par le contrôle : ${res.rejets.join(' · ')}</div>`;
+  }
+  html += '</div>';
+  box.innerHTML = html;
+  document.getElementById('simuWaTexte').value = '';
+}
+
+function reinitialiserSimuWa(){
+  waConversationEnCours = [];
+  document.getElementById('simuWaResultat').innerHTML = '';
+  document.getElementById('simuWaTexte').value = '';
+  showToast('Conversation réinitialisée');
+}
+
 function calculer(){
   const type = document.getElementById('type').value;
   const plaque = document.getElementById('plaqueImmat').value.trim().toUpperCase();
@@ -9109,35 +10075,70 @@ function calculer(){
   const pasRoues = isEpave && document.getElementById('tgPasRoues').classList.contains('on');
   const pasRouesFee = pasRoues ? RATES.epaveSansRouesFee : 0;
 
-  const base = RATES[type];
   const camionOn = document.getElementById('tgCamion').classList.contains('on');
-  const kmRateNormal = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
   const kmExcept = parseFloat(document.getElementById('kmTarifExceptionnel').value);
-  const gesteDemande = (!isNaN(kmExcept) && kmExcept > 0);
-  const gesteHorsPlage = gesteDemande && km > RATES.gesteKmMax;
-  const kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
-  const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
-  const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
-  const kmMultiplier = retour ? 2 : 1;
-  const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
-  const kmCost = kmTarifExcept !== null
-    ? km * kmTarifExcept * kmMultiplier
-    : calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
-  const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
-  const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
-  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
-  const nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
-  const weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
-  const autoCost = (!annulation && auto) ? RATES.auto : 0;
-  const battCost = (!annulation && battPrice > 0) ? battPrice * (1 + RATES.battMarginPct/100) : 0;
-  const battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
-  const totalAvantRemise = annulation
-    ? (annulationMontant + fraisMontant)
-    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
-
   const remiseValue = parseFloat(document.getElementById('remise').value) || 0;
-  const remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
-  const total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
+
+  let base, kmRateNormal, gesteDemande, gesteHorsPlage, kmTarifExcept, kmRate,
+      ctRetourCost, kmMultiplier, estRemorquage, kmCost, vehicleFee,
+      subtotal, nuitCost, weCost, autoCost, battCost, battDeplacementCost,
+      totalAvantRemise, remiseAmount, total;
+
+  if(MOTEUR_ACTIF){
+    const R = MOTEUR_calculerTarif({
+      type, km, nuit, we, auto, retour, camionOn,
+      vehicleType: VEHICLE_TYPE,
+      extras: extras.map(e => e.type),
+      battPrice, battDeplacement,
+      gardiennageOn, joursGardiennage,
+      attenteOn, minutesAttente,
+      ctRepasseMontant: ctRepasse,
+      donneesCT,
+      operationsEnlise,
+      pasRoues,
+      fraisMontant,
+      annulation, annulationMontant,
+      remiseValue, remiseUnit,
+      kmTarifExceptionnel: isNaN(kmExcept) ? null : kmExcept
+    }, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+
+    base = R.base; kmRateNormal = R.kmRateNormal;
+    gesteDemande = R.gesteDemande; gesteHorsPlage = R.gesteHorsPlage;
+    kmTarifExcept = R.kmTarifExcept; kmRate = R.kmRate;
+    ctRetourCost = R.ctRetourCost; kmMultiplier = R.kmMultiplier;
+    estRemorquage = R.estRemorquage; kmCost = R.kmCost;
+    vehicleFee = R.vehicleFee; subtotal = R.subtotal;
+    nuitCost = R.nuitCost; weCost = R.weCost; autoCost = R.autoCost;
+    battCost = R.battCost; battDeplacementCost = R.battDeplacementCost;
+    totalAvantRemise = R.totalAvantRemise; remiseAmount = R.remiseAmount;
+    total = R.total;
+  } else {
+    base = RATES[type];
+    kmRateNormal = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
+    gesteDemande = (!isNaN(kmExcept) && kmExcept > 0);
+    gesteHorsPlage = gesteDemande && km > RATES.gesteKmMax;
+    kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
+    kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
+    ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
+    kmMultiplier = retour ? 2 : 1;
+    estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
+    kmCost = kmTarifExcept !== null
+      ? km * kmTarifExcept * kmMultiplier
+      : calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
+    const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
+    vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
+    subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+    nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
+    weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
+    autoCost = (!annulation && auto) ? RATES.auto : 0;
+    battCost = (!annulation && battPrice > 0) ? battPrice * (1 + RATES.battMarginPct/100) : 0;
+    battDeplacementCost = (!annulation && battDeplacement) ? RATES.battDeplacementFee : 0;
+    totalAvantRemise = annulation
+      ? (annulationMontant + fraisMontant)
+      : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost + gardiennageCost + attenteCost + fraisMontant + manutSupp + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
+    remiseAmount = remiseValue <= 0 ? 0 : (remiseUnit === 'pct' ? totalAvantRemise * (remiseValue/100) : remiseValue);
+    total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
+  }
 
   lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
@@ -11061,9 +12062,91 @@ document.addEventListener('focusout', (e) => {
   });
 })();
 
+
+
+
+function lireFormulairePourMoteur(){
+  const on = id => { const e = document.getElementById(id); return !!(e && e.classList.contains('on')); };
+  const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+  const type = document.getElementById('type').value;
+  return {
+    type,
+    plaque: val('plaqueImmat'), depart: val('addrDepart'),
+    from: val('addrFrom'), to: val('addrTo'), km: val('km'),
+    nuit: on('tgNuit'), we: on('tgWe'), auto: on('tgAuto'),
+    retour: on('tgRetour'), camionOn: on('tgCamion'),
+    battDeplacement: on('tgBattDeplacement'), battPrice: val('battPrice'),
+    extras: Array.from(document.querySelectorAll('.extraCheck:checked')).map(cb => cb.value),
+    gardiennageOn: on('tgGardiennage'), joursGardiennage: val('joursGardiennage'),
+    attenteOn: on('tgAttente'), minutesAttente: val('minutesAttente'),
+    abandon: on('tgAbandon'), ctRepasse: val('ctRepasseMontant'),
+    prixAnnonce: val('prixAnnonce'),
+    paiementRevolutAnticipe: on('tgRevolut'),
+    paiementPayconiqAnticipe: on('tgPayconiq'),
+    paiementRevlinkAnticipe: on('tgRevlink'),
+    telClient: val('telClient'), donneurOrdre: val('donneurOrdre'),
+    donneurNom: val('donneurNom'), refDossier: val('refDossier'),
+    checklist: lireChecklist(), horaires: lireHoraires(),
+    fraisLibelle: val('fraisLibelle'), fraisMontant: val('fraisMontant'),
+    origineClient: val('origineClient'),
+    controleVehicule: lireControleVehicule(),
+    donneesCT: lireDonneesCT(type),
+    difficulteEnlise: DIFFICULTE_ENLISE,
+    operationsEnlise: OPERATIONS_ENLISE,
+    annulation: on('tgAnnulation'), annulationMontant: val('annulationMontant'),
+    sansMoteur: on('tgSansMoteur'), pasRoues: on('tgPasRoues'),
+    vehicleType: VEHICLE_TYPE,
+    kmTarifExceptionnel: val('kmTarifExceptionnel'),
+    remiseValue: val('remise'), remiseUnit: remiseUnit
+  };
+}
+
+let MOTEUR_STATS = {comparaisons: 0, ecarts: 0, dernierEcart: null};
+
+async function chargerStatsMoteur(){
+  try{
+    const res = await window.storage.get('moteurStats');
+    if(res && res.value) MOTEUR_STATS = JSON.parse(res.value);
+  }catch(e){ /* première utilisation */ }
+}
+
+(function(){
+  const CHAMPS = ['total','base','kmCost','extrasCost','nuitCost','weCost','autoCost',
+                  'battCost','battDeplacementCost','gardiennageCost','attenteCost',
+                  'pasRouesFee','vehicleFee','remiseAmount','ctRepasse','manutSupp',
+                  'ctOfficielsCost','ctPrestataireCost','ctRetourCost','annulationMontant'];
+  const original = calculer;
+  calculer = function(){
+    const resultat = original.apply(this, arguments);   // le calcul réel, inchangé
+    try{
+      if(!lastCalc) return resultat;
+      const CTX = {TYPES_REMORQUAGE, TYPES_CT: (typeof TYPES_CT !== 'undefined') ? TYPES_CT : [], TYPE_LABELS};
+      const obtenu = calculerTarif(lireFormulairePourMoteur(), RATES, CTX);
+      const divergents = [];
+      for(const c of CHAMPS){
+        const a = lastCalc[c], b = obtenu[c];
+        const na = (a === null || a === undefined) ? null : (typeof a === 'number' ? Math.round(a*100)/100 : a);
+        const nb = (b === null || b === undefined) ? null : (typeof b === 'number' ? Math.round(b*100)/100 : b);
+        if(na !== nb) divergents.push(c + ': appli=' + na + ' moteur=' + nb);
+      }
+      MOTEUR_STATS.comparaisons++;
+      if(divergents.length){
+        MOTEUR_STATS.ecarts++;
+        MOTEUR_STATS.dernierEcart = {date: new Date().toISOString(), type: lastCalc.type, details: divergents.join(' | ')};
+        console.warn('[mode fantôme] écart détecté :', divergents);
+      }
+      window.storage.set('moteurStats', JSON.stringify(MOTEUR_STATS)).catch(()=>{});
+    }catch(e){
+      console.warn('[mode fantôme] moteur en échec :', e.message);
+    }
+    return resultat;
+  };
+})();
+
 (async () => {
   try{
     await checkPinLock();
+    await chargerChoixMoteur();
     majIndicateurConnexion();
     positionnerFab();
     await loadThemeMode();
@@ -11080,6 +12163,7 @@ document.addEventListener('focusout', (e) => {
     await loadClients();
     await loadAccessNotes();
     await loadRates().then(updateKmLabel);
+    await chargerStatsMoteur();
     await loadHistory();
     await loadRoutes();
     try{
