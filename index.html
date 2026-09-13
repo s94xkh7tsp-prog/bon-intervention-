@@ -5614,7 +5614,30 @@ function resumeCT(d){
   return parts.join(' · ');
 }
 
-const APP_VERSION = 'jm-express-bon-v180';
+const APP_VERSION = 'jm-express-bon-v181';
+
+function etatVersion(type, texte, heure){
+  const el = document.getElementById('mentionVersion');
+  if(!el) return;
+  const styles = {
+    ajour:     {bord:'var(--green)', fond:'rgba(63,138,95,0.10)',  icone:'✓', couleur:'var(--green)'},
+    maj:       {bord:'var(--orange)', fond:'var(--orange-soft)',   icone:'↻', couleur:'var(--orange)'},
+    horsligne: {bord:'var(--grey)', fond:'var(--panel-2)',         icone:'⚠', couleur:'var(--grey)'},
+    inconnu:   {bord:'var(--red)', fond:'rgba(201,74,50,0.10)',    icone:'⚠', couleur:'var(--red)'}
+  };
+  const s = styles[type] || styles.inconnu;
+  el.style.borderLeftColor = s.bord;
+  el.style.background = s.fond;
+  el.style.padding = '11px 13px';
+  el.style.borderRadius = '10px';
+  el.style.borderLeftWidth = '3px';
+  el.style.opacity = '1';
+  el.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px;">
+      <span style="font-size:16px; color:${s.couleur}; font-weight:700; line-height:1.2;">${s.icone}</span>
+      <span><strong style="color:${s.couleur};">${type === 'ajour' ? 'À jour' : type === 'maj' ? 'Mise à jour disponible' : 'Non vérifié'}</strong><br>${texte}
+      ${heure ? `<br><span style="font-size:10.5px; color:var(--grey);">Vérifié à ${heure}</span>` : ''}</span>
+    </div>`;
+}
 
 async function verifierVersionManuelle(){
   const inst = document.getElementById('versionInstallee');
@@ -5622,22 +5645,23 @@ async function verifierVersionManuelle(){
   const mention = document.getElementById('mentionVersion');
   if(inst) inst.textContent = APP_VERSION.replace('jm-express-bon-', '');
   if(pub) pub.textContent = '…';
+  const heure = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   try{
     const res = await fetch('sw.js?verif=' + Date.now(), {cache:'no-store'});
     const txt = await res.text();
     const m = txt.match(/CACHE_NAME\s*=\s*'([^']+)'/);
     const publiee = m ? m[1] : null;
     if(pub) pub.textContent = publiee ? publiee.replace('jm-express-bon-', '') : 'inconnue';
-    if(!publiee) return;
+    if(!publiee){ etatVersion('inconnu', 'Version publiée illisible.', heure); return; }
     if(publiee === APP_VERSION){
-      if(mention) mention.textContent = 'Tu es à jour.';
+      etatVersion('ajour', 'Ton application est à jour.', heure);
     } else {
-      if(mention) mention.innerHTML = '<strong>Une nouvelle version est disponible.</strong> Utilise le bandeau en haut de l\'écran, ou recharge l\'appli.';
+      etatVersion('maj', 'Nouvelle version disponible : ' + publiee.replace('jm-express-bon-', '') + '. Touche « Mettre à jour » dans le bandeau orange en haut.', heure);
       document.getElementById('majBanniere').classList.add('show');
     }
   }catch(e){
     if(pub) pub.textContent = 'hors ligne';
-    if(mention) mention.textContent = 'Impossible de vérifier : pas de connexion.';
+    etatVersion('horsligne', 'Vérification impossible : pas de connexion.', heure);
   }
 }
 
