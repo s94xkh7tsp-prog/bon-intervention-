@@ -308,13 +308,21 @@
   .settings-category:last-of-type{margin-bottom:0;}
   .extras-header{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    cursor:pointer; padding:16px 0; user-select:none;
+    cursor:pointer; padding:15px 0; user-select:none;
   }
+  /* Sans capitales, les titres tiennent sur une seule ligne : le résumé
+     (« Aucun ») reste alors aligné avec le titre au lieu de flotter au milieu
+     d'un titre replié sur deux ou trois lignes. */
   .extras-header label{
-    margin:0 !important; cursor:pointer; font-weight:700 !important; font-size:16.5px !important;
-    color:var(--white) !important; letter-spacing:0.1px;
+    margin:0 !important; cursor:pointer; font-weight:700 !important; font-size:15.5px !important;
+    color:var(--white) !important; letter-spacing:0 !important;
+    text-transform:none !important; line-height:1.3 !important;
+    min-width:0; flex:1;
   }
-  .extras-summary{color:var(--orange); font-size:13.5px; font-weight:600; flex-shrink:0;}
+  .extras-summary{
+    color:var(--orange); font-size:13px; font-weight:600; flex-shrink:0;
+    text-align:right; max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
   .extras-chevron{color:var(--orange); font-size:18px; transition:transform 0.2s; flex-shrink:0;}
   .extras-chevron.open{transform:rotate(180deg);}
   .extra-item{
@@ -450,6 +458,23 @@
 
   /* BANNIÈRE "REPRENDRE L'INTERVENTION EN COURS" — proposition discrète au lancement,
      jamais un redirect forcé. Ancrée juste au-dessus de la barre de navigation. */
+  /* Bandeau de mise à jour : évite d'avoir à supprimer et réinstaller l'appli. */
+  .maj-banniere{
+    position:fixed; top:0; left:0; right:0; z-index:210;
+    background:var(--orange); color:#fff; display:flex; align-items:center; gap:10px;
+    padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+    transform:translateY(-100%); transition:transform .35s cubic-bezier(.2,.9,.25,1.05);
+    box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  }
+  .maj-banniere.show{transform:translateY(0);}
+  .maj-txt{flex:1; font-size:13.5px; font-weight:600;}
+  .maj-btn{
+    background:#fff; color:var(--orange); font-weight:700; font-size:13px;
+    padding:8px 14px; border-radius:18px; cursor:pointer; flex-shrink:0;
+  }
+  .maj-btn:active{transform:scale(0.95);}
+  .maj-fermer{color:rgba(255,255,255,0.75); font-size:15px; padding:4px; cursor:pointer; flex-shrink:0;}
+
   .reprise-banniere{
     position:fixed; left:14px; right:14px; bottom:calc(84px + env(safe-area-inset-bottom));
     z-index:120; background:var(--navy); border-radius:18px; padding:13px 14px;
@@ -974,6 +999,12 @@
   </div>
 </div>
 
+<div class="maj-banniere" id="majBanniere">
+  <span class="maj-txt">Nouvelle version disponible</span>
+  <span class="maj-btn" onclick="appliquerMiseAJour()">Mettre à jour</span>
+  <span class="maj-fermer" onclick="document.getElementById('majBanniere').classList.remove('show')">✕</span>
+</div>
+
 <div class="reprise-banniere" id="repriseBanniere">
   <div class="reprise-icone">🔧</div>
   <div class="reprise-texte">
@@ -1179,7 +1210,7 @@
 
     <div class="field">
       <div class="extras-header" onclick="toggleExtrasList()">
-        <label style="margin:0; cursor:pointer;">+ Prestations supplémentaires (optionnel)</label>
+        <label style="margin:0; cursor:pointer;">+ Prestations en plus</label>
         <span class="extras-summary" id="extrasSummary">Aucune</span>
         <span class="extras-chevron" id="extrasChevron">▾</span>
       </div>
@@ -1791,7 +1822,7 @@
 
 <div class="field">
       <div class="extras-header" onclick="toggleHoraires()">
-        <label style="margin:0; cursor:pointer;">⏱️ Horaires de l'intervention</label>
+        <label style="margin:0; cursor:pointer;">⏱️ Horaires</label>
         <span class="extras-summary" id="horairesSummary">Aucun</span>
         <span class="extras-chevron" id="horairesChevron">▾</span>
       </div>
@@ -1955,7 +1986,7 @@
 
     <div class="field">
       <div class="extras-header" onclick="toggleAdvancedOptions()">
-        <label style="margin:0; cursor:pointer;">+ Options avancées (véhicule, camion, gardiennage)</label>
+        <label style="margin:0; cursor:pointer;">+ Options avancées</label>
         <span class="extras-summary" id="advancedSummary">Aucune</span>
         <span class="extras-chevron" id="advancedChevron">▾</span>
       </div>
@@ -2028,7 +2059,7 @@
 
     <div class="field">
       <div class="extras-header" onclick="toggleTracabilite()">
-        <label style="margin:0; cursor:pointer;">+ Traçabilité (incident, documents, remise pro)</label>
+        <label style="margin:0; cursor:pointer;">+ Traçabilité</label>
         <span class="extras-summary" id="tracSummary">Aucune</span>
         <span class="extras-chevron" id="tracChevron">▾</span>
       </div>
@@ -3248,6 +3279,20 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modalReglagesNonEnrBg">
+  <div class="modal">
+    <div class="eyebrow">Réglages</div>
+    <h1 class="page-title" style="font-size:22px;">Tarifs non enregistrés</h1>
+    <p style="font-size:14.5px; line-height:1.55; color:var(--white); margin:0 0 16px;">
+      Tu as modifié un ou plusieurs tarifs sans les enregistrer. Si tu fermes maintenant,
+      ils reviendront à leur valeur précédente.
+    </p>
+    <button class="primary" onclick="enregistrerPuisFermerReglages()">Enregistrer les tarifs</button>
+    <button class="ghost" style="color:var(--red);" onclick="abandonnerModifsReglages()">Abandonner les modifications</button>
+    <button class="ghost close-modal" onclick="document.getElementById('modalReglagesNonEnrBg').classList.remove('show')">Continuer à modifier</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalWaEnvoiBg">
   <div class="modal">
     <div class="eyebrow">Validation</div>
@@ -4340,7 +4385,7 @@ const DEFAULT_RATES = {
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
-  km_remorque:3.45, km_deplacement:1.10, nuitPct:30, wePct:25, auto:15,
+  km_remorque:3.45, km_deplacement:1.20, nuitPct:30, wePct:25, auto:15,
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   attente15minFee:10,
@@ -4365,26 +4410,16 @@ window.storage = {
     if(v === null) throw new Error('not found');
     return {key, value:v};
   },
-  async set(key, value){
-    localStorage.setItem('jm_'+key, value);
-    return {key, value};
-  },
-  async delete(key){
-    localStorage.removeItem('jm_'+key);
-    return {key, deleted:true};
-  },
+  async set(key, value){ localStorage.setItem('jm_'+key, value); return {key, value}; },
+  async delete(key){ localStorage.removeItem('jm_'+key); return {key, deleted:true}; },
   async list(prefix){
-    const keys = Object.keys(localStorage)
-      .filter(k=>k.startsWith('jm_'+(prefix||'')))
-      .map(k=>k.slice(3));
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('jm_'+(prefix||''))).map(k=>k.slice(3));
     return {keys};
   }
 };
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  });
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 }
 let lastCalc = null;
 let receiptPhotoData = null; // base64 JPEG compressé, ou null
@@ -5571,6 +5606,42 @@ function resumeCT(d){
   return parts.join(' · ');
 }
 
+const APP_VERSION = 'jm-express-bon-v179';
+
+async function verifierMiseAJour(){
+  if(!navigator.onLine) return;
+  try{
+    const res = await fetch('sw.js?verif=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) return;
+    const txt = await res.text();
+    const m = txt.match(/CACHE_NAME\s*=\s*'([^']+)'/);
+    if(!m) return;
+    if(m[1] !== APP_VERSION){
+      document.getElementById('majBanniere').classList.add('show');
+    }
+  }catch(e){ /* hors ligne : on retentera au prochain retour dans l'appli */ }
+}
+
+async function appliquerMiseAJour(){
+  const btn = document.querySelector('#majBanniere .maj-btn');
+  if(btn) btn.textContent = 'Chargement…';
+  try{
+    if('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update().catch(() => {})));
+    }
+    if(window.caches){
+      const noms = await caches.keys();
+      await Promise.all(noms.filter(n => n !== APP_VERSION).map(n => caches.delete(n)));
+    }
+  }catch(e){ /* on recharge quand même */ }
+  location.reload();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') setTimeout(verifierMiseAJour, 800);
+});
+
 let moteurChoixEnAttente = null;
 
 function demanderChangementMoteur(versNouveau){
@@ -6689,7 +6760,47 @@ function openSettings(){
     document.getElementById(id).oninput = updateCostHint;
   });
 }
-function closeSettings(){ document.getElementById('modalBg').classList.remove('show'); }
+function reglagesModifies(){
+  for(const k of Object.keys(DEFAULT_RATES)){
+    const el = document.getElementById('r_' + k);
+    if(!el) continue;
+    const saisi = parseFloat(el.value);
+    const actuel = RATES[k];
+    if(isNaN(saisi)){ if(actuel !== 0 && el.value.trim() !== '') return true; continue; }
+    if(Math.abs(saisi - actuel) > 0.0001) return true;
+  }
+  const champsTexte = [['r_baseAddress', () => BASE_ADDRESS], ['r_revolutLink', () => REVOLUT_LINK],
+                       ['r_nightStart', () => NIGHT_START], ['r_nightEnd', () => NIGHT_END]];
+  for(const [id, val] of champsTexte){
+    const el = document.getElementById(id);
+    if(el && el.value.trim() !== String(val()).trim()) return true;
+  }
+  return false;
+}
+
+function closeSettings(){
+  if(document.getElementById('modalBg').classList.contains('show') && reglagesModifies()){
+    document.getElementById('modalReglagesNonEnrBg').classList.add('show');
+    return;
+  }
+  document.getElementById('modalBg').classList.remove('show');
+}
+
+function fermerReglagesSansControle(){
+  document.getElementById('modalReglagesNonEnrBg').classList.remove('show');
+  document.getElementById('modalBg').classList.remove('show');
+}
+
+async function enregistrerPuisFermerReglages(){
+  document.getElementById('modalReglagesNonEnrBg').classList.remove('show');
+  await saveSettings();
+}
+
+function abandonnerModifsReglages(){
+  fillSettingsForm();
+  fermerReglagesSansControle();
+  showToast('Modifications abandonnées');
+}
 
 let QQ_VEHICLE_TYPE = 'normale';
 
@@ -8434,7 +8545,7 @@ async function saveSettings(){
   }catch(e){ showToast('Erreur d\'enregistrement'); }
   updateKmLabel();
   updateNightHoursLabel();
-  closeSettings();
+  fermerReglagesSansControle();
 }
 
 function toggleExtrasList(){
@@ -8905,6 +9016,7 @@ const FERMETURE_PAR_MODAL = {
   modalMoteurBg: fermerChangementMoteur,
   modalWaBg: fermerDemandesWa,
   modalWaEnvoiBg: fermerWaEnvoi,
+  modalReglagesNonEnrBg: () => document.getElementById('modalReglagesNonEnrBg').classList.remove('show'),
   modalSimuWaBg: fermerSimuWa
 };
 function positionnerFab(){
@@ -12147,6 +12259,7 @@ async function chargerStatsMoteur(){
   try{
     await checkPinLock();
     await chargerChoixMoteur();
+    setTimeout(verifierMiseAJour, 2500);
     majIndicateurConnexion();
     positionnerFab();
     await loadThemeMode();

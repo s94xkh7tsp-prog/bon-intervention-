@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v176';
+const CACHE_NAME = 'jm-express-bon-v179';
 const APP_SHELL = [
   './',
   './index.html',
@@ -37,6 +37,13 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
   const isAppShell = url.origin === self.location.origin;
+
+  // sw.js sert à détecter les mises à jour : il doit toujours venir du réseau,
+  // sinon l'application comparerait sa version à une copie périmée d'elle-même.
+  if (url.pathname.endsWith('/sw.js')) {
+    event.respondWith(fetch(req, {cache: 'no-store'}).catch(() => new Response('', {status: 503})));
+    return;
+  }
   // La page principale (navigation) doit toujours privilégier une copie fraîche du réseau :
   // en cache-first, une copie en cache incomplète ou corrompue (ex: coupure réseau pendant
   // une mise à jour) serait servie à l'infini, provoquant un écran blanc permanent.
