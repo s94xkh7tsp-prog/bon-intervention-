@@ -27,7 +27,7 @@
     --orange-dim:#fce9d3;
     --navy:#1f333d;
     --white:#22343d;
-    --grey:#6d7f88;
+    --grey:#5f7179;
     --green:#3f8a5f;
     --red:#c94a32;
     --shadow-sm:0 1px 3px rgba(31,51,61,0.06), 0 1px 2px rgba(31,51,61,0.04);
@@ -103,17 +103,44 @@
 
   /* Résumé compact en haut de Nouvelle course : l'essentiel d'un coup d'œil */
   .resume-compact{
-    background:var(--navy); border-radius:16px; padding:12px 14px; margin-bottom:14px;
-    display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; box-shadow:var(--shadow-md);
+    background:var(--navy); border-radius:20px; padding:15px 16px; margin-bottom:16px;
+    box-shadow:var(--shadow-lg); border:1px solid rgba(232,115,12,0.22);
+    position:relative; overflow:hidden;
   }
-  .rc-item{font-size:12.5px; color:rgba(255,255,255,0.92); display:flex; align-items:center; gap:4px;}
-  .rc-item .rc-lbl{color:rgba(255,255,255,0.45); font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; font-family:'JetBrains Mono',monospace;}
-  .rc-sep{color:rgba(255,255,255,0.22);}
-  .rc-cond{background:rgba(255,255,255,0.12); padding:2px 7px; border-radius:8px; font-size:11px; font-weight:600;}
-  .rc-prix{color:var(--orange); font-weight:700;}
+  .resume-compact::before{
+    content:''; position:absolute; top:-50%; right:-10%; width:150px; height:150px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,115,12,0.13), transparent 70%); pointer-events:none;
+  }
+  /* Ligne 1 : la prestation et l'état, bien lisibles */
+  .rc-tete{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; position:relative;}
+  .rc-type{
+    font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#fff;
+    line-height:1.15; letter-spacing:0.2px; text-transform:uppercase; min-width:0;
+  }
+  .rc-statut{
+    flex-shrink:0; font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:8px;
+    text-transform:uppercase; letter-spacing:0.7px; white-space:nowrap;
+  }
+  .rc-statut.attente{background:rgba(255,255,255,0.13); color:rgba(255,255,255,0.72);}
+  .rc-statut.calcule{background:var(--orange); color:#fff;}
+  /* Ligne 2 : les informations clés */
+  .rc-infos{
+    display:flex; flex-wrap:wrap; gap:6px 9px; align-items:center;
+    margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,0.10); position:relative;
+  }
+  .rc-item{font-size:13px; color:rgba(255,255,255,0.94); display:flex; align-items:center; gap:5px; white-space:nowrap;}
+  .rc-item .rc-lbl{color:rgba(255,255,255,0.42); font-size:9.5px; text-transform:uppercase; letter-spacing:0.9px; font-family:'JetBrains Mono',monospace;}
+  .rc-sep{color:rgba(255,255,255,0.20);}
+  .rc-cond{background:rgba(255,255,255,0.13); padding:3px 8px; border-radius:8px; font-size:11px; font-weight:700; white-space:nowrap;}
+  .rc-prix{color:var(--orange); font-weight:700; font-size:14px;}
 
   /* Les icônes vectorielles ne suivent pas la taille de police : on les dimensionne
      explicitement là où elles doivent être imposantes. */
+  /* Cibles tactiles : 44px minimum partout, recommandation Apple — indispensable
+     quand on encode debout au bord de la route, parfois avec des gants. */
+  .toggle, .loc-btn{min-height:44px;}
+  .quick-actions button{display:flex; align-items:center; justify-content:center; gap:6px;}
+
   .gb-ico svg{width:25px; height:25px;}
   .gros-bouton.principal .gb-ico svg{width:29px; height:29px; stroke-width:2.2;}
   .gear svg{width:21px; height:21px;}
@@ -149,7 +176,7 @@
   }
   .eyebrow::before{content:''; width:26px; height:2px; background:var(--orange); border-radius:2px;}
   .page-title{
-    font-family:'Oswald',sans-serif; font-weight:700; font-size:26px; line-height:1.08; letter-spacing:0.3px;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:28px; line-height:1.06; letter-spacing:0.2px;
     text-transform:uppercase; color:var(--white); margin:0 0 5px 2px;
   }
   .page-sub{font-size:13.5px; color:var(--grey); line-height:1.4; margin:0 0 14px 2px;}
@@ -165,7 +192,7 @@
   /* Boutons d'action compacts sous les adresses (Maps / Waze / Accès sur une seule ligne) */
   .quick-actions{display:flex; gap:8px; margin-top:10px;}
   .quick-actions button{
-    flex:1; min-height:42px; background:var(--panel); color:var(--grey); border:1px solid var(--line); border-radius:20px;
+    flex:1; min-height:44px; background:var(--panel); color:var(--grey); border:1px solid var(--line); border-radius:20px;
     padding:10px 4px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
     transition:background .12s ease, transform .08s ease, color .12s ease;
   }
@@ -306,9 +333,18 @@
   }
   .unit-btn.on{background:var(--orange-soft); color:var(--orange);}
 
+  /* Aide contextuelle volontairement effacée : lisible quand on la cherche,
+     sans capter l'attention quand on encode vite au bord de la route. */
   .km-mention{
-    font-size:11.5px; color:var(--grey); line-height:1.4; margin-top:8px; padding:9px 12px;
-    background:var(--panel-2); border-radius:10px; border-left:3px solid var(--orange);
+    font-size:11px; color:var(--grey); line-height:1.45; margin-top:7px; padding:0 0 0 11px;
+    background:transparent; border-radius:0; border-left:2px solid var(--line);
+    opacity:0.82; transition:opacity .15s ease;
+  }
+  .km-mention:hover{opacity:1;}
+  .km-mention strong{color:var(--white); font-weight:700;}
+  /* Les avertissements gardent leur cadre : eux doivent se voir. */
+  .km-mention[style*="--red"], .km-mention[style*="--orange"]{
+    padding:9px 12px; background:var(--panel-2); border-radius:10px; border-left-width:3px; opacity:1;
   }
   .kmrow{display:flex; gap:10px;}
   .kmrow .field{flex:1;}
@@ -334,7 +370,7 @@
   .float-calc.show{transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto;}
   .float-calc:active{transform:translateX(-50%) scale(0.96);}
   button.ghost{
-    width:100%; background:var(--panel); color:var(--white); border:1px solid var(--line); padding:13px;
+    width:100%; min-height:44px; background:var(--panel); color:var(--white); border:1px solid var(--line); padding:13px;
     border-radius:26px; font-size:15px; font-weight:600; cursor:pointer; margin-top:8px;
     transition:background .12s ease, transform .08s ease, color .12s ease;
   }
@@ -358,8 +394,9 @@
   .ticket-row .v{font-family:'JetBrains Mono',monospace;}
   .ticket-row.over-threshold .v{color:var(--red); font-weight:700;}
   .ticket-total{
-    display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin-top:16px; padding:24px;
-    background:var(--navy); border:none; border-radius:20px; box-shadow:var(--shadow-lg);
+    display:flex; flex-direction:column; align-items:flex-start; gap:7px; margin-top:18px; padding:26px 24px;
+    background:var(--navy); border:1px solid rgba(232,115,12,0.3); border-radius:24px;
+    box-shadow:var(--shadow-lg), 0 0 0 4px rgba(232,115,12,0.05);
     position:relative; overflow:hidden;
   }
   .ticket-total::before{
@@ -368,7 +405,7 @@
   }
   html[data-theme="dark"] .ticket-total{background:#0a1014; border:1px solid var(--line);}
   .ticket-total .lbl{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:2.2px; text-transform:uppercase; color:rgba(255,255,255,0.6); position:relative;}
-  .ticket-total .amt{font-family:'Oswald',sans-serif; font-size:46px; font-weight:700; color:var(--orange); line-height:1; position:relative; text-shadow:0 2px 12px rgba(232,115,12,0.35);}
+  .ticket-total .amt{font-family:'Oswald',sans-serif; font-size:52px; font-weight:700; color:var(--orange); line-height:1; position:relative; text-shadow:0 2px 16px rgba(232,115,12,0.45); letter-spacing:-0.5px;}
   .ticket-addr{font-size:15px; margin:8px 0; color:var(--white); line-height:1.45;}
   .ticket-addr .tag{color:var(--grey); font-size:10.5px; text-transform:uppercase; letter-spacing:1.6px; font-family:'JetBrains Mono',monospace;}
 
@@ -659,8 +696,18 @@
     font-size:12px; font-weight:700; background:rgba(255,255,255,0.10); color:rgba(255,255,255,0.45);
     border:2px solid rgba(255,255,255,0.14); transition:all .2s ease;
   }
-  .ec-step.atteint .ec-step-puce{background:var(--orange); color:#fff; border-color:var(--orange);}
-  .ec-step.actif .ec-step-puce{box-shadow:0 0 0 4px rgba(232,115,12,0.25);}
+  /* Étape franchie : pleine et orange. Étape courante : anneau pulsé.
+     Étape à venir : creuse et discrète. Trois états visuellement distincts. */
+  .ec-step.atteint .ec-step-puce{background:var(--orange); color:#fff; border-color:var(--orange); font-size:13px;}
+  .ec-step.actif .ec-step-puce{
+    box-shadow:0 0 0 4px rgba(232,115,12,0.28); transform:scale(1.14);
+    animation:pulseEtape 2.2s ease-in-out infinite;
+  }
+  @keyframes pulseEtape{
+    0%,100%{box-shadow:0 0 0 4px rgba(232,115,12,0.28);}
+    50%{box-shadow:0 0 0 7px rgba(232,115,12,0.14);}
+  }
+  .ec-step.actif .ec-step-lbl{color:#fff; font-weight:700;}
   .ec-step-lbl{font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); margin-top:5px; text-align:center; line-height:1.2;}
   .ec-step.atteint .ec-step-lbl{color:rgba(255,255,255,0.9);}
   .ec-step-heure{font-size:8.5px; color:rgba(232,115,12,0.85); margin-top:1px; font-family:'JetBrains Mono',monospace;}
@@ -5453,16 +5500,27 @@ function majResumeCompact(){
   if(document.getElementById('tgRetour').classList.contains('on')) conds.push('Retour à vide');
   if(document.getElementById('tgCamion').classList.contains('on')) conds.push('Camion');
 
-  const parts = [];
-  parts.push(`<span class="rc-item">${(TYPE_LABELS[type] || type).slice(0, 34)}</span>`);
-  if(plaque) parts.push(`<span class="rc-item"><span class="rc-lbl">plaque</span>${plaque}</span>`);
-  if(km > 0) parts.push(`<span class="rc-item"><span class="rc-lbl">km</span>${km}</span>`);
-  conds.forEach(c => parts.push(`<span class="rc-cond">${c}</span>`));
-  if(pa > 0) parts.push(`<span class="rc-item"><span class="rc-lbl">annoncé</span><span class="rc-prix">${fmt(pa)}</span></span>`);
+  const calcule = !!lastCalc;
+  const statut = calcule
+    ? `<span class="rc-statut calcule">${fmt(lastCalc.total)}</span>`
+    : '<span class="rc-statut attente">À calculer</span>';
 
-  const utile = plaque || km > 0 || pa > 0 || conds.length > 0;
-  box.innerHTML = utile ? parts.join('<span class="rc-sep">•</span>') : '';
-  box.style.display = utile ? 'flex' : 'none';
+  const infos = [];
+  if(plaque) infos.push(`<span class="rc-item"><span class="rc-lbl">plaque</span>${plaque}</span>`);
+  if(km > 0) infos.push(`<span class="rc-item"><span class="rc-lbl">km</span>${km}</span>`);
+  conds.forEach(c => infos.push(`<span class="rc-cond">${c}</span>`));
+  if(pa > 0) infos.push(`<span class="rc-item"><span class="rc-lbl">annoncé</span><span class="rc-prix">${fmt(pa)}</span></span>`);
+
+  const utile = plaque || km > 0 || pa > 0 || conds.length > 0 || calcule;
+  if(!utile){ box.innerHTML = ''; box.style.display = 'none'; return; }
+
+  box.innerHTML = `
+    <div class="rc-tete">
+      <div class="rc-type">${(TYPE_LABELS[type] || type).slice(0, 40)}</div>
+      ${statut}
+    </div>
+    ${infos.length ? `<div class="rc-infos">${infos.join('<span class="rc-sep">•</span>')}</div>` : ''}`;
+  box.style.display = 'block';
 }
 
 const OPTIONS_PAR_TYPE = {
