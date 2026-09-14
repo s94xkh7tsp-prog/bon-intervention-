@@ -1184,7 +1184,7 @@
 
     <div class="field">
       <label>Type d'intervention</label>
-      <select id="type" onchange="updateKmLabel(); avertirSiEnliseChoisi()">
+      <select id="type" onchange="updateKmLabel(); avertirSiEnliseChoisi(); rvMajAlerteDoubleRetour(RV_CTX.form)">
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
         <option value="demarrage">Démarrage batterie</option>
@@ -1737,11 +1737,19 @@
       <div class="toggle" id="tgNuit" onclick="marquerMajorationManuelle('tgNuit'); toggle('tgNuit')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg> Nuit<span class="sub" id="nightHoursLabel">20h-8h</span></div>
       <div class="toggle" id="tgWe" onclick="marquerMajorationManuelle('tgWe'); toggle('tgWe')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Week-end</div>
       <div class="toggle" id="tgAuto" onclick="toggle('tgAuto')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3 4 21M17 3l3 18M12 4v3M12 11v3M12 18v3"/></svg> Autoroute</div>
-      <div class="toggle" id="tgRetour" onclick="toggle('tgRetour')">↩️ Retour à vide<span class="sub">compté dans le km</span></div>
+      <div class="toggle" id="tgRetour" onclick="toggle('tgRetour'); rvSurToggle(RV_CTX.form)">↩️ Retour à vide<span class="sub">dépose → base, mesuré</span></div>
       <div class="toggle" id="tgBattDeplacement" onclick="toggle('tgBattDeplacement')" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Déplacement achat batterie</div>
       <div class="toggle" id="tgAbandon" onclick="toggle('tgAbandon'); updateAbandonDocButton()" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Abandon par le propriétaire</div>
       <div class="toggle" id="tgSansMoteur" onclick="toggle('tgSansMoteur')" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg> Sans moteur</div>
       <div class="toggle" id="tgPasRoues" onclick="toggle('tgPasRoues')" style="display:none;">🛞 Pas sur ses roues</div>
+    </div>
+    <div id="blocRetourVide" style="display:none; margin-top:10px;">
+      <div class="field" style="margin-bottom:6px;">
+        <label>Retour à vide — dépose → base (km)</label>
+        <input type="number" id="kmRetourVide" placeholder="0.0" min="0" step="0.1" inputmode="decimal" oninput="rvSaisieManuelle(RV_CTX.form)">
+      </div>
+      <div class="km-mention" id="etatRetourVide">Active le retour à vide pour mesurer l'itinéraire dépose → base.</div>
+      <div class="km-mention" id="alerteDoubleRetour" style="display:none; border-left-color:var(--orange);"></div>
     </div>
 
     
@@ -1863,7 +1871,7 @@
 
       <div class="field" style="margin:14px 0 0;">
         <label>Km du retour / dépôt après contrôle (optionnel)</label>
-        <input type="number" id="ctKmRetour" placeholder="0" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon()">
+        <input type="number" id="ctKmRetour" placeholder="0" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete(); planifierSauvegardeBrouillon(); rvSurCtKmChange(RV_CTX.form)">
         <div class="km-mention" style="margin-top:8px;">Deuxième trajet après le contrôle (ramener le véhicule au garage ou chez le client), facturé à ton tarif km habituel.</div>
       </div>
 
@@ -2221,10 +2229,10 @@
 
     <button type="button" class="ghost" id="btnDocAbandon" style="display:none; margin-bottom:14px;" onclick="openAbandonDoc()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg> Document d'abandon / cession du véhicule</button>
 
-    <button class="primary" id="btnCalculer" onclick="avecChargement(this, 'Calcul…', () => calculer())">Calculer le montant</button>
+    <button class="primary" id="btnCalculer" onclick="avecChargement(this, 'Calcul…', () => calculerAvecRetour())">Calculer le montant</button>
   </div>
 
-  <div class="float-calc" id="floatCalc" onclick="calculer(); document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'start'});">
+  <div class="float-calc" id="floatCalc" onclick="calculerAvecRetour().then(() => document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'start'}));">
     <span>💶</span> Calculer le montant
   </div>
 
@@ -2241,6 +2249,7 @@
     <div class="ticket-addr" id="tkPlaqueRow" style="margin-top:6px; display:none;"><span class="tag">Plaque</span><br><span id="tkPlaque">—</span></div>
     <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
+    <div class="ticket-row" id="rowPlancher" style="display:none;"><span class="l">Forfait minimum remorquage</span><span class="v" id="tkPlancher">—</span></div>
     <div class="km-mention" style="margin-bottom:6px;">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
     <div id="blocVerifKm" style="display:none; margin:8px 0 6px;"></div>
     <div class="ticket-row" id="rowGeste" style="display:none;"><span class="l">🎁 Tarif préférentiel appliqué</span><span class="v" id="tkGeste">—</span></div>
@@ -2365,7 +2374,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
     <span id="bacGpsLabel">GPS</span>
   </a>
-  <div class="bac-btn principal" onclick="calculer()">
+  <div class="bac-btn principal" onclick="calculerAvecRetour()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M13 11h3M8 15h2M13 15h3"/></svg>
     <span>Calculer</span>
   </div>
@@ -2413,9 +2422,15 @@
           <div class="grp-title">Kilométrage</div>
           <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
           <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
-          <div class="rate-row"><label>Seuil dégressif remorquage (km aller simple)</label><input type="number" id="r_kmDegressifSeuil" step="5"></div>
+          <div class="rate-row"><label>Seuil dégressif remorquage (km facturables, retour à vide compris)</label><input type="number" id="r_kmDegressifSeuil" step="5"></div>
           <div class="rate-row"><label>Tarif réduit remorquage au-delà du seuil</label><input type="number" id="r_km_remorque_reduit" step="0.05"></div>
           <div class="rate-row"><label>Geste commercial : km maximum</label><input type="number" id="r_gesteKmMax" step="5"></div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Plancher remorquage</div>
+          <div class="rate-row"><label>Prix minimum remorquage VL (dépannage, transfert)</label><input type="number" id="r_plancherRemorquage" step="5"></div>
+          <div class="km-mention">Si forfait + kilomètres restent sous ce montant, la différence est ajoutée en « Forfait minimum remorquage », avant les majorations. Ne s'applique ni aux batteries, ouvertures, roues, diagnostics, motos, épaves ni au contrôle technique. Mettre 0 pour désactiver.</div>
         </div>
 
         <div class="grp">
@@ -3254,13 +3269,25 @@
 
     <div class="field">
       <label>Type d'intervention</label>
-      <select id="qqType" onchange="calculerDevisRapide()"></select>
+      <select id="qqType" onchange="qqSurTypeChange()"></select>
     </div>
 
     <div class="field">
       <label id="qqKmLabel">Distance estimée (km)</label>
-      <input type="number" id="qqKm" placeholder="0" min="0" inputmode="decimal" oninput="calculerDevisRapide()">
+      <input type="number" id="qqKm" placeholder="0" min="0" inputmode="decimal" oninput="qqSurKmSaisi()">
     </div>
+    <div class="field-row" style="margin-bottom:6px;">
+      <div class="field" style="margin-bottom:0;">
+        <label>Prise en charge (optionnel)</label>
+        <input type="text" id="qqFrom" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Dépose (optionnel)</label>
+        <input type="text" id="qqTo" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+      </div>
+    </div>
+    <button type="button" class="ghost" style="margin-bottom:6px;" onclick="avecChargement(this, 'Mesure…', () => mesurerDistanceDevis())">📍 Mesurer par itinéraire (base → prise en charge → dépose)</button>
+    <div class="km-mention" id="qqEtatDistance" style="margin-bottom:14px;">Sans adresses, la distance saisie à la main est utilisée telle quelle.</div>
 
     <label>Type de véhicule</label>
     <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
@@ -3277,14 +3304,59 @@
       <div class="toggle" id="qqNuit" onclick="toggle('qqNuit'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg> Nuit<span class="sub" id="qqNightHoursLabel">20h-8h</span></div>
       <div class="toggle" id="qqWe" onclick="toggle('qqWe'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg> Week-end</div>
       <div class="toggle" id="qqAuto" onclick="toggle('qqAuto'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M7 3 4 21M17 3l3 18M12 4v3M12 11v3M12 18v3"/></svg> Autoroute</div>
-      <div class="toggle" id="qqRetour" onclick="toggle('qqRetour'); calculerDevisRapide()">↩️ Retour à vide</div>
-      <div class="toggle" id="qqCamion" onclick="toggle('qqCamion'); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> Avec le camion</div>
+      <div class="toggle" id="qqRetour" onclick="toggle('qqRetour'); rvSurToggle(RV_CTX.devis); calculerDevisRapideAvecRetour()">↩️ Retour à vide</div>
+      <div class="toggle" id="qqCamion" onclick="toggle('qqCamion'); rvMajAlerteDoubleRetour(RV_CTX.devis); calculerDevisRapide()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> Avec le camion</div>
+    </div>
+
+    <div id="qqBlocRetourVide" style="display:none; margin:-8px 0 14px;">
+      <div class="field" style="margin-bottom:6px;">
+        <label>Retour à vide — dépose → base (km)</label>
+        <input type="number" id="qqKmRetourVide" placeholder="0.0" min="0" step="0.1" inputmode="decimal" oninput="rvSaisieManuelle(RV_CTX.devis); calculerDevisRapide()">
+      </div>
+      <div class="km-mention" id="qqEtatRetourVide"></div>
+      <div class="km-mention" id="qqAlerteDoubleRetour" style="display:none; border-left-color:var(--orange);"></div>
+    </div>
+
+    <div class="extras-header" onclick="qqTogglePrecisions()" style="margin-bottom:6px;">
+      <label style="margin:0; cursor:pointer;">+ Suppléments, CT, remise</label>
+      <span class="extras-summary" id="qqPrecisionsSummary">Aucun</span>
+      <span class="extras-chevron" id="qqPrecisionsChevron">▾</span>
+    </div>
+    <div id="qqPrecisions" style="display:none; margin-bottom:14px;">
+      <label>Prestations en plus</label>
+      <div class="extras-list" id="qqExtrasList" style="display:block;"></div>
+      <div id="qqCtBloc" style="display:none; margin-top:10px;">
+        <div class="field-row">
+          <div class="field" id="qqCtPrestataireField" style="margin-bottom:0;">
+            <label>Frais prestataire CT (€)</label>
+            <input type="number" id="qqCtPrestataire" placeholder="0" min="0" step="1" inputmode="decimal" oninput="calculerDevisRapide()">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Retour après contrôle (km)</label>
+            <input type="number" id="qqCtKmRetour" placeholder="0" min="0" step="1" inputmode="decimal" oninput="rvSurCtKmChange(RV_CTX.devis); calculerDevisRapide()">
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="margin-top:10px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Remise</label>
+          <input type="number" id="qqRemise" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="calculerDevisRapide()">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Unité</label>
+          <div class="toggles" style="margin:0;">
+            <div class="toggle on" id="qqUnitEuro" onclick="setQqRemiseUnit('euro')">€</div>
+            <div class="toggle" id="qqUnitPct" onclick="setQqRemiseUnit('pct')">%</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="qq-result">
       <div class="qq-label">Estimation</div>
       <div class="qq-amount" id="qqResult">0,00 €</div>
-      <div class="qq-hint">Prix indicatif — à confirmer une fois sur place</div>
+      <div class="qq-hint" id="qqDetail" style="text-align:left; line-height:1.5;"></div>
+      <div class="qq-hint">Prix indicatif — à confirmer une fois sur place. Même moteur de calcul que l'intervention.</div>
     </div>
 
     <div class="field" style="margin-top:14px;">
@@ -4446,9 +4518,11 @@ const DEFAULT_RATES = {
   capacitePoids:3500, capaciteHauteur:2.00,
   tapPct:0.8, tapFixe:0.10,
   payconiqFixe:0.06,
-  revlinkPct:1.0, revlinkFixe:0.20
+  revlinkPct:1.0, revlinkFixe:0.20,
+  plancherRemorquage:140
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
+const TYPES_PLANCHER = ['depannage', 'transfert'];
 let RATES = {...DEFAULT_RATES};
 let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
 let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
@@ -5395,8 +5469,44 @@ function lireParamsDevis(){
     retour: document.getElementById('qqRetour').classList.contains('on'),
     camionOn: document.getElementById('qqCamion').classList.contains('on'),
     vehicleType: (typeof QQ_VEHICLE_TYPE !== 'undefined') ? QQ_VEHICLE_TYPE : '',
+    from: document.getElementById('qqFrom').value.trim(),
+    to: document.getElementById('qqTo').value.trim(),
+    kmRetourVide: rvLireDonnees(RV_CTX.devis).kmRetourVide,
+    kmRetourVerifie: rvLireDonnees(RV_CTX.devis).kmRetourVerifie,
+    retourDoubleConfirme: rvLireDonnees(RV_CTX.devis).retourDoubleConfirme,
+    extras: Array.from(document.querySelectorAll('.qqExtraCheck:checked')).map(cb => cb.value),
+    ctPrestataire: parseFloat(document.getElementById('qqCtPrestataire').value) || 0,
+    ctKmRetour: parseFloat(document.getElementById('qqCtKmRetour').value) || 0,
+    remiseValue: parseFloat(document.getElementById('qqRemise').value) || 0,
+    remiseUnit: QQ_REMISE_UNIT,
+    detail: QQ_DERNIER_CALC,
     total: parseFloat((document.getElementById('qqResult').textContent || '0').replace(/[^0-9,.-]/g,'').replace(',','.')) || 0
   };
+}
+
+function reporterDevisDansFormulaire(v){
+  document.getElementById('type').value = v.type;
+  updateKmLabel();
+  document.getElementById('km').value = v.km || '';
+  if(v.from) document.getElementById('addrFrom').value = v.from;
+  if(v.to) document.getElementById('addrTo').value = v.to;
+  [['nuit','tgNuit'],['we','tgWe'],['auto','tgAuto'],['retour','tgRetour'],['camionOn','tgCamion']].forEach(([cle,id]) => {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('on', !!v[cle]);
+  });
+  majorationsForceesManuellement = {nuit:true, we:true};
+  if(v.vehicleType) setVehicleType(v.vehicleType);
+  document.querySelectorAll('.extraCheck').forEach(cb => { cb.checked = !!(v.extras && v.extras.includes(cb.value)); });
+  if(typeof updateExtrasSummary === 'function') updateExtrasSummary();
+  document.getElementById('remise').value = v.remiseValue > 0 ? v.remiseValue : '';
+  setRemiseUnit(v.remiseUnit === 'pct' ? 'pct' : 'euro');
+  if(TYPES_CT.includes(v.type)){
+    if(v.type === 'ct_accidente') document.getElementById('ctFraisPrestataire').value = v.ctPrestataire || '';
+    document.getElementById('ctKmRetour').value = v.ctKmRetour > 0 ? v.ctKmRetour : '';
+    majBlocCT();
+  }
+  rvRestaurer(RV_CTX.form, {retour: !!v.retour, to: v.to || '', kmRetourVide: (typeof v.kmRetourVide === 'number') ? v.kmRetourVide : undefined,
+                            kmRetourVerifie: !!v.kmRetourVerifie, retourDoubleConfirme: !!v.retourDoubleConfirme, km: v.km});
 }
 
 async function enregistrerDevis(){
@@ -5490,19 +5600,11 @@ async function devisEnregistreVersIntervention(key){
     fermerListeDevis();
     closeQuickQuote();
     showTab('tabNouveau', true);
-    document.getElementById('type').value = v.type;
-    updateKmLabel();
-    document.getElementById('km').value = v.km || '';
+    reporterDevisDansFormulaire(v);
     document.getElementById('telClient').value = v.clientTel || '';
-    [['nuit','tgNuit'],['we','tgWe'],['auto','tgAuto'],['retour','tgRetour'],['camionOn','tgCamion']].forEach(([cle,id]) => {
-      const el = document.getElementById(id);
-      if(el) el.classList.toggle('on', !!v[cle]);
-    });
-    majorationsForceesManuellement = {nuit:true, we:true};
-    if(v.vehicleType) setVehicleType(v.vehicleType);
     document.getElementById('prixAnnonce').value = v.total || '';
     updateAdvancedSummary();
-    calculer();
+    await calculerAvecRetour();
     majBarreActionsContextuelle();
     showToast('Devis ' + v.numero + ' repris — complète les adresses');
   }catch(e){ showToast('Impossible de retrouver ce devis'); }
@@ -5544,7 +5646,12 @@ async function partagerDevisPdf(key){
 
     pdf.text(50, y, 'PRESTATION', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 15;
     pdf.text(50, y, TYPE_LABELS[v.type] || v.type, {size:11}); y += 15;
-    if(v.km > 0){ pdf.text(50, y, 'Distance estimée : ' + v.km + ' km' + (v.retour ? ' (aller-retour)' : ''), {size:9.5, gray:0.3}); y += 13; }
+    if(v.km > 0){
+      const lignesKmDevis = (v.detail && typeof v.detail.kmFacturable === 'number') ? descKmFacturableLignes(v.detail, 'fr', false) : [];
+      if(lignesKmDevis.length){ lignesKmDevis.forEach(l => { pdf.text(50, y, l, {size:9.5, gray:0.3}); y += 13; }); }
+      else { pdf.text(50, y, 'Distance estimée : ' + v.km + ' km' + (v.retour ? ' (aller-retour)' : ''), {size:9.5, gray:0.3}); y += 13; }
+      if(v.detail && v.detail.plancherComplement > 0){ pdf.text(50, y, 'Forfait minimum remorquage : + ' + fmt(v.detail.plancherComplement), {size:9.5, gray:0.3}); y += 13; }
+    }
     const conditions = [];
     if(v.nuit) conditions.push('intervention de nuit');
     if(v.we) conditions.push('week-end / jour férié');
@@ -5686,6 +5793,247 @@ async function mesurerDistanceRoutiere(depart, from, to){
   return total;
 }
 
+function arrondiKm(x){ return Math.round((parseFloat(x) || 0) * 10) / 10; }
+function fmtTaux(x){ return (parseFloat(x) || 0).toLocaleString('fr-BE', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
+function fmtKm(x){ return arrondiKm(x).toLocaleString('fr-BE', {maximumFractionDigits:1}); }
+
+const RV_CTX = {
+  form: {
+    nom:'form', toggle:'tgRetour', bloc:'blocRetourVide', champ:'kmRetourVide', etat:'etatRetourVide',
+    alerte:'alerteDoubleRetour', to:'addrTo', km:'km', type:'type', ctKm:'ctKmRetour', camion:'tgCamion',
+    mesure:{km:null, verifie:false, cle:null, enCours:null, manuel:false}, confirme:false,
+    apresChangement: () => invaliderTicketObsolete(),
+    recalculer: () => calculerAvecRetour()
+  },
+  devis: {
+    nom:'devis', toggle:'qqRetour', bloc:'qqBlocRetourVide', champ:'qqKmRetourVide', etat:'qqEtatRetourVide',
+    alerte:'qqAlerteDoubleRetour', to:'qqTo', km:'qqKm', type:'qqType', ctKm:'qqCtKmRetour', camion:'qqCamion',
+    mesure:{km:null, verifie:false, cle:null, enCours:null, manuel:false}, confirme:false,
+    apresChangement: () => {},
+    recalculer: () => calculerDevisRapideAvecRetour()
+  }
+};
+const rvEl = (ctx, k) => document.getElementById(ctx[k]);
+function rvActif(ctx){ const t = rvEl(ctx,'toggle'); return !!(t && t.classList.contains('on')); }
+function rvLireTo(ctx){ const e = rvEl(ctx,'to'); const v = e ? (e.value || '').trim() : ''; return (v && v !== '—') ? v : ''; }
+function rvCle(ctx){ return cleAdresses('', rvLireTo(ctx), BASE_ADDRESS); }
+function rvKmAller(ctx){ const e = rvEl(ctx,'km'); return e ? (parseFloat(e.value) || 0) : 0; }
+function rvTauxKm(ctx){
+  const type = rvEl(ctx,'type').value;
+  const camion = rvEl(ctx,'camion') && rvEl(ctx,'camion').classList.contains('on');
+  return (TYPES_REMORQUAGE.includes(type) || camion) ? RATES.km_remorque : RATES.km_deplacement;
+}
+function rvKmCT(ctx){
+  const type = rvEl(ctx,'type').value;
+  const e = rvEl(ctx,'ctKm');
+  return (TYPES_CT.includes(type) && e) ? (parseFloat(e.value) || 0) : 0;
+}
+
+function rvAppliquer(ctx, km, verifie, manuel, message){
+  const val = arrondiKm(km);
+  const champ = rvEl(ctx,'champ');
+  if(champ) champ.value = val;
+  ctx.mesure = {km: val, verifie: !!verifie, cle: rvCle(ctx), enCours: null, manuel: !!manuel};
+  const etat = rvEl(ctx,'etat');
+  if(etat) etat.innerHTML = message;
+  rvMajAlerteDoubleRetour(ctx);
+}
+
+function rvMessageVerifie(km){
+  return '<span style="color:var(--green); font-weight:600;">✓ Retour à vide vérifié : ' + fmtKm(km) + ' km</span> — itinéraire routier dépose → base (trajet le plus court).';
+}
+
+function rvFallback(ctx, motif){
+  const champ = rvEl(ctx,'champ');
+  const dejaSaisi = !!(champ && champ.value !== '' && ctx.mesure.manuel);
+  const km = dejaSaisi ? (parseFloat(champ.value) || 0) : rvKmAller(ctx);
+  rvAppliquer(ctx, km, false, dejaSaisi,
+    '<span style="color:var(--orange); font-weight:600;">⚠️ Distance retour non vérifiée</span> (' + motif + ') — '
+    + (dejaSaisi ? 'valeur saisie à la main conservée : ' : 'estimée = distance aller, ') + fmtKm(km) + ' km. Corrige-la si besoin. '
+    + '<a href="#" class="lien-verif" onclick="rvMesurer(RV_CTX.' + ctx.nom + ', true); return false;">Réessayer</a>');
+}
+
+async function rvMesurer(ctx, forcer){
+  if(!rvActif(ctx)) return;
+  if(ctx.mesure.enCours) return ctx.mesure.enCours;
+  const to = rvLireTo(ctx);
+  const champ = rvEl(ctx,'champ');
+  const etat = rvEl(ctx,'etat');
+  if(!to){
+    ctx.mesure = {km: null, verifie: false, cle: null, enCours: null, manuel: ctx.mesure.manuel};
+    if(!ctx.mesure.manuel || !champ.value){ champ.value = rvKmAller(ctx) || ''; }
+    if(etat) etat.innerHTML = '<span style="color:var(--orange); font-weight:600;">⚠️ Adresse de dépose manquante</span> — impossible de mesurer le retour vers la base. Valeur provisoire = distance aller (' + fmtKm(champ.value) + ' km), modifiable.';
+    rvMajAlerteDoubleRetour(ctx);
+    return;
+  }
+  const cle = rvCle(ctx);
+  if(!forcer){
+    if(ctx.mesure.manuel && ctx.mesure.cle === cle && champ.value !== '') return;
+    if(ctx.mesure.verifie && ctx.mesure.cle === cle && champ.value !== '') return;
+  }
+  if(VERIF_KM_CACHE[cle] !== undefined){ rvAppliquer(ctx, VERIF_KM_CACHE[cle], true, false, rvMessageVerifie(VERIF_KM_CACHE[cle])); return; }
+  if(!navigator.onLine){ rvFallback(ctx, 'hors ligne'); return; }
+  if(etat) etat.innerHTML = '⏳ Mesure de l\'itinéraire dépose → base…';
+  ctx.mesure.enCours = (async () => {
+    try{
+      const km = await mesurerDistanceRoutiere('', to, BASE_ADDRESS);
+      VERIF_KM_CACHE[cle] = km;
+      ctx.mesure.enCours = null;
+      rvAppliquer(ctx, km, true, false, rvMessageVerifie(km));
+    }catch(e){
+      ctx.mesure.enCours = null;
+      rvFallback(ctx, 'service d\'itinéraire indisponible');
+    }
+  })();
+  return ctx.mesure.enCours;
+}
+
+function rvSurToggle(ctx){
+  const actif = rvActif(ctx);
+  const bloc = rvEl(ctx,'bloc');
+  if(bloc) bloc.style.display = actif ? 'block' : 'none';
+  ctx.confirme = false;
+  if(actif){ rvMesurer(ctx); }
+  rvMajAlerteDoubleRetour(ctx);
+  ctx.apresChangement();
+}
+
+function rvSaisieManuelle(ctx){
+  const champ = rvEl(ctx,'champ');
+  ctx.mesure = {km: arrondiKm(champ.value), verifie: false, cle: rvCle(ctx), enCours: ctx.mesure.enCours, manuel: true};
+  const etat = rvEl(ctx,'etat');
+  if(etat) etat.innerHTML = '✎ Retour à vide saisi à la main : ' + fmtKm(champ.value) + ' km (non vérifié). '
+    + '<a href="#" class="lien-verif" onclick="rvMesurer(RV_CTX.' + ctx.nom + ', true); return false;">Mesurer par itinéraire</a>';
+  rvMajAlerteDoubleRetour(ctx);
+  ctx.apresChangement();
+}
+
+function rvSurCtKmChange(ctx){ ctx.confirme = false; rvMajAlerteDoubleRetour(ctx); }
+
+function rvMajAlerteDoubleRetour(ctx){
+  const box = rvEl(ctx,'alerte');
+  if(!box) return;
+  const ctKm = rvKmCT(ctx);
+  if(!rvActif(ctx) || ctKm <= 0){ box.style.display = 'none'; ctx.confirme = false; return; }
+  const taux = rvTauxKm(ctx);
+  const kmRv = parseFloat((rvEl(ctx,'champ') || {}).value) || 0;
+  if(ctx.confirme){
+    box.innerHTML = '<span style="color:var(--green); font-weight:600;">✓ Deux trajets distincts confirmés</span> — retour après contrôle (CT) '
+      + fmtKm(ctKm) + ' km <em>et</em> retour à vide ' + fmtKm(kmRv) + ' km sont facturés tous les deux. '
+      + '<a href="#" class="lien-verif" onclick="rvAnnulerDouble(RV_CTX.' + ctx.nom + '); return false;">Annuler</a>';
+  } else {
+    box.innerHTML = '<span style="color:var(--orange); font-weight:700;">⚠️ Un trajet retour est déjà comptabilisé. Vérifie avant d\'ajouter un retour à vide.</span><br>'
+      + 'Déjà compté : <strong>retour / dépôt après contrôle (CT)</strong> — ' + fmtKm(ctKm) + ' km × ' + fmtTaux(taux) + ' = ' + fmt(ctKm * taux) + '<br>'
+      + 'Retour à vide demandé : ' + fmtKm(kmRv) + ' km — <strong>non facturé</strong> tant que tu ne confirmes pas qu\'il s\'agit de deux trajets différents.<br>'
+      + '<button type="button" class="ghost" style="margin-top:8px;" onclick="rvConfirmerDouble(RV_CTX.' + ctx.nom + ')">Ce sont deux trajets différents — garder les deux</button>';
+  }
+  box.style.display = 'block';
+}
+function rvConfirmerDouble(ctx){ ctx.confirme = true; rvMajAlerteDoubleRetour(ctx); ctx.apresChangement(); ctx.recalculer(); }
+function rvAnnulerDouble(ctx){ ctx.confirme = false; rvMajAlerteDoubleRetour(ctx); ctx.apresChangement(); ctx.recalculer(); }
+
+function rvReset(ctx){
+  ctx.mesure = {km:null, verifie:false, cle:null, enCours:null, manuel:false};
+  ctx.confirme = false;
+  const champ = rvEl(ctx,'champ'); if(champ) champ.value = '';
+  const bloc = rvEl(ctx,'bloc'); if(bloc) bloc.style.display = 'none';
+  const etat = rvEl(ctx,'etat'); if(etat) etat.innerHTML = '';
+  const al = rvEl(ctx,'alerte'); if(al) al.style.display = 'none';
+}
+
+function rvRestaurer(ctx, d){
+  const on = !!d.retour;
+  const bloc = rvEl(ctx,'bloc'); if(bloc) bloc.style.display = on ? 'block' : 'none';
+  const champ = rvEl(ctx,'champ');
+  const etat = rvEl(ctx,'etat');
+  ctx.confirme = !!d.retourDoubleConfirme;
+  if(!on){ ctx.mesure = {km:null, verifie:false, cle:null, enCours:null, manuel:false}; if(champ) champ.value = ''; rvMajAlerteDoubleRetour(ctx); return; }
+  const cle = cleAdresses('', (d.to && d.to !== '—') ? d.to : '', BASE_ADDRESS);
+  if(typeof d.kmRetourVide === 'number'){
+    if(champ) champ.value = d.kmRetourVide;
+    ctx.mesure = {km: arrondiKm(d.kmRetourVide), verifie: !!d.kmRetourVerifie, cle, enCours:null, manuel: !d.kmRetourVerifie};
+    if(d.kmRetourVerifie && d.to && d.to !== '—') VERIF_KM_CACHE[cle] = d.kmRetourVide;
+    if(etat) etat.innerHTML = d.kmRetourVerifie ? rvMessageVerifie(d.kmRetourVide)
+      : '✎ Retour à vide enregistré : ' + fmtKm(d.kmRetourVide) + ' km (non vérifié). <a href="#" class="lien-verif" onclick="rvMesurer(RV_CTX.' + ctx.nom + ', true); return false;">Mesurer par itinéraire</a>';
+  } else {
+    const km = d.km || 0;
+    if(champ) champ.value = km || '';
+    ctx.mesure = {km: arrondiKm(km), verifie:false, cle, enCours:null, manuel:false};
+    if(etat) etat.innerHTML = '<span style="color:var(--orange); font-weight:600;">⚠️ Enregistrement antérieur</span> — retour estimé = distance aller (' + fmtKm(km) + ' km). Il sera mesuré par itinéraire au prochain calcul.';
+  }
+  rvMajAlerteDoubleRetour(ctx);
+}
+
+function rvLireDonnees(ctx){
+  const actif = rvActif(ctx);
+  const champ = rvEl(ctx,'champ');
+  const v = champ ? parseFloat(champ.value) : NaN;
+  const fiable = ctx.mesure.verifie || ctx.mesure.manuel;
+  return {
+    retour: actif,
+    kmRetourVide: (actif && !isNaN(v) && fiable) ? arrondiKm(v) : null,
+    kmRetourVerifie: actif && ctx.mesure.verifie && ctx.mesure.cle === rvCle(ctx) && arrondiKm(v) === ctx.mesure.km,
+    retourDoubleConfirme: actif && ctx.confirme
+  };
+}
+
+async function calculerAvecRetour(){
+  if(rvActif(RV_CTX.form)){
+    try{ await rvMesurer(RV_CTX.form); }catch(e){ /* le repli est déjà appliqué */ }
+  }
+  calculer();
+}
+
+const RV_LIBELLES = {
+  fr:{fact:'Kilomètres facturables : ', dont:'dont retour à vide : ', verif:' (itinéraire vérifié)', nonVerif:' (estimé, non vérifié)',
+      neutr:'Retour à vide non facturé — un trajet retour est déjà compté (CT, X km)', geste:' (geste commercial)', audela:' au-delà de S km'},
+  nl:{fact:'Factureerbare kilometers: ', dont:'waarvan lege terugrit: ', verif:' (route gecontroleerd)', nonVerif:' (geschat, niet gecontroleerd)',
+      neutr:'Lege terugrit niet aangerekend — een terugrit is al geteld (keuring, X km)', geste:' (commerciële geste)', audela:' boven S km'},
+  en:{fact:'Billable kilometres: ', dont:'incl. empty return: ', verif:' (route verified)', nonVerif:' (estimated, unverified)',
+      neutr:'Empty return not charged — a return trip is already counted (MOT, X km)', geste:' (goodwill rate)', audela:' beyond S km'}
+};
+function descKmFacturableLignes(c, lang, symboles){
+  if(!c || typeof c.kmFacturable !== 'number') return [];
+  const S = RV_LIBELLES[lang] || RV_LIBELLES.fr;
+  const kmF = c.kmFacturable;
+  const geste = (c.kmTarifExcept !== null && c.kmTarifExcept !== undefined);
+  const rate = geste ? c.kmTarifExcept : c.kmRate;
+  const seuil = (typeof c.kmSeuil === 'number') ? c.kmSeuil : RATES.kmDegressifSeuil;
+  const reduit = (typeof c.kmRateReduit === 'number') ? c.kmRateReduit : RATES.km_remorque_reduit;
+  const estRem = (typeof c.estRemorquage === 'boolean') ? c.estRemorquage : (TYPES_REMORQUAGE.includes(c.type) || !!c.camionOn);
+  const L = [S.fact + fmtKm(kmF) + ' km'];
+  if(geste){
+    L.push(fmtKm(kmF) + ' km × ' + fmtTaux(rate) + S.geste + ' = ' + fmt(c.kmCost));
+  } else if(!estRem || kmF <= seuil){
+    L.push(fmtKm(kmF) + ' km × ' + fmtTaux(rate) + ' = ' + fmt(c.kmCost));
+  } else {
+    L.push(fmtKm(seuil) + ' km × ' + fmtTaux(rate) + ' = ' + fmt(seuil * rate));
+    L.push(fmtKm(kmF - seuil) + ' km × ' + fmtTaux(reduit) + ' = ' + fmt((kmF - seuil) * reduit) + S.audela.replace('S', fmtKm(seuil)));
+  }
+  if(c.retour && c.kmRetourFacture > 0){
+    L.push(S.dont + fmtKm(c.kmRetourFacture) + ' km' + (c.kmRetourVerifie ? ((symboles ? ' ✓' : '') + S.verif) : ((symboles ? ' ⚠' : '') + S.nonVerif)));
+  }
+  if(c.retourVideNeutralise){ L.push(S.neutr.replace('X', fmtKm(c.retourCTKm))); }
+  return L;
+}
+function formatKmDetailHtml(c){
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const L = descKmFacturableLignes(c, 'fr', true);
+  if(L.length){
+    return L.map((l, i) => i === 0 ? '<strong>' + esc(l) + '</strong>' : esc(l)).join('<br>');
+  }
+  const estRem = TYPES_REMORQUAGE.includes(c.type) || !!c.camionOn;
+  const rate = (typeof c.kmRate === 'number') ? c.kmRate : (estRem ? RATES.km_remorque : RATES.km_deplacement);
+  return esc(formatKmDetail(c.km, rate, c.retour ? 2 : 1, estRem, c.kmCost));
+}
+function afficherLignePlancher(c){
+  const row = document.getElementById('rowPlancher');
+  if(!row) return;
+  const v = (c && typeof c.plancherComplement === 'number') ? c.plancherComplement : 0;
+  row.style.display = v > 0 ? 'flex' : 'none';
+  document.getElementById('tkPlancher').textContent = v > 0 ? '+ ' + fmt(v) : '—';
+}
+
 async function verifierCoherenceKm(){
   const box = document.getElementById('blocVerifKm');
   if(!box) return;
@@ -5762,7 +6110,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v183';
+const APP_VERSION = 'jm-express-bon-v184';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -5895,7 +6243,7 @@ function majAffichageMoteur(){
   a.classList.toggle('on', !MOTEUR_ACTIF);
   if(m) m.textContent = MOTEUR_ACTIF
     ? 'Moteur actuel : nouveau moteur (recommandé).'
-    : '⚠️ Mode de secours actif — repasse au nouveau moteur dès que possible.';
+    : '⚠️ Mode de secours actif (règles d\'avant v184 : sans plancher, retour à vide ×2) — repasse au nouveau moteur dès que possible.';
 }
 
 async function chargerChoixMoteur(){
@@ -5918,7 +6266,10 @@ function majResumeCompact(){
   if(document.getElementById('tgNuit').classList.contains('on')) conds.push('Nuit');
   if(document.getElementById('tgWe').classList.contains('on')) conds.push('WE');
   if(document.getElementById('tgAuto').classList.contains('on')) conds.push('Autoroute');
-  if(document.getElementById('tgRetour').classList.contains('on')) conds.push('Retour à vide');
+  if(document.getElementById('tgRetour').classList.contains('on')){
+    const kmRv = document.getElementById('kmRetourVide').value;
+    conds.push('Retour à vide' + (kmRv ? ' ' + fmtKm(kmRv) + ' km' : ''));
+  }
   if(document.getElementById('tgCamion').classList.contains('on')) conds.push('Camion');
 
   const calcule = !!lastCalc;
@@ -6832,7 +7183,7 @@ const INVOICE_STRINGS = {
     detail:'DÉTAIL DE L\'INTERVENTION', depart:'Départ : ', priseEnCharge:'Prise en charge : ', depose:'Dépose : ',
     km:'Kilométrage : ', kmAllerRetour:' km × 2 (aller-retour)', kmSimple:' km',
     kmMention:"Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.",
-    forfaitBase:'Forfait de base', kilometrage:'Kilométrage',
+    forfaitBase:'Forfait de base', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
     supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT', ctRepasse:'2e passage contrôle technique',
@@ -6852,7 +7203,7 @@ const INVOICE_STRINGS = {
     detail:'DETAIL VAN DE INTERVENTIE', depart:'Vertrek : ', priseEnCharge:'Ophaling : ', depose:'Aflevering : ',
     km:'Kilometers : ', kmAllerRetour:' km × 2 (heen-terug)', kmSimple:' km',
     kmMention:'Interventiekilometers: werkelijk door het takelvoertuig afgelegde afstand, inclusief de lege terugrit indien nodig.',
-    forfaitBase:'Basisforfait', kilometrage:'Kilometers',
+    forfaitBase:'Basisforfait', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
     supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN', ctRepasse:'2e keuringsbeurt',
@@ -6872,7 +7223,7 @@ const INVOICE_STRINGS = {
     detail:'SERVICE DETAILS', depart:'Departure: ', priseEnCharge:'Pick-up: ', depose:'Drop-off: ',
     km:'Mileage: ', kmAllerRetour:' km × 2 (round trip)', kmSimple:' km',
     kmMention:'Intervention mileage: distance actually driven by the tow truck, including the empty return trip when required.',
-    forfaitBase:'Base rate', kilometrage:'Mileage',
+    forfaitBase:'Base rate', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
     supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING', ctRepasse:'2nd inspection visit',
@@ -7067,7 +7418,10 @@ function openQuickQuote(){
   document.getElementById('qqNightHoursLabel').textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
   document.getElementById('modalQuickQuoteBg').classList.add('show');
   setQqVehicleType('normale');
+  qqRemplirExtras();
+  qqSurTypeChange();
   document.getElementById('qqResult').textContent = '—';
+  document.getElementById('qqDetail').innerHTML = '';
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
 
@@ -7354,29 +7708,134 @@ async function genererDocAbandon(){
   }
 }
 
-function calculerDevisRapide(){
+let QQ_REMISE_UNIT = 'euro';
+let QQ_DERNIER_CALC = null;
+
+function setQqRemiseUnit(unit){
+  QQ_REMISE_UNIT = unit;
+  document.getElementById('qqUnitEuro').classList.toggle('on', unit === 'euro');
+  document.getElementById('qqUnitPct').classList.toggle('on', unit === 'pct');
+  calculerDevisRapide();
+}
+function qqTogglePrecisions(){
+  const p = document.getElementById('qqPrecisions');
+  const ouvert = p.style.display !== 'none';
+  p.style.display = ouvert ? 'none' : 'block';
+  document.getElementById('qqPrecisionsChevron').textContent = ouvert ? '▾' : '▴';
+}
+function qqMajResumePrecisions(){
+  const parts = [];
+  const n = document.querySelectorAll('.qqExtraCheck:checked').length;
+  if(n) parts.push(n + ' supplément' + (n > 1 ? 's' : ''));
+  const rem = parseFloat(document.getElementById('qqRemise').value) || 0;
+  if(rem > 0) parts.push('remise ' + rem + (QQ_REMISE_UNIT === 'pct' ? ' %' : ' €'));
+  const ctKm = parseFloat(document.getElementById('qqCtKmRetour').value) || 0;
+  if(TYPES_CT.includes(document.getElementById('qqType').value) && ctKm > 0) parts.push('retour CT ' + ctKm + ' km');
+  document.getElementById('qqPrecisionsSummary').textContent = parts.length ? parts.join(' · ') : 'Aucun';
+}
+function qqRemplirExtras(){
+  const box = document.getElementById('qqExtrasList');
+  if(!box || box.children.length) return;
+  box.innerHTML = Array.from(document.querySelectorAll('#extrasList .extra-item')).map(l => {
+    const cb = l.querySelector('input');
+    const libelle = (TYPE_LABELS[cb.value] || l.textContent).trim();
+    return '<label class="extra-item" data-type="' + cb.value + '"><input type="checkbox" class="qqExtraCheck" value="' + cb.value + '" onchange="calculerDevisRapide()"> ' + libelle + '</label>';
+  }).join('');
+}
+function qqSurTypeChange(){
   const type = document.getElementById('qqType').value;
-  const km = parseFloat(document.getElementById('qqKm').value) || 0;
-  const nuit = document.getElementById('qqNuit').classList.contains('on');
-  const we = document.getElementById('qqWe').classList.contains('on');
-  const auto = document.getElementById('qqAuto').classList.contains('on');
-  const retour = document.getElementById('qqRetour').classList.contains('on');
-  const camionOn = document.getElementById('qqCamion').classList.contains('on');
+  const ct = TYPES_CT.includes(type);
+  document.getElementById('qqCtBloc').style.display = ct ? 'block' : 'none';
+  document.getElementById('qqCtPrestataireField').style.display = type === 'ct_accidente' ? 'block' : 'none';
+  const champ = document.getElementById('qqCtPrestataire');
+  if(type === 'ct_accidente' && !champ.value && RATES.ctPrestataireFee) champ.value = RATES.ctPrestataireFee;
+  if(!ct){ document.getElementById('qqCtKmRetour').value = ''; }
+  rvMajAlerteDoubleRetour(RV_CTX.devis);
+  calculerDevisRapide();
+}
+function qqSurKmSaisi(){
+  if(rvActif(RV_CTX.devis) && !RV_CTX.devis.mesure.manuel && !RV_CTX.devis.mesure.verifie) rvMesurer(RV_CTX.devis);
+  const et = document.getElementById('qqEtatDistance');
+  if(et && et.dataset.mesure === '1'){ et.textContent = 'Distance modifiée à la main — la mesure par itinéraire n\'est plus appliquée.'; et.dataset.mesure = '0'; }
+  calculerDevisRapide();
+}
+function qqEtatDistanceReset(){
+  const et = document.getElementById('qqEtatDistance');
+  if(et && et.dataset.mesure === '1'){ et.textContent = 'Adresses modifiées — appuie sur « Mesurer par itinéraire » pour actualiser la distance.'; et.dataset.mesure = '0'; }
+}
 
-  const base = RATES[type] || 0;
-  const kmRate = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
-  const kmMultiplier = retour ? 2 : 1;
-  const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
-  const kmCost = calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
-  const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
-  const vehicleFee = vehicleFeeMap[QQ_VEHICLE_TYPE] || 0;
-  const subtotal = base + kmCost + vehicleFee;
-  const nuitCost = nuit ? subtotal * (RATES.nuitPct/100) : 0;
-  const weCost = we ? subtotal * (RATES.wePct/100) : 0;
-  const autoCost = auto ? RATES.auto : 0;
-  const total = Math.round(subtotal + nuitCost + weCost + autoCost);
+async function mesurerDistanceDevis(){
+  const from = document.getElementById('qqFrom').value.trim();
+  const to = document.getElementById('qqTo').value.trim();
+  if(!from || !to){ showToast('Indique la prise en charge et la dépose'); return; }
+  if(!navigator.onLine){ showToast('Hors ligne : entre le km manuellement'); return; }
+  const et = document.getElementById('qqEtatDistance');
+  try{
+    const cle = cleAdresses(BASE_ADDRESS, from, to);
+    let km = VERIF_KM_CACHE[cle];
+    if(km === undefined){ km = await mesurerDistanceRoutiere(BASE_ADDRESS, from, to); VERIF_KM_CACHE[cle] = km; }
+    document.getElementById('qqKm').value = km.toFixed(1);
+    et.textContent = '✓ Distance mesurée par itinéraire : base → prise en charge → dépose = ' + km.toFixed(1) + ' km';
+    et.dataset.mesure = '1';
+    if(rvActif(RV_CTX.devis)){ try{ await rvMesurer(RV_CTX.devis, true); }catch(e){} }
+    calculerDevisRapide();
+  }catch(e){
+    showToast('Distance introuvable — entre le km à la main');
+    et.textContent = '⚠️ Mesure impossible (' + (e && e.message ? e.message : 'service indisponible') + ') — la distance saisie à la main est utilisée.';
+  }
+}
 
-  document.getElementById('qqResult').textContent = fmt(total);
+function lireDonneesDevisRapide(){
+  const on = id => document.getElementById(id).classList.contains('on');
+  const type = document.getElementById('qqType').value;
+  const rv = rvLireDonnees(RV_CTX.devis);
+  const ct = TYPES_CT.includes(type);
+  const donneesCT = ct ? {
+    fraisOfficiels: 0,
+    fraisOfficielsAvances: false,
+    fraisPrestataire: type === 'ct_accidente' ? (parseFloat(document.getElementById('qqCtPrestataire').value) || 0) : 0,
+    kmRetour: parseFloat(document.getElementById('qqCtKmRetour').value) || 0
+  } : null;
+  return {
+    type,
+    km: parseFloat(document.getElementById('qqKm').value) || 0,
+    nuit: on('qqNuit'), we: on('qqWe'), auto: on('qqAuto'),
+    retour: rv.retour, camionOn: on('qqCamion'),
+    kmRetourVide: rv.kmRetourVide, kmRetourVerifie: rv.kmRetourVerifie, retourDoubleConfirme: rv.retourDoubleConfirme,
+    vehicleType: (typeof QQ_VEHICLE_TYPE !== 'undefined' && QQ_VEHICLE_TYPE) ? QQ_VEHICLE_TYPE : 'normale',
+    extras: Array.from(document.querySelectorAll('.qqExtraCheck:checked')).map(cb => cb.value),
+    donneesCT,
+    remiseValue: parseFloat(document.getElementById('qqRemise').value) || 0,
+    remiseUnit: QQ_REMISE_UNIT
+  };
+}
+
+function calculerDevisRapide(){
+  const d = lireDonneesDevisRapide();
+  const R = MOTEUR_calculerTarif(d, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+  QQ_DERNIER_CALC = R;
+  document.getElementById('qqResult').textContent = fmt(R.total);
+  document.getElementById('qqDetail').innerHTML = qqDetailHtml(R);
+  qqMajResumePrecisions();
+}
+async function calculerDevisRapideAvecRetour(){
+  if(rvActif(RV_CTX.devis)){ try{ await rvMesurer(RV_CTX.devis); }catch(e){} }
+  calculerDevisRapide();
+}
+function qqDetailHtml(R){
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const L = [];
+  L.push('Forfait ' + fmt(R.base) + ' · Km ' + fmt(R.kmCost) + (R.plancherComplement > 0 ? ' · <strong>Forfait minimum + ' + fmt(R.plancherComplement) + '</strong>' : ''));
+  descKmFacturableLignes(R, 'fr', true).forEach(l => L.push(esc(l)));
+  if(R.extras && R.extras.length) L.push('Suppléments : ' + fmt(R.extrasCost));
+  if(R.vehicleFee) L.push('Supplément véhicule : ' + fmt(R.vehicleFee));
+  if(R.nuitCost) L.push('Majoration nuit : ' + fmt(R.nuitCost));
+  if(R.weCost) L.push('Majoration week-end / férié : ' + fmt(R.weCost));
+  if(R.autoCost) L.push('Majoration autoroute : ' + fmt(R.autoCost));
+  if(R.ctPrestataireCost) L.push('Frais prestataire CT : ' + fmt(R.ctPrestataireCost));
+  if(R.ctRetourCost) L.push('Retour après contrôle : ' + fmt(R.ctRetourCost));
+  if(R.remiseAmount > 0) L.push('Remise : −' + fmt(R.remiseAmount));
+  return L.join('<br>');
 }
 
 let ROUTES = [];
@@ -7837,7 +8296,8 @@ function afficherTicketDepuisData(d){
   document.getElementById('tkPlaqueRow').style.display = d.plaque ? 'block' : 'none';
   document.getElementById('tkPlaque').textContent = d.plaque || '';
   document.getElementById('tkBase').textContent = fmt(d.base);
-  document.getElementById('tkKm').textContent = formatKmDetail(d.km, kmRate, kmMultiplier, estRemorquage, d.kmCost);
+  document.getElementById('tkKm').innerHTML = formatKmDetailHtml(d);
+  afficherLignePlancher(d);
 
   document.getElementById('extrasRows').innerHTML = (d.extras || []).map(e =>
     `<div class="ticket-row"><span class="l">+ ${e.label}</span><span class="v">${fmt(e.cost)}</span></div>`
@@ -7912,6 +8372,7 @@ async function chargerInterventionDepuisJournal(key){
 
   const setTog = (id, actif) => document.getElementById(id).classList.toggle('on', !!actif);
   setTog('tgNuit', d.nuit); setTog('tgWe', d.we); setTog('tgAuto', d.auto); setTog('tgRetour', d.retour);
+  rvRestaurer(RV_CTX.form, d);
   majorationsForceesManuellement = {nuit:true, we:true};
   setTog('tgCamion', d.camionOn); setTog('tgAbandon', d.abandon);
   setTog('tgSansMoteur', d.sansMoteur); setTog('tgPasRoues', d.pasRoues);
@@ -8009,7 +8470,7 @@ async function chargerInterventionDepuisJournal(key){
   editingKey = key;
   document.getElementById('editBanner').style.display = 'flex';
   updateAdvancedSummary();
-  calculer();
+  await calculerAvecRetour();
   majBarreActionsContextuelle();
   document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
   showToast('Modification en cours — ajuste puis réenregistre');
@@ -8321,7 +8782,10 @@ async function genererRecu(){
     if(c.to && c.to !== '—'){ pdf.text(50, y, 'Dépose : ' + c.to, {size:9.5, gray:0.3}); y += 12; }
     if(c.plaque){ pdf.text(50, y, 'Véhicule : ' + c.plaque, {size:9.5, gray:0.3}); y += 12; }
     if(c.km){
-      pdf.text(50, y, 'Kilométrage : ' + c.km + (c.retour ? ' km × 2 (aller-retour)' : ' km'), {size:9.5, gray:0.3}); y += 12;
+      const lignesKm = descKmFacturableLignes(c, 'fr', false);
+      if(lignesKm.length){ lignesKm.forEach(l => { pdf.text(50, y, l, {size:9.5, gray:0.3}); y += 12; }); }
+      else { pdf.text(50, y, 'Kilométrage : ' + c.km + (c.retour ? ' km × 2 (aller-retour)' : ' km'), {size:9.5, gray:0.3}); y += 12; }
+      if(c.plancherComplement > 0){ pdf.text(50, y, 'Forfait minimum remorquage : + ' + fmt(c.plancherComplement), {size:9.5, gray:0.3}); y += 12; }
       wrapText("Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.", 105)
         .forEach(l => { pdf.text(50, y, l, {size:8, gray:0.45}); y += 10; });
     }
@@ -8441,8 +8905,12 @@ async function genererFacture(){
       if(c.refDossier){ pdf.text(50, y, 'Reference dossier : ' + c.refDossier, {size:9.5, gray:0.3}); y += 13; }
     }
     if(c.km){
-      const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
-      pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
+      const lignesKm = descKmFacturableLignes(c, lang, false);
+      if(lignesKm.length){ lignesKm.forEach(l => { pdf.text(50, y, l, {size:9.5, gray:0.3}); y += 13; }); }
+      else {
+        const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
+        pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
+      }
       wrapText(S.kmMention, 105).forEach(ligne => { pdf.text(50, y, ligne, {size:8, gray:0.45}); y += 10; });
       y += 2;
     }
@@ -8487,6 +8955,7 @@ async function genererFacture(){
     const extraLabels = lang === 'nl' ? TYPE_LABELS_NL : (lang === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
     priceLine(S.forfaitBase, c.base);
     if(c.kmCost) priceLine(S.kilometrage, c.kmCost);
+    if(c.plancherComplement > 0) priceLine(S.forfaitMinimum, c.plancherComplement);
     c.extras.forEach(e => priceLine('+ ' + (extraLabels[e.type] || e.label), e.cost));
     if(c.nuit) priceLine(S.majorationNuit + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ', +' + RATES.nuitPct + '%)', c.nuitCost);
     if(c.we) priceLine(S.majorationWe + RATES.wePct + '%)', c.weCost);
@@ -9035,6 +9504,7 @@ function choisirAdresseRapide(item){
   ajusterHauteurAdresse(el);
   if(typeof checkAccesVehicule === 'function') checkAccesVehicule(fieldId);
   if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  if(fieldId === 'addrTo' && typeof rvMesurer === 'function' && rvActif(RV_CTX.form)) rvMesurer(RV_CTX.form);
   fermerSaisieAdresse();
 }
 
@@ -9066,6 +9536,7 @@ function validerSaisieAdresse(){
   ajusterHauteurAdresse(el);
   if(typeof checkAccesVehicule === 'function') checkAccesVehicule(fieldId);
   if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  if(fieldId === 'addrTo' && typeof rvMesurer === 'function' && rvActif(RV_CTX.form)) rvMesurer(RV_CTX.form);
   fermerSaisieAdresse();
 }
 
@@ -9482,25 +9953,12 @@ async function calculerDistance(){
   }
   showToast('Calcul de la distance…');
   try{
-    const addresses = depart ? [depart, from, to] : [from, to];
-    const geos = [];
-    for(let i=0; i<addresses.length; i++){
-      if(i > 0) await new Promise(r => setTimeout(r, 1100));
-      geos.push(await geocodeAddress(addresses[i]));
-    }
-    let totalKm = 0;
-    for(let i=0; i<geos.length-1; i++){
-      const a = geos[i], b = geos[i+1];
-      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&alternatives=true`;
-      const res = await fetch(routeUrl);
-      const data = await res.json();
-      if(!data.routes || !data.routes.length) throw new Error('Itinéraire introuvable');
-      totalKm += Math.min(...data.routes.map(r => r.distance)) / 1000;
-    }
+    const totalKm = await mesurerDistanceRoutiere(depart, from, to);
     document.getElementById('km').value = totalKm.toFixed(1);
     document.getElementById('kmHint').style.display = 'block';
     VERIF_KM_CACHE[cleAdresses(depart, from, to)] = totalKm;
     invaliderTicketObsolete();
+    if(typeof rvActif === 'function' && rvActif(RV_CTX.form)){ try{ await rvMesurer(RV_CTX.form, true); }catch(e){} }
 
     if(totalKm > 250){
       showToast('⚠️ ' + totalKm.toFixed(0) + ' km — vérifie les adresses (précise la ville) avant de facturer');
@@ -9621,17 +10079,30 @@ function calculerTarif(d, RATES, CTX){
   const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
 
   const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
-  const kmMultiplier = retour ? 2 : 1;
   const estRemorquage = TYPES_REMORQUAGE.includes(type) || camionOn;
+  const retourVide = !!d.retour;
+  const kmRetourFourni = parseFloat(d.kmRetourVide);
+  const kmRetourVide = retourVide ? ((!isNaN(kmRetourFourni) && kmRetourFourni >= 0) ? kmRetourFourni : km) : 0;
+  const kmRetourVerifie = retourVide && !!d.kmRetourVerifie;
+  const retourCTKm = donneesCT ? (donneesCT.kmRetour || 0) : 0;
+  const retourDoubleConfirme = !!d.retourDoubleConfirme;
+  const retourVideNeutralise = retourVide && retourCTKm > 0 && !retourDoubleConfirme;
+  const kmRetourFacture = retourVideNeutralise ? 0 : kmRetourVide;
+  const kmFacturable = Math.round((km + kmRetourFacture) * 10) / 10;
+  const kmMultiplier = 1;
   const kmCost = kmTarifExcept !== null
-    ? km * kmTarifExcept * kmMultiplier
-    : moteurKmCost(km, kmRate, kmMultiplier, estRemorquage, RATES);
+    ? kmFacturable * kmTarifExcept
+    : moteurKmCost(kmFacturable, kmRate, 1, estRemorquage, RATES);
+  const typesPlancher = CTX.typesPlancher || TYPES_PLANCHER;
+  const plancher = (typeof RATES.plancherRemorquage === 'number') ? RATES.plancherRemorquage : 0;
+  const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
+  const plancherComplement = (plancherApplicable && (base + kmCost) < plancher) ? (plancher - (base + kmCost)) : 0;
 
   const VEHICLE_TYPE = d.vehicleType || 'normale';
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
   const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
 
-  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
   const nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
   const weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
   const autoCost = (!annulation && auto) ? RATES.auto : 0;
@@ -9649,6 +10120,9 @@ function calculerTarif(d, RATES, CTX){
   return {
     type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto,
     base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce,
+    kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme,
+    kmFacturable, kmSeuil: RATES.kmDegressifSeuil, kmRateReduit: RATES.km_remorque_reduit,
+    plancher, plancherApplicable, plancherComplement,
     paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe,
     nuitCost, weCost, autoCost, extras, extrasCost,
     battPrice, battCost, battDeplacement, battDeplacementCost,
@@ -9738,11 +10212,24 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
   const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
 
   const ctRetourCost = donneesCT ? donneesCT.kmRetour * kmRate : 0;
-  const kmMultiplier = d.retour ? 2 : 1;
   const estRemorquage = typesRemorquage.includes(type) || camionOn;
+  const retourVide = !!d.retour;
+  const kmRetourFourni = parseFloat(d.kmRetourVide);
+  const kmRetourVide = retourVide ? ((!isNaN(kmRetourFourni) && kmRetourFourni >= 0) ? kmRetourFourni : km) : 0;
+  const kmRetourVerifie = retourVide && !!d.kmRetourVerifie;
+  const retourCTKm = donneesCT ? (donneesCT.kmRetour || 0) : 0;
+  const retourDoubleConfirme = !!d.retourDoubleConfirme;
+  const retourVideNeutralise = retourVide && retourCTKm > 0 && !retourDoubleConfirme;
+  const kmRetourFacture = retourVideNeutralise ? 0 : kmRetourVide;
+  const kmFacturable = Math.round((km + kmRetourFacture) * 10) / 10;
+  const kmMultiplier = 1;
   const kmCost = kmTarifExcept !== null
-    ? km * kmTarifExcept * kmMultiplier
-    : MOTEUR_kmCost(km, kmRate, kmMultiplier, estRemorquage, tarifs);
+    ? kmFacturable * kmTarifExcept
+    : MOTEUR_kmCost(kmFacturable, kmRate, 1, estRemorquage, tarifs);
+  const typesPlancher = config.typesPlancher || TYPES_PLANCHER;
+  const plancher = (typeof tarifs.plancherRemorquage === 'number') ? tarifs.plancherRemorquage : 0;
+  const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
+  const plancherComplement = (plancherApplicable && (base + kmCost) < plancher) ? (plancher - (base + kmCost)) : 0;
 
   const vehicleFeeMap = {
     suv: tarifs.vehiculeSuvFee,
@@ -9751,7 +10238,7 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
   };
   const vehicleFee = vehicleFeeMap[d.vehicleType] || 0;
 
-  const subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
   const nuitCost = (!annulation && d.nuit) ? subtotal * (tarifs.nuitPct / 100) : 0;
   const weCost = (!annulation && d.we) ? subtotal * (tarifs.wePct / 100) : 0;
   const autoCost = (!annulation && d.auto) ? tarifs.auto : 0;
@@ -9776,6 +10263,9 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
   return {
     type, km, retour: !!d.retour, camionOn, nuit: !!d.nuit, we: !!d.we, auto: !!d.auto,
     base, kmCost, kmTarifExcept, kmRateNormal, kmRate, kmMultiplier, estRemorquage,
+    kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme,
+    kmFacturable, kmSeuil: tarifs.kmDegressifSeuil, kmRateReduit: tarifs.km_remorque_reduit,
+    plancher, plancherApplicable, plancherComplement,
     gesteDemande, gesteHorsPlage,
     ctRepasse, nuitCost, weCost, autoCost,
     extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost,
@@ -10236,7 +10726,7 @@ async function waRemplirFormulaire(id, message, marquerConverti){
     updateAdvancedSummary();
     majBarreActionsContextuelle();
     majResumeCompact();
-    calculer();
+    await calculerAvecRetour();
 
     if(marquerConverti){
       d.statut = 'converti'; d.convertiLe = new Date().toISOString();
@@ -10350,6 +10840,7 @@ function calculer(){
   const we = document.getElementById('tgWe').classList.contains('on');
   const auto = document.getElementById('tgAuto').classList.contains('on');
   const retour = document.getElementById('tgRetour').classList.contains('on');
+  const rvDonnees = rvLireDonnees(RV_CTX.form);   // retour à vide réel + confirmation double retour (v184)
   const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
   const battDeplacement = isBatt && document.getElementById('tgBattDeplacement').classList.contains('on');
   const battPrice = isBatt ? (parseFloat(document.getElementById('battPrice').value) || 0) : 0;
@@ -10404,11 +10895,15 @@ function calculer(){
   let base, kmRateNormal, gesteDemande, gesteHorsPlage, kmTarifExcept, kmRate,
       ctRetourCost, kmMultiplier, estRemorquage, kmCost, vehicleFee,
       subtotal, nuitCost, weCost, autoCost, battCost, battDeplacementCost,
-      totalAvantRemise, remiseAmount, total;
+      totalAvantRemise, remiseAmount, total,
+      kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme,
+      kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement;
 
   if(MOTEUR_ACTIF){
     const R = MOTEUR_calculerTarif({
       type, km, nuit, we, auto, retour, camionOn,
+      kmRetourVide: rvDonnees.kmRetourVide, kmRetourVerifie: rvDonnees.kmRetourVerifie,
+      retourDoubleConfirme: rvDonnees.retourDoubleConfirme,
       vehicleType: VEHICLE_TYPE,
       extras: extras.map(e => e.type),
       battPrice, battDeplacement,
@@ -10434,6 +10929,10 @@ function calculer(){
     battCost = R.battCost; battDeplacementCost = R.battDeplacementCost;
     totalAvantRemise = R.totalAvantRemise; remiseAmount = R.remiseAmount;
     total = R.total;
+    kmRetourVide = R.kmRetourVide; kmRetourVerifie = R.kmRetourVerifie; kmRetourFacture = R.kmRetourFacture;
+    retourVideNeutralise = R.retourVideNeutralise; retourCTKm = R.retourCTKm; retourDoubleConfirme = R.retourDoubleConfirme;
+    kmFacturable = R.kmFacturable; kmSeuil = R.kmSeuil; kmRateReduit = R.kmRateReduit;
+    plancher = R.plancher; plancherApplicable = R.plancherApplicable; plancherComplement = R.plancherComplement;
   } else {
     base = RATES[type];
     kmRateNormal = (TYPES_REMORQUAGE.includes(type) || camionOn) ? RATES.km_remorque : RATES.km_deplacement;
@@ -10462,7 +10961,9 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+    kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
+    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -10474,7 +10975,8 @@ function calculer(){
   document.getElementById('tkPlaqueRow').style.display = plaque ? 'block' : 'none';
   document.getElementById('tkPlaque').textContent = plaque;
   document.getElementById('tkBase').textContent = fmt(base);
-  document.getElementById('tkKm').textContent = formatKmDetail(km, kmRate, kmMultiplier, estRemorquage, kmCost);
+  document.getElementById('tkKm').innerHTML = formatKmDetailHtml(lastCalc);
+  afficherLignePlancher(lastCalc);
   document.getElementById('rowCtRepasse').style.display = ctRepasse > 0 ? 'flex' : 'none';
   document.getElementById('tkCtRepasse').textContent = fmt(ctRepasse);
   const rowCtR = document.getElementById('rowCtRetour');
@@ -10631,7 +11133,7 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
-  'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','remise',
+  'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','kmRetourVide','remise',
   'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
   'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
   'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
@@ -10887,6 +11389,7 @@ async function enregistrer(){
     document.getElementById('tgWe').classList.remove('on');
     document.getElementById('tgAuto').classList.remove('on');
     document.getElementById('tgRetour').classList.remove('on');
+    rvReset(RV_CTX.form);
     document.getElementById('addrDepart').value = '';
     document.getElementById('addrFrom').value = '';
     document.getElementById('addrTo').value = '';
@@ -10912,8 +11415,10 @@ async function enregistrer(){
 function copierRecap(){
   if(!lastCalc) { showToast('Calculez d\'abord le montant'); return; }
   const c = lastCalc;
-  const kmLabel = c.retour ? `${c.km} km × 2 (aller-retour)` : `${c.km} km`;
-  let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${typeLabelComplet(c)}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\nKilométrage : ${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  const lignesKm = descKmFacturableLignes(c, 'fr', true);
+  const kmLabel = lignesKm.length ? lignesKm.join('\n') : (c.retour ? `Kilométrage : ${c.km} km × 2 (aller-retour)` : `Kilométrage : ${c.km} km`);
+  let txt = `*JM EXPRESS AUTO DÉPANNAGE*\n*${typeLabelComplet(c)}*\n\n${c.depart ? 'Départ : ' + c.depart + '\n' : ''}Prise en charge : ${c.from}\nDépose : ${c.to}\n${kmLabel}\n\nForfait : ${fmt(c.base)}\nKm : ${fmt(c.kmCost)}`;
+  if(c.plancherComplement > 0) txt += `\nForfait minimum remorquage : + ${fmt(c.plancherComplement)}`;
   c.extras.forEach(e => txt += `\n+ ${e.label} : ${fmt(e.cost)}`);
   if(c.nuit) txt += `\nMajoration nuit (${formatHourShort(NIGHT_START)}-${formatHourShort(NIGHT_END)}) : ${fmt(c.nuitCost)}`;
   if(c.we) txt += `\nMajoration week-end : ${fmt(c.weCost)}`;
@@ -10941,7 +11446,10 @@ function fallbackCopy(txt){
   showToast('Récap copié');
 }
 
-function kmReel(d){ return (d.km || 0) * (d.retour ? 2 : 1); }
+function kmReel(d){
+  if(typeof d.kmFacturable === 'number') return d.kmFacturable;
+  return (d.km || 0) * (d.retour ? 2 : 1);
+}
 
 function resetHistDates(){
   document.getElementById('histDateFrom').value = '';
@@ -11220,27 +11728,14 @@ async function partagerResumeMensuel(){
   }catch(e){ /* partage annulé */ }
 }
 
-function devisVersIntervention(){
-  const qqType = document.getElementById('qqType').value;
-  const qqKm = document.getElementById('qqKm').value;
+async function devisVersIntervention(){
+  const v = lireParamsDevis();
   closeQuickQuote();
   showTab('tabNouveau');
-
-  document.getElementById('type').value = qqType;
-  updateKmLabel();
-  document.getElementById('km').value = qqKm || '';
-
-  const paires = [['qqNuit','tgNuit'], ['qqWe','tgWe'], ['qqAuto','tgAuto'], ['qqRetour','tgRetour'], ['qqCamion','tgCamion']];
-  paires.forEach(([src, dst]) => {
-    const s = document.getElementById(src), d = document.getElementById(dst);
-    if(s && d) d.classList.toggle('on', s.classList.contains('on'));
-  });
-  majorationsForceesManuellement = {nuit:true, we:true};
-
-  if(typeof QQ_VEHICLE_TYPE !== 'undefined' && QQ_VEHICLE_TYPE) setVehicleType(QQ_VEHICLE_TYPE);
+  reporterDevisDansFormulaire(v);
 
   updateAdvancedSummary();
-  calculer();
+  await calculerAvecRetour();
   showToast('Devis repris — complète les adresses puis enregistre');
   setTimeout(() => document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'}), 200);
 }
@@ -11666,7 +12161,7 @@ async function loadHistory(){
         ${etatLieuxThumb}
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
-          <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${d.km} km${d.retour ? ' (A/R)' : ''}</div>
+          <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' (A/R)' : '')}</div>
           <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
@@ -12109,7 +12604,7 @@ async function renderFeuilleDeRoute(){
         <div class="route-card-head">
           <div>
             <div class="route-card-type">${typeLabelComplet(d)}</div>
-            <div class="route-card-meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${d.km} km${d.retour ? ' A/R' : ''}</div>
+            <div class="route-card-meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' A/R' : '')}</div>
           </div>
           <div class="route-card-amt">${fmt(d.total)}</div>
         </div>
@@ -12499,6 +12994,9 @@ function lireFormulairePourMoteur(){
     from: val('addrFrom'), to: val('addrTo'), km: val('km'),
     nuit: on('tgNuit'), we: on('tgWe'), auto: on('tgAuto'),
     retour: on('tgRetour'), camionOn: on('tgCamion'),
+    kmRetourVide: rvLireDonnees(RV_CTX.form).kmRetourVide,
+    kmRetourVerifie: rvLireDonnees(RV_CTX.form).kmRetourVerifie,
+    retourDoubleConfirme: rvLireDonnees(RV_CTX.form).retourDoubleConfirme,
     battDeplacement: on('tgBattDeplacement'), battPrice: val('battPrice'),
     extras: Array.from(document.querySelectorAll('.extraCheck:checked')).map(cb => cb.value),
     gardiennageOn: on('tgGardiennage'), joursGardiennage: val('joursGardiennage'),
@@ -12538,7 +13036,8 @@ async function chargerStatsMoteur(){
   const CHAMPS = ['total','base','kmCost','extrasCost','nuitCost','weCost','autoCost',
                   'battCost','battDeplacementCost','gardiennageCost','attenteCost',
                   'pasRouesFee','vehicleFee','remiseAmount','ctRepasse','manutSupp',
-                  'ctOfficielsCost','ctPrestataireCost','ctRetourCost','annulationMontant'];
+                  'ctOfficielsCost','ctPrestataireCost','ctRetourCost','annulationMontant',
+                  'kmFacturable','kmRetourFacture','plancherComplement'];
   const original = calculer;
   calculer = function(){
     const resultat = original.apply(this, arguments);   // le calcul réel, inchangé
