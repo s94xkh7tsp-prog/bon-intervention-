@@ -3416,6 +3416,16 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modalSupprimerInterventionBg">
+  <div class="modal">
+    <div class="eyebrow">Suppression</div>
+    <h1 class="page-title" style="font-size:22px;">Supprimer l'intervention</h1>
+    <p style="font-size:14.5px; line-height:1.55; color:var(--white); margin:0 0 16px;">Supprimer définitivement cette intervention ? Cette action est irréversible.</p>
+    <button class="primary" style="background:var(--red); box-shadow:0 6px 18px rgba(201,74,50,0.28);" onclick="confirmerSuppressionIntervention()">Supprimer définitivement</button>
+    <button class="ghost close-modal" onclick="fermerSuppressionIntervention()">Annuler</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalWaEnvoiBg">
   <div class="modal">
     <div class="eyebrow">Validation</div>
@@ -5701,7 +5711,8 @@ const ICO = {
   camion:   '<path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/>',
   fleches:  '<path d="M4 7h12l-3-3M20 17H8l3 3"/>',
   pin:      '<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>',
-  drapeau:  '<path d="M5 21V4"/><path d="M5 5h9l-1.5 3L14 11H5z"/>'
+  drapeau:  '<path d="M5 21V4"/><path d="M5 5h9l-1.5 3L14 11H5z"/>',
+  poubelle: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>'
 };
 
 const TYPES_CT = ['ct_passage', 'ct_repassage', 'ct_accidente'];
@@ -6124,7 +6135,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v185';
+const APP_VERSION = 'jm-express-bon-v186';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -12171,6 +12182,7 @@ async function loadHistory(){
       const statutBadge = estAFaire(d)
         ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">${ico(ICO.camion,13)} À faire</div>`
         : `<div class="pay-badge fait" onclick="toggleStatut('${it.key}')">${ico(ICO.check,13)} Fait</div>`;
+      const supprimerBadge = `<div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red); border-color:rgba(201,74,50,0.28);" onclick="demanderSuppressionIntervention('${it.key}')">${ico(ICO.poubelle,13)} Supprimer</div>`;
       return `<div class="hist-item" data-key="${it.key}">
         ${photoThumb}
         ${epaveThumb}
@@ -12178,10 +12190,9 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' (A/R)' : '')}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
-        <div class="del" onclick="supprimer('${it.key}')">✕</div>
       </div>`;
     }).join('');
     requestAnimationFrame(() => window.scrollTo({top: scrollAvant, behavior:'instant'}));
@@ -12647,6 +12658,22 @@ async function supprimer(key){
     showToast('Intervention supprimée');
     loadHistory();
   }catch(e){ showToast('Erreur de suppression'); }
+}
+
+let SUPPR_INTERVENTION_KEY = null;
+function demanderSuppressionIntervention(key){
+  SUPPR_INTERVENTION_KEY = key;
+  document.getElementById('modalSupprimerInterventionBg').classList.add('show');
+}
+function fermerSuppressionIntervention(){
+  document.getElementById('modalSupprimerInterventionBg').classList.remove('show');
+  SUPPR_INTERVENTION_KEY = null;
+}
+async function confirmerSuppressionIntervention(){
+  const key = SUPPR_INTERVENTION_KEY;
+  fermerSuppressionIntervention();
+  if(!key) return;
+  await supprimer(key);
 }
 
 async function viderHistoriqueFiltre(){
