@@ -3008,6 +3008,36 @@
     </div>
 
     <div class="field">
+      <div class="toggles" style="margin-bottom:0;">
+        <div class="toggle" id="tgPaiementMixte" onclick="togglePaiementMixte()">Paiement en plusieurs moyens</div>
+      </div>
+      <div id="blocMixte" style="display:none; margin-top:10px;">
+        <div id="listeRepartition"></div>
+        <div class="field-row" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:0;">
+            <label>Moyen</label>
+            <select id="mixteMoyen">
+              <option value="Espèces">Espèces</option>
+              <option value="Virement">Virement</option>
+              <option value="Bancontact">Bancontact</option>
+              <option value="Carte">Carte</option>
+              <option value="Tap to Pay">Tap to Pay (Revolut)</option>
+              <option value="Payconiq">Payconiq / Bancontact Pro</option>
+              <option value="Lien Revolut">Lien/QR Revolut</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Montant (€)</label>
+            <input type="number" id="mixteMontant" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+          </div>
+        </div>
+        <button type="button" class="ghost" style="margin-top:10px;" onclick="ajouterRepartition()">Ajouter ce montant</button>
+        <div class="km-mention" id="mentionMixte" style="margin-top:8px;">Ajoute chaque moyen séparément — par exemple 100 € en espèces puis 50 € par virement.</div>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Moyen de paiement</label>
       <select id="payMoyen" onchange="majFraisTapToPay(); majFraisPayconiq(); majFraisRevlink()">
         <option value="">— Non précisé —</option>
@@ -5732,7 +5762,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v182';
+const APP_VERSION = 'jm-express-bon-v183';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -10763,7 +10793,7 @@ async function enregistrer(){
       const rpMaj = lireRemisePro();
       if(rpMaj) entry.remisePro = rpMaj;
     } else {
-      id = 'intervention:' + Date.now();
+      id = 'intervention:' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
       entry = {...lastCalc, paye: false, statut: 'a_faire', numero: await nextInterventionNumber()};
       const supp = lireSupplementClient();
       if(supp) entry.supplementClient = supp;
@@ -11127,6 +11157,14 @@ async function calculerResumeMensuel(){
   const fraisTap = items.reduce((s,it) => s + ((it.data.paiement && it.data.paiement.fraisTapToPay) || 0), 0);
   const fraisPay = items.reduce((s,it) => s + ((it.data.paiement && it.data.paiement.fraisPayconiq) || 0), 0);
 
+  const parMoyen = {};
+  items.forEach(it => {
+    const detail = encaissementsParMoyen(it.data);
+    Object.entries(detail).forEach(([m, v]) => { parMoyen[m] = (parMoyen[m] || 0) + v; });
+  });
+  const moyensTries = Object.entries(parMoyen).sort((a,b) => b[1] - a[1]);
+  const totalEspeces = parMoyen['Espèces'] || 0;
+
   const parType = {};
   items.forEach(it => {
     const t = TYPE_LABELS[it.data.type] || it.data.type;
@@ -11146,11 +11184,14 @@ async function calculerResumeMensuel(){
     ${ligne('Interventions', items.length)}
     ${ligne('Chiffre d\'affaires', fmt(total), 'var(--orange)')}
     ${ligne('Encaissé', fmt(encaisse), 'var(--green)')}
+    ${totalEspeces > 0 ? ligne('dont espèces', fmt(totalEspeces), 'var(--green)') : ''}
     ${ligne('Reste à encaisser', fmt(impaye), impaye > 0 ? 'var(--red)' : 'var(--green)')}
     ${ligne('Panier moyen', fmt(moyenne))}
     ${ligne('Kilomètres parcourus', Math.round(kmTotal) + ' km')}
     ${fraisTap > 0 ? ligne('Frais Tap to Pay (Revolut)', '- ' + fmt(fraisTap), 'var(--red)') : ''}
     ${fraisPay > 0 ? ligne('Frais Payconiq (Bancontact Pro)', '- ' + fmt(fraisPay), 'var(--red)') : ''}
+    ${moyensTries.length ? `<div class="eyebrow" style="margin:16px 0 6px 2px;">Encaissé par moyen</div>
+    ${moyensTries.map(([m, v]) => ligne(m, fmt(v), m === 'Espèces' ? 'var(--green)' : null)).join('')}` : ''}
     <div class="eyebrow" style="margin:16px 0 6px 2px;">Répartition</div>
     ${topTypes.map(([t,n]) => ligne(t, n + '×')).join('')}
   `;
@@ -11163,6 +11204,8 @@ async function calculerResumeMensuel(){
     `Reste à encaisser : ${fmt(impaye)}\n` +
     `Panier moyen : ${fmt(moyenne)}\n` +
     `Kilomètres : ${Math.round(kmTotal)} km\n` +
+    (totalEspeces > 0 ? `Dont espèces : ${fmt(totalEspeces)}\n` : '') +
+    (moyensTries.length ? moyensTries.map(([m,v]) => `  ${m} : ${fmt(v)}`).join('\n') + '\n' : '') +
     (fraisTap > 0 ? `Frais Tap to Pay : ${fmt(fraisTap)}\n` : '') +
     (fraisPay > 0 ? `Frais Payconiq : ${fmt(fraisPay)}\n\n` : '\n') +
     topTypes.map(([t,n]) => `${t} : ${n}`).join('\n');
@@ -11667,10 +11710,81 @@ function statutPaiement(d){
   return d.paye ? 'paye' : 'attente';   // anciennes interventions
 }
 
+let REPARTITION = [];
+
+function togglePaiementMixte(){
+  const tg = document.getElementById('tgPaiementMixte');
+  tg.classList.toggle('on');
+  const actif = tg.classList.contains('on');
+  document.getElementById('blocMixte').style.display = actif ? 'block' : 'none';
+  document.getElementById('payRecu').disabled = actif;
+  if(actif) renderRepartition();
+  majResteDu();
+}
+
+function ajouterRepartition(){
+  const moyen = document.getElementById('mixteMoyen').value;
+  const montant = parseFloat(document.getElementById('mixteMontant').value) || 0;
+  if(montant <= 0){ showToast('Indique un montant'); return; }
+  REPARTITION.push({moyen, montant: Math.round(montant * 100) / 100});
+  document.getElementById('mixteMontant').value = '';
+  renderRepartition();
+  majResteDu();
+}
+
+function retirerRepartition(i){
+  REPARTITION.splice(i, 1);
+  renderRepartition();
+  majResteDu();
+}
+
+function totalRepartition(){
+  return REPARTITION.reduce((s, r) => s + r.montant, 0);
+}
+
+function renderRepartition(){
+  const box = document.getElementById('listeRepartition');
+  if(!box) return;
+  if(REPARTITION.length === 0){ box.innerHTML = ''; return; }
+  const total = totalRepartition();
+  box.innerHTML = REPARTITION.map((r, i) => `
+    <div class="hist-item" style="padding:10px 12px; margin-bottom:6px;">
+      <div class="info">
+        <div style="font-size:13.5px; font-weight:600; color:var(--white);">${r.moyen}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-weight:700; color:var(--orange);">${fmt(r.montant)}</span>
+        <div class="loc-btn" style="width:32px; height:32px; min-height:32px;" onclick="retirerRepartition(${i})">✕</div>
+      </div>
+    </div>`).join('')
+    + `<div class="km-mention" style="margin:4px 0 10px; border-left-color:var(--orange);">
+         Total réparti : <strong>${fmt(total)}</strong></div>`;
+  document.getElementById('payRecu').value = total.toFixed(2);
+}
+
 function montantRecu(d){
   const p = d.paiement;
+  if(p && Array.isArray(p.repartition) && p.repartition.length){
+    return p.repartition.reduce((s, r) => s + (r.montant || 0), 0);
+  }
   if(p && typeof p.recu === 'number') return p.recu;
   return d.paye ? (d.total || 0) : 0;
+}
+
+function encaissementsParMoyen(d){
+  const p = d.paiement;
+  const recu = montantRecu(d);
+  if(recu <= 0) return {};
+  if(p && Array.isArray(p.repartition) && p.repartition.length){
+    const out = {};
+    p.repartition.forEach(r => {
+      const m = r.moyen || 'Non précisé';
+      out[m] = (out[m] || 0) + (r.montant || 0);
+    });
+    return out;
+  }
+  const moyen = (p && p.moyen) ? p.moyen : 'Non précisé';
+  return {[moyen]: recu};
 }
 
 function resteADevoir(d){
@@ -11692,6 +11806,13 @@ async function ouvrirPaiement(key){
     const moyen = (d.paiement && d.paiement.moyen) || '';
     document.getElementById('payMoyen').value = moyen;
     document.getElementById('payTotalInterv').dataset.total = d.total || 0;
+    REPARTITION = (d.paiement && Array.isArray(d.paiement.repartition))
+      ? d.paiement.repartition.map(r => ({...r})) : [];
+    const tgm = document.getElementById('tgPaiementMixte');
+    tgm.classList.toggle('on', REPARTITION.length > 0);
+    document.getElementById('blocMixte').style.display = REPARTITION.length ? 'block' : 'none';
+    document.getElementById('payRecu').disabled = REPARTITION.length > 0;
+    renderRepartition();
     majFraisTapToPay();
     majFraisPayconiq();
     majFraisRevlink();
@@ -11852,6 +11973,10 @@ function majFraisTapToPay(){
 }
 
 function majResteDu(){
+  if(typeof REPARTITION !== 'undefined' && REPARTITION.length){
+    const champ = document.getElementById('payRecu');
+    if(champ) champ.value = totalRepartition().toFixed(2);
+  }
   const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
   const st = statutPaiementSelectionne();
   let recu = 0;
@@ -11890,10 +12015,16 @@ async function enregistrerPaiement(){
       const fixe = RATES.revlinkFixe || 0.20;
       fraisRevlink = Math.round((total * (pct/100) + fixe) * 100) / 100;
     }
+    const repartition = REPARTITION.length ? REPARTITION.map(r => ({...r})) : null;
+    const recuFinal = repartition ? repartition.reduce((s, r) => s + r.montant, 0) : recu;
+    const moyenFinal = repartition
+      ? repartition.map(r => r.moyen).join(' + ')   // ex. « Espèces + Virement »
+      : moyen;
     d.paiement = {
       statut: st,
-      recu,
-      moyen,
+      recu: recuFinal,
+      moyen: moyenFinal,
+      repartition,
       fraisTapToPay,
       fraisPayconiq,
       fraisRevlink,
