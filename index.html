@@ -5985,13 +5985,18 @@ async function calculerAvecRetour(){
 }
 
 const RV_LIBELLES = {
-  fr:{fact:'Kilomètres facturables : ', dont:'dont retour à vide : ', verif:' (itinéraire vérifié)', nonVerif:' (estimé, non vérifié)',
+  fr:{fact:'Kilomètres facturables : ', total:'Total kilométrique facturable : ', principal:'Trajet principal', retourLabel:'Retour à vide',
       neutr:'Retour à vide non facturé — un trajet retour est déjà compté (CT, X km)', geste:' (geste commercial)', audela:' au-delà de S km'},
-  nl:{fact:'Factureerbare kilometers: ', dont:'waarvan lege terugrit: ', verif:' (route gecontroleerd)', nonVerif:' (geschat, niet gecontroleerd)',
+  nl:{fact:'Factureerbare kilometers: ', total:'Totaal factureerbare kilometers: ', principal:'Hoofdtraject', retourLabel:'Lege terugrit',
       neutr:'Lege terugrit niet aangerekend — een terugrit is al geteld (keuring, X km)', geste:' (commerciële geste)', audela:' boven S km'},
-  en:{fact:'Billable kilometres: ', dont:'incl. empty return: ', verif:' (route verified)', nonVerif:' (estimated, unverified)',
+  en:{fact:'Billable kilometres: ', total:'Total billable kilometres: ', principal:'Main trip', retourLabel:'Empty return',
       neutr:'Empty return not charged — a return trip is already counted (MOT, X km)', geste:' (goodwill rate)', audela:' beyond S km'}
 };
+function rvLigneVerif(label, km, verifie, connuNonVerifie, symboles){
+  if(verifie) return label + ' vérifié : ' + fmtKm(km) + ' km' + (symboles ? ' ✓' : '');
+  if(connuNonVerifie) return label + ' (non vérifié) : ' + fmtKm(km) + ' km' + (symboles ? ' ⚠' : '');
+  return label + ' : ' + fmtKm(km) + ' km';
+}
 function descKmFacturableLignes(c, lang, symboles){
   if(!c || typeof c.kmFacturable !== 'number') return [];
   const S = RV_LIBELLES[lang] || RV_LIBELLES.fr;
@@ -6001,7 +6006,18 @@ function descKmFacturableLignes(c, lang, symboles){
   const seuil = (typeof c.kmSeuil === 'number') ? c.kmSeuil : RATES.kmDegressifSeuil;
   const reduit = (typeof c.kmRateReduit === 'number') ? c.kmRateReduit : RATES.km_remorque_reduit;
   const estRem = (typeof c.estRemorquage === 'boolean') ? c.estRemorquage : (TYPES_REMORQUAGE.includes(c.type) || !!c.camionOn);
-  const L = [S.fact + fmtKm(kmF) + ' km'];
+  const afficheRetour = c.retour && c.kmRetourFacture > 0;
+  const L = [];
+  if(afficheRetour){
+    const clePrincipal = cleAdresses(c.depart || BASE_ADDRESS, c.from || '', c.to || '');
+    const mesurePrincipal = VERIF_KM_CACHE[clePrincipal];
+    const principalVerifie = !!(c.from && c.to && mesurePrincipal !== undefined && arrondiKm(mesurePrincipal) === arrondiKm(c.km));
+    L.push(rvLigneVerif(S.principal, c.km, principalVerifie, false, symboles));
+    L.push(rvLigneVerif(S.retourLabel, c.kmRetourFacture, !!c.kmRetourVerifie, true, symboles));
+    L.push(S.total + fmtKm(kmF) + ' km');
+  } else {
+    L.push(S.fact + fmtKm(kmF) + ' km');
+  }
   if(geste){
     L.push(fmtKm(kmF) + ' km × ' + fmtTaux(rate) + S.geste + ' = ' + fmt(c.kmCost));
   } else if(!estRem || kmF <= seuil){
@@ -6010,9 +6026,6 @@ function descKmFacturableLignes(c, lang, symboles){
     L.push(fmtKm(seuil) + ' km × ' + fmtTaux(rate) + ' = ' + fmt(seuil * rate));
     L.push(fmtKm(kmF - seuil) + ' km × ' + fmtTaux(reduit) + ' = ' + fmt((kmF - seuil) * reduit) + S.audela.replace('S', fmtKm(seuil)));
   }
-  if(c.retour && c.kmRetourFacture > 0){
-    L.push(S.dont + fmtKm(c.kmRetourFacture) + ' km' + (c.kmRetourVerifie ? ((symboles ? ' ✓' : '') + S.verif) : ((symboles ? ' ⚠' : '') + S.nonVerif)));
-  }
   if(c.retourVideNeutralise){ L.push(S.neutr.replace('X', fmtKm(c.retourCTKm))); }
   return L;
 }
@@ -6020,7 +6033,8 @@ function formatKmDetailHtml(c){
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const L = descKmFacturableLignes(c, 'fr', true);
   if(L.length){
-    return L.map((l, i) => i === 0 ? '<strong>' + esc(l) + '</strong>' : esc(l)).join('<br>');
+    const S = RV_LIBELLES.fr;
+    return L.map(l => (l.indexOf(S.total) === 0 || l.indexOf(S.fact) === 0) ? '<strong>' + esc(l) + '</strong>' : esc(l)).join('<br>');
   }
   const estRem = TYPES_REMORQUAGE.includes(c.type) || !!c.camionOn;
   const rate = (typeof c.kmRate === 'number') ? c.kmRate : (estRem ? RATES.km_remorque : RATES.km_deplacement);
@@ -6110,7 +6124,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v184';
+const APP_VERSION = 'jm-express-bon-v185';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -7813,6 +7827,8 @@ function lireDonneesDevisRapide(){
 function calculerDevisRapide(){
   const d = lireDonneesDevisRapide();
   const R = MOTEUR_calculerTarif(d, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+  R.from = document.getElementById('qqFrom').value.trim();
+  R.to = document.getElementById('qqTo').value.trim();
   QQ_DERNIER_CALC = R;
   document.getElementById('qqResult').textContent = fmt(R.total);
   document.getElementById('qqDetail').innerHTML = qqDetailHtml(R);
