@@ -18,41 +18,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#f5f3ee;
-    --panel:#ffffff;
-    --panel-2:#f1efe8;
-    --line:#e2ded3;
-    --orange:#e8730c;
-    --orange-soft:#fdf0e2;
-    --orange-dim:#fce9d3;
-    --navy:#1f333d;
-    --white:#22343d;
-    --grey:#5f7179;
+    /* Palette JOUR JM Express : gris très clair, cartes blanches, contour acier clair, orange signature */
+    --ink:#F2F4F5;
+    --panel:#FFFFFF;
+    --panel-2:#F7F9FA;
+    --line:#CBD5DA;
+    --orange:#F28C00;
+    --orange-deep:#C96F00;
+    --orange-soft:#FFF3E3;
+    --orange-dim:#FFE8CC;
+    --steel:#456979;
+    --navy:#1a262e;
+    --white:#172027;
+    --grey:#60727C;
     --green:#3f8a5f;
     --red:#c94a32;
-    --shadow-sm:0 1px 3px rgba(31,51,61,0.06), 0 1px 2px rgba(31,51,61,0.04);
-    --shadow-md:0 4px 14px rgba(31,51,61,0.09), 0 1px 3px rgba(31,51,61,0.05);
-    --shadow-lg:0 10px 30px rgba(31,51,61,0.14), 0 3px 8px rgba(31,51,61,0.06);
-    --shadow-orange:0 6px 18px rgba(232,115,12,0.24);
+    --r-card:16px; --r-small:12px;
+    --shadow-sm:0 1px 3px rgba(23,32,39,0.06), 0 1px 2px rgba(23,32,39,0.04);
+    --shadow-md:0 4px 14px rgba(23,32,39,0.09), 0 1px 3px rgba(23,32,39,0.05);
+    --shadow-lg:0 10px 30px rgba(23,32,39,0.14), 0 3px 8px rgba(23,32,39,0.06);
+    --shadow-orange:0 8px 20px rgba(201,111,0,0.28);
+    --halo-ico:drop-shadow(0 0 3px rgba(242,140,0,0.30));
+    --halo-ico-actif:drop-shadow(0 0 5px rgba(242,140,0,0.45));
   }
   :root{ --anim: 1; }
   html[data-theme="dark"]{
-    --ink:#0d1216;
-    --panel:#171f25;
-    --panel-2:#1e2830;
-    --line:#2b3740;
-    --orange:#f2900f;
-    --orange-soft:#332510;
-    --orange-dim:#3d2c14;
-    --navy:#0a1014;
-    --white:#f1f4f6;
-    --grey:#8fa1aa;
+    /* Palette NUIT JM Express : anthracite, cartes bleutées, contour acier, orange vif */
+    --ink:#0D1114;
+    --panel:#162129;
+    --panel-2:#1b2832;
+    --line:#344955;
+    --orange:#FF9500;
+    --orange-deep:#D97706;
+    --orange-soft:#2b2010;
+    --orange-dim:#3a2a12;
+    --steel:#5E8194;
+    --navy:#091014;
+    --white:#F5F7F8;
+    --grey:#94A6B0;
     --green:#5cb47f;
     --red:#e2694f;
-    --shadow-sm:0 1px 3px rgba(0,0,0,0.35);
-    --shadow-md:0 6px 18px rgba(0,0,0,0.42);
-    --shadow-lg:0 14px 34px rgba(0,0,0,0.5);
-    --shadow-orange:0 6px 20px rgba(242,144,15,0.28);
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.38);
+    --shadow-md:0 6px 18px rgba(0,0,0,0.45);
+    --shadow-lg:0 14px 34px rgba(0,0,0,0.52);
+    --shadow-orange:0 10px 26px rgba(217,119,6,0.40);
+    --halo-ico:drop-shadow(0 0 6px rgba(255,149,0,0.55)) drop-shadow(0 0 2px rgba(255,149,0,0.35));
+    --halo-ico-actif:drop-shadow(0 0 8px rgba(255,149,0,0.7)) drop-shadow(0 0 2px rgba(255,149,0,0.5));
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--ink);color:var(--white);font-family:'Inter',sans-serif;}
@@ -987,6 +998,274 @@
     padding:11px 18px; border-radius:20px; font-size:13.5px; font-weight:600; z-index:60; display:none;
   }
   .toast.show{display:block; animation:rise .2s ease;}
+
+
+  /* ===================================================================
+     FINITION PREMIUM (v194) — langage visuel commun à tous les écrans.
+     Purement CSS : rayons, contours, ombres, états pressés, icônes, barre,
+     alertes. Aucune fonction, disposition ou taille de zone tactile modifiée.
+     =================================================================== */
+  /* Cartes et blocs : même rayon, même contour, même profondeur */
+  .gros-bouton, .stat-case, .hist-item, .encours-carte, .grp, .qq-result, .ticket-total,
+  .route-card, .client-card, .menu-item, .holiday-banner, .modal{
+    border-radius:var(--r-card);
+  }
+  .gros-bouton, .stat-case, .hist-item, .grp, .route-card, .client-card{
+    border:1px solid var(--line); box-shadow:var(--shadow-sm);
+  }
+  html[data-theme="dark"] .gros-bouton:not(.principal), html[data-theme="dark"] .stat-case,
+  html[data-theme="dark"] .hist-item, html[data-theme="dark"] .grp,
+  html[data-theme="dark"] .route-card, html[data-theme="dark"] .client-card{
+    background:var(--panel);
+    box-shadow:0 1px 0 rgba(255,149,0,0.05) inset, 0 6px 16px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.35);
+  }
+  .pay-badge, .toggle, input[type=text], input[type=number], input[type=tel], input[type=date],
+  input[type=time], input[type=password], select, textarea{border-radius:var(--r-small);}
+
+  /* Icônes : même poids de trait, blanc cassé, halo orange (discret de jour) */
+  .gb-ico svg, .tab-ico svg, .gear svg, .menu-ico svg{stroke-width:2.05; color:var(--white);}
+  .gb-ico svg *, .tab-ico svg *, .gear svg *, .menu-ico svg *{stroke-width:inherit;}
+  .gb-ico svg, .gear:not(.emergency) svg, .menu-ico svg{filter:var(--halo-ico);}
+  .tab-ico svg{filter:drop-shadow(0 0 3px rgba(255,149,0,0.16));}
+  .tab-btn.active .tab-ico svg{filter:var(--halo-ico-actif);}
+  .gros-bouton.principal .gb-ico svg{filter:drop-shadow(0 1px 1px rgba(120,60,0,0.4)); color:#fff;}
+
+  /* Micro-animations : appui court, retour fluide */
+  .gros-bouton, .stat-case, .hist-item, .pay-badge, .toggle, .gear, .menu-item, .tab-btn,
+  button.primary, button.ghost, .bac-btn, .extras-header, .tab-fab{
+    transition:transform .12s cubic-bezier(.2,.8,.3,1), background .16s ease, border-color .14s ease, box-shadow .16s ease, filter .16s ease;
+  }
+  .gros-bouton:not(.principal):active, .stat-case:active, .hist-item:active, .menu-item:active, .grp-cliquable:active{
+    transform:scale(0.985);
+    border-color:rgba(255,149,0,0.6);
+    box-shadow:0 0 0 3px rgba(255,149,0,0.14), 0 0 16px rgba(255,149,0,0.22), var(--shadow-sm);
+    background:var(--panel-2);
+  }
+  .pay-badge:active, .toggle:active{transform:scale(0.96); box-shadow:0 0 0 2px rgba(255,149,0,0.16);}
+  button.primary:active{transform:scale(0.985); filter:brightness(0.94);}
+  button.ghost:active{transform:scale(0.985); border-color:var(--orange); box-shadow:0 0 0 2px rgba(255,149,0,0.14);}
+  .gear:active{transform:scale(0.94);}
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{transition-duration:0.01ms !important; animation-duration:0.01ms !important;}
+    .gros-bouton:active, .stat-case:active, .hist-item:active, .pay-badge:active, .toggle:active,
+    .gear:active, .menu-item:active, .tab-btn:active, button.primary:active, button.ghost:active, .tab-fab:active{transform:none;}
+  }
+
+  /* Bouton principal (partout) : orange signature, profondeur orange profond */
+  button.primary, .gros-bouton.principal, .tab-fab{
+    background:linear-gradient(180deg, color-mix(in srgb, var(--orange) 92%, #fff) 0%, var(--orange) 55%, color-mix(in srgb, var(--orange) 92%, #000) 100%);
+    border:1px solid var(--orange-deep);
+    box-shadow:0 1px 0 rgba(255,255,255,0.28) inset, 0 -2px 0 rgba(0,0,0,0.12) inset, var(--shadow-orange);
+  }
+  button.primary{color:#fff;}
+  .gros-bouton.principal:active, button.primary:active{background:var(--orange-deep); border-color:var(--orange-deep);}
+
+  /* Barre de navigation (tous les écrans) */
+  .tabbar{
+    background:var(--navy);
+    border-top:1px solid var(--line);
+    box-shadow:0 -1px 0 rgba(255,149,0,0.14), 0 -10px 28px rgba(0,0,0,0.30);
+  }
+  html:not([data-theme="dark"]) .tabbar{background:#FFFFFF; box-shadow:0 -1px 0 rgba(242,140,0,0.10), 0 -6px 18px rgba(23,32,39,0.08);}
+  .tab-btn{color:var(--grey);}
+  .tab-btn.active .tab-ico{color:var(--orange); background:rgba(255,149,0,0.12); box-shadow:0 0 0 1px rgba(255,149,0,0.38), 0 0 12px rgba(255,149,0,0.26);}
+  html:not([data-theme="dark"]) .tab-btn.active .tab-ico{box-shadow:0 0 0 1px rgba(242,140,0,0.35);}
+  .tab-btn.active .tab-lbl{color:var(--orange);}
+  .tab-fab{box-shadow:var(--shadow-orange), 0 0 0 4px var(--navy), 0 0 0 5px rgba(52,73,85,0.7);}
+  html:not([data-theme="dark"]) .tab-fab{box-shadow:var(--shadow-orange), 0 0 0 4px #FFFFFF, 0 0 0 5px var(--line);}
+
+  /* Boutons ronds d'en-tête */
+  .gear{background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-sm);}
+  .gear.emergency{background:rgba(226,105,79,0.12); border-color:rgba(226,105,79,0.45); color:var(--red);}
+  html:not([data-theme="dark"]) .gear.emergency{background:rgba(201,74,50,0.10); border-color:rgba(201,74,50,0.3);}
+
+  /* Alertes (sauvegarde, gasoil, férié) : sombres, liseré discret, message lisible */
+  .holiday-banner{background:var(--navy); color:#F5F7F8; border:1px solid rgba(217,119,6,0.45); box-shadow:var(--shadow-md);}
+  html:not([data-theme="dark"]) .holiday-banner{background:#FFFFFF; color:var(--white); border-color:rgba(201,111,0,0.45);}
+  .holiday-banner .close{color:var(--grey);}
+  .holiday-banner .banner-action{background:var(--orange); border-color:var(--orange-deep); color:#fff;}
+
+  /* Typographie : hiérarchie resserrée */
+  .eyebrow{color:var(--grey); letter-spacing:1.6px; font-weight:500;}
+  .eyebrow::before{background:var(--orange);}
+  .page-title{letter-spacing:0.3px;}
+  .page-sub{color:var(--grey);}
+  .stat-val{color:var(--orange);}
+  .stat-lbl{color:var(--grey); letter-spacing:0.2px;}
+  .gb-txt{color:var(--white); font-weight:600; letter-spacing:0.1px;}
+
+  /* Accueil : espacements réguliers, hiérarchie */
+  body.sur-accueil .accueil-stats{gap:8px; margin-top:4px;}
+  body.sur-accueil .stat-case{padding:9px 5px; border-radius:var(--r-small);}
+  body.sur-accueil .stat-val{font-size:19px;}
+  body.sur-accueil .stat-lbl{font-size:10px;}
+  body.sur-accueil .accueil-grid{gap:9px;}
+  body.sur-accueil .gros-bouton{min-height:74px; padding:10px 6px; gap:5px;}
+  body.sur-accueil .gros-bouton.principal{min-height:58px; margin-bottom:2px;}
+  body.sur-accueil .eyebrow{margin:14px 0 6px 2px;}
+  body.sur-accueil .holiday-banner{margin-bottom:10px;}
+
+  /* ===================================================================
+     ACCUEIL — palette premium JM Express (v193). Purement visuel, scopé sur
+     body.sur-accueil (n'agit que sur la page d'accueil). Mode sombre.
+       orange vif #FF9500 · orange profond #D97706 · fond #0D1114 · cartes #162129
+       contours #344955 · texte #F5F7F8 · secondaire #94A6B0 · bleu acier #5E8194 (parcimonie)
+     =================================================================== */
+  html[data-theme="dark"]:has(body.sur-accueil){background:#0D1114;}
+  html[data-theme="dark"] body.sur-accueil{background:#0D1114; color:#F5F7F8;}
+  html[data-theme="dark"] body.sur-accueil .eyebrow{color:#94A6B0;}
+  html[data-theme="dark"] body.sur-accueil .eyebrow::before{background:#FF9500;}
+
+  /* --- Cartes d'accès rapide : fond anthracite bleuté, contour acier fin, reflet orange discret --- */
+  html[data-theme="dark"] body.sur-accueil .gros-bouton:not(.principal){
+    background:linear-gradient(180deg, #1a2731 0%, #162129 100%);
+    border:1px solid rgba(52,73,85,0.85);
+    box-shadow:0 1px 0 rgba(255,149,0,0.10) inset, 0 -1px 0 rgba(0,0,0,0.35) inset,
+               0 8px 20px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.4);
+    transition:background .16s ease, transform .12s cubic-bezier(.2,.8,.3,1.1), border-color .14s ease, box-shadow .16s ease;
+  }
+  html[data-theme="dark"] body.sur-accueil .gros-bouton:not(.principal) .gb-txt{color:#F5F7F8;}
+  html[data-theme="dark"] body.sur-accueil .gros-bouton:not(.principal) .gb-ico{color:#F5F7F8;}
+  html[data-theme="dark"] body.sur-accueil .gros-bouton:not(.principal) .gb-ico svg{
+    filter:drop-shadow(0 0 7px rgba(255,149,0,0.62)) drop-shadow(0 0 2px rgba(255,149,0,0.45)) drop-shadow(0 2px 2px rgba(217,119,6,0.35));
+  }
+  html[data-theme="dark"] body.sur-accueil .gros-bouton:not(.principal):active{
+    background:linear-gradient(180deg, #23323e 0%, #1b2832 100%);
+    border-color:rgba(255,149,0,0.70);
+    box-shadow:0 0 0 3px rgba(255,149,0,0.16), 0 0 18px rgba(255,149,0,0.30), 0 6px 16px rgba(0,0,0,0.45);
+    transform:scale(0.97);
+  }
+
+  /* --- Bouton principal : orange vif dominant, profondeur en orange profond --- */
+  html[data-theme="dark"] body.sur-accueil .gros-bouton.principal{
+    background:linear-gradient(180deg, #FFA21E 0%, #FF9500 55%, #F08A00 100%);
+    border:1px solid #D97706;
+    box-shadow:0 1px 0 rgba(255,255,255,0.28) inset, 0 -2px 0 rgba(217,119,6,0.55) inset,
+               0 12px 30px rgba(217,119,6,0.40), 0 3px 8px rgba(0,0,0,0.45);
+  }
+  html[data-theme="dark"] body.sur-accueil .gros-bouton.principal .gb-txt{color:#fff; text-shadow:0 1px 1px rgba(120,60,0,0.35);}
+  html[data-theme="dark"] body.sur-accueil .gros-bouton.principal .gb-ico svg{filter:drop-shadow(0 1px 1px rgba(120,60,0,0.4));}
+  html[data-theme="dark"] body.sur-accueil .gros-bouton.principal:active{background:#D97706; border-color:#b8630a;}
+
+  /* --- Cartes statistiques : même fond, contour fin, chiffres orange vif --- */
+  html[data-theme="dark"] body.sur-accueil .stat-case{
+    background:#162129;
+    border:1px solid rgba(52,73,85,0.70);
+    box-shadow:0 1px 0 rgba(255,149,0,0.06) inset, 0 4px 12px rgba(0,0,0,0.38);
+  }
+  html[data-theme="dark"] body.sur-accueil .stat-val{color:#FF9500; text-shadow:0 0 10px rgba(255,149,0,0.25);}
+  html[data-theme="dark"] body.sur-accueil .stat-lbl{color:#94A6B0;}
+  html[data-theme="dark"] body.sur-accueil .stat-case:active{border-color:rgba(255,149,0,0.55); box-shadow:0 0 0 2px rgba(255,149,0,0.14), 0 4px 12px rgba(0,0,0,0.38);}
+
+  /* --- Feuille de route (itinéraire) : seul usage du bleu acier, sur le contour --- */
+  html[data-theme="dark"] body.sur-accueil .encours-carte{
+    background:linear-gradient(180deg, #1a2731 0%, #162129 100%);
+    border:1px solid rgba(94,129,148,0.55);
+    box-shadow:0 1px 0 rgba(94,129,148,0.18) inset, 0 8px 22px rgba(0,0,0,0.45);
+  }
+
+  /* --- Boutons ronds de l'en-tête --- */
+  html[data-theme="dark"] body.sur-accueil .gear{
+    background:#162129; border:1px solid rgba(52,73,85,0.85); color:#F5F7F8;
+    box-shadow:0 1px 0 rgba(255,149,0,0.08) inset, 0 3px 10px rgba(0,0,0,0.4);
+  }
+  html[data-theme="dark"] body.sur-accueil .gear.emergency{background:rgba(226,105,79,0.12); border-color:rgba(226,105,79,0.45); color:var(--red); box-shadow:0 3px 10px rgba(0,0,0,0.4);}
+  html[data-theme="dark"] body.sur-accueil .gear.emergency:active{background:#e05a4e; color:#fff;}
+  html[data-theme="dark"] body.sur-accueil .gear:not(.emergency) svg{filter:drop-shadow(0 0 6px rgba(255,149,0,0.55)) drop-shadow(0 0 2px rgba(255,149,0,0.35));}
+  html[data-theme="dark"] body.sur-accueil .gear:not(.emergency):active{background:#1f2e39; border-color:rgba(255,149,0,0.7); color:#FF9500; box-shadow:0 0 0 3px rgba(255,149,0,0.16), 0 0 14px rgba(255,149,0,0.28);}
+
+  /* --- Barre de navigation --- */
+  html[data-theme="dark"] body.sur-accueil .tabbar{
+    background:#091014;
+    border-top:1px solid #344955;
+    box-shadow:0 -1px 0 rgba(255,149,0,0.16), 0 -10px 28px rgba(0,0,0,0.45);
+  }
+  html[data-theme="dark"] body.sur-accueil .tab-btn{color:#94A6B0;}
+  html[data-theme="dark"] body.sur-accueil .tab-btn .tab-ico svg{filter:drop-shadow(0 0 3px rgba(255,149,0,0.18));}
+  html[data-theme="dark"] body.sur-accueil .tab-btn.active .tab-ico{
+    color:#FF9500; background:rgba(255,149,0,0.12);
+    box-shadow:0 0 0 1px rgba(255,149,0,0.40), 0 0 14px rgba(255,149,0,0.30);
+  }
+  html[data-theme="dark"] body.sur-accueil .tab-btn.active .tab-ico svg{filter:drop-shadow(0 0 6px rgba(255,149,0,0.6));}
+  html[data-theme="dark"] body.sur-accueil .tab-btn.active .tab-lbl{color:#FF9500;}
+  html[data-theme="dark"] body.sur-accueil .tab-fab{
+    background:linear-gradient(180deg, #FFA21E 0%, #FF9500 60%, #F08A00 100%);
+    box-shadow:0 10px 26px rgba(217,119,6,0.45), 0 0 0 4px #091014, 0 0 0 5px rgba(52,73,85,0.7), 0 3px 8px rgba(0,0,0,0.5);
+  }
+
+  /* --- Alerte sauvegarde : sombre, liseré chaud discret, bouton orange conservé --- */
+  html[data-theme="dark"] body.sur-accueil #backupBanner{
+    background:#0f171d; color:#F5F7F8;
+    border:1px solid rgba(217,119,6,0.50);
+    box-shadow:0 1px 0 rgba(255,149,0,0.08) inset, 0 6px 16px rgba(0,0,0,0.40);
+  }
+  html[data-theme="dark"] body.sur-accueil #backupBanner .banner-action{background:#FF9500; border-color:#D97706; color:#fff;}
+  html[data-theme="dark"] body.sur-accueil #backupBanner .close{color:#94A6B0;}
+
+  /* ===================================================================
+     ACCUEIL — palette JOUR (v193). Même identité, lisibilité plein soleil.
+       fond #F2F4F5 · cartes #FFFFFF · contours #CBD5DA · texte #172027 · secondaire #60727C
+       orange #F28C00 · orange foncé #C96F00 · bleu acier #456979 (parcimonie)
+     =================================================================== */
+  html:not([data-theme="dark"]):has(body.sur-accueil){background:#F2F4F5;}
+  html:not([data-theme="dark"]) body.sur-accueil{background:#F2F4F5; color:#172027;}
+  html:not([data-theme="dark"]) body.sur-accueil .eyebrow{color:#60727C;}
+  html:not([data-theme="dark"]) body.sur-accueil .eyebrow::before{background:#F28C00;}
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton:not(.principal){
+    background:#FFFFFF; border:1px solid #CBD5DA;
+    box-shadow:0 1px 0 rgba(242,140,0,0.06) inset, 0 6px 16px rgba(23,32,39,0.08), 0 1px 3px rgba(23,32,39,0.08);
+    transition:background .16s ease, transform .12s cubic-bezier(.2,.8,.3,1.1), border-color .14s ease, box-shadow .16s ease;
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton:not(.principal) .gb-txt{color:#172027;}
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton:not(.principal) .gb-ico{color:#172027;}
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton:not(.principal) .gb-ico svg{filter:drop-shadow(0 0 3px rgba(242,140,0,0.35)) drop-shadow(0 1px 1px rgba(242,140,0,0.15));}
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton:not(.principal):active{
+    background:#FFF6EA; border-color:#F28C00;
+    box-shadow:0 0 0 3px rgba(242,140,0,0.14), 0 0 12px rgba(242,140,0,0.20), 0 4px 12px rgba(23,32,39,0.10);
+    transform:scale(0.97);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton.principal{
+    background:linear-gradient(180deg, #F79A1A 0%, #F28C00 55%, #E38300 100%);
+    border:1px solid #C96F00;
+    box-shadow:0 1px 0 rgba(255,255,255,0.35) inset, 0 -2px 0 rgba(201,111,0,0.45) inset, 0 10px 24px rgba(201,111,0,0.30), 0 2px 6px rgba(23,32,39,0.12);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton.principal .gb-txt{color:#fff;}
+  html:not([data-theme="dark"]) body.sur-accueil .gros-bouton.principal:active{background:#C96F00; border-color:#a85d00;}
+  html:not([data-theme="dark"]) body.sur-accueil .stat-case{
+    background:#FFFFFF; border:1px solid #CBD5DA;
+    box-shadow:0 3px 10px rgba(23,32,39,0.07);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .stat-val{color:#F28C00;}
+  html:not([data-theme="dark"]) body.sur-accueil .stat-lbl{color:#60727C;}
+  html:not([data-theme="dark"]) body.sur-accueil .stat-case:active{border-color:#F28C00; background:#FFF6EA;}
+  html:not([data-theme="dark"]) body.sur-accueil .encours-carte{
+    border:1px solid rgba(69,105,121,0.55);
+    box-shadow:0 1px 0 rgba(69,105,121,0.12) inset, 0 8px 20px rgba(23,32,39,0.14);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .gear{
+    background:#FFFFFF; border:1px solid #CBD5DA; color:#172027;
+    box-shadow:0 3px 10px rgba(23,32,39,0.08);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .gear:not(.emergency) svg{filter:drop-shadow(0 0 3px rgba(242,140,0,0.32));}
+  html:not([data-theme="dark"]) body.sur-accueil .gear:not(.emergency):active{background:#FFF6EA; border-color:#F28C00; color:#F28C00;}
+  html:not([data-theme="dark"]) body.sur-accueil .gear.emergency{background:rgba(201,74,50,0.10); border-color:rgba(201,74,50,0.3); color:var(--red);}
+  html:not([data-theme="dark"]) body.sur-accueil .tabbar{
+    background:#FFFFFF; border-top:1px solid #CBD5DA;
+    box-shadow:0 -1px 0 rgba(242,140,0,0.10), 0 -6px 18px rgba(23,32,39,0.08);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .tab-btn{color:#60727C;}
+  html:not([data-theme="dark"]) body.sur-accueil .tab-btn.active .tab-ico{color:#F28C00; background:rgba(242,140,0,0.12); box-shadow:0 0 0 1px rgba(242,140,0,0.35);}
+  html:not([data-theme="dark"]) body.sur-accueil .tab-btn.active .tab-lbl{color:#F28C00;}
+  html:not([data-theme="dark"]) body.sur-accueil .tab-fab{
+    background:linear-gradient(180deg, #F79A1A 0%, #F28C00 60%, #E38300 100%);
+    box-shadow:0 8px 22px rgba(201,111,0,0.35), 0 0 0 4px #FFFFFF, 0 0 0 5px #CBD5DA;
+  }
+  html:not([data-theme="dark"]) body.sur-accueil #backupBanner{
+    background:#FFFFFF; color:#172027; border:1px solid rgba(201,111,0,0.45);
+    box-shadow:0 4px 14px rgba(23,32,39,0.10);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil #backupBanner .banner-action{background:#F28C00; border-color:#C96F00; color:#fff;}
+  html:not([data-theme="dark"]) body.sur-accueil #backupBanner .close{color:#60727C;}
 </style>
 </head>
 <body>
@@ -2839,6 +3118,11 @@
         <span class="menu-lbl">Recherche</span>
         <span class="menu-desc">Plaque, client, adresse…</span>
       </div>
+      <div class="menu-item" onclick="closeMenu(); ouvrirListeBdc();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+        <span class="menu-lbl">Bons de commande</span>
+        <span class="menu-desc">Créés depuis tes factures</span>
+      </div>
       <div class="menu-item" onclick="closeMenu(); ouvrirResumeMensuel();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Résumé mensuel</span>
@@ -3191,6 +3475,7 @@
   <div class="modal">
     <h3>Facture</h3>
     <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">Remplis les informations du client, puis génère le PDF à envoyer ou imprimer.</p>
+    <div class="km-mention" id="invCorrectionBanner" style="display:none; border-left-color:var(--orange); margin-bottom:14px;"></div>
 
     <div class="grp">
       <div class="grp-title">Client</div>
@@ -3427,6 +3712,85 @@
     <button class="primary" onclick="enregistrerPuisFermerReglages()">Enregistrer les tarifs</button>
     <button class="ghost" style="color:var(--red);" onclick="abandonnerModifsReglages()">Abandonner les modifications</button>
     <button class="ghost close-modal" onclick="document.getElementById('modalReglagesNonEnrBg').classList.remove('show')">Continuer à modifier</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalApresNcBg">
+  <div class="modal">
+    <div class="eyebrow">Note de crédit</div>
+    <h1 class="page-title" style="font-size:22px;" id="apresNcTitre">Note de crédit créée</h1>
+    <p style="font-size:14px; line-height:1.55; color:var(--white); margin:0 0 16px;">Que souhaitez-vous faire maintenant ?</p>
+    <button class="primary" onclick="apresNcFactureCorrigee()">Créer une facture corrigée</button>
+    <button class="ghost" style="margin-top:8px;" onclick="apresNcBdc()">📋 Créer un bon de commande</button>
+    <button class="ghost close-modal" onclick="apresNcTerminer()">Terminer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalActionsFactureBg">
+  <div class="modal">
+    <div class="eyebrow">Facture</div>
+    <h1 class="page-title" style="font-size:22px;" id="afTitre">Facture</h1>
+    <p style="font-size:13.5px; line-height:1.55; color:var(--grey); margin:0 0 14px;" id="afSousTitre"></p>
+    <div class="km-mention" id="afLiens" style="display:none; margin-bottom:14px;"></div>
+    <button class="primary" onclick="afReimprimer()">🖨 Réimprimer à l'identique</button>
+    <button class="ghost" style="margin-top:8px;" onclick="afCreerBdc()">📋 Créer un bon de commande</button>
+    <button class="ghost" style="margin-top:8px;" onclick="afNoteCredit()">🧾 Note de crédit</button>
+    <button class="ghost" style="margin-top:8px; color:var(--orange);" onclick="afNouvelleFacture()">Nouvelle facture (nouveau numéro)</button>
+    <button class="ghost close-modal" onclick="document.getElementById('modalActionsFactureBg').classList.remove('show')">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBdcBg">
+  <div class="modal">
+    <div class="eyebrow">Document</div>
+    <h1 class="page-title" style="font-size:22px;" id="bdcTitre">Bon de commande</h1>
+    <p style="font-size:13px; line-height:1.5; color:var(--grey); margin:0 0 12px;" id="bdcOrigine"></p>
+    <div class="km-mention" id="bdcAvertissement" style="display:none; border-left-color:var(--orange); margin-bottom:12px;"></div>
+
+    <div class="grp">
+      <div class="grp-title">Client</div>
+      <div class="field"><label>Nom</label><input type="text" id="bdcClientName" autocorrect="on"></div>
+      <div class="field"><label>Société</label><input type="text" id="bdcClientCompany" autocorrect="on"></div>
+      <div class="field"><label>Adresse</label><input type="text" id="bdcClientAddress" autocorrect="on"></div>
+      <div class="field" style="margin-bottom:0;"><label>N° TVA / BCE</label><input type="text" id="bdcClientVat" placeholder="BE0xxx.xxx.xxx"></div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Références</div>
+      <div class="field"><label>Donneur d'ordre</label><input type="text" id="bdcDonneur" autocorrect="on"></div>
+      <div class="field"><label>Référence / PO client</label><input type="text" id="bdcRef" placeholder="N° de bon de commande, dossier…"></div>
+      <div class="field-row">
+        <div class="field" style="margin-bottom:0;"><label>Véhicule (plaque)</label><input type="text" id="bdcPlaque"></div>
+        <div class="field" style="margin-bottom:0;"><label>N° intervention</label><input type="text" id="bdcInterventionNumero" readonly></div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-title">Prestations</div>
+      <div id="bdcLignes"></div>
+      <button type="button" class="ghost" onclick="bdcAjouterLigne()">+ Ajouter une ligne</button>
+      <div class="ticket-row" style="border:0; padding:10px 0 0; margin-top:6px;">
+        <span class="l" style="font-weight:700;">Total</span><span class="v" id="bdcTotal" style="font-weight:700;">—</span>
+      </div>
+      <div class="km-mention" style="margin-top:6px;">Franchise de la taxe — TVA non applicable, art. 56bis du Code de la TVA (même mention que sur tes factures).</div>
+    </div>
+
+    <div class="field"><label>Notes (facultatif)</label><textarea id="bdcNotes" rows="2" style="width:100%;"></textarea></div>
+
+    <button class="primary" onclick="bdcValider()">Valider le bon de commande (PDF)</button>
+    <button class="primary" id="bdcBtnPdf" style="display:none;" onclick="partagerPdf(construirePdfBdc(BDC_EN_COURS), BDC_EN_COURS.numero + '.pdf', 'Bon de commande ' + BDC_EN_COURS.numero, 'Bon de commande partagé', 'Bon de commande téléchargé')">📄 Télécharger le PDF</button>
+    <button class="ghost" style="margin-top:8px;" onclick="bdcEnregistrerBrouillon()">Enregistrer le brouillon</button>
+    <button class="ghost close-modal" onclick="bdcFermer()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalListeBdcBg">
+  <div class="modal">
+    <div class="eyebrow">Documents</div>
+    <h1 class="page-title" style="font-size:24px;">Bons de commande</h1>
+    <p class="page-sub">Chaque bon garde son numéro et reste lié à sa facture et à son intervention.</p>
+    <div id="listeBdcContenu"></div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalListeBdcBg').classList.remove('show')">Fermer</button>
   </div>
 </div>
 
@@ -4546,7 +4910,7 @@ const TYPE_LABELS = {
 };
 
 const DEFAULT_RATES = {
-  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:70, depannage:65,
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:55, depannage:65,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
@@ -4562,7 +4926,7 @@ const DEFAULT_RATES = {
   payconiqFixe:0.06,
   revlinkPct:1.0, revlinkFixe:0.20,
   plancherRemorquage:140,
-  km_retour_longue_distance:1.20, retourLongueDistanceSeuil:50
+  km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
 const TYPES_PLANCHER = ['depannage', 'transfert'];
@@ -6274,7 +6638,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v188';
+const APP_VERSION = 'jm-express-bon-v194';
 
 function etatVersion(type, texte, heure){
   const el = document.getElementById('mentionVersion');
@@ -7293,6 +7657,28 @@ async function loadRates(){
     if(res && res.value) RATES = {...DEFAULT_RATES, ...JSON.parse(res.value)};
   }catch(e){ /* pas encore de réglages enregistrés */ }
   try{
+    let dejaFait = false;
+    try{ const m = await window.storage.get('migrSeuilLD30'); dejaFait = !!(m && m.value); }catch(e){}
+    if(!dejaFait){
+      if(RATES.retourLongueDistanceSeuil === 50){
+        RATES.retourLongueDistanceSeuil = 30;
+        await window.storage.set('rates', JSON.stringify({...RATES}));
+      }
+      await window.storage.set('migrSeuilLD30', '1');
+    }
+  }catch(e){ /* sans conséquence : le seuil reste modifiable dans les Réglages */ }
+  try{
+    let dejaFait = false;
+    try{ const m = await window.storage.get('migrTransfert55'); dejaFait = !!(m && m.value); }catch(e){}
+    if(!dejaFait){
+      if(RATES.transfert === 70){
+        RATES.transfert = 55;
+        await window.storage.set('rates', JSON.stringify({...RATES}));
+      }
+      await window.storage.set('migrTransfert55', '1');
+    }
+  }catch(e){ /* sans conséquence : le forfait reste modifiable dans les Réglages */ }
+  try{
     const res2 = await window.storage.get('baseAddress');
     if(res2 && res2.value) BASE_ADDRESS = res2.value;
   }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
@@ -7348,6 +7734,8 @@ const INVOICE_STRINGS = {
     km:'Kilométrage : ', kmAllerRetour:' km × 2 (aller-retour)', kmSimple:' km',
     kmMention:"Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.",
     forfaitBase:'Forfait de base', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage',
+    ctPrestataire:'Présentation au contrôle technique par prestataire', ctRetour:'Transport retour après contrôle', ctOfficiels:'Frais officiels du contrôle (avancés)',
+    fraisDivers:'Frais divers', manutention:'Manutention / désembourbement (supplément)', annulation:'Déplacement inutile / annulation', retourLD:'dont retour à vide longue distance', arrondi:'Arrondi à l\'euro',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
     supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT', ctRepasse:'2e passage contrôle technique',
@@ -7368,6 +7756,8 @@ const INVOICE_STRINGS = {
     km:'Kilometers : ', kmAllerRetour:' km × 2 (heen-terug)', kmSimple:' km',
     kmMention:'Interventiekilometers: werkelijk door het takelvoertuig afgelegde afstand, inclusief de lege terugrit indien nodig.',
     forfaitBase:'Basisforfait', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen',
+    ctPrestataire:'Aanbieding bij de keuring door dienstverlener', ctRetour:'Terugtransport na keuring', ctOfficiels:'Officiële keuringskosten (voorgeschoten)',
+    fraisDivers:'Diverse kosten', manutention:'Handling / losmaken (toeslag)', annulation:'Nutteloze verplaatsing / annulering', retourLD:'waarvan lege terugrit lange afstand', arrondi:'Afronding op de euro',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
     supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN', ctRepasse:'2e keuringsbeurt',
@@ -7388,6 +7778,8 @@ const INVOICE_STRINGS = {
     km:'Mileage: ', kmAllerRetour:' km × 2 (round trip)', kmSimple:' km',
     kmMention:'Intervention mileage: distance actually driven by the tow truck, including the empty return trip when required.',
     forfaitBase:'Base rate', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge',
+    ctPrestataire:'MOT presentation by service provider', ctRetour:'Return transport after MOT', ctOfficiels:'Official MOT fees (advanced)',
+    fraisDivers:'Miscellaneous costs', manutention:'Handling / recovery (surcharge)', annulation:'Wasted trip / cancellation', retourLD:'incl. long-distance empty return', arrondi:'Rounding to the euro',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
     supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING', ctRepasse:'2nd inspection visit',
@@ -8673,6 +9065,8 @@ function openInvoice(){
 function closeInvoice(){
   document.getElementById('modalInvoiceBg').classList.remove('show');
   factureEnCoursKey = null;
+  FACTURE_CORRIGEE_CTX = null;
+  const bn = document.getElementById('invCorrectionBanner'); if(bn) bn.style.display = 'none';
 }
 
 let factureEnCoursKey = null;
@@ -8782,8 +9176,10 @@ async function genererNoteCredit(){
       setTimeout(()=>URL.revokeObjectURL(url), 5000);
     }
     showToast('Note de crédit générée');
+    const cleNc = ncKeyEnCours;
     closeNoteCredit();
     loadHistory();
+    ouvrirApresNoteCredit(cleNc, ncNumber, d.invoiceNumber);
   }catch(e){
     console.error(e);
     showToast('Erreur lors de la génération de la note de crédit');
@@ -9009,22 +9405,165 @@ async function genererRecu(){
   }
 }
 
+function lignesDocument(c, lang, meta){
+  const S = INVOICE_STRINGS[lang] || INVOICE_STRINGS.fr;
+  const extraLabels = lang === 'nl' ? TYPE_LABELS_NL : (lang === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
+  const L = [];
+  const add = (label, amount, type) => { if(amount) L.push({label, amount, type: type || 'ligne'}); };
+  if(c.annulation){
+    add(S.annulation, c.annulationMontant || 0, 'annulation');
+    add(S.fraisDivers + (c.fraisLibelle ? ' — ' + c.fraisLibelle : ''), c.fraisMontant || 0);
+  } else {
+    add(S.forfaitBase, c.base, 'forfait');
+    add(S.kilometrage + (c.retourLongueDistance && c.retourLDCost > 0 ? ' (' + S.retourLD + ' ' + fmt(c.retourLDCost) + ')' : ''), c.kmCost, 'km');
+    add(S.forfaitMinimum, c.plancherComplement > 0 ? c.plancherComplement : 0);
+    (c.extras || []).forEach(e => add('+ ' + (extraLabels[e.type] || e.label), e.cost, 'extra'));
+    if(c.nuit) add(S.majorationNuit + formatHourShort(meta.nightStart) + '-' + formatHourShort(meta.nightEnd) + ', +' + meta.nuitPct + '%)', c.nuitCost, 'majoration');
+    if(c.we) add(S.majorationWe + meta.wePct + '%)', c.weCost, 'majoration');
+    if(c.auto) add(S.majorationAuto, c.autoCost, 'majoration');
+    add(S.fournitureBatterie, c.battCost);
+    add(S.deplacementBatterie, c.battDeplacementCost);
+    add(S.supplementPasRoues, c.pasRouesFee);
+    if(c.vehicleFee){ const vl = {suv:S.vehiculeSuv, electrique:S.vehiculeElectrique, utilitaire:S.vehiculeUtilitaire}; add(vl[c.vehicleType] || S.vehiculeSuv, c.vehicleFee); }
+    if(c.gardiennageCost) add(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
+    if(c.attenteCost) add(S.attente + c.minutesAttente + S.minAttente, c.attenteCost);
+    add(S.ctRepasse, c.ctRepasse);
+    add(S.fraisDivers + (c.fraisLibelle ? ' — ' + c.fraisLibelle : ''), c.fraisMontant || 0);
+    add(S.manutention, c.manutSupp || 0);
+    add(S.ctOfficiels, c.ctOfficielsCost || 0);
+    add(S.ctPrestataire, c.ctPrestataireCost || 0);
+    add(S.ctRetour + (c.retourCTKm ? ' (' + fmtKm(c.retourCTKm) + ' km)' : ''), c.ctRetourCost || 0);
+  }
+  if(c.remiseAmount > 0) L.push({label:S.remise, amount:-c.remiseAmount, type:'remise'});
+  if(typeof c.total === 'number'){
+    const somme = L.reduce((s, l) => s + l.amount, 0);
+    const ecart = Math.round((c.total - somme) * 100) / 100;
+    if(Math.abs(ecart) >= 0.01) L.push({label: S.arrondi, amount: ecart, type:'arrondi'});
+  }
+  return L;
+}
+
+async function lireMetaFactureDepuisFormulaire(c){
+  const lang = INVOICE_LANG || 'fr';
+  const S = INVOICE_STRINGS[lang];
+  const delai = parseInt(document.getElementById('invDelaiPaiement').value);
+  const jours = isNaN(delai) ? 30 : delai;
+  const meta = {
+    lang,
+    clientName: document.getElementById('invClientName').value.trim() || 'Client',
+    clientAddress: document.getElementById('invClientAddress').value.trim(),
+    clientCompany: document.getElementById('invClientCompany').value.trim(),
+    clientVat: document.getElementById('invClientVat').value.trim(),
+    attestLeveeSaisie: c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked,
+    etatLieuxNotes: TYPES_REMORQUAGE.includes(c.type) ? document.getElementById('etatLieuxNotes').value.trim() : '',
+    delai: jours,
+    dateIso: new Date().toISOString(),
+    echeanceIso: new Date(Date.now() + jours * 86400000).toISOString().slice(0,10),
+    nuitPct: RATES.nuitPct, wePct: RATES.wePct, nightStart: NIGHT_START, nightEnd: NIGHT_END,
+    sigDepotNom: (document.getElementById('sigDepotNom').value || '').trim(),
+    sig: null, sigDepot: null
+  };
+  meta.dateStr = new Date(meta.dateIso).toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'});
+  meta.echeanceStr = new Date(meta.echeanceIso + 'T00:00:00').toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'});
+  if(SIG_STATE.sigCanvas && SIG_STATE.sigCanvas.hasContent){
+    const s = await canvasSignatureToRgb('sigCanvas'); meta.sig = {width:s.width, height:s.height, b64:octetsVersBase64(s.deflatedRgb)};
+  }
+  if(SIG_STATE.sigCanvasDepot && SIG_STATE.sigCanvasDepot.hasContent){
+    const s = await canvasSignatureToRgb('sigCanvasDepot'); meta.sigDepot = {width:s.width, height:s.height, b64:octetsVersBase64(s.deflatedRgb)};
+  }
+  return meta;
+}
+function octetsVersBase64(u8){ let s=''; for(let i=0;i<u8.length;i++) s += String.fromCharCode(u8[i]); return btoa(s); }
+function base64VersOctets(b64){ const s = atob(b64); const u = new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return u; }
+
 async function genererFacture(){
   if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
   showToast('Génération de la facture…');
-
   try{
-    const c = lastCalc;
-    const lang = INVOICE_LANG || 'fr';
+    const c = JSON.parse(JSON.stringify(lastCalc));
+    const meta = await lireMetaFactureDepuisFormulaire(c);
+    if(FACTURE_CORRIGEE_CTX){ meta.corrigeFacture = FACTURE_CORRIGEE_CTX.corrigeFacture; meta.suiteNoteCredit = FACTURE_CORRIGEE_CTX.noteCredit; }
+    meta.invoiceNumber = await nextInvoiceNumber();
+    const pdfBytes = construirePdfFacture(c, meta);
+    await partagerPdf(pdfBytes, meta.invoiceNumber + '.pdf', 'Facture ' + meta.invoiceNumber, 'Facture générée', 'Facture téléchargée');
+    if(factureEnCoursKey){
+      try{
+        const res = await window.storage.get(factureEnCoursKey);
+        const d = JSON.parse(res.value);
+        d.invoiceNumber = meta.invoiceNumber;
+        d.invoicedTotal = c.total;
+        d.invoicedDate = meta.dateIso;
+        d.invoiceDelai = meta.delai;
+        d.invoiceEcheance = meta.echeanceIso;
+        d.factures = d.factures || [];
+        d.factures.push({numero: meta.invoiceNumber, date: meta.dateIso, total: c.total, calc: c, meta,
+                         bdcOrigine: BDC_POUR_FACTURE_EN_COURS || null,
+                         corrigeFacture: FACTURE_CORRIGEE_CTX ? FACTURE_CORRIGEE_CTX.corrigeFacture : null,
+                         suiteNoteCredit: FACTURE_CORRIGEE_CTX ? FACTURE_CORRIGEE_CTX.noteCredit : null});
+        await window.storage.set(factureEnCoursKey, JSON.stringify(d));
+        if(BDC_POUR_FACTURE_EN_COURS){ await lierFactureAuBdc(BDC_POUR_FACTURE_EN_COURS, meta.invoiceNumber); }
+        loadHistory();
+      }catch(e){ /* la facture reste valable même si l'enregistrement du numéro échoue */ }
+      factureEnCoursKey = null;
+    }
+    BDC_POUR_FACTURE_EN_COURS = null;
+    closeInvoice();
+  }catch(e){
+    console.error(e);
+    showToast('Erreur lors de la génération de la facture');
+  }
+}
+
+async function partagerPdf(pdfBytes, fileName, titre, toastPartage, toastTelechargement){
+  const blob = new Blob([pdfBytes], {type:'application/pdf'});
+  const file = new File([blob], fileName, {type:'application/pdf'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    await navigator.share({files:[file], title: titre, text: 'JM Express Auto Dépannage — ' + titre});
+    showToast(toastPartage);
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    showToast(toastTelechargement);
+  }
+}
+
+async function reimprimerFacture(key, numero){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    const f = (d.factures || []).find(x => x.numero === (numero || d.invoiceNumber));
+    if(f){
+      const pdfBytes = construirePdfFacture(f.calc, f.meta);
+      await partagerPdf(pdfBytes, f.numero + '.pdf', 'Facture ' + f.numero, 'Facture réimprimée à l\'identique', 'Facture réimprimée à l\'identique');
+      return;
+    }
+    if(!d.invoiceNumber){ showToast('Aucune facture émise pour cette intervention'); return; }
+    const c = JSON.parse(JSON.stringify(d));
+    const lang = 'fr', S = INVOICE_STRINGS[lang];
+    const meta = {lang, invoiceNumber: d.invoiceNumber, clientName:'Client', clientAddress:'', clientCompany:'', clientVat:'',
+      attestLeveeSaisie:false, etatLieuxNotes: d.etatLieuxNotes || '', delai: d.invoiceDelai || 30,
+      dateIso: d.invoicedDate, echeanceIso: d.invoiceEcheance || '', nuitPct: RATES.nuitPct, wePct: RATES.wePct,
+      nightStart: NIGHT_START, nightEnd: NIGHT_END, sigDepotNom:'', sig:null, sigDepot:null,
+      dateStr: new Date(d.invoicedDate).toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'}),
+      echeanceStr: d.invoiceEcheance ? new Date(d.invoiceEcheance + 'T00:00:00').toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'}) : '',
+      avertissement: 'Réimpression — facture émise avant la conservation des instantanés : détail issu des données actuelles de l\'intervention.'};
+    const pdfBytes = construirePdfFacture(c, meta);
+    await partagerPdf(pdfBytes, d.invoiceNumber + '.pdf', 'Facture ' + d.invoiceNumber, 'Facture réimprimée', 'Facture réimprimée');
+  }catch(e){ console.error(e); showToast('Impossible de réimprimer cette facture'); }
+}
+
+function construirePdfFacture(c, meta){
+  {
+    const lang = meta.lang || 'fr';
     const S = INVOICE_STRINGS[lang];
-    const clientName = document.getElementById('invClientName').value.trim() || 'Client';
-    const clientAddress = document.getElementById('invClientAddress').value.trim();
-    const clientCompany = document.getElementById('invClientCompany').value.trim();
-    const clientVat = document.getElementById('invClientVat').value.trim();
-    const attestLeveeSaisie = c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked;
-    const etatLieuxNotesInv = TYPES_REMORQUAGE.includes(c.type) ? document.getElementById('etatLieuxNotes').value.trim() : '';
-    const invoiceNumber = await nextInvoiceNumber();
-    const dateStr = new Date().toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'});
+    const clientName = meta.clientName, clientAddress = meta.clientAddress, clientCompany = meta.clientCompany, clientVat = meta.clientVat;
+    const attestLeveeSaisie = !!meta.attestLeveeSaisie;
+    const etatLieuxNotesInv = meta.etatLieuxNotes || '';
+    const invoiceNumber = meta.invoiceNumber;
+    const dateStr = meta.dateStr;
 
     const pdf = MiniPDF(595, 842); // A4
     let y = 50;
@@ -9044,12 +9583,8 @@ async function genererFacture(){
     pdf.text(50, y, S.facture, {font:'F2', size:15});
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, S.numero + invoiceNumber, {size:10});
-    {
-      const delaiPdf = parseInt(document.getElementById('invDelaiPaiement').value);
-      const joursPdf = isNaN(delaiPdf) ? 30 : delaiPdf;
-      const echPdf = new Date(Date.now() + joursPdf * 86400000);
-      pdf.text(400, y + 13, 'Échéance : ' + echPdf.toLocaleDateString(S.locale, {day:'2-digit',month:'2-digit',year:'numeric'}), {size:9, gray:0.35});
-    }
+    if(meta.echeanceStr){ pdf.text(400, y + 13, 'Échéance : ' + meta.echeanceStr, {size:9, gray:0.35}); }
+    if(meta.corrigeFacture){ y += 13; pdf.text(400, y, 'Remplace la facture ' + meta.corrigeFacture + (meta.suiteNoteCredit ? ' (note de crédit ' + meta.suiteNoteCredit + ')' : ''), {size:8.5, gray:0.4}); }
     if(c.numero){ y += 13; pdf.text(400, y, 'Intervention : ' + c.numero, {size:9, gray:0.4}); }
     y += 16;
     pdf.text(400, y, S.date + dateStr, {size:10});
@@ -9127,25 +9662,8 @@ async function genererFacture(){
       y += 16;
       lineIdx++;
     };
-    const extraLabels = lang === 'nl' ? TYPE_LABELS_NL : (lang === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
-    priceLine(S.forfaitBase, c.base);
-    if(c.kmCost) priceLine(S.kilometrage, c.kmCost);
-    if(c.plancherComplement > 0) priceLine(S.forfaitMinimum, c.plancherComplement);
-    c.extras.forEach(e => priceLine('+ ' + (extraLabels[e.type] || e.label), e.cost));
-    if(c.nuit) priceLine(S.majorationNuit + formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END) + ', +' + RATES.nuitPct + '%)', c.nuitCost);
-    if(c.we) priceLine(S.majorationWe + RATES.wePct + '%)', c.weCost);
-    if(c.auto) priceLine(S.majorationAuto, c.autoCost);
-    if(c.battCost) priceLine(S.fournitureBatterie, c.battCost);
-    if(c.battDeplacementCost) priceLine(S.deplacementBatterie, c.battDeplacementCost);
-    if(c.pasRouesFee) priceLine(S.supplementPasRoues, c.pasRouesFee);
-    if(c.vehicleFee){
-      const vehicleLabelsPdf = {suv:S.vehiculeSuv, electrique:S.vehiculeElectrique, utilitaire:S.vehiculeUtilitaire};
-      priceLine(vehicleLabelsPdf[c.vehicleType] || S.vehiculeSuv, c.vehicleFee);
-    }
-    if(c.gardiennageCost) priceLine(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
-    if(c.attenteCost) priceLine(S.attente + c.minutesAttente + S.minAttente, c.attenteCost);
-    if(c.ctRepasse) priceLine(S.ctRepasse, c.ctRepasse);
-    if(c.remiseAmount > 0) priceLine(S.remise, -c.remiseAmount);
+    lignesDocument(c, lang, meta).forEach(l => priceLine(l.label, l.amount));
+    if(meta.avertissement){ y += 4; pdf.text(56, y, meta.avertissement, {size:7.5, gray:0.5}); y += 12; }
 
     y += 8;
     pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
@@ -9183,17 +9701,15 @@ async function genererFacture(){
     const sigY = qrY + qrSizePt + 32 + attestHeight;
     pdf.text(50, sigY, S.signature, {size:9.5, gray:0.3});
     pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
-    if(SIG_STATE.sigCanvas && SIG_STATE.sigCanvas.hasContent){
-      const sig = await canvasSignatureToRgb('sigCanvas');
-      pdf.addRgbImage('Sig', sig.width, sig.height, sig.deflatedRgb);
+    if(meta.sig){
+      pdf.addRgbImage('Sig', meta.sig.width, meta.sig.height, base64VersOctets(meta.sig.b64));
       pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
     }
-    if(SIG_STATE.sigCanvasDepot && SIG_STATE.sigCanvasDepot.hasContent){
-      const nomRecep = (document.getElementById('sigDepotNom').value || '').trim();
+    if(meta.sigDepot){
+      const nomRecep = meta.sigDepotNom || '';
       pdf.text(300, sigY, 'Signature a la reception' + (nomRecep ? ' - ' + nomRecep : ''), {size:9.5, gray:0.3});
       pdf.rect(300, sigY + 8, 220, 62, {mode:'S', gray:0.7});
-      const sig2 = await canvasSignatureToRgb('sigCanvasDepot');
-      pdf.addRgbImage('SigDepot', sig2.width, sig2.height, sig2.deflatedRgb);
+      pdf.addRgbImage('SigDepot', meta.sigDepot.width, meta.sigDepot.height, base64VersOctets(meta.sigDepot.b64));
       pdf.drawImage('SigDepot', 302, sigY + 10, 216, 58);
     }
 
@@ -9207,48 +9723,379 @@ async function genererFacture(){
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
     pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
-    const pdfBytes = pdf.build();
-    const blob = new Blob([pdfBytes], {type:'application/pdf'});
-    const fileName = invoiceNumber + '.pdf';
-    const file = new File([blob], fileName, {type:'application/pdf'});
-
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({
-        files:[file],
-        title: 'Facture ' + invoiceNumber,
-        text: 'JM Express Auto Dépannage — Facture ' + invoiceNumber
-      });
-      showToast('Facture générée');
-    } else {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fileName;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url), 5000);
-      showToast('Facture téléchargée');
-    }
-    if(factureEnCoursKey){
-      try{
-        const res = await window.storage.get(factureEnCoursKey);
-        const d = JSON.parse(res.value);
-        d.invoiceNumber = invoiceNumber;
-        d.invoicedTotal = c.total;
-        d.invoicedDate = new Date().toISOString();
-        const delai = parseInt(document.getElementById('invDelaiPaiement').value);
-        const jours = isNaN(delai) ? 30 : delai;
-        d.invoiceDelai = jours;
-        d.invoiceEcheance = new Date(Date.now() + jours * 86400000).toISOString().slice(0,10);
-        await window.storage.set(factureEnCoursKey, JSON.stringify(d));
-        loadHistory();
-      }catch(e){ /* la facture reste valable même si l'enregistrement du numéro échoue */ }
-      factureEnCoursKey = null;
-    }
-    closeInvoice();
-  }catch(e){
-    console.error(e);
-    showToast('Erreur lors de la génération de la facture');
+    return pdf.build();
   }
 }
+let BDC_POUR_FACTURE_EN_COURS = null;   // bon de commande dont on est en train de créer la facture
+let FACTURE_CORRIGEE_CTX = null;        // {corrigeFacture, noteCredit, key, calcInstantane, calcActuel} pendant une facture corrigée
+let APRES_NC = null;                    // {key, ncNumber, factureNumero} après création d'une note de crédit
+
+function ouvrirApresNoteCredit(key, ncNumber, factureNumero){
+  APRES_NC = {key, ncNumber, factureNumero};
+  document.getElementById('apresNcTitre').textContent = 'Note de crédit ' + ncNumber + ' créée avec succès.';
+  document.getElementById('modalApresNcBg').classList.add('show');
+}
+function apresNcTerminer(){ document.getElementById('modalApresNcBg').classList.remove('show'); APRES_NC = null; }
+async function apresNcBdc(){
+  const a = APRES_NC; apresNcTerminer(); if(!a) return;
+  await creerBdcDepuisFacture(a.key, {noteCredit: a.ncNumber});
+}
+async function apresNcFactureCorrigee(){
+  const a = APRES_NC; apresNcTerminer(); if(!a) return;
+  await ouvrirFactureCorrigee(a.key, a.factureNumero, a.ncNumber);
+}
+async function ouvrirFactureCorrigee(key, factureNumero, ncNumber){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    const f = (d.factures || []).find(x => x.numero === factureNumero);
+    const calcInstantane = f ? JSON.parse(JSON.stringify(f.calc)) : null;
+    lastCalc = calcInstantane || JSON.parse(JSON.stringify(d));
+    factureEnCoursKey = key;
+    FACTURE_CORRIGEE_CTX = {corrigeFacture: factureNumero, noteCredit: ncNumber, key, calcInstantane, calcActuel: d};
+    openInvoice();
+    const meta = f ? f.meta : {};
+    document.getElementById('invClientName').value = meta.clientName || d.clientNom || '';
+    document.getElementById('invClientCompany').value = meta.clientCompany || '';
+    document.getElementById('invClientAddress').value = meta.clientAddress || '';
+    document.getElementById('invClientVat').value = meta.clientVat || '';
+    if(meta.delai) document.getElementById('invDelaiPaiement').value = meta.delai;
+    if(meta.lang) setInvoiceLang(meta.lang);
+    majBanniereFactureCorrigee();
+  }catch(e){ showToast('Impossible de retrouver cette facture'); }
+}
+function majBanniereFactureCorrigee(){
+  const ctx = FACTURE_CORRIGEE_CTX; const bn = document.getElementById('invCorrectionBanner');
+  if(!ctx || !bn){ if(bn) bn.style.display = 'none'; return; }
+  const surInstantane = !!ctx.calcInstantane && lastCalc === ctx.calcInstantane;
+  const totalInst = ctx.calcInstantane ? ctx.calcInstantane.total : null;
+  const totalAct = ctx.calcActuel ? ctx.calcActuel.total : null;
+  let html = '<strong>Facture corrigée</strong> — remplace ' + ctx.corrigeFacture + ' (note de crédit ' + ctx.noteCredit + '). '
+    + 'Lignes reprises de ' + (surInstantane ? 'l\'instantané de la facture d\'origine' : 'l\'intervention actuelle') + ' : <strong>' + fmt(lastCalc.total) + '</strong>.';
+  if(ctx.calcInstantane && totalAct !== null && Math.abs(totalAct - totalInst) >= 0.01){
+    html += surInstantane
+      ? ' <a href="#" class="lien-verif" onclick="basculerBaseFactureCorrigee(\'actuel\'); return false;">Utiliser l\'intervention actuelle (' + fmt(totalAct) + ')</a>'
+      : ' <a href="#" class="lien-verif" onclick="basculerBaseFactureCorrigee(\'instantane\'); return false;">Revenir à l\'instantané d\'origine (' + fmt(totalInst) + ')</a>';
+  }
+  if(!ctx.calcInstantane) html += ' (facture d\'origine sans instantané : données actuelles de l\'intervention.)';
+  bn.innerHTML = html; bn.style.display = 'block';
+}
+function basculerBaseFactureCorrigee(quelle){
+  const ctx = FACTURE_CORRIGEE_CTX; if(!ctx) return;
+  lastCalc = (quelle === 'actuel') ? JSON.parse(JSON.stringify(ctx.calcActuel)) : ctx.calcInstantane;
+  if(quelle !== 'actuel') lastCalc = ctx.calcInstantane;
+  majBanniereFactureCorrigee();
+}
+
+let AF_KEY = null;          // intervention dont on regarde la facture
+let BDC_EN_COURS = null;    // bon de commande ouvert dans la fenêtre (objet complet)
+
+async function ouvrirActionsFacture(key){
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    if(!d.invoiceNumber){ genererFactureDepuisJournal(key); return; }
+    AF_KEY = key;
+    const f = (d.factures || []).find(x => x.numero === d.invoiceNumber);
+    document.getElementById('afTitre').textContent = 'Facture ' + d.invoiceNumber;
+    const dateTxt = d.invoicedDate ? new Date(d.invoicedDate).toLocaleDateString('fr-BE') : '';
+    document.getElementById('afSousTitre').textContent =
+      'Émise le ' + dateTxt + ' — ' + fmt(d.invoicedTotal) + (f ? ' · instantané conservé, réimpression à l\'identique.' : ' · émise avant la conservation des instantanés.');
+    const liens = [];
+    if(f && f.bdcOrigine) liens.push('Créée à partir du bon de commande ' + f.bdcOrigine);
+    if(d.bonsCommande && d.bonsCommande.length) liens.push('Bon de commande associé : ' + d.bonsCommande.join(', '));
+    if(d.creditNotes && d.creditNotes.length) liens.push('Notes de crédit : ' + d.creditNotes.map(n => n.number + ' (' + fmt(n.amount) + ')').join(', '));
+    if(f && f.corrigeFacture) liens.push('Facture corrigée : remplace ' + f.corrigeFacture + (f.suiteNoteCredit ? ' après la note de crédit ' + f.suiteNoteCredit : ''));
+    const remplacantes = (d.factures || []).filter(x => x.corrigeFacture === d.invoiceNumber).map(x => x.numero);
+    if(remplacantes.length) liens.push('Remplacée par la facture corrigée : ' + remplacantes.join(', '));
+    if((d.factures || []).length > 1) liens.push('Factures émises pour cette intervention : ' + d.factures.map(x => x.numero).join(', '));
+    const box = document.getElementById('afLiens');
+    box.style.display = liens.length ? 'block' : 'none';
+    box.innerHTML = liens.map(l => '🔗 ' + l).join('<br>');
+    document.getElementById('modalActionsFactureBg').classList.add('show');
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); }
+}
+function afFermer(){ document.getElementById('modalActionsFactureBg').classList.remove('show'); }
+async function afReimprimer(){ const k = AF_KEY; afFermer(); if(k) await reimprimerFacture(k); }
+function afNoteCredit(){ const k = AF_KEY; afFermer(); if(k) ouvrirNoteCredit(k); }
+async function afCreerBdc(){ const k = AF_KEY; afFermer(); if(k) await creerBdcDepuisFacture(k); }
+async function afNouvelleFacture(){
+  const k = AF_KEY; if(!k) return;
+  try{
+    const res = await window.storage.get(k); const d = JSON.parse(res.value);
+    const ok = confirm('Cette intervention a déjà la facture ' + d.invoiceNumber + '. Émettre une NOUVELLE facture avec un nouveau numéro ?\n\nLa facture existante reste inchangée dans l\'historique. Pour annuler ou corriger un montant déjà facturé, utilise d\'abord une note de crédit.');
+    if(!ok) return;
+    afFermer();
+    genererFactureDepuisJournal(k);
+  }catch(e){ showToast('Impossible de retrouver cette intervention'); }
+}
+
+async function nextBdcNumber(){
+  const annee = new Date().getFullYear();
+  let n = 1;
+  try{
+    const res = await window.storage.get('bdcCounter');
+    const cpt = JSON.parse(res.value);
+    if(cpt && cpt.annee === annee) n = (cpt.n || 0) + 1;
+  }catch(e){}
+  await window.storage.set('bdcCounter', JSON.stringify({annee, n}));
+  return 'BDC-' + annee + '-' + String(n).padStart(3, '0');
+}
+async function tousLesBdc(){
+  const list = await window.storage.list('bdc:');
+  const out = [];
+  for(const k of (list.keys || [])){
+    try{ const r = await window.storage.get(k); out.push({key:k, data: JSON.parse(r.value)}); }catch(e){}
+  }
+  return out.sort((a,b) => (b.data.creeLe || '').localeCompare(a.data.creeLe || ''));
+}
+async function sauverBdc(b){
+  if(!b.key) b.key = 'bdc:' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+  await window.storage.set(b.key, JSON.stringify(b));
+  return b.key;
+}
+
+async function creerBdcDepuisFacture(key, options){
+  options = options || {};
+  try{
+    const res = await window.storage.get(key);
+    const d = JSON.parse(res.value);
+    const f = (d.factures || []).find(x => x.numero === d.invoiceNumber);
+    const c = f ? f.calc : d;
+    const meta = f ? f.meta : {lang:'fr', clientName: d.clientNom || '', clientCompany:'', clientAddress:'', clientVat:'',
+                               nuitPct: RATES.nuitPct, wePct: RATES.wePct, nightStart: NIGHT_START, nightEnd: NIGHT_END};
+    const LBL = {assurance:'Assurance', assistance:"Société d'assistance", garage:'Garage / concession',
+                 police:'Police / autorité', leasing:'Société de leasing', autre:'Autre professionnel'};
+    const donneur = c.donneurOrdre ? [LBL[c.donneurOrdre] || c.donneurOrdre, c.donneurNom].filter(Boolean).join(' — ') : '';
+    BDC_EN_COURS = {
+      key: null, numero: null, statut: 'brouillon', creeLe: new Date().toISOString(),
+      interventionKey: key, interventionNumero: c.numero || d.numero || '', plaque: c.plaque || d.plaque || '',
+      factureOrigine: d.invoiceNumber, factureDate: d.invoicedDate || null, sourceFigee: !!f,
+      noteCreditOrigine: options.noteCredit || null,
+      client: {name: meta.clientName || '', company: meta.clientCompany || '', address: meta.clientAddress || '', vat: meta.clientVat || ''},
+      donneur, ref: c.refDossier || d.refDossier || '',
+      description: typeLabelComplet(c) + (c.from ? ' — ' + c.from + ' → ' + c.to : ''),
+      lignes: lignesDocument(c, meta.lang || 'fr', meta).map(l => ({label: l.label, qty: 1, unit: Math.round(l.amount * 100) / 100})),
+      notes: '', factureCreee: null
+    };
+    ouvrirBdc();
+  }catch(e){ console.error(e); showToast('Impossible de créer le bon de commande'); }
+}
+
+function bdcTotalCalc(b){
+  return Math.round(b.lignes.reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.unit) || 0), 0) * 100) / 100;
+}
+function ouvrirBdc(){
+  const b = BDC_EN_COURS; if(!b) return;
+  const modifiable = b.statut !== 'valide';
+  document.getElementById('bdcTitre').textContent = b.numero ? 'Bon de commande ' + b.numero : 'Bon de commande — brouillon';
+  document.getElementById('bdcOrigine').textContent =
+    (b.factureOrigine ? 'Créé à partir de la facture ' + b.factureOrigine : '') + (b.noteCreditOrigine ? ' · note de crédit ' + b.noteCreditOrigine : '')
+    + (b.interventionNumero ? ' · intervention ' + b.interventionNumero : '') + (b.factureCreee ? ' · facture créée : ' + b.factureCreee : '');
+  const av = document.getElementById('bdcAvertissement');
+  av.style.display = (!b.sourceFigee && b.factureOrigine) ? 'block' : 'none';
+  av.textContent = 'Facture émise avant la conservation des instantanés : les lignes viennent des données actuelles de l\'intervention. Vérifie-les.';
+  document.getElementById('bdcClientName').value = b.client.name;
+  document.getElementById('bdcClientCompany').value = b.client.company;
+  document.getElementById('bdcClientAddress').value = b.client.address;
+  document.getElementById('bdcClientVat').value = b.client.vat;
+  document.getElementById('bdcDonneur').value = b.donneur || '';
+  document.getElementById('bdcRef').value = b.ref || '';
+  document.getElementById('bdcPlaque').value = b.plaque || '';
+  document.getElementById('bdcInterventionNumero').value = b.interventionNumero || '';
+  document.getElementById('bdcNotes').value = b.notes || '';
+  ['bdcClientName','bdcClientCompany','bdcClientAddress','bdcClientVat','bdcDonneur','bdcRef','bdcPlaque','bdcNotes'].forEach(id => document.getElementById(id).readOnly = !modifiable);
+  bdcRendreLignes(modifiable);
+  document.querySelector('#modalBdcBg button.primary').style.display = modifiable ? 'block' : 'none';
+  document.querySelectorAll('#modalBdcBg button.ghost').forEach(bt => { if(bt.textContent.includes('brouillon') || bt.textContent.includes('Ajouter')) bt.style.display = modifiable ? '' : 'none'; });
+  const btnPdf = document.getElementById('bdcBtnPdf');
+  if(btnPdf) btnPdf.style.display = modifiable ? 'none' : 'block';
+  document.getElementById('modalBdcBg').classList.add('show');
+}
+function bdcRendreLignes(modifiable){
+  const b = BDC_EN_COURS;
+  const box = document.getElementById('bdcLignes');
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  box.innerHTML = b.lignes.map((l, i) => `
+    <div class="field-row" style="margin-bottom:8px; align-items:flex-end;">
+      <div class="field" style="flex:3; margin-bottom:0;"><label>${i === 0 ? 'Libellé' : ''}</label><input type="text" value="${esc(l.label)}" ${modifiable ? '' : 'readonly'} oninput="BDC_EN_COURS.lignes[${i}].label = this.value"></div>
+      <div class="field" style="flex:0.8; margin-bottom:0;"><label>${i === 0 ? 'Qté' : ''}</label><input type="number" step="0.5" value="${l.qty}" ${modifiable ? '' : 'readonly'} oninput="BDC_EN_COURS.lignes[${i}].qty = this.value; bdcMajTotal()"></div>
+      <div class="field" style="flex:1.3; margin-bottom:0;"><label>${i === 0 ? 'Prix (€)' : ''}</label><input type="number" step="0.01" value="${l.unit}" ${modifiable ? '' : 'readonly'} oninput="BDC_EN_COURS.lignes[${i}].unit = this.value; bdcMajTotal()"></div>
+      ${modifiable ? `<div class="del" style="padding:0 0 10px 4px; color:var(--red); font-size:18px; cursor:pointer;" onclick="bdcSupprimerLigne(${i})">✕</div>` : ''}
+    </div>`).join('');
+  bdcMajTotal();
+}
+function bdcMajTotal(){ document.getElementById('bdcTotal').textContent = fmt(bdcTotalCalc(BDC_EN_COURS)); }
+function bdcAjouterLigne(){ BDC_EN_COURS.lignes.push({label:'', qty:1, unit:0}); bdcRendreLignes(true); }
+function bdcSupprimerLigne(i){ BDC_EN_COURS.lignes.splice(i, 1); bdcRendreLignes(true); }
+function bdcLireFormulaire(){
+  const b = BDC_EN_COURS;
+  b.client = {name: document.getElementById('bdcClientName').value.trim(), company: document.getElementById('bdcClientCompany').value.trim(),
+              address: document.getElementById('bdcClientAddress').value.trim(), vat: document.getElementById('bdcClientVat').value.trim()};
+  b.donneur = document.getElementById('bdcDonneur').value.trim();
+  b.ref = document.getElementById('bdcRef').value.trim();
+  b.plaque = document.getElementById('bdcPlaque').value.trim();
+  b.notes = document.getElementById('bdcNotes').value.trim();
+  b.lignes = b.lignes.filter(l => (l.label || '').trim() !== '' || (parseFloat(l.unit) || 0) !== 0)
+                     .map(l => ({label: l.label.trim(), qty: parseFloat(l.qty) || 0, unit: Math.round((parseFloat(l.unit) || 0) * 100) / 100}));
+  b.total = bdcTotalCalc(b);
+  return b;
+}
+function bdcFermer(){ document.getElementById('modalBdcBg').classList.remove('show'); BDC_EN_COURS = null; }
+async function bdcEnregistrerBrouillon(){
+  const b = bdcLireFormulaire();
+  await sauverBdc(b);
+  showToast('Brouillon enregistré');
+  bdcFermer();
+}
+async function bdcValider(){
+  const b = bdcLireFormulaire();
+  if(!b.lignes.length){ showToast('Ajoute au moins une ligne'); return; }
+  if(!b.client.name && !b.client.company){ showToast('Indique le client (nom ou société)'); return; }
+  if(!b.numero) b.numero = await nextBdcNumber();
+  b.statut = 'valide';
+  b.valideLe = new Date().toISOString();
+  await sauverBdc(b);
+  if(b.interventionKey){
+    try{
+      const res = await window.storage.get(b.interventionKey); const d = JSON.parse(res.value);
+      d.bonsCommande = d.bonsCommande || [];
+      if(!d.bonsCommande.includes(b.numero)) d.bonsCommande.push(b.numero);
+      await window.storage.set(b.interventionKey, JSON.stringify(d));
+    }catch(e){}
+  }
+  await partagerPdf(construirePdfBdc(b), b.numero + '.pdf', 'Bon de commande ' + b.numero, 'Bon de commande généré', 'Bon de commande téléchargé');
+  bdcFermer();
+  loadHistory();
+}
+
+function construirePdfBdc(b){
+  const pdf = MiniPDF(595, 842);
+  let y = 50;
+  pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+  pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+  pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+  pdf.text(393, 78, 'TOUJOURS PLUS LOIN', {font:'F2', size:8, rgb:[242,169,0], charSpace:1.3});
+  pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
+  pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
+  pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 13;
+  pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.3}); y += 20;
+  pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
+  pdf.text(50, y, 'BON DE COMMANDE', {font:'F2', size:15});
+  pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
+  pdf.text(400, y, 'N° ' + (b.numero || 'brouillon'), {size:10});
+  y += 16;
+  pdf.text(400, y, 'Date : ' + new Date(b.valideLe || b.creeLe).toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'}), {size:10});
+  if(b.interventionNumero){ y += 13; pdf.text(400, y, 'Intervention : ' + b.interventionNumero, {size:9, gray:0.4}); }
+  if(b.factureOrigine){ y += 13; pdf.text(400, y, 'Créé à partir de la facture ' + b.factureOrigine, {size:9, gray:0.4}); }
+  if(b.noteCreditOrigine){ y += 13; pdf.text(400, y, 'Note de crédit liée : ' + b.noteCreditOrigine, {size:9, gray:0.4}); }
+  y += 20;
+  pdf.text(50, y, 'CLIENT', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
+  if(b.client.name){ pdf.text(50, y, b.client.name, {size:11}); y += 14; }
+  if(b.client.company){ pdf.text(50, y, b.client.company, {size:10}); y += 14; }
+  if(b.client.address){ pdf.text(50, y, b.client.address, {size:10, gray:0.3}); y += 14; }
+  if(b.client.vat){ pdf.text(50, y, 'N° TVA : ' + b.client.vat, {size:10, gray:0.3}); y += 14; }
+  y += 8;
+  pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
+  pdf.text(50, y, 'RÉFÉRENCES', {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
+  if(b.description){ wrapText(b.description, 95).slice(0,2).forEach(l => { pdf.text(50, y, l, {size:10}); y += 13; }); }
+  if(b.donneur){ pdf.text(50, y, "Donneur d'ordre : " + b.donneur, {size:9.5, gray:0.3}); y += 13; }
+  if(b.ref){ pdf.text(50, y, 'Référence / PO : ' + b.ref, {size:9.5, gray:0.3}); y += 13; }
+  if(b.plaque){ pdf.text(50, y, 'Véhicule : ' + b.plaque, {size:9.5, gray:0.3}); y += 13; }
+  y += 10;
+  pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
+  pdf.text(56, y, 'Désignation', {font:'F2', size:8.5, gray:0.4}); pdf.text(380, y, 'Qté', {font:'F2', size:8.5, gray:0.4});
+  pdf.text(420, y, 'Prix', {font:'F2', size:8.5, gray:0.4}); pdf.text(480, y, 'Total', {font:'F2', size:8.5, gray:0.4}); y += 14;
+  b.lignes.forEach((l, i) => {
+    if(i % 2 === 1) pdf.rect(50, y-11, 495, 16, {mode:'f', gray:0.96});
+    const lib = l.label.length > 58 ? l.label.slice(0, 57) + '…' : l.label;
+    pdf.text(56, y, lib, {size:9.5});
+    pdf.text(380, y, String(l.qty), {size:9.5});
+    pdf.text(420, y, fmt(l.unit), {size:9.5});
+    pdf.text(480, y, fmt(l.qty * l.unit), {size:9.5});
+    y += 16;
+  });
+  y += 8;
+  pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
+  pdf.text(56, y+15, 'TOTAL', {font:'F2', size:13});
+  pdf.text(455, y+15, fmt(bdcTotalCalc(b)), {font:'F2', size:14, rgb:[196,136,0]});
+  y += 34;
+  pdf.text(50, y, INVOICE_STRINGS.fr.franchise, {size:8.5, gray:0.4}); y += 16;
+  if(b.notes){ y += 4; wrapText(b.notes, 100).slice(0,4).forEach(l => { pdf.text(50, y, l, {size:9, gray:0.35}); y += 12; }); }
+  y += 20;
+  pdf.text(50, y, 'Bon pour accord — date et signature du client :', {size:9.5, gray:0.3});
+  pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7});
+  return pdf.build();
+}
+
+async function ouvrirListeBdc(numeroCible){
+  const items = await tousLesBdc();
+  const box = document.getElementById('listeBdcContenu');
+  if(!items.length){ box.innerHTML = '<p style="color:var(--grey); font-size:13.5px;">Aucun bon de commande. Ouvre une facture dans l\'Historique → « Créer un bon de commande ».</p>'; }
+  else {
+    box.innerHTML = items.map(it => {
+      const b = it.data;
+      const dt = new Date(b.valideLe || b.creeLe).toLocaleDateString('fr-BE');
+      const cible = numeroCible && b.numero === numeroCible ? ' style="outline:2px solid var(--orange); border-radius:12px;"' : '';
+      return `<div class="hist-item" data-key="${it.key}"${cible}>
+        <div class="info">
+          <div class="type">${b.numero || 'Brouillon'} · ${(b.client.company || b.client.name || 'Client')}</div>
+          <div class="meta">${dt}${b.factureOrigine ? ' · depuis ' + b.factureOrigine : ''}${b.factureCreee ? ' · facture ' + b.factureCreee : ''}${b.plaque ? ' · ' + b.plaque : ''}</div>
+          <div class="badge-row">
+            ${b.statut === 'valide'
+              ? `<div class="pay-badge facture" onclick="bdcPdf('${it.key}')">📄 PDF</div>
+                 <div class="pay-badge recharger" onclick="bdcOuvrirLecture('${it.key}')">👁 Voir</div>
+                 ${b.factureCreee ? '' : `<div class="pay-badge" style="background:rgba(63,138,95,0.12); color:var(--green);" onclick="creerFactureDepuisBdc('${it.key}')">🧾 Créer la facture</div>`}`
+              : `<div class="pay-badge recharger" onclick="bdcOuvrirEdition('${it.key}')">${ico(ICO.crayon,13)} Modifier</div>
+                 <div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red);" onclick="bdcSupprimerBrouillon('${it.key}')">${ico(ICO.poubelle,13)} Supprimer</div>`}
+          </div>
+        </div>
+        <div class="amt">${fmt(bdcTotalCalc(b))}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('modalListeBdcBg').classList.add('show');
+}
+async function bdcCharger(key){ const r = await window.storage.get(key); const b = JSON.parse(r.value); b.key = key; return b; }
+async function bdcOuvrirEdition(key){ BDC_EN_COURS = await bdcCharger(key); document.getElementById('modalListeBdcBg').classList.remove('show'); ouvrirBdc(); }
+async function bdcOuvrirLecture(key){ BDC_EN_COURS = await bdcCharger(key); document.getElementById('modalListeBdcBg').classList.remove('show'); ouvrirBdc(); }
+async function bdcPdf(key){ const b = await bdcCharger(key); await partagerPdf(construirePdfBdc(b), b.numero + '.pdf', 'Bon de commande ' + b.numero, 'Bon de commande partagé', 'Bon de commande téléchargé'); }
+async function bdcSupprimerBrouillon(key){
+  const b = await bdcCharger(key);
+  if(b.statut === 'valide'){ showToast('Un bon validé reste dans l\'historique'); return; }
+  if(!confirm('Supprimer ce brouillon de bon de commande ?')) return;
+  await window.storage.delete(key); showToast('Brouillon supprimé'); ouvrirListeBdc();
+}
+
+async function creerFactureDepuisBdc(key){
+  const b = await bdcCharger(key);
+  if(!b.interventionKey){ showToast('Ce bon n\'est lié à aucune intervention'); return; }
+  try{
+    const res = await window.storage.get(b.interventionKey);
+    lastCalc = JSON.parse(res.value);
+  }catch(e){ showToast('Intervention introuvable'); return; }
+  document.getElementById('modalListeBdcBg').classList.remove('show');
+  factureEnCoursKey = b.interventionKey;
+  BDC_POUR_FACTURE_EN_COURS = b.numero;
+  openInvoice();
+  document.getElementById('invClientName').value = b.client.name || '';
+  document.getElementById('invClientCompany').value = b.client.company || '';
+  document.getElementById('invClientAddress').value = b.client.address || '';
+  document.getElementById('invClientVat').value = b.client.vat || '';
+  const ecart = Math.abs(bdcTotalCalc(b) - (lastCalc.total || 0));
+  if(ecart >= 0.01) showToast('Attention : total du bon ' + fmt(bdcTotalCalc(b)) + ' ≠ intervention ' + fmt(lastCalc.total));
+}
+async function lierFactureAuBdc(numeroBdc, numeroFacture){
+  try{
+    const items = await tousLesBdc();
+    const it = items.find(x => x.data.numero === numeroBdc);
+    if(!it) return;
+    it.data.factureCreee = numeroFacture; it.data.key = it.key;
+    await window.storage.set(it.key, JSON.stringify(it.data));
+  }catch(e){}
+}
+
+
 
 
 
@@ -12326,7 +13173,12 @@ async function loadHistory(){
         : stPay === 'partiel'
         ? `<div class="pay-badge" style="background:rgba(232,115,12,0.12); color:var(--orange);" onclick="ouvrirPaiement('${it.key}')">◐ Partiel · reste ${fmt(resteADevoir(d))}</div>`
         : `<div class="pay-badge attente" onclick="ouvrirPaiement('${it.key}')">${ico(ICO.horloge,13)} En attente</div>`;
-      const factureBadge = `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">${ico(ICO.recu,13)} Facture</div>`;
+      const factureBadge = d.invoiceNumber
+        ? `<div class="pay-badge facture" onclick="ouvrirActionsFacture('${it.key}')">${ico(ICO.recu,13)} Facture ${d.invoiceNumber.replace('FACT-','')}</div>`
+        : `<div class="pay-badge facture" onclick="genererFactureDepuisJournal('${it.key}')">${ico(ICO.recu,13)} Facture</div>`;
+      const bdcBadge = (d.bonsCommande && d.bonsCommande.length)
+        ? d.bonsCommande.map(n => `<div class="pay-badge" style="background:rgba(38,63,75,0.08); color:var(--navy);" onclick="ouvrirListeBdc('${n}')">📋 ${n}</div>`).join('')
+        : '';
       let echeanceBadge = '';
       if(d.invoiceEcheance && statutPaiement(d) !== 'paye'){
         const aujourdhui = new Date().toISOString().slice(0,10);
@@ -12356,7 +13208,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' (A/R)' : '')}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
