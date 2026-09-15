@@ -119,6 +119,27 @@
   .jm-country.primary .jm-country-note{color:var(--orange);font-weight:700;}
   @media (prefers-reduced-motion:reduce){.jm-coverage-cards{scroll-behavior:auto;}}
 
+
+  /* Zones d’intervention interactives — navigation uniquement, aucun impact tarifaire */
+  .jm-country{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;}
+  .jm-country:active{transform:scale(.97);}
+  .jm-country:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+  .jm-zone-modal .modal{max-width:390px;overflow:hidden;padding:0;}
+  .jm-zone-hero{padding:24px 20px 18px;text-align:center;background:radial-gradient(circle at 50% 5%,rgba(255,149,0,.16),transparent 52%),linear-gradient(180deg,#162129,#10181d);border-bottom:1px solid var(--line);}
+  .jm-zone-flag{font-size:46px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.28));}
+  .jm-zone-country{font-family:'Oswald',sans-serif;font-size:25px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.4px;}
+  .jm-zone-status{display:inline-block;margin-top:7px;padding:5px 10px;border-radius:999px;background:rgba(255,149,0,.11);border:1px solid rgba(255,149,0,.32);color:var(--orange);font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;}
+  .jm-zone-route{display:flex;align-items:center;justify-content:center;gap:9px;margin:17px auto 0;color:var(--grey);font-size:11px;font-weight:700;}
+  .jm-zone-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px rgba(255,149,0,.5);}
+  .jm-zone-line{width:62px;height:1px;background:linear-gradient(90deg,var(--orange),var(--line));position:relative;}
+  .jm-zone-line:after{content:'›';position:absolute;right:-2px;top:-9px;color:var(--orange);font-size:17px;}
+  .jm-zone-body{padding:18px 20px 20px;}
+  .jm-zone-copy{font-size:13px;line-height:1.5;color:var(--grey);text-align:center;margin:0 0 14px;}
+  .jm-zone-flow{font-size:10px;color:var(--grey);text-align:center;margin:11px 0 0;line-height:1.45;}
+  .jm-zone-flow b{color:var(--white);}
+  .jm-quote-zone{display:none;margin:-2px 0 12px;padding:9px 11px;border-radius:11px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);font-size:11px;color:var(--white);}
+  @media (prefers-reduced-motion:reduce){.jm-country{transition:none;}}
+
   /* QR Revolut : fenêtre centrée et compacte — un QR se présente au client, il doit être
      bien visible au milieu de l'écran, pas collé en bas comme un formulaire. */
   #modalQrRevolutBg{align-items:center; padding:16px;}
@@ -1427,12 +1448,12 @@
     </div>
   </div>
   <div class="jm-coverage-cards">
-    <div class="jm-country primary"><span class="jm-flag">🇧🇪</span><span class="jm-country-name">Belgique</span><span class="jm-country-note">24/7</span></div>
-    <div class="jm-country"><span class="jm-flag">🇫🇷</span><span class="jm-country-name">France</span><span class="jm-country-note">Sur demande</span></div>
-    <div class="jm-country"><span class="jm-flag">🇳🇱</span><span class="jm-country-name">Pays-Bas</span><span class="jm-country-note">Sur demande</span></div>
-    <div class="jm-country"><span class="jm-flag">🇩🇪</span><span class="jm-country-name">Allemagne</span><span class="jm-country-note">Sur demande</span></div>
-    <div class="jm-country"><span class="jm-flag">🇱🇺</span><span class="jm-country-name">Luxembourg</span><span class="jm-country-note">Sur demande</span></div>
-    <div class="jm-country"><span class="jm-flag">📍</span><span class="jm-country-name">Autres</span><span class="jm-country-note">Sur devis</span></div>
+    <button type="button" class="jm-country primary" onclick="openZoneIntervention('BE')"><span class="jm-flag">🇧🇪</span><span class="jm-country-name">Belgique</span><span class="jm-country-note">24/7</span></button>
+    <button type="button" class="jm-country" onclick="openZoneIntervention('FR')"><span class="jm-flag">🇫🇷</span><span class="jm-country-name">France</span><span class="jm-country-note">Sur demande</span></button>
+    <button type="button" class="jm-country" onclick="openZoneIntervention('NL')"><span class="jm-flag">🇳🇱</span><span class="jm-country-name">Pays-Bas</span><span class="jm-country-note">Sur demande</span></button>
+    <button type="button" class="jm-country" onclick="openZoneIntervention('DE')"><span class="jm-flag">🇩🇪</span><span class="jm-country-name">Allemagne</span><span class="jm-country-note">Sur demande</span></button>
+    <button type="button" class="jm-country" onclick="openZoneIntervention('LU')"><span class="jm-flag">🇱🇺</span><span class="jm-country-name">Luxembourg</span><span class="jm-country-note">Sur demande</span></button>
+    <button type="button" class="jm-country" onclick="openZoneIntervention('OTHER')"><span class="jm-flag">📍</span><span class="jm-country-name">Autres</span><span class="jm-country-note">Sur devis</span></button>
   </div>
 </section>
 
@@ -3654,10 +3675,29 @@
   </div>
 </div>
 
+
+<div class="modal-bg jm-zone-modal" id="modalZoneInterventionBg" onclick="if(event.target===this) closeZoneIntervention()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="jmZoneCountry">
+    <div class="jm-zone-hero">
+      <div class="jm-zone-flag" id="jmZoneFlag">🇧🇪</div>
+      <div class="jm-zone-country" id="jmZoneCountry">Belgique</div>
+      <div class="jm-zone-status" id="jmZoneStatus">Disponible 24/7</div>
+      <div class="jm-zone-route"><span class="jm-zone-dot"></span><span>CHARLEROI</span><span class="jm-zone-line"></span><span id="jmZoneRouteEnd">BELGIQUE</span></div>
+    </div>
+    <div class="jm-zone-body">
+      <p class="jm-zone-copy" id="jmZoneCopy">Dépannage, remorquage et transport de véhicule selon la mission et le gabarit.</p>
+      <button type="button" class="primary" onclick="zoneVersDevis()">Demander un devis</button>
+      <div class="jm-zone-flow"><b>Devis</b> → intervention → facture / bon selon le dossier</div>
+      <button type="button" class="ghost close-modal" onclick="closeZoneIntervention()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalQuickQuoteBg">
   <div class="modal">
     <h3>📞 Devis rapide</h3>
     <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">Pour donner une estimation à l'oral pendant l'appel — n'enregistre rien.</p>
+    <div class="jm-quote-zone" id="jmQuoteZone"></div>
 
     <div class="field">
       <label>Type d'intervention</label>
@@ -8025,6 +8065,36 @@ function rejouerAnim(el){
   el.style.animation = 'none';
   void el.offsetWidth;
   el.style.animation = '';
+}
+
+
+const JM_ZONES = {
+  BE:{flag:'🇧🇪',name:'Belgique',status:'Disponible 24/7',route:'BELGIQUE',copy:'Dépannage, remorquage et transport de véhicule selon la mission et le gabarit.'},
+  FR:{flag:'🇫🇷',name:'France',status:'Sur demande',route:'FRANCE',copy:'Transport et dépannage vers ou depuis la France, sur demande et après estimation de l’itinéraire.'},
+  NL:{flag:'🇳🇱',name:'Pays-Bas',status:'Sur demande',route:'PAYS-BAS',copy:'Transport et dépannage vers ou depuis les Pays-Bas, sur demande et après estimation de l’itinéraire.'},
+  DE:{flag:'🇩🇪',name:'Allemagne',status:'Sur demande',route:'ALLEMAGNE',copy:'Transport et dépannage vers ou depuis l’Allemagne, sur demande et après estimation de l’itinéraire.'},
+  LU:{flag:'🇱🇺',name:'Luxembourg',status:'Sur demande',route:'LUXEMBOURG',copy:'Transport et dépannage vers ou depuis le Luxembourg, sur demande et après estimation de l’itinéraire.'},
+  OTHER:{flag:'📍',name:'Autres destinations',status:'Sur devis',route:'EUROPE',copy:'Une autre destination ? Encode les adresses pour préparer un devis adapté à la mission.'}
+};
+let jmZoneSelectionnee = null;
+function openZoneIntervention(code){
+  const z=JM_ZONES[code]||JM_ZONES.OTHER; jmZoneSelectionnee=code;
+  document.getElementById('jmZoneFlag').textContent=z.flag;
+  document.getElementById('jmZoneCountry').textContent=z.name;
+  document.getElementById('jmZoneStatus').textContent=z.status;
+  document.getElementById('jmZoneRouteEnd').textContent=z.route;
+  document.getElementById('jmZoneCopy').textContent=z.copy;
+  document.getElementById('modalZoneInterventionBg').classList.add('show');
+}
+function closeZoneIntervention(){ document.getElementById('modalZoneInterventionBg').classList.remove('show'); }
+function zoneVersDevis(){
+  const z=JM_ZONES[jmZoneSelectionnee]||JM_ZONES.OTHER;
+  closeZoneIntervention();
+  openQuickQuote();
+  const info=document.getElementById('jmQuoteZone');
+  if(info){ info.style.display='block'; info.textContent=z.flag+' Destination sélectionnée : '+z.name+' — complète les adresses ci-dessous.'; }
+  const dest=document.getElementById('qqTo');
+  if(dest){ dest.placeholder='Adresse de dépose · '+z.name; setTimeout(()=>dest.focus(),180); }
 }
 
 function showTab(tab, forcer){
