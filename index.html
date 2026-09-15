@@ -1174,6 +1174,62 @@
   html[data-theme="dark"] body.sur-accueil .gear:not(.emergency) svg{filter:drop-shadow(0 0 6px rgba(255,149,0,0.55)) drop-shadow(0 0 2px rgba(255,149,0,0.35));}
   html[data-theme="dark"] body.sur-accueil .gear:not(.emergency):active{background:#1f2e39; border-color:rgba(255,149,0,0.7); color:#FF9500; box-shadow:0 0 0 3px rgba(255,149,0,0.16), 0 0 14px rgba(255,149,0,0.28);}
 
+  /* --- Harmonisation premium du bandeau supérieur JM Express --- */
+  html[data-theme="dark"] body.sur-accueil header{
+    background:linear-gradient(180deg, #142028 0%, #111A20 100%);
+    border-bottom:1px solid rgba(52,73,85,0.92);
+    box-shadow:0 1px 0 rgba(255,149,0,0.10), 0 8px 22px rgba(0,0,0,0.28);
+  }
+  html[data-theme="dark"] body.sur-accueil .brand .jm{
+    color:#F5F7F8;
+    text-shadow:0 1px 1px rgba(0,0,0,0.45);
+  }
+  html[data-theme="dark"] body.sur-accueil .brand .jm span{
+    color:#FF9500;
+    text-shadow:0 0 10px rgba(255,149,0,0.20);
+  }
+  html[data-theme="dark"] body.sur-accueil .brand .sub{color:#94A6B0;}
+  html[data-theme="dark"] body.sur-accueil .head-row-icons{gap:8px;}
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear{
+    background:linear-gradient(180deg, #1A2832 0%, #142029 100%);
+    border-color:rgba(94,129,148,0.48);
+    box-shadow:0 1px 0 rgba(255,255,255,0.035) inset, 0 4px 12px rgba(0,0,0,0.42);
+  }
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear:not(.emergency){color:#F5F7F8;}
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear:not(.emergency) svg{
+    filter:drop-shadow(0 0 5px rgba(255,149,0,0.48)) drop-shadow(0 0 2px rgba(255,149,0,0.25));
+  }
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear.emergency{
+    background:linear-gradient(180deg, rgba(226,105,79,0.17) 0%, rgba(226,105,79,0.09) 100%);
+    border-color:rgba(226,105,79,0.50);
+    color:#E9785F;
+    box-shadow:0 1px 0 rgba(255,255,255,0.025) inset, 0 4px 12px rgba(0,0,0,0.42), 0 0 9px rgba(226,105,79,0.08);
+  }
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear:active{
+    transform:scale(0.95);
+    background:#1F2E39;
+    border-color:rgba(255,149,0,0.72);
+    box-shadow:0 0 0 3px rgba(255,149,0,0.12), 0 0 14px rgba(255,149,0,0.22);
+  }
+  html[data-theme="dark"] body.sur-accueil .head-row-icons .gear.emergency:active{
+    background:#D85E4B; border-color:#E9785F; color:#fff;
+    box-shadow:0 0 0 3px rgba(226,105,79,0.12), 0 0 14px rgba(226,105,79,0.20);
+  }
+
+  /* Version jour : même identité, contraste renforcé sans halo excessif */
+  html:not([data-theme="dark"]) body.sur-accueil header{
+    background:linear-gradient(180deg, #FFFFFF 0%, #F7F9FA 100%);
+    border-bottom:1px solid #CBD5DA;
+    box-shadow:0 1px 0 rgba(242,140,0,0.08), 0 6px 18px rgba(23,32,39,0.07);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .head-row-icons .gear{
+    background:#FFFFFF; border-color:#CBD5DA; color:#172027;
+    box-shadow:0 2px 8px rgba(23,32,39,0.08);
+  }
+  html:not([data-theme="dark"]) body.sur-accueil .head-row-icons .gear:not(.emergency) svg{
+    filter:drop-shadow(0 0 3px rgba(242,140,0,0.28));
+  }
+
   /* --- Barre de navigation --- */
   html[data-theme="dark"] body.sur-accueil .tabbar{
     background:#091014;
