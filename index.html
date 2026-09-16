@@ -2965,6 +2965,15 @@
         </div>
 
         <div class="grp">
+          <div class="grp-title">Retours tactiles & sons</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Retour discret lors des sélections et validations. La vibration dépend des possibilités d’iOS ; le son reste très léger.</p>
+          <div class="toggles">
+            <div class="toggle" id="feedbackHaptic" onclick="setFeedbackOption('haptic')">📳 Tactile</div>
+            <div class="toggle" id="feedbackSound" onclick="setFeedbackOption('sound')">🔉 Son discret</div>
+          </div>
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Taille du texte</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Pour une meilleure lisibilité de toute l'appli.</p>
           <div class="toggles">
@@ -14403,5 +14412,6 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 </script>
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
+\n<script>\n/* JM Express — retours tactiles / sonores discrets (UI uniquement) */\n(function(){\n  const KEY_H='jm_feedback_haptic', KEY_S='jm_feedback_sound';\n  function getBool(k, def){ const v=localStorage.getItem(k); return v===null?def:v==='1'; }\n  window.JM_FEEDBACK={haptic:getBool(KEY_H,true), sound:getBool(KEY_S,false)};\n  let audioCtx=null;\n  function sync(){\n    const h=document.getElementById('feedbackHaptic'), so=document.getElementById('feedbackSound');\n    if(h) h.classList.toggle('on',window.JM_FEEDBACK.haptic);\n    if(so) so.classList.toggle('on',window.JM_FEEDBACK.sound);\n  }\n  window.setFeedbackOption=function(which){\n    if(which==='haptic'){ window.JM_FEEDBACK.haptic=!window.JM_FEEDBACK.haptic; localStorage.setItem(KEY_H,window.JM_FEEDBACK.haptic?'1':'0'); }\n    if(which==='sound'){ window.JM_FEEDBACK.sound=!window.JM_FEEDBACK.sound; localStorage.setItem(KEY_S,window.JM_FEEDBACK.sound?'1':'0'); }\n    sync();\n    setTimeout(()=>window.jmFeedback&&window.jmFeedback('select'),0);\n  };\n  function beep(kind){\n    if(!window.JM_FEEDBACK.sound) return;\n    try{\n      const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;\n      audioCtx=audioCtx||new AC();\n      const o=audioCtx.createOscillator(), g=audioCtx.createGain();\n      const now=audioCtx.currentTime, ok=kind==='confirm';\n      o.type='sine'; o.frequency.setValueAtTime(ok?660:520,now);\n      g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(ok?0.025:0.015,now+0.008); g.gain.exponentialRampToValueAtTime(0.0001,now+(ok?0.075:0.045));\n      o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+(ok?0.08:0.05));\n    }catch(e){}\n  }\n  window.jmFeedback=function(kind='select'){\n    if(window.JM_FEEDBACK.haptic && navigator.vibrate){ try{ navigator.vibrate(kind==='confirm'?18:8); }catch(e){} }\n    beep(kind);\n  };\n  document.addEventListener('click',function(e){\n    const t=e.target.closest('button,.toggle,.tab-btn,.tab-fab,.extras-header,.country-tile,[role="button"]');\n    if(!t || t.id==='feedbackHaptic' || t.id==='feedbackSound') return;\n    const txt=(t.textContent||'').toLowerCase();\n    const confirm=/calcul|enregistr|valid|termin|créer|creer|factur|payer|convert/.test(txt);\n    window.jmFeedback(confirm?'confirm':'select');\n  },{passive:true});\n  document.addEventListener('change',function(e){ if(e.target.matches('select,input[type="checkbox"],input[type="radio"]')) window.jmFeedback('select'); },{passive:true});\n  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',sync); else sync();\n})();\n</script>\n
 </body>
 </html>
