@@ -2965,11 +2965,11 @@
         </div>
 
         <div class="grp">
-          <div class="grp-title">Retours tactiles & sons</div>
-          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Retour discret lors des sélections et validations. La vibration dépend des possibilités d’iOS ; le son reste très léger.</p>
+          <div class="grp-title">Son de l’application</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Choisis ton ambiance. Chaque son utilise automatiquement un niveau discret pour une sélection et un niveau plus marqué pour une validation.</p>
           <div class="toggles">
-            <div class="toggle" id="feedbackHaptic" onclick="setFeedbackOption('haptic')">📳 Tactile</div>
-            <div class="toggle" id="feedbackSound" onclick="setFeedbackOption('sound')">🔉 Son discret</div>
+            <div class="toggle" id="soundPulse" onclick="setAppSound('pulse')">🔊 Pulse</div>
+            <div class="toggle" id="soundNova" onclick="setAppSound('nova')">✨ Nova</div>
           </div>
         </div>
 
@@ -14414,47 +14414,74 @@ window.addEventListener('unhandledrejection', (event) => {
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 
 <script>
-/* JM Express — retours tactiles / sonores discrets (UI uniquement) */
+/* JM Express — 2 signatures sonores UI, sans vibration */
 (function(){
-  const KEY_H='jm_feedback_haptic', KEY_S='jm_feedback_sound';
-  function getBool(k, def){ const v=localStorage.getItem(k); return v===null?def:v==='1'; }
-  window.JM_FEEDBACK={haptic:getBool(KEY_H,true), sound:getBool(KEY_S,false)};
+  const KEY='jm_app_sound';
+  window.JM_APP_SOUND=localStorage.getItem(KEY)||'pulse';
   let audioCtx=null;
   function sync(){
-    const h=document.getElementById('feedbackHaptic'), so=document.getElementById('feedbackSound');
-    if(h) h.classList.toggle('on',window.JM_FEEDBACK.haptic);
-    if(so) so.classList.toggle('on',window.JM_FEEDBACK.sound);
+    const a=document.getElementById('soundPulse'), b=document.getElementById('soundNova');
+    if(a) a.classList.toggle('on',window.JM_APP_SOUND==='pulse');
+    if(b) b.classList.toggle('on',window.JM_APP_SOUND==='nova');
   }
-  window.setFeedbackOption=function(which){
-    if(which==='haptic'){ window.JM_FEEDBACK.haptic=!window.JM_FEEDBACK.haptic; localStorage.setItem(KEY_H,window.JM_FEEDBACK.haptic?'1':'0'); }
-    if(which==='sound'){ window.JM_FEEDBACK.sound=!window.JM_FEEDBACK.sound; localStorage.setItem(KEY_S,window.JM_FEEDBACK.sound?'1':'0'); }
-    sync();
-    setTimeout(()=>window.jmFeedback&&window.jmFeedback('select'),0);
-  };
-  function beep(kind){
-    if(!window.JM_FEEDBACK.sound) return;
+  function ctx(){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return null;
+    audioCtx=audioCtx||new AC();
+    if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+  function tone(c,freq,at,dur,gain,type='sine',endFreq=null){
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,at);
+    if(endFreq) o.frequency.exponentialRampToValueAtTime(endFreq,at+dur);
+    g.gain.setValueAtTime(0.0001,at);
+    g.gain.exponentialRampToValueAtTime(gain,at+0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001,at+dur);
+    o.connect(g); g.connect(c.destination); o.start(at); o.stop(at+dur+0.012);
+  }
+  function play(kind='select'){
     try{
-      const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
-      audioCtx=audioCtx||new AC();
-      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-      const now=audioCtx.currentTime, ok=kind==='confirm';
-      o.type='sine'; o.frequency.setValueAtTime(ok?660:520,now);
-      g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(ok?0.025:0.015,now+0.008); g.gain.exponentialRampToValueAtTime(0.0001,now+(ok?0.075:0.045));
-      o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+(ok?0.08:0.05));
+      const c=ctx(); if(!c) return; const n=c.currentTime+0.006;
+      if(window.JM_APP_SOUND==='nova'){
+        if(kind==='confirm'){
+          /* NOVA validation : clair, aérien, double impulsion */
+          tone(c,740,n,0.060,0.020,'sine',920);
+          tone(c,1110,n+0.055,0.090,0.026,'sine',1320);
+        }else{
+          /* NOVA sélection : petit éclat digital */
+          tone(c,1180,n,0.035,0.011,'sine',1460);
+          tone(c,1760,n+0.010,0.025,0.005,'sine');
+        }
+      }else{
+        if(kind==='confirm'){
+          /* PULSE validation : ferme, premium, ascendant */
+          tone(c,520,n,0.050,0.022,'triangle',610);
+          tone(c,820,n+0.050,0.075,0.026,'sine',980);
+        }else{
+          /* PULSE sélection : clic sec et doux */
+          tone(c,900,n,0.028,0.012,'triangle',1040);
+          tone(c,1320,n+0.006,0.022,0.005,'sine');
+        }
+      }
     }catch(e){}
   }
-  window.jmFeedback=function(kind='select'){
-    if(window.JM_FEEDBACK.haptic && navigator.vibrate){ try{ navigator.vibrate(kind==='confirm'?18:8); }catch(e){} }
-    beep(kind);
+  window.setAppSound=function(name){
+    if(name!=='pulse'&&name!=='nova') return;
+    window.JM_APP_SOUND=name; localStorage.setItem(KEY,name); sync();
+    setTimeout(()=>play('confirm'),0);
   };
+  window.jmFeedback=function(kind='select'){ play(kind); };
   document.addEventListener('click',function(e){
     const t=e.target.closest('button,.toggle,.tab-btn,.tab-fab,.extras-header,.country-tile,[role="button"]');
-    if(!t || t.id==='feedbackHaptic' || t.id==='feedbackSound') return;
+    if(!t || t.id==='soundPulse' || t.id==='soundNova') return;
     const txt=(t.textContent||'').toLowerCase();
     const confirm=/calcul|enregistr|valid|termin|créer|creer|factur|payer|convert/.test(txt);
-    window.jmFeedback(confirm?'confirm':'select');
+    play(confirm?'confirm':'select');
   },{passive:true});
-  document.addEventListener('change',function(e){ if(e.target.matches('select,input[type="checkbox"],input[type="radio"]')) window.jmFeedback('select'); },{passive:true});
+  document.addEventListener('change',function(e){
+    if(e.target.matches('select,input[type="checkbox"],input[type="radio"]')) play('select');
+  },{passive:true});
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',sync); else sync();
 })();
 </script>
