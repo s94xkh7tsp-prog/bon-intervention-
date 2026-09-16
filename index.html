@@ -2971,6 +2971,12 @@
             <div class="toggle" id="soundPulse" onclick="setAppSound('pulse')">🔊 Pulse</div>
             <div class="toggle" id="soundNova" onclick="setAppSound('nova')">✨ Nova</div>
           </div>
+          <div class="anim-slider-row" style="margin-top:14px;">
+            <span class="anim-slider-lbl">🔇</span>
+            <input type="range" id="appSoundVolume" min="0" max="100" step="5" value="45" oninput="setAppSoundVolume(this.value)" onchange="previewAppSoundVolume()">
+            <span class="anim-slider-lbl">🔊</span>
+          </div>
+          <div class="anim-slider-val" id="appSoundVolumeVal">Volume 45 %</div>
         </div>
 
         <div class="grp">
@@ -14417,12 +14423,18 @@ window.addEventListener('unhandledrejection', (event) => {
 /* JM Express — 2 signatures sonores UI, sans vibration */
 (function(){
   const KEY='jm_app_sound';
+  const VOL_KEY='jm_app_sound_volume';
   window.JM_APP_SOUND=localStorage.getItem(KEY)||'pulse';
+  window.JM_APP_SOUND_VOLUME=Math.max(0,Math.min(1,(parseInt(localStorage.getItem(VOL_KEY)||'45',10)||0)/100));
   let audioCtx=null;
   function sync(){
     const a=document.getElementById('soundPulse'), b=document.getElementById('soundNova');
     if(a) a.classList.toggle('on',window.JM_APP_SOUND==='pulse');
     if(b) b.classList.toggle('on',window.JM_APP_SOUND==='nova');
+    const v=document.getElementById('appSoundVolume'), l=document.getElementById('appSoundVolumeVal');
+    const pct=Math.round(window.JM_APP_SOUND_VOLUME*100);
+    if(v) v.value=pct;
+    if(l) l.textContent=pct===0?'Son désactivé':'Volume '+pct+' %';
   }
   function ctx(){
     const AC=window.AudioContext||window.webkitAudioContext;
@@ -14432,6 +14444,8 @@ window.addEventListener('unhandledrejection', (event) => {
     return audioCtx;
   }
   function tone(c,freq,at,dur,gain,type='sine',endFreq=null){
+    gain*=window.JM_APP_SOUND_VOLUME;
+    if(gain<=0) return;
     const o=c.createOscillator(), g=c.createGain();
     o.type=type; o.frequency.setValueAtTime(freq,at);
     if(endFreq) o.frequency.exponentialRampToValueAtTime(endFreq,at+dur);
@@ -14471,6 +14485,11 @@ window.addEventListener('unhandledrejection', (event) => {
     window.JM_APP_SOUND=name; localStorage.setItem(KEY,name); sync();
     setTimeout(()=>play('confirm'),0);
   };
+  window.setAppSoundVolume=function(value){
+    const pct=Math.max(0,Math.min(100,parseInt(value,10)||0));
+    window.JM_APP_SOUND_VOLUME=pct/100; localStorage.setItem(VOL_KEY,String(pct)); sync();
+  };
+  window.previewAppSoundVolume=function(){ if(window.JM_APP_SOUND_VOLUME>0) play('select'); };
   window.jmFeedback=function(kind='select'){ play(kind); };
   document.addEventListener('click',function(e){
     const t=e.target.closest('button,.toggle,.tab-btn,.tab-fab,.extras-header,.country-tile,[role="button"]');
