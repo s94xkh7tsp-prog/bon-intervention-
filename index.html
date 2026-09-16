@@ -1621,7 +1621,7 @@
 
     <div class="field">
       <label>Type d'intervention</label>
-      <select id="type" onchange="updateKmLabel(); avertirSiEnliseChoisi(); rvMajAlerteDoubleRetour(RV_CTX.form)">
+      <select id="type" onchange="if(this.selectedOptions[0]?.dataset.vehicleType==='vsp' && typeof setVehicleType==='function') setVehicleType('vsp'); updateKmLabel(); avertirSiEnliseChoisi(); rvMajAlerteDoubleRetour(RV_CTX.form)">
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
         <option value="demarrage">Démarrage batterie</option>
@@ -1634,6 +1634,7 @@
         <option value="ct_accidente">Contrôle technique — véhicule accidenté (transport)</option>
         <option value="transfert">Transfert véhicule</option>
         <option value="depannage">Dépannage / remorquage général</option>
+        <option value="depannage" data-vehicle-type="vsp">🚙 Remorquage VSP — voiture sans permis</option>
         <option value="changement_batterie">Changement de batterie (achat + montage)</option>
         <option value="moto_remorquage">Remorquage / chargement moto</option>
         <option value="moto_batterie">Changement de batterie moto (achat + montage)</option>
