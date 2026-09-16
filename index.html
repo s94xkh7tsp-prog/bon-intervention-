@@ -2450,6 +2450,20 @@
 
     
 
+    <div class="field jm-vehicle-main-select">
+      <label>Type de véhicule</label>
+        <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
+          <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
+          <div class="toggle" id="vtVsp" onclick="setVehicleType('vsp')">🚙 VSP / Sans permis</div>
+          <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
+          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
+          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
+        </div>
+        <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
+          ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
+        </div>
+    </div>
+
     <div class="field">
       <div class="extras-header" onclick="toggleAdvancedOptions()">
         <label style="margin:0; cursor:pointer;">+ Options avancées</label>
@@ -2473,17 +2487,6 @@
         </div>
         <div id="alerteCapacite" class="km-mention" style="display:none; border-left-color:var(--red); margin-top:10px;"></div>
 
-        <label style="margin-top:14px;">Type de véhicule</label>
-        <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
-          <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
-          <div class="toggle" id="vtVsp" onclick="setVehicleType('vsp')">🚙 VSP / Sans permis</div>
-          <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
-          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
-          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
-        </div>
-        <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
-          ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
-        </div>
         <div class="toggles" style="margin-bottom:8px;">
           <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> Avec le camion</div>
           <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField(); updateAdvancedSummary()">🏚️ Gardiennage (jours suppl.)</div>
