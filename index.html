@@ -1401,6 +1401,14 @@
     @keyframes jmModalIn{from{opacity:.6;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
   }
   @media (orientation:landscape) and (max-height:520px){#modalRouteBg .modal,#modalBg .modal{max-height:88vh;}#tabNouveau .card{padding:14px;}.field{margin-bottom:11px;}}
+
+/* === JM DISPATCH — file multi-interventions (UI uniquement, tarifs inchangés) === */
+.dispatch-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}.dispatch-toolbar button{flex:1 1 120px;min-height:40px}
+.dispatch-mode{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch}.dispatch-mode button{white-space:nowrap;border:1px solid var(--line);background:var(--card2);color:var(--grey);border-radius:12px;padding:9px 11px;font-weight:700}.dispatch-mode button.on{border-color:var(--orange);color:var(--orange);background:var(--orange-soft)}
+.dispatch-summary{font-size:12px;color:var(--grey);margin:0 0 10px}.route-card.dispatch-active{border:1px solid var(--orange);box-shadow:0 0 0 1px rgba(242,140,0,.14)}.route-card.dispatch-next{border-left:3px solid var(--green)}
+.dispatch-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;font-size:10.5px;font-weight:800;letter-spacing:.02em;margin-bottom:6px}.dispatch-badge.active{background:var(--orange-soft);color:var(--orange)}.dispatch-badge.wait{background:rgba(94,129,148,.14);color:var(--grey)}.dispatch-badge.next{background:rgba(63,138,95,.14);color:var(--green)}
+.dispatch-distance{font-size:11.5px;color:var(--grey);margin-top:5px}.dispatch-origin{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:11px;margin:8px 0 10px}.dispatch-origin-title{font-size:11px;font-weight:800;color:var(--grey);text-transform:uppercase;letter-spacing:.05em}.dispatch-origin-value{font-size:13px;font-weight:750;margin:5px 0 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dispatch-origin-actions{display:flex;gap:6px;flex-wrap:wrap}.dispatch-origin-actions button{flex:1 1 105px;min-height:36px}.dispatch-switch{border-color:rgba(242,140,0,.45)!important;color:var(--orange)!important}
+@media (orientation:landscape) and (max-height:520px){.dispatch-toolbar{position:sticky;top:0;z-index:3;background:var(--card);padding:6px 0}.route-card{padding:12px}}
 </style>
 </head>
 <body>
@@ -3629,8 +3637,26 @@
 
 <div class="modal-bg" id="modalRouteBg">
   <div class="modal">
-    <h3>🗺️ Feuille de route</h3>
-    <p class="route-hint">Tes interventions confirmées, pas encore faites. Un tap sur Maps ou Waze lance la navigation vers l'étape.</p>
+    <h3>🗺️ Dispatch · Feuille de route</h3>
+    <p class="route-hint">Encode plusieurs demandes sans perdre celle en cours. L’ordre conseillé part de l’endroit où la dépanneuse sera disponible après chaque mission.</p>
+    <div class="dispatch-toolbar">
+      <button type="button" class="primary" onclick="dispatchNouvelleDemande()">＋ Nouvelle demande</button>
+    </div>
+    <div class="dispatch-origin">
+      <div class="dispatch-origin-title">📍 Point de départ actuel</div>
+      <div id="dispatchOriginValue" class="dispatch-origin-value">À définir</div>
+      <div class="dispatch-origin-actions">
+        <button type="button" class="ghost" onclick="dispatchMeLocaliser()">🎯 Me localiser</button>
+        <button type="button" class="ghost" onclick="dispatchModifierDepart()">✏️ Modifier</button>
+        <button type="button" class="ghost" onclick="dispatchUtiliserBase()">🏠 Ma base</button>
+      </div>
+    </div>
+    <div class="dispatch-mode">
+      <button id="dispatchModeChrono" class="on" onclick="setDispatchMode('chrono')">🕐 Chronologique</button>
+      <button id="dispatchModeProche" onclick="setDispatchMode('proche')">📍 Proximité</button>
+      <button id="dispatchModeTournee" onclick="setDispatchMode('tournee')">🗺️ Tournée optimisée</button>
+    </div>
+    <div id="dispatchSummary" class="dispatch-summary">L’ordre reste toujours modifiable manuellement.</div>
     <div id="routeList" class="stagger"><div class="empty">Chargement…</div></div>
     <button class="ghost close-modal" onclick="closeFeuilleDeRoute()" style="margin-top:12px;">Fermer</button>
   </div>
@@ -12793,7 +12819,7 @@ function afficherInterventionEnCours(aFaire){
   if(!aFaire || aFaire.length === 0){ bloc.style.display = 'none'; return; }
 
   const liste = [...aFaire].sort((a,b) => new Date(a.data.date) - new Date(b.data.date));
-  const it = liste[0];
+  const it = (typeof DISPATCH_ACTIVE_KEY !== 'undefined' && DISPATCH_ACTIVE_KEY) ? (liste.find(x => x.key === DISPATCH_ACTIVE_KEY) || liste[0]) : liste[0];
   const d = it.data;
   const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit'});
   const heure = new Date(d.date).toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
@@ -13832,73 +13858,183 @@ async function getInterventionsAFaire(){
   return results.filter(it => it && estAFaire(it.data)).sort((a,b) => new Date(a.data.date) - new Date(b.data.date));
 }
 
+let DISPATCH_MODE = 'chrono';
+let DISPATCH_ACTIVE_KEY = null;
+let DISPATCH_POSITION = null;
+let DISPATCH_DISTANCES = {};
+let DISPATCH_DEPART_LABEL = '';
+let DISPATCH_DEPART_SOURCE = ''; // gps | manuel | base
+
+async function dispatchLoadState(){
+  try{ DISPATCH_ACTIVE_KEY = JSON.parse((await window.storage.get('dispatch:active')).value).key || null; }catch(e){}
+  try{ DISPATCH_MODE = JSON.parse((await window.storage.get('dispatch:mode')).value).mode || 'chrono'; }catch(e){}
+  try{
+    const st=JSON.parse((await window.storage.get('dispatch:depart')).value);
+    if(st && Number.isFinite(st.lat) && Number.isFinite(st.lon)){ DISPATCH_POSITION={lat:st.lat,lon:st.lon}; DISPATCH_DEPART_LABEL=st.label||''; DISPATCH_DEPART_SOURCE=st.source||''; }
+  }catch(e){}
+}
+async function dispatchSaveActive(key){
+  DISPATCH_ACTIVE_KEY = key || null;
+  try{ await window.storage.set('dispatch:active', JSON.stringify({key:DISPATCH_ACTIVE_KEY})); }catch(e){}
+}
+async function setDispatchMode(mode){
+  DISPATCH_MODE = mode;
+  try{ await window.storage.set('dispatch:mode', JSON.stringify({mode})); }catch(e){}
+  renderFeuilleDeRoute();
+}
+function dispatchMajModeButtons(){
+  ['Chrono','Proche','Tournee'].forEach(n=>{ const e=document.getElementById('dispatchMode'+n); if(e)e.classList.remove('on'); });
+  const map={chrono:'Chrono',proche:'Proche',tournee:'Tournee'};
+  const e=document.getElementById('dispatchMode'+(map[DISPATCH_MODE]||'Chrono')); if(e)e.classList.add('on');
+}
+function dispatchPointPrise(d){ return (d.from && d.from !== '—') ? d.from : (d.to || ''); }
+function dispatchPointFin(d){ return (d.to && d.to !== '—') ? d.to : dispatchPointPrise(d); }
+function dispatchDistanceCoords(a,b){
+  const R=6371, rad=x=>x*Math.PI/180, dLat=rad(b.lat-a.lat), dLon=rad(b.lon-a.lon);
+  const h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+async function dispatchGeo(adresse){ return await geocodeAddress(adresse); }
+async function dispatchRouteKmCoords(a,b){
+  const url=`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`;
+  const r=await fetch(url), j=await r.json();
+  if(!j.routes||!j.routes.length) throw new Error('route');
+  return j.routes[0].distance/1000;
+}
+async function dispatchSaveDepart(source,label,coords){
+  DISPATCH_POSITION=coords; DISPATCH_DEPART_SOURCE=source; DISPATCH_DEPART_LABEL=label||'';
+  try{ await window.storage.set('dispatch:depart',JSON.stringify({source,label:DISPATCH_DEPART_LABEL,lat:coords.lat,lon:coords.lon})); }catch(e){}
+}
+function dispatchMajDepartUI(){
+  const e=document.getElementById('dispatchOriginValue'); if(!e)return;
+  if(!DISPATCH_POSITION){ e.textContent='À définir — localise-toi, saisis une adresse ou utilise ta base'; return; }
+  const prefix=DISPATCH_DEPART_SOURCE==='base'?'🏠 ':DISPATCH_DEPART_SOURCE==='gps'?'🎯 ':'✏️ ';
+  e.textContent=prefix+(DISPATCH_DEPART_LABEL||'Position actuelle enregistrée');
+}
+async function dispatchMeLocaliser(){
+  if(!navigator.geolocation){ showToast('Géolocalisation non disponible'); return; }
+  showToast('Localisation en cours…');
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const c={lat:pos.coords.latitude,lon:pos.coords.longitude};
+    await dispatchSaveDepart('gps','Ma position actuelle',c); DISPATCH_MODE='tournee';
+    try{ await window.storage.set('dispatch:mode',JSON.stringify({mode:'tournee'})); }catch(e){}
+    dispatchMajDepartUI(); await renderFeuilleDeRoute(true);
+  },()=>showToast('Position refusée ou indisponible'),{enableHighAccuracy:true,timeout:30000,maximumAge:60000});
+}
+async function dispatchModifierDepart(){
+  const a=prompt('Adresse de départ actuelle :',DISPATCH_DEPART_SOURCE==='manuel'?DISPATCH_DEPART_LABEL:''); if(a===null)return;
+  const adresse=a.trim(); if(!adresse){showToast('Adresse vide');return;}
+  showToast('Recherche de l’adresse…');
+  try{ const c=await dispatchGeo(adresse); await dispatchSaveDepart('manuel',adresse,c); dispatchMajDepartUI(); await renderFeuilleDeRoute(true); }
+  catch(e){showToast('Adresse introuvable');}
+}
+async function dispatchUtiliserBase(){
+  if(!BASE_ADDRESS){showToast('Adresse de base non définie dans Réglages');return;}
+  showToast('Chargement de la base…');
+  try{ const c=await dispatchGeo(BASE_ADDRESS); await dispatchSaveDepart('base',BASE_ADDRESS,c); dispatchMajDepartUI(); await renderFeuilleDeRoute(true); }
+  catch(e){showToast('Adresse de base introuvable');}
+}
+async function dispatchOptimiserDepuisPosition(){ return dispatchMeLocaliser(); }
+async function dispatchOrdonner(items, forceCalc=false){
+  if(!items.length) return items;
+  const active = items.find(x=>x.key===DISPATCH_ACTIVE_KEY);
+  const reste = items.filter(x=>x.key!==DISPATCH_ACTIVE_KEY);
+  if(DISPATCH_MODE==='chrono') return active ? [active,...reste] : items;
+  if(!DISPATCH_POSITION && !active) return items;
+  let cursor = active ? await dispatchGeo(dispatchPointFin(active.data)) : DISPATCH_POSITION;
+  const ord=[]; if(active) ord.push(active);
+  const pool=[...reste]; DISPATCH_DISTANCES={};
+  while(pool.length){
+    let best=0,bestKm=Infinity,bestGeo=null;
+    for(let i=0;i<pool.length;i++){
+      try{
+        const g=await dispatchGeo(dispatchPointPrise(pool[i].data));
+        let km;
+        try{ km=await dispatchRouteKmCoords(cursor,g); }catch(e){ km=dispatchDistanceCoords(cursor,g)*1.25; }
+        DISPATCH_DISTANCES[pool[i].key]=km;
+        if(km<bestKm){bestKm=km;best=i;bestGeo=g;}
+      }catch(e){}
+      if(i<pool.length-1) await new Promise(r=>setTimeout(r,250));
+    }
+    const chosen=pool.splice(best,1)[0]; ord.push(chosen);
+    try{ cursor=await dispatchGeo(dispatchPointFin(chosen.data)); }catch(e){ if(bestGeo)cursor=bestGeo; }
+    if(DISPATCH_MODE==='proche'){
+      // Proximité = classement depuis le point de disponibilité actuel, sans chaînage des destinations.
+      const origin=active ? await dispatchGeo(dispatchPointFin(active.data)) : DISPATCH_POSITION;
+      cursor=origin;
+    }
+  }
+  return ord;
+}
+async function dispatchActiver(key){
+  await dispatchSaveActive(key);
+  showToast('Intervention définie comme en cours');
+  renderFeuilleDeRoute();
+  majResumeAccueil();
+}
+async function dispatchTerminerEtSuivante(key){
+  try{
+    const d=JSON.parse((await window.storage.get(key)).value); d.statut='fait';
+    await window.storage.set(key,JSON.stringify(d));
+    if(DISPATCH_ACTIVE_KEY===key) await dispatchSaveActive(null);
+    const rest=await getInterventionsAFaire();
+    if(rest.length){
+      const ord=await dispatchOrdonner(rest,true); if(ord[0]) await dispatchSaveActive(ord[0].key);
+      showToast('Terminée — prochaine intervention prête');
+    }else showToast('Terminée — aucune intervention en attente');
+    renderFeuilleDeRoute(); loadHistory(); majResumeAccueil();
+  }catch(e){ showToast('Impossible de terminer cette intervention'); }
+}
+async function dispatchNouvelleDemande(){
+  closeFeuilleDeRoute();
+  // L’intervention en cours reste sauvegardée; on ouvre simplement un formulaire neuf.
+  editingKey=null; lastCalc=null;
+  document.getElementById('editBanner').style.display='none';
+  await effacerBrouillon();
+  showTab('tabNouveau');
+  if(typeof resetForm==='function') resetForm();
+  else { const t=document.getElementById('ticket'); if(t)t.classList.remove('show'); }
+  showToast('Nouvelle demande — l’intervention en cours reste dans la file');
+}
+
 function openFeuilleDeRoute(){
   document.getElementById('modalRouteBg').classList.add('show');
-  renderFeuilleDeRoute();
+  dispatchLoadState().then(()=>renderFeuilleDeRoute());
 }
 function closeFeuilleDeRoute(){ document.getElementById('modalRouteBg').classList.remove('show'); }
 
 function navUrl(app, address, depuis){
   const a = encodeURIComponent(address);
   const o = depuis ? encodeURIComponent(depuis) : null;
-  if(app === 'waze')  return 'https://waze.com/ul?q=' + a + '&navigate=yes';   // Waze part toujours de ta position
-  if(app === 'gmaps') return 'https://www.google.com/maps/dir/?api=1'
-                           + (o ? '&origin=' + o : '')
-                           + '&destination=' + a + '&travelmode=driving';
-  return 'https://maps.apple.com/?' + (o ? 'saddr=' + o + '&' : '') + 'daddr=' + a + '&dirflg=d';  // Plans (Apple)
+  if(app === 'waze')  return 'https://waze.com/ul?q=' + a + '&navigate=yes';
+  if(app === 'gmaps') return 'https://www.google.com/maps/dir/?api=1' + (o ? '&origin=' + o : '') + '&destination=' + a + '&travelmode=driving';
+  return 'https://maps.apple.com/?' + (o ? 'saddr=' + o + '&' : '') + 'daddr=' + a + '&dirflg=d';
 }
 
-async function renderFeuilleDeRoute(){
-  const badge = document.getElementById('routeCount');
-  const container = document.getElementById('routeList');
+async function renderFeuilleDeRoute(forceCalc=false){
+  const badge=document.getElementById('routeCount'), container=document.getElementById('routeList');
   try{
-    const items = await getInterventionsAFaire();
-    if(badge){ badge.textContent = items.length; badge.style.display = items.length ? 'inline-flex' : 'none'; }
-    const tabBadge = document.getElementById('tabRouteBadge');
-    if(tabBadge){ tabBadge.textContent = items.length; tabBadge.style.display = items.length ? 'flex' : 'none'; }
-    if(!container) return;
-    if(items.length === 0){
-      container.innerHTML = '<div class="empty">Aucune intervention à faire — tout est réglé 👍</div>';
-      return;
+    await dispatchLoadState(); dispatchMajModeButtons(); dispatchMajDepartUI();
+    let items=await getInterventionsAFaire();
+    if(DISPATCH_ACTIVE_KEY && !items.some(x=>x.key===DISPATCH_ACTIVE_KEY)) await dispatchSaveActive(null);
+    if(!DISPATCH_ACTIVE_KEY && items.length) await dispatchSaveActive(items[0].key);
+    if((DISPATCH_MODE==='proche'||DISPATCH_MODE==='tournee') && !DISPATCH_POSITION){
+      const sum=document.getElementById('dispatchSummary'); if(sum)sum.textContent='Définis ton point de départ actuel avec « Me localiser », « Modifier » ou « Ma base ». Sinon l’ordre chronologique est conservé.';
+    } else {
+      items=await dispatchOrdonner(items,forceCalc);
+      const sum=document.getElementById('dispatchSummary'); if(sum)sum.textContent=DISPATCH_MODE==='tournee'?'Tournée proposée : fin de mission → prochaine prise en charge → dépôt → mission suivante. Tu gardes toujours le choix.':DISPATCH_MODE==='proche'?'Classé selon la distance vers chaque prise en charge depuis ton prochain point disponible.':'Ordre de réception des demandes.';
     }
-    const etape = (label, icon, adresse) => {
-      if(!adresse || adresse === '—') return '';
-      return `<div class="route-step">
-        <div class="route-step-label">${icon} ${label}</div>
-        <div class="route-step-addr">${adresse}</div>
-        <div class="quick-actions" style="margin-top:6px;">
-          <a href="${navUrl('plans', adresse)}" class="route-nav">${ico(ICO.boussole)} Plans</a>
-          <a href="${navUrl('gmaps', adresse)}" class="route-nav">${ico(ICO.carte)} Maps</a>
-          <a href="${navUrl('waze', adresse)}" class="route-nav">${ico(ICO.voiture)} Waze</a>
-        </div>
-      </div>`;
-    };
-    container.innerHTML = items.map(it => {
-      const d = it.data;
-      const dt = new Date(d.date).toLocaleDateString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit'});
-      return `<div class="route-card">
-        <div class="route-card-head">
-          <div>
-            <div class="route-card-type">${typeLabelComplet(d)}</div>
-            <div class="route-card-meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' A/R' : '')}</div>
-          </div>
-          <div class="route-card-amt">${fmt(d.total)}</div>
-        </div>
-        ${etape('Prise en charge', '📍', d.from)}
-        ${etape('Dépose', '🏁', d.to)}
-        ${(d.from && d.to && d.to !== '—') ? `
-        <div class="quick-actions" style="margin-top:10px;">
-          <a href="${navUrl('gmaps', d.to, d.from)}" class="route-nav" style="background:var(--orange-soft);">${ico(ICO.fleches)} Itinéraire A → B</a>
-        </div>` : ''}
-        <div class="quick-actions" style="margin-top:12px;">
-          <button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Modifier / remise</button>
-          <button type="button" style="color:var(--green); border-color:rgba(63,138,95,0.45);" onclick="toggleStatut('${it.key}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Faite</button>
-        </div>
-      </div>`;
+    if(badge){badge.textContent=items.length;badge.style.display=items.length?'inline-flex':'none'}
+    const tabBadge=document.getElementById('tabRouteBadge'); if(tabBadge){tabBadge.textContent=items.length;tabBadge.style.display=items.length?'flex':'none'}
+    if(!container)return; if(!items.length){container.innerHTML='<div class="empty">Aucune intervention à faire — tout est réglé 👍</div>';return;}
+    const etape=(label,icon,adresse)=>!adresse||adresse==='—'?'':`<div class="route-step"><div class="route-step-label">${icon} ${label}</div><div class="route-step-addr">${adresse}</div><div class="quick-actions" style="margin-top:6px;"><a href="${navUrl('plans',adresse)}" class="route-nav">${ico(ICO.boussole)} Plans</a><a href="${navUrl('gmaps',adresse)}" class="route-nav">${ico(ICO.carte)} Maps</a><a href="${navUrl('waze',adresse)}" class="route-nav">${ico(ICO.voiture)} Waze</a></div></div>`;
+    container.innerHTML=items.map((it,idx)=>{
+      const d=it.data, active=it.key===DISPATCH_ACTIVE_KEY, next=!active&&idx===(items[0]&&items[0].key===DISPATCH_ACTIVE_KEY?1:0);
+      const dt=new Date(d.date); const stamp=dt.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'})+' · '+dt.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+      const dist=DISPATCH_DISTANCES[it.key];
+      return `<div class="route-card ${active?'dispatch-active':(next?'dispatch-next':'')}"><div class="${active?'dispatch-badge active':(next?'dispatch-badge next':'dispatch-badge wait')}">${active?'🚛 EN COURS':(next?'➡️ PROCHAINE':'⏳ EN ATTENTE')}</div><div class="route-card-head"><div><div class="route-card-type">${typeLabelComplet(d)}</div><div class="route-card-meta">Reçue ${stamp}${d.plaque?' · '+d.plaque:''}</div>${Number.isFinite(dist)?`<div class="dispatch-distance">≈ ${fmtKm(dist)} km jusqu’à la prise en charge depuis le point précédent</div>`:''}</div><div class="route-card-amt">${fmt(d.total)}</div></div>${etape(d.origineVehicule==='base'?'Véhicule déjà à la base / position':'Prise en charge','📍',d.from)}${etape('Dépose','🏁',d.to)}${(d.from&&d.to&&d.to!=='—')?`<div class="quick-actions" style="margin-top:10px;"><a href="${navUrl('gmaps',d.to,d.from)}" class="route-nav" style="background:var(--orange-soft);">${ico(ICO.fleches)} Prise en charge → dépose</a></div>`:''}<div class="quick-actions" style="margin-top:12px;">${!active?`<button type="button" class="dispatch-switch" onclick="dispatchActiver('${it.key}')">🚛 Faire maintenant</button>`:''}<button type="button" onclick="modifierDepuisRoute('${it.key}')">✏️ Ouvrir</button>${active?`<button type="button" style="color:var(--green);border-color:rgba(63,138,95,.45);" onclick="dispatchTerminerEtSuivante('${it.key}')">✓ Terminer & suivante</button>`:`<button type="button" style="color:var(--green);border-color:rgba(63,138,95,.45);" onclick="toggleStatut('${it.key}')">✓ Faite</button>`}</div></div>`;
     }).join('');
-  }catch(e){
-    if(container) container.innerHTML = '<div class="empty">Impossible de charger la feuille de route</div>';
-  }
+  }catch(e){ if(container)container.innerHTML='<div class="empty">Impossible de charger la feuille de route</div>'; }
 }
 
 async function supprimer(key){
