@@ -1369,6 +1369,38 @@
   }
   html:not([data-theme="dark"]) body.sur-accueil #backupBanner .banner-action{background:#F28C00; border-color:#C96F00; color:#fff;}
   html:not([data-theme="dark"]) body.sur-accueil #backupBanner .close{color:#60727C;}
+
+  /* JM EXPRESS 2026 — rafraîchissement Bon / Route / Réglages */
+  #tabNouveau{position:relative;}
+  #tabNouveau>.eyebrow,#tabNouveau>.page-title,#tabNouveau>.page-sub{padding-left:2px;}
+  #tabNouveau>.card{border:1px solid color-mix(in srgb,var(--orange) 18%,var(--line)); box-shadow:0 14px 34px rgba(12,20,25,.08);}
+  #tabNouveau .field>label{font-weight:700;letter-spacing:.01em;}
+  #tabNouveau input,#tabNouveau select,#tabNouveau textarea{border-radius:13px;min-height:46px;transition:border-color .16s ease,box-shadow .16s ease,transform .12s ease;}
+  #tabNouveau input:focus,#tabNouveau select:focus,#tabNouveau textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(242,140,0,.12);}
+  #tabNouveau .extras-header{border-radius:13px;padding:12px 10px;background:color-mix(in srgb,var(--card) 92%,var(--orange) 8%);}
+  .toggles-vehicle .toggle{min-height:42px;justify-content:center;}
+  .toggles-vehicle #vtVsp.on{background:rgba(242,140,0,.13);border-color:var(--orange);color:var(--orange);}
+  #modalRouteBg .modal{overflow:hidden;border:1px solid color-mix(in srgb,var(--orange) 20%,var(--line));}
+  #modalRouteBg .modal:before{content:"";display:block;height:4px;margin:-20px -20px 16px;background:linear-gradient(90deg,var(--orange),#5E8194,var(--orange));}
+  #modalRouteBg h3{font-size:21px;margin-bottom:7px;}
+  #modalRouteBg .route-hint{padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--card) 88%,#5E8194 12%);}
+  #modalRouteBg .route-card{border-radius:15px;border-left:3px solid var(--orange);box-shadow:0 8px 22px rgba(12,20,25,.07);}
+  #modalBg .modal{border:1px solid color-mix(in srgb,var(--orange) 16%,var(--line));}
+  #modalBg .settings-category{border-radius:16px;overflow:hidden;margin-bottom:12px;border:1px solid var(--line);background:var(--card);}
+  #modalBg .settings-category>.extras-header{padding:15px 14px;background:color-mix(in srgb,var(--card) 92%,#5E8194 8%);}
+  #modalBg .settings-category .grp{margin:12px;border-radius:14px;}
+  #modalBg .grp-title{font-weight:800;letter-spacing:.02em;}
+  html[data-theme="dark"] #tabNouveau>.card,html[data-theme="dark"] #modalRouteBg .modal,html[data-theme="dark"] #modalBg .modal{box-shadow:0 16px 40px rgba(0,0,0,.34);}
+  html[data-theme="dark"] #tabNouveau .extras-header{background:#111c23;}
+  html[data-theme="dark"] #modalRouteBg .route-hint{background:#101b22;}
+  @media (prefers-reduced-motion:no-preference){
+    #tabNouveau[style*="display: block"]>.eyebrow,#tabNouveau[style*="display: block"]>.page-title,#tabNouveau[style*="display: block"]>.page-sub,#tabNouveau[style*="display: block"]>.card{animation:jmPageIn .28s ease both;}
+    #tabNouveau[style*="display: block"]>.card{animation-delay:.05s;}
+    #modalRouteBg.show .modal,#modalBg.show .modal{animation:jmModalIn .22s ease both;}
+    @keyframes jmPageIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @keyframes jmModalIn{from{opacity:.6;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+  }
+  @media (orientation:landscape) and (max-height:520px){#modalRouteBg .modal,#modalBg .modal{max-height:88vh;}#tabNouveau .card{padding:14px;}.field{margin-bottom:11px;}}
 </style>
 </head>
 <body>
@@ -2444,6 +2476,7 @@
         <label style="margin-top:14px;">Type de véhicule</label>
         <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
           <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
+          <div class="toggle" id="vtVsp" onclick="setVehicleType('vsp')">🚙 VSP / Sans permis</div>
           <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
           <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
           <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
@@ -2851,7 +2884,8 @@
         <div class="grp">
           <div class="grp-title">Plancher remorquage</div>
           <div class="rate-row"><label>Prix minimum remorquage VL (dépannage, transfert)</label><input type="number" id="r_plancherRemorquage" step="5"></div>
-          <div class="km-mention">Si forfait + kilomètres restent sous ce montant, la différence est ajoutée en « Forfait minimum remorquage », avant les majorations. Ne s'applique ni aux batteries, ouvertures, roues, diagnostics, motos, épaves ni au contrôle technique. Mettre 0 pour désactiver.</div>
+          <div class="rate-row"><label>Prix minimum VSP / voiture sans permis</label><input type="number" id="r_plancherVsp" step="5"></div>
+          <div class="km-mention">Si forfait + kilomètres restent sous ce montant, la différence est ajoutée en « Forfait minimum remorquage », avant les majorations. Ne s'applique ni aux batteries, ouvertures, roues, diagnostics, motos, épaves ni au contrôle technique. Pour une VSP, le plancher VSP remplace le plancher VL. Mettre 0 pour désactiver.</div>
         </div>
 
         <div class="grp">
@@ -2907,9 +2941,9 @@
 
         <div class="grp">
           <div class="grp-title">Apparence</div>
-          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">"Automatique" suit le réglage clair/sombre de ton iPhone (pour un passage en sombre à la tombée de la nuit, active "Automatique" dans Réglages iPhone > Luminosité et affichage > Apparence).</p>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">"Automatique jour/nuit" adapte l’ambiance à l’heure réelle : clair de 7h à 20h, sombre de 20h à 7h. Ce choix est uniquement visuel et ne modifie jamais les majorations tarifaires.</p>
           <div class="toggles">
-            <div class="toggle" id="themeAuto" onclick="setThemeMode('auto')">Automatique</div>
+            <div class="toggle" id="themeAuto" onclick="setThemeMode('auto')">Automatique jour/nuit</div>
             <div class="toggle" id="themeLight" onclick="setThemeMode('light')">Toujours clair</div>
             <div class="toggle" id="themeDark" onclick="setThemeMode('dark')">Toujours sombre</div>
           </div>
@@ -3736,6 +3770,7 @@
     <label>Type de véhicule</label>
     <div class="toggles toggles-vehicle" style="margin-bottom:8px;">
       <div class="toggle on" id="qqVtNormale" onclick="setQqVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
+          <div class="toggle" id="qqVtVsp" onclick="setQqVehicleType('vsp')">🚙 VSP / Sans permis</div>
       <div class="toggle" id="qqVtSuv" onclick="setQqVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
       <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
       <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
@@ -5070,7 +5105,7 @@ const DEFAULT_RATES = {
   tapPct:0.8, tapFixe:0.10,
   payconiqFixe:0.06,
   revlinkPct:1.0, revlinkFixe:0.20,
-  plancherRemorquage:140,
+  plancherRemorquage:140, plancherVsp:120,
   km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30
 };
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
@@ -5281,7 +5316,7 @@ function applyTheme(){
   let isDark;
   if(THEME_MODE === 'dark') isDark = true;
   else if(THEME_MODE === 'light') isDark = false;
-  else isDark = darkModeQuery ? darkModeQuery.matches : false; // auto : suit le système, clair par défaut si indisponible
+  else { const h = new Date().getHours(); isDark = (h >= 20 || h < 7); } // auto visuel : heure réelle, indépendant des majorations tarifaires
 
   if(isDark) document.documentElement.setAttribute('data-theme', 'dark');
   else document.documentElement.removeAttribute('data-theme');
@@ -8065,8 +8100,8 @@ let QQ_VEHICLE_TYPE = 'normale';
 
 function setQqVehicleType(type){
   QQ_VEHICLE_TYPE = type;
-  ['qqVtNormale','qqVtSuv','qqVtElectrique','qqVtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
-  const map = {normale:'qqVtNormale', suv:'qqVtSuv', electrique:'qqVtElectrique', utilitaire:'qqVtUtilitaire'};
+  ['qqVtNormale','qqVtVsp','qqVtSuv','qqVtElectrique','qqVtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {normale:'qqVtNormale', vsp:'qqVtVsp', suv:'qqVtSuv', electrique:'qqVtElectrique', utilitaire:'qqVtUtilitaire'};
   document.getElementById(map[type]).classList.add('on');
   document.getElementById('qqCapaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
   calculerDevisRapide();
@@ -8989,8 +9024,8 @@ let VEHICLE_TYPE = 'normale';
 
 function setVehicleType(type){
   VEHICLE_TYPE = type;
-  ['vtNormale','vtSuv','vtElectrique','vtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
-  const map = {normale:'vtNormale', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire'};
+  ['vtNormale','vtVsp','vtSuv','vtElectrique','vtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {normale:'vtNormale', vsp:'vtVsp', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire'};
   document.getElementById(map[type]).classList.add('on');
   document.getElementById('capaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
   updateAdvancedSummary();
@@ -8998,7 +9033,7 @@ function setVehicleType(type){
 
 function updateAdvancedSummary(){
   const parts = [];
-  const vehicleLabels = {suv:'SUV/4x4', electrique:'Électrique', utilitaire:'Utilitaire'};
+  const vehicleLabels = {vsp:'VSP / Sans permis', suv:'SUV/4x4', electrique:'Électrique', utilitaire:'Utilitaire'};
   if(vehicleLabels[VEHICLE_TYPE]) parts.push(vehicleLabels[VEHICLE_TYPE]);
   if(document.getElementById('tgCamion').classList.contains('on')) parts.push('Camion');
   if(document.getElementById('tgGardiennage').classList.contains('on')){
@@ -11296,7 +11331,8 @@ function calculerTarif(d, RATES, CTX){
     ? kmDegressif * kmTarifExcept
     : moteurKmCost(kmDegressif, kmRate, 1, estRemorquage, RATES)) + retourLDCost;
   const typesPlancher = CTX.typesPlancher || TYPES_PLANCHER;
-  const plancher = (typeof RATES.plancherRemorquage === 'number') ? RATES.plancherRemorquage : 0;
+  const plancherVl = (typeof RATES.plancherRemorquage === 'number') ? RATES.plancherRemorquage : 0;
+  const plancher = (d.vehicleType === 'vsp' && typeof RATES.plancherVsp === 'number') ? RATES.plancherVsp : plancherVl;
   const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
   const plancherComplement = (plancherApplicable && (base + kmCost) < plancher) ? (plancher - (base + kmCost)) : 0;
 
@@ -11434,7 +11470,8 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
     ? kmDegressif * kmTarifExcept
     : MOTEUR_kmCost(kmDegressif, kmRate, 1, estRemorquage, tarifs)) + retourLDCost;
   const typesPlancher = config.typesPlancher || TYPES_PLANCHER;
-  const plancher = (typeof tarifs.plancherRemorquage === 'number') ? tarifs.plancherRemorquage : 0;
+  const plancherVl = (typeof tarifs.plancherRemorquage === 'number') ? tarifs.plancherRemorquage : 0;
+  const plancher = (d.vehicleType === 'vsp' && typeof tarifs.plancherVsp === 'number') ? tarifs.plancherVsp : plancherVl;
   const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
   const plancherComplement = (plancherApplicable && (base + kmCost) < plancher) ? (plancher - (base + kmCost)) : 0;
 
@@ -11633,7 +11670,7 @@ function waVersDonneesIntervention(d, ctx){
     km: (typeof ctx.km === 'number') ? ctx.km : 0,
     nuit: !!ctx.nuit, we: !!ctx.we, auto: !!d.autoroute,
     retour: !!ctx.retour, camionOn: !!ctx.camionOn,
-    vehicleType: ['normale','suv','electrique','utilitaire'].includes(d.categorieVehicule) ? d.categorieVehicule : 'normale',
+    vehicleType: ['normale','vsp','suv','electrique','utilitaire'].includes(d.categorieVehicule) ? d.categorieVehicule : 'normale',
     extras: [], pasRoues: false, fraisMontant: 0,
     annulation: false, annulationMontant: 0,
     remiseValue: 0, remiseUnit: 'euro', kmTarifExceptionnel: null,
@@ -14361,5 +14398,6 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error('Erreur non gérée :', event.reason);
 });
 </script>
+<script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 </body>
 </html>
