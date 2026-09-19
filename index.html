@@ -7049,7 +7049,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v213';
+const APP_VERSION = 'jm-express-bon-v214';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -14944,6 +14944,14 @@ function syncSauverEtat(){
 }
 function syncMeta(key){ try{ return JSON.parse(localStorage.getItem('jmsync_meta:' + key) || 'null'); }catch(e){ return null; } }
 function syncSetMeta(key, m){ localStorage.setItem('jmsync_meta:' + key, JSON.stringify(m)); }
+function syncSignatureValeur(v){
+  // Signature locale légère : détecte aussi une écriture qui aurait contourné window.storage.set.
+  const s = v === null ? '__JM_ABSENT__' : String(v);
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(16) + ':' + s.length;
+}
+function syncSignatureCle(key){ return syncSignatureValeur(localStorage.getItem('jm_' + key)); }
 
 // --- Enveloppe : chaque écriture suivie est horodatée, versionnée et mise en file ---
 (function envelopperStorage(){
@@ -14953,7 +14961,7 @@ function syncSetMeta(key, m){ localStorage.setItem('jmsync_meta:' + key, JSON.st
     if(syncCleSuivie(key) && !SYNC.applique){
       if(syncCleReglage(key) && syncEstSecours()) return r;       // le secours n'envoie jamais un réglage
       const m = syncMeta(key) || {rev:0, srv:0};
-      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false;
+      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false; m.localSig = syncSignatureCle(key);
       syncSetMeta(key, m);
       syncEnqueue(key, 'set');
     }
@@ -14965,7 +14973,7 @@ function syncSetMeta(key, m){ localStorage.setItem('jmsync_meta:' + key, JSON.st
       const v = localStorage.getItem('jm_' + key);
       if(v !== null) localStorage.setItem('jmsync_tomb:' + key, v);
       const m = syncMeta(key) || {rev:0, srv:0};
-      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = true;
+      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = true; m.localSig = syncSignatureCle(key);
       syncSetMeta(key, m);
       syncEnqueue(key, 'delete');
     }
@@ -14978,6 +14986,34 @@ function syncEnqueue(key, op){
   localStorage.setItem('jmsync_outbox', JSON.stringify(SYNC.outbox));
   syncMajIndicateur();
   if(syncActif() && navigator.onLine) syncPlanifier(1500);
+}
+
+// --- Filet de sécurité v214 : détecte les modifications locales même si une ancienne fonction
+// a écrit directement dans localStorage au lieu de passer par window.storage.set.
+function syncScannerModificationsLocales(){
+  if(!syncActif() || SYNC.applique) return;
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('jm_')).map(k => k.slice(3)).filter(syncCleSuivie);
+  let change = false;
+  for(const key of keys){
+    if(syncCleReglage(key) && syncEstSecours()) continue;
+    const sig = syncSignatureCle(key);
+    const m = syncMeta(key);
+    if(!m){
+      const nm = {rev:1, srv:0, updatedAt:new Date().toISOString(), deviceId:SYNC.deviceId || 'local', deleted:false, localSig:sig};
+      syncSetMeta(key, nm); syncEnqueue(key, 'set'); change = true; continue;
+    }
+    if(!m.localSig){
+      // Migration v213→v214 : on renvoie une fois la valeur locale sur sa base serveur connue.
+      // Le contrôle baseRev du Worker empêche d'écraser silencieusement une version plus récente.
+      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false; m.localSig = sig;
+      syncSetMeta(key, m); syncEnqueue(key, 'set'); change = true; continue;
+    }
+    if(m.localSig !== sig && !SYNC.outbox.some(e => e.key === key)){
+      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false; m.localSig = sig;
+      syncSetMeta(key, m); syncEnqueue(key, 'set'); change = true;
+    }
+  }
+  if(change) syncSauverEtat();
 }
 
 // --- Réseau ---
@@ -15001,6 +15037,7 @@ async function synchroniser(manuel){
   if(!navigator.onLine){ syncMajIndicateur(); if(manuel) showToast('Hors ligne — sauvegardé sur ce téléphone'); return; }
   SYNC.enCours = true; SYNC.erreur = null; syncMajIndicateur();
   try{
+    syncScannerModificationsLocales();
     await syncPousser();
     await syncRecevoir();
     SYNC.derniereSync = new Date().toISOString();
@@ -15037,7 +15074,7 @@ async function syncPousser(){
       SYNC.conflits[r.key] = {local: syncParse(localStorage.getItem('jm_' + r.key)), distant: r.server.data, distantMeta: {rev:r.server.rev, updatedAt:r.server.updatedAt, deviceId:r.server.deviceId, deleted:r.server.deleted}, localMeta: syncMeta(r.key)};
       console.warn('[JM Sync] conflit', r.key, {local:syncMeta(r.key), serveur:r.server});
     } else {
-      const m = syncMeta(r.key) || {}; m.srv = r.rev; syncSetMeta(r.key, m);
+      const m = syncMeta(r.key) || {}; m.srv = r.rev; m.localSig = syncSignatureCle(r.key); syncSetMeta(r.key, m);
     }
     SYNC.outbox = SYNC.outbox.filter(e => e.key !== r.key);
   });
@@ -15057,7 +15094,7 @@ async function syncRecevoir(){
       SYNC.conflits[r.key].distant = r.data; SYNC.conflits[r.key].distantMeta = {rev:r.rev, updatedAt:r.updatedAt, deviceId:r.deviceId, deleted:r.deleted};
     } else if(enAttente && !syncCleSensible(r.key)){
       // Carnet / dispatch modifié localement : le local gagne, il sera renvoyé sur cette base
-      const m = syncMeta(r.key) || {}; m.srv = r.rev; syncSetMeta(r.key, m);
+      const m = syncMeta(r.key) || {}; m.srv = r.rev; m.localSig = syncSignatureCle(r.key); syncSetMeta(r.key, m);
     } else if(enAttente){
       // J'ai une modification non envoyée sur cette fiche : conflit, on n'écrase rien
       SYNC.conflits[r.key] = {local: syncParse(localStorage.getItem('jm_' + r.key)), distant: r.data, distantMeta: {rev:r.rev, updatedAt:r.updatedAt, deviceId:r.deviceId, deleted:r.deleted}, localMeta: syncMeta(r.key)};
@@ -15081,7 +15118,7 @@ async function syncAppliquerDistant(r){
     } else {
       localStorage.setItem('jm_' + r.key, typeof r.data === 'string' ? r.data : JSON.stringify(r.data));
     }
-    syncSetMeta(r.key, {rev:r.rev, srv:r.rev, updatedAt:r.updatedAt, deviceId:r.deviceId, deleted:!!r.deleted});
+    syncSetMeta(r.key, {rev:r.rev, srv:r.rev, updatedAt:r.updatedAt, deviceId:r.deviceId, deleted:!!r.deleted, localSig:syncSignatureCle(r.key)});
   }finally{ SYNC.applique = false; }
 }
 function syncParse(s){ try{ return JSON.parse(s); }catch(e){ return s; } }
