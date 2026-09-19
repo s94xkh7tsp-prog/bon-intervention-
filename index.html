@@ -7058,7 +7058,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v216';
+const APP_VERSION = 'jm-express-bon-v217';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -12396,6 +12396,18 @@ function reinitialiserSimuWa(){
 
 function calculer(){
   const type = document.getElementById('type').value;
+  // v217 — téléphone de secours : les tarifs restent en lecture seule, mais le calcul
+  // doit utiliser la dernière copie locale reçue du principal. On relit directement
+  // cette copie avant chaque calcul afin d'éviter un objet RATES resté ancien en mémoire.
+  if(typeof syncEstSecours === 'function' && syncEstSecours()){
+    try{
+      const brutRates = localStorage.getItem('jm_rates');
+      if(brutRates){
+        const recus = JSON.parse(brutRates);
+        if(recus && typeof recus === 'object') RATES = {...DEFAULT_RATES, ...recus};
+      }
+    }catch(e){ console.warn('[JM v217] relecture tarifs secours impossible', e); }
+  }
   const plaque = document.getElementById('plaqueImmat').value.trim().toUpperCase();
   const depart = document.getElementById('addrDepart').value.trim();
   const from = document.getElementById('addrFrom').value.trim() || '—';
@@ -12485,7 +12497,16 @@ function calculer(){
       remiseValue, remiseUnit,
       kmTarifExceptionnel: isNaN(kmExcept) ? null : kmExcept
     };
-    const R = MOTEUR_calculerTarif(DERNIERE_ENTREE_MOTEUR, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+    let R = MOTEUR_calculerTarif(DERNIERE_ENTREE_MOTEUR, RATES, {typesRemorquage: TYPES_REMORQUAGE});
+    // v217 — réparation ciblée secours : si le tarif de base reçu est absent/invalide
+    // (cas pouvant produire 0,00 €), on ne touche ni au moteur ni aux barèmes du principal :
+    // on complète seulement les valeurs manquantes avec les valeurs embarquées de l'app.
+    if(typeof syncEstSecours === 'function' && syncEstSecours()
+       && !annulation && (!(Number(RATES[type]) > 0)) && (Number(DEFAULT_RATES[type]) > 0)){
+      const ratesSecours = {...DEFAULT_RATES, ...RATES, [type]: DEFAULT_RATES[type]};
+      R = MOTEUR_calculerTarif(DERNIERE_ENTREE_MOTEUR, ratesSecours, {typesRemorquage: TYPES_REMORQUAGE});
+      console.warn('[JM v217] tarif de base secours réparé pour', type);
+    }
 
     base = R.base; kmRateNormal = R.kmRateNormal;
     gesteDemande = R.gesteDemande; gesteHorsPlage = R.gesteHorsPlage;
@@ -12687,6 +12708,12 @@ function calculer(){
   if(remisePct > 10) showToast('⚠️ Remise > 10% du total — geste exceptionnel ?');
 
   document.getElementById('tkTotal').textContent = fmt(total);
+  if(typeof syncEstSecours === 'function' && syncEstSecours() && Number(total) === 0){
+    const raison = annulation ? 'annulation active'
+      : (remiseAmount > 0 ? ('remise ' + fmt(remiseAmount))
+      : ('forfait ' + String(base) + ' € · km ' + String(km) + ' · tarif/km ' + String(kmRate)));
+    showToast('⚠️ Total 0,00 € — ' + raison);
+  }
   majApercuRevolut(total);
   majApercuPayconiq(total);
   majApercuRevlink(total);
