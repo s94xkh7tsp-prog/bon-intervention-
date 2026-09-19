@@ -7049,7 +7049,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v214';
+const APP_VERSION = 'jm-express-bon-v215';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -12841,6 +12841,10 @@ function ouvrirFicheHistorique(key){
 
 async function enregistrer(){
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
+  // v215 : le formulaire peut avoir été modifié après le dernier calcul (ex. plaque).
+  // Rafraîchir lastCalc juste avant la sauvegarde évite de réenregistrer les anciennes valeurs.
+  // calculer() utilise le même moteur tarifaire existant : aucun barème n'est modifié.
+  calculer();
   try{
     let id, entry;
     if(editingKey){
