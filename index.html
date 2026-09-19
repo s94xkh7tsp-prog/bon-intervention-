@@ -7049,7 +7049,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v212';
+const APP_VERSION = 'jm-express-bon-v213';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -14904,7 +14904,7 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // ===================================================================
-//  SYNCHRONISATION & TÉLÉPHONE DE SECOURS (v212)
+//  SYNCHRONISATION & TÉLÉPHONE DE SECOURS (v213)
 //  Couche posée AU-DESSUS de window.storage : aucune fonction métier modifiée.
 //  - Le local (localStorage) reste la vérité de l'appareil, hors ligne compris.
 //  - Chaque écriture suivie part dans une file d'attente persistante (outbox).
@@ -15032,8 +15032,10 @@ async function syncPousser(){
       return;
     }
     if(r.conflict){
-      // Version serveur conservée à côté de la mienne ; la fiche est gelée jusqu'au choix
+      // Version serveur conservée à côté de la mienne ; la fiche est gelée jusqu'au choix.
+      // Important : ne jamais afficher « Synchronisé » tant que ce conflit n'est pas tranché.
       SYNC.conflits[r.key] = {local: syncParse(localStorage.getItem('jm_' + r.key)), distant: r.server.data, distantMeta: {rev:r.server.rev, updatedAt:r.server.updatedAt, deviceId:r.server.deviceId, deleted:r.server.deleted}, localMeta: syncMeta(r.key)};
+      console.warn('[JM Sync] conflit', r.key, {local:syncMeta(r.key), serveur:r.server});
     } else {
       const m = syncMeta(r.key) || {}; m.srv = r.rev; syncSetMeta(r.key, m);
     }
@@ -15210,7 +15212,8 @@ function syncDissocierCetAppareil(){
 // --- Écran Réglages ---
 function syncMajEcranReglages(){
   const b = id => document.getElementById(id); if(!b('syncEtat')) return;
-  const etat = !syncActif() ? '⚪ Non configuré' : !navigator.onLine ? '🔴 Hors ligne · sauvegardé sur ce téléphone' : SYNC.erreur ? '🔴 ' + SYNC.erreur : (SYNC.outbox.length || SYNC.enCours) ? '🟠 Synchronisation en attente (' + SYNC.outbox.length + ')' : '🟢 Synchronisé';
+  const nbConflitsEtat = syncListeConflits().length;
+  const etat = !syncActif() ? '⚪ Non configuré' : !navigator.onLine ? '🔴 Hors ligne · sauvegardé sur ce téléphone' : SYNC.erreur ? '🔴 ' + SYNC.erreur : nbConflitsEtat ? '🟠 ' + nbConflitsEtat + ' conflit(s) à résoudre' : (SYNC.outbox.length || SYNC.enCours) ? '🟠 Synchronisation en attente (' + SYNC.outbox.length + ')' : '🟢 Synchronisé';
   b('syncEtat').textContent = etat;
   b('syncDerniere').textContent = SYNC.derniereSync ? new Date(SYNC.derniereSync).toLocaleString('fr-BE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
   b('syncRole').textContent = syncActif() ? (SYNC.role === 'principal' ? 'Téléphone principal' : 'Téléphone de secours') + ' · ' + SYNC.deviceId : '';
