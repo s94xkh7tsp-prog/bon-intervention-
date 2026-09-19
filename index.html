@@ -6899,6 +6899,15 @@ async function calculerAvecRetour(){
     RV_CTX.form.ldChoixFait = true;
     calculer();
   }
+  // v216 — sur le téléphone de secours, rendre le résultat immédiatement visible.
+  // Aucun recalcul ici : on affiche uniquement le total déjà produit par calculer().
+  if(typeof syncEstSecours === 'function' && syncEstSecours() && lastCalc && Number.isFinite(Number(lastCalc.total))){
+    const totalEl = document.getElementById('tkTotal');
+    if(totalEl) totalEl.textContent = fmt(Number(lastCalc.total));
+    const ticketEl = document.getElementById('ticket');
+    if(ticketEl) setTimeout(() => ticketEl.scrollIntoView({behavior:'smooth', block:'start'}), 60);
+    showToast('Montant calculé : ' + fmt(Number(lastCalc.total)));
+  }
 }
 
 const RV_LIBELLES = {
@@ -7049,7 +7058,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v215';
+const APP_VERSION = 'jm-express-bon-v216';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
