@@ -7058,7 +7058,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v217';
+const APP_VERSION = 'jm-express-bon-v218';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -15072,6 +15072,26 @@ function syncPlanifier(delai){ clearTimeout(SYNC_TIMER); SYNC_TIMER = setTimeout
 
 // --- Cycle complet : envoyer, puis recevoir ---
 async function synchroniser(manuel){
+  // v218 — le téléphone principal est la source autoritaire des réglages.
+  // Lors d'une synchro manuelle, republier explicitement les réglages actuels
+  // garantit qu'un téléphone de secours associé après leur création les reçoit.
+  // Les valeurs ne sont jamais modifiées ici : on synchronise uniquement l'état
+  // déjà enregistré sur le principal.
+  if(manuel && syncActif() && !syncEstSecours()){
+    for(const key of SYNC_CLES_REGLAGES){
+      const brut = localStorage.getItem('jm_' + key);
+      if(brut === null) continue;
+      const m = syncMeta(key) || {rev:0, srv:0};
+      m.rev = (m.rev || 0) + 1;
+      m.updatedAt = new Date().toISOString();
+      m.deviceId = SYNC.deviceId || 'local';
+      m.deleted = false;
+      m.localSig = syncSignatureCle(key);
+      syncSetMeta(key, m);
+      syncEnqueue(key, 'set');
+    }
+    syncSauverEtat();
+  }
   if(!syncActif()) { if(manuel) showToast('Aucun téléphone associé'); return; }
   if(SYNC.enCours) return;
   if(!navigator.onLine){ syncMajIndicateur(); if(manuel) showToast('Hors ligne — sauvegardé sur ce téléphone'); return; }
