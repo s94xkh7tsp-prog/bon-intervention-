@@ -7058,7 +7058,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v219';
+const APP_VERSION = 'jm-express-bon-v220';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -12402,11 +12402,21 @@ function calculer(){
   if(typeof syncEstSecours === 'function' && syncEstSecours()){
     try{
       const brutRates = localStorage.getItem('jm_rates');
-      if(brutRates){
-        const recus = JSON.parse(brutRates);
-        if(recus && typeof recus === 'object') RATES = {...DEFAULT_RATES, ...recus};
+      const recus = brutRates ? JSON.parse(brutRates) : {};
+      // v220 : le secours utilise la copie du principal, mais une valeur tarifaire
+      // absente, non numérique ou <= 0 ne peut plus annuler silencieusement un tarif.
+      // Les valeurs positives reçues de A restent prioritaires ; les valeurs embarquées
+      // ne servent que de filet de sécurité pour empêcher un faux total à 0 €.
+      const propres = {};
+      for(const [k, def] of Object.entries(DEFAULT_RATES)){
+        const v = recus && Object.prototype.hasOwnProperty.call(recus, k) ? Number(recus[k]) : NaN;
+        propres[k] = (Number.isFinite(v) && v > 0) ? v : def;
       }
-    }catch(e){ console.warn('[JM v217] relecture tarifs secours impossible', e); }
+      RATES = {...DEFAULT_RATES, ...(recus && typeof recus === 'object' ? recus : {}), ...propres};
+    }catch(e){
+      RATES = {...DEFAULT_RATES};
+      console.warn('[JM v220] tarifs secours invalides : valeurs embarquées utilisées en sécurité', e);
+    }
   }
   const plaque = document.getElementById('plaqueImmat').value.trim().toUpperCase();
   const depart = document.getElementById('addrDepart').value.trim();
@@ -12518,6 +12528,25 @@ function calculer(){
     battCost = R.battCost; battDeplacementCost = R.battDeplacementCost;
     totalAvantRemise = R.totalAvantRemise; remiseAmount = R.remiseAmount;
     total = R.total;
+    // v220 : un dépannage/transfert normal ne doit jamais sortir 0 € sur le secours.
+    // Si cela arrive encore sans annulation ni remise totale, recalcul strict avec les
+    // barèmes embarqués connus, sans toucher au moteur de calcul.
+    if(typeof syncEstSecours === 'function' && syncEstSecours() && !annulation && Number(total) === 0 && remiseValue <= 0){
+      const securite = MOTEUR_calculerTarif(DERNIERE_ENTREE_MOTEUR, {...DEFAULT_RATES}, {typesRemorquage: TYPES_REMORQUAGE});
+      if(Number.isFinite(Number(securite.total)) && Number(securite.total) > 0){
+        R = securite;
+        base = R.base; kmRateNormal = R.kmRateNormal;
+        gesteDemande = R.gesteDemande; gesteHorsPlage = R.gesteHorsPlage;
+        kmTarifExcept = R.kmTarifExcept; kmRate = R.kmRate;
+        ctRetourCost = R.ctRetourCost; kmMultiplier = R.kmMultiplier;
+        estRemorquage = R.estRemorquage; kmCost = R.kmCost;
+        vehicleFee = R.vehicleFee; subtotal = R.subtotal;
+        nuitCost = R.nuitCost; weCost = R.weCost; autoCost = R.autoCost;
+        battCost = R.battCost; battDeplacementCost = R.battDeplacementCost;
+        totalAvantRemise = R.totalAvantRemise; remiseAmount = R.remiseAmount; total = R.total;
+        console.warn('[JM v220] filet de sécurité tarifs appliqué sur téléphone secours');
+      }
+    }
     kmRetourVide = R.kmRetourVide; kmRetourVerifie = R.kmRetourVerifie; kmRetourFacture = R.kmRetourFacture;
     retourVideNeutralise = R.retourVideNeutralise; retourCTKm = R.retourCTKm; retourDoubleConfirme = R.retourDoubleConfirme;
     kmFacturable = R.kmFacturable; kmSeuil = R.kmSeuil; kmRateReduit = R.kmRateReduit;
