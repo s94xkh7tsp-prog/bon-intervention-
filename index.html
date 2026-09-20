@@ -1544,103 +1544,6 @@
   @media(orientation:landscape) and (max-height:520px){.services-wrap{max-width:760px}.services-hero{height:auto;aspect-ratio:850/261}.services-grid{grid-template-columns:repeat(3,1fr)}.service-card{min-height:62px}.services-modal{padding-top:6px}.services-top{min-height:36px}.services-close{width:36px;height:36px}}
 
 
-
-
-  /* ===================================================================
-     v224 — ACCUEIL COMPACT 1 ÉCRAN
-     Présentation uniquement : aucun calcul, tarif, stockage ou sync modifié.
-     La vitrine reste accessible via « Présenter mes services » mais n'est plus
-     dupliquée sous le tableau de bord de travail.
-     =================================================================== */
-  body.sur-accueil .jm-brand-hero,
-  body.sur-accueil .jm-coverage{display:none !important;}
-
-  body.sur-accueil .wrap{padding-left:12px; padding-right:12px;}
-  body.sur-accueil .holiday-banner{
-    padding:6px 9px; margin-bottom:5px; min-height:36px; border-radius:11px;
-    font-size:11px; line-height:1.18;
-  }
-  body.sur-accueil .banner-action{padding:5px 9px; font-size:10.5px;}
-  body.sur-accueil #accueilDate{margin:6px 0 1px 2px; font-size:8.5px; line-height:1;}
-  body.sur-accueil #accueilDate::before{width:20px;}
-  body.sur-accueil .page-title{font-size:22px; line-height:1; margin:0 0 3px 2px;}
-
-  body.sur-accueil .services-showcase-btn{
-    min-height:38px !important; height:38px; margin:5px 0 6px !important;
-    padding:4px 8px !important; border-radius:13px !important; gap:6px !important;
-  }
-  body.sur-accueil .services-showcase-btn .gb-ico{font-size:16px !important;}
-  body.sur-accueil .services-showcase-btn .gb-txt{font-size:12.5px !important;}
-
-  body.sur-accueil .accueil-stats{gap:5px; margin:0;}
-  body.sur-accueil .stat-case{padding:5px 4px; min-height:42px; border-radius:11px;}
-  body.sur-accueil .stat-val{font-size:16px; line-height:1;}
-  body.sur-accueil .stat-lbl{font-size:8.5px; margin-top:2px; white-space:nowrap;}
-
-  body.sur-accueil #encoursBloc > .eyebrow,
-  body.sur-accueil #tabAccueil > .eyebrow:not(#accueilDate){
-    margin:6px 0 3px 2px; font-size:8.5px; line-height:1;
-  }
-  body.sur-accueil #encoursBloc > .eyebrow::before,
-  body.sur-accueil #tabAccueil > .eyebrow:not(#accueilDate)::before{width:20px;}
-
-  body.sur-accueil .encours-carte{
-    border-radius:15px; padding:8px 10px; margin-bottom:0;
-  }
-  body.sur-accueil .ec-num{font-size:8.5px; letter-spacing:.9px; line-height:1.1;}
-  body.sur-accueil .ec-type{font-size:12.5px; margin-top:2px; line-height:1.12;}
-  body.sur-accueil .ec-adr{font-size:9.5px; margin-top:2px; line-height:1.18;}
-  body.sur-accueil .ec-montant{font-size:17px; margin-top:2px; line-height:1;}
-
-  body.sur-accueil .ec-stepper{margin:6px 0 5px;}
-  body.sur-accueil .ec-step-puce{width:19px; height:19px; font-size:8.5px; border-width:1px;}
-  body.sur-accueil .ec-step.actif .ec-step-puce{transform:scale(1.06); box-shadow:0 0 0 2px rgba(232,115,12,.24); animation:none;}
-  body.sur-accueil .ec-step-lbl{font-size:7.5px; margin-top:2px; line-height:1;}
-  body.sur-accueil .ec-step-heure{display:none;}
-  body.sur-accueil .ec-step-trait{flex-basis:10px; margin-top:9px;}
-
-  body.sur-accueil .ec-nav-label{
-    font-size:8px; margin:5px 0 2px; letter-spacing:.25px; line-height:1;
-  }
-  body.sur-accueil .ec-nav-row{gap:4px;}
-  body.sur-accueil .ec-nav-row a{
-    min-height:28px; padding:3px 3px; border-radius:9px; font-size:10px; gap:3px;
-  }
-  body.sur-accueil .ec-nav-row a svg{width:12px !important; height:12px !important;}
-  body.sur-accueil .ec-actions{gap:5px; margin-top:5px;}
-  body.sur-accueil .ec-btn{padding:6px 4px; min-height:30px; border-radius:10px; font-size:10.5px; gap:4px;}
-  body.sur-accueil .ec-btn svg{width:12px !important; height:12px !important;}
-  body.sur-accueil .ec-plus{font-size:8.5px; margin-top:3px;}
-
-  body.sur-accueil .accueil-grid{gap:5px; margin-bottom:0;}
-  body.sur-accueil .gros-bouton.principal{
-    min-height:40px !important; height:40px; padding:4px 7px !important; margin:0 !important;
-    border-radius:13px; gap:6px;
-  }
-  body.sur-accueil .gros-bouton.principal .gb-ico{font-size:17px !important;}
-  body.sur-accueil .gros-bouton.principal .gb-txt{font-size:13px !important;}
-  body.sur-accueil .gros-bouton:not(.principal){
-    min-height:42px !important; height:42px; padding:3px 4px !important;
-    border-radius:12px; gap:1px !important;
-  }
-  body.sur-accueil .gros-bouton:not(.principal) .gb-ico{font-size:15px !important; line-height:1;}
-  body.sur-accueil .gros-bouton:not(.principal) .gb-ico svg{width:15px !important; height:15px !important;}
-  body.sur-accueil .gros-bouton:not(.principal) .gb-txt{font-size:9.5px !important; line-height:1;}
-  body.sur-accueil .gb-badge{top:2px; right:3px; min-width:16px; height:16px; padding:0 4px; font-size:9px;}
-
-  /* L'accueil est un tableau de bord : on garde une petite marge au-dessus de la tabbar. */
-  body.sur-accueil #tabAccueil{padding-bottom:4px;}
-
-  /* Sur écrans courts, on gagne encore quelques pixels sans supprimer de fonction. */
-  @media (max-height: 760px){
-    body.sur-accueil header{padding-top:calc(8px + env(safe-area-inset-top)); padding-bottom:7px;}
-    body.sur-accueil .gear{width:36px; height:36px;}
-    body.sur-accueil .head-row-icons{gap:5px;}
-    body.sur-accueil .services-showcase-btn{height:34px; min-height:34px !important;}
-    body.sur-accueil .stat-case{min-height:38px; padding:4px 3px;}
-    body.sur-accueil .ec-nav-row a{min-height:26px;}
-    body.sur-accueil .gros-bouton:not(.principal){height:38px; min-height:38px !important;}
-  }
 </style>
 </head>
 <body>
@@ -7185,7 +7088,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v224';
+const APP_VERSION = 'jm-express-bon-v223';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
