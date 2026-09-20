@@ -7058,7 +7058,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v220';
+const APP_VERSION = 'jm-express-bon-v221';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -9480,8 +9480,13 @@ async function chargerInterventionDepuisJournal(key){
   majOptionsPertinentes();
   majBlocCT();
   majResumeCompact();
-  document.getElementById('annulationMontant').value = d.annulationMontant || '';
-  document.getElementById('tgAnnulation').classList.toggle('on', !!d.annulation);
+  // v221 : ne jamais interpréter une ancienne valeur texte comme un booléen vrai.
+  // Une annulation n'est restaurée que si elle est explicitement active ET possède un montant > 0.
+  const annulationMontantCharge = Number(d.annulationMontant) || 0;
+  const annulationExplicitementActive = (d.annulation === true || d.annulation === 1 || d.annulation === 'true' || d.annulation === '1');
+  const annulationChargeeValide = annulationExplicitementActive && annulationMontantCharge > 0;
+  document.getElementById('annulationMontant').value = annulationChargeeValide ? annulationMontantCharge : '';
+  document.getElementById('tgAnnulation').classList.toggle('on', annulationChargeeValide);
   majAnnulationUI();
   ecrireHoraires(d.horaires);
   updateGardiennageField();
@@ -12467,8 +12472,17 @@ function calculer(){
   const operationsEnlise = estEnlise ? OPERATIONS_ENLISE.map(o => ({...o})) : [];
   const manutMinutes = operationsEnlise.reduce((s,o) => s + (o.minutes||0), 0);
   const manutSupp = operationsEnlise.reduce((s,o) => s + (o.supp||0), 0);
-  const annulation = document.getElementById('tgAnnulation').classList.contains('on');
-  const annulationMontant = annulation ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
+  let annulation = document.getElementById('tgAnnulation').classList.contains('on');
+  let annulationMontant = annulation ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
+  // v221 : une annulation active sans montant est un état invalide (notamment après chargement/synchro).
+  // On revient au calcul normal au lieu de produire silencieusement 0,00 €.
+  if(annulation && !(annulationMontant > 0)){
+    annulation = false;
+    annulationMontant = 0;
+    document.getElementById('tgAnnulation').classList.remove('on');
+    majAnnulationUI();
+    console.warn('[JM v221] annulation sans montant neutralisée avant calcul');
+  }
 
   const isEpave = type === 'epave_demolition';
   const sansMoteur = isEpave && document.getElementById('tgSansMoteur').classList.contains('on');
