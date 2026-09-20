@@ -1075,6 +1075,18 @@
   body.sur-accueil .holiday-banner{margin-bottom:8px;}
   body.sur-accueil .accueil-stats{margin-top:2px;}
   body.sur-accueil > .jm-brand-hero{margin-top:8px;}
+  /* v224 : paliers appliqués d'après la place RÉELLEMENT disponible sur l'appareil
+     (zones réservées de l'iPhone comprises), pour que l'accueil ne défile jamais. */
+  body.acc-1 .jm-brand-hero img{max-height:70px;}
+  body.acc-1 .jm-country{min-height:30px;}
+  body.acc-1 .jm-flag{font-size:13px;}
+  body.acc-1 .gros-bouton:not(.principal){min-height:50px;}
+  body.acc-1 .gros-bouton.principal{min-height:52px;}
+  body.acc-1 .eyebrow{margin:7px 0 4px 2px;}
+  body.acc-1 .stat-case{padding:7px 5px;}
+  body.acc-2 .jm-coverage{display:none !important;}
+  body.acc-3 .jm-brand-hero{display:none !important;}
+
   /* Écrans plus courts : on resserre encore pour que l'accueil tienne quand même. */
   @media (max-height: 830px){
     body.sur-accueil .jm-brand-hero img{max-height:62px;}
@@ -7088,7 +7100,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v223';
+const APP_VERSION = 'jm-express-bon-v224';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -15439,6 +15451,42 @@ setInterval(() => { if(syncActif() && navigator.onLine) synchroniser(); }, 12000
 window.addEventListener('load', () => { syncMajIndicateur(); setTimeout(() => { if(syncActif()) synchroniser(); }, 1500); });
 // Code d'association reçu par QR (#pair=XXXX) : pré-rempli
 try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() => { const el = document.getElementById('syncCodeSaisi'); if(el) el.value = m[1].toUpperCase(); }, 800); } }catch(e){}
+
+// ===================================================================
+//  v224 — l'accueil tient toujours sur l'écran, sans défiler.
+//  On mesure la place réellement disponible (zones réservées de l'iPhone comprises)
+//  et on retire progressivement le décor : compactage, puis « Nos interventions »,
+//  puis la bannière. Aucune donnée ni fonction n'est touchée.
+// ===================================================================
+function ajusterHauteurAccueil(){
+  if(!document.body.classList.contains('sur-accueil')) return;
+  const barre = document.querySelector('.tabbar');
+  if(!barre) return;
+  const dispo = () => barre.getBoundingClientRect().top - 4;
+  const bas = () => {
+    let b = 0;
+    ['.jm-coverage', '.jm-brand-hero', '.accueil-grid'].forEach(s => {
+      const e = document.querySelector(s);
+      if(e && getComputedStyle(e).display !== 'none') b = Math.max(b, e.getBoundingClientRect().bottom);
+    });
+    return b;
+  };
+  document.body.classList.remove('acc-1', 'acc-2', 'acc-3');
+  for(const cls of ['acc-1', 'acc-2', 'acc-3']){
+    if(bas() <= dispo()) return;
+    document.body.classList.add(cls);
+  }
+}
+window.addEventListener('resize', ajusterHauteurAccueil);
+window.addEventListener('orientationchange', () => setTimeout(ajusterHauteurAccueil, 250));
+window.addEventListener('load', () => setTimeout(ajusterHauteurAccueil, 300));
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') setTimeout(ajusterHauteurAccueil, 150); });
+(function brancherAjustement(){
+  const _show = window.showTab;
+  if(typeof _show === 'function'){ window.showTab = function(){ const r = _show.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
+  const _maj = window.majResumeAccueil;
+  if(typeof _maj === 'function'){ window.majResumeAccueil = async function(){ const r = await _maj.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
+})();
 </script>
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 
