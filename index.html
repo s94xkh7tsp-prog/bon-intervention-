@@ -1075,18 +1075,6 @@
   body.sur-accueil .holiday-banner{margin-bottom:8px;}
   body.sur-accueil .accueil-stats{margin-top:2px;}
   body.sur-accueil > .jm-brand-hero{margin-top:8px;}
-  /* v224 : paliers appliqués d'après la place RÉELLEMENT disponible sur l'appareil
-     (zones réservées de l'iPhone comprises), pour que l'accueil ne défile jamais. */
-  body.acc-1 .jm-brand-hero img{max-height:70px;}
-  body.acc-1 .jm-country{min-height:30px;}
-  body.acc-1 .jm-flag{font-size:13px;}
-  body.acc-1 .gros-bouton:not(.principal){min-height:50px;}
-  body.acc-1 .gros-bouton.principal{min-height:52px;}
-  body.acc-1 .eyebrow{margin:7px 0 4px 2px;}
-  body.acc-1 .stat-case{padding:7px 5px;}
-  body.acc-2 .jm-coverage{display:none !important;}
-  body.acc-3 .jm-brand-hero{display:none !important;}
-
   /* Écrans plus courts : on resserre encore pour que l'accueil tienne quand même. */
   @media (max-height: 830px){
     body.sur-accueil .jm-brand-hero img{max-height:62px;}
@@ -5436,7 +5424,8 @@ const FORMULE_A_TYPES = Object.freeze(['depannage', 'transfert']);
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
 const TYPES_PLANCHER = ['depannage', 'transfert'];
 let RATES = {...DEFAULT_RATES};
-let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
+const BASE_ADDRESS_FALLBACK = 'Rue du Blé 46, Monceau-sur-Sambre';
+let BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
 let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
@@ -7153,7 +7142,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v225';
+const APP_VERSION = 'jm-express-bon-v226';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -8267,7 +8256,8 @@ async function loadRates(){
   }catch(e){ console.warn('[v225] migration Formule A', e); }
   try{
     const res2 = await window.storage.get('baseAddress');
-    if(res2 && res2.value) BASE_ADDRESS = res2.value;
+    if(res2 && res2.value && String(res2.value).trim()) BASE_ADDRESS = String(res2.value).trim();
+    else BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
   }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
   try{
     const res2b = await window.storage.get('revolutLink');
@@ -8407,6 +8397,7 @@ function updateNightHoursLabel(){
 
 function prefillDepartAddress(){
   const el = document.getElementById('addrDepart');
+  if(!BASE_ADDRESS || !String(BASE_ADDRESS).trim()) BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
   if(el && !el.value.trim()) el.value = BASE_ADDRESS;
 }
 
@@ -8570,7 +8561,12 @@ function showTab(tab, forcer){
     document.body.classList.toggle('sur-nouveau', tab === 'tabNouveau');
     if(tab !== 'tabNouveau'){ document.getElementById('barreActionsContextuelle').classList.remove('show'); document.body.classList.remove('avec-barre-actions'); }
     if(tab === 'tabAccueil') majResumeAccueil();
-    if(tab === 'tabNouveau') majBarreActionsContextuelle();
+    if(tab === 'tabNouveau'){
+      // v226 : comportement v223 restauré — une nouvelle mission part de la base habituelle
+      // uniquement si aucun autre départ n'est déjà renseigné (dispatch/édition conservés).
+      if(!editingKey) prefillDepartAddress();
+      majBarreActionsContextuelle();
+    }
     window.scrollTo({top:0, behavior:'smooth'});
   } else {
     if(tab === 'tabDevis') openQuickQuote();
@@ -15791,41 +15787,6 @@ window.addEventListener('load', () => { syncMajIndicateur(); setTimeout(() => { 
 // Code d'association reçu par QR (#pair=XXXX) : pré-rempli
 try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() => { const el = document.getElementById('syncCodeSaisi'); if(el) el.value = m[1].toUpperCase(); }, 800); } }catch(e){}
 
-// ===================================================================
-//  v224 — l'accueil tient toujours sur l'écran, sans défiler.
-//  On mesure la place réellement disponible (zones réservées de l'iPhone comprises)
-//  et on retire progressivement le décor : compactage, puis « Nos interventions »,
-//  puis la bannière. Aucune donnée ni fonction n'est touchée.
-// ===================================================================
-function ajusterHauteurAccueil(){
-  if(!document.body.classList.contains('sur-accueil')) return;
-  const barre = document.querySelector('.tabbar');
-  if(!barre) return;
-  const dispo = () => barre.getBoundingClientRect().top - 4;
-  const bas = () => {
-    let b = 0;
-    ['.jm-coverage', '.jm-brand-hero', '.accueil-grid'].forEach(s => {
-      const e = document.querySelector(s);
-      if(e && getComputedStyle(e).display !== 'none') b = Math.max(b, e.getBoundingClientRect().bottom);
-    });
-    return b;
-  };
-  document.body.classList.remove('acc-1', 'acc-2', 'acc-3');
-  for(const cls of ['acc-1', 'acc-2', 'acc-3']){
-    if(bas() <= dispo()) return;
-    document.body.classList.add(cls);
-  }
-}
-window.addEventListener('resize', ajusterHauteurAccueil);
-window.addEventListener('orientationchange', () => setTimeout(ajusterHauteurAccueil, 250));
-window.addEventListener('load', () => setTimeout(ajusterHauteurAccueil, 300));
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') setTimeout(ajusterHauteurAccueil, 150); });
-(function brancherAjustement(){
-  const _show = window.showTab;
-  if(typeof _show === 'function'){ window.showTab = function(){ const r = _show.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
-  const _maj = window.majResumeAccueil;
-  if(typeof _maj === 'function'){ window.majResumeAccueil = async function(){ const r = await _maj.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
-})();
 </script>
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 
