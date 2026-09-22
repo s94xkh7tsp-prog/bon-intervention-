@@ -1061,6 +1061,46 @@
   body.sur-accueil > .wrap{order:2;}
   body.sur-accueil > .jm-brand-hero{order:3; margin-top:14px;}
   body.sur-accueil > .jm-coverage{order:4;}
+
+  /* v223 : l'accueil tient en entier sur un écran de téléphone, sans défiler.
+     Uniquement des hauteurs/espacements réduits sur la vitrine et les raccourcis. */
+  body.sur-accueil .jm-brand-hero img{max-height:84px; object-fit:contain; object-position:center; background:#0d151a;}
+  body.sur-accueil .jm-coverage{padding:5px 16px 6px;}
+  body.sur-accueil .jm-coverage-head{margin-bottom:5px;}
+  body.sur-accueil .jm-country{flex:0 0 64px; min-height:36px; gap:0;}
+  body.sur-accueil .jm-flag{font-size:15px; line-height:1;}
+  body.sur-accueil .gros-bouton:not(.principal){min-height:56px; padding:6px 6px; gap:2px;}
+  body.sur-accueil .accueil-grid{gap:8px;}
+  body.sur-accueil .eyebrow{margin:10px 0 5px 2px;}
+  body.sur-accueil .holiday-banner{margin-bottom:8px;}
+  body.sur-accueil .accueil-stats{margin-top:2px;}
+  body.sur-accueil > .jm-brand-hero{margin-top:8px;}
+  /* v224 : paliers appliqués d'après la place RÉELLEMENT disponible sur l'appareil
+     (zones réservées de l'iPhone comprises), pour que l'accueil ne défile jamais. */
+  body.acc-1 .jm-brand-hero img{max-height:70px;}
+  body.acc-1 .jm-country{min-height:30px;}
+  body.acc-1 .jm-flag{font-size:13px;}
+  body.acc-1 .gros-bouton:not(.principal){min-height:50px;}
+  body.acc-1 .gros-bouton.principal{min-height:52px;}
+  body.acc-1 .eyebrow{margin:7px 0 4px 2px;}
+  body.acc-1 .stat-case{padding:7px 5px;}
+  body.acc-2 .jm-coverage{display:none !important;}
+  body.acc-3 .jm-brand-hero{display:none !important;}
+
+  /* Écrans plus courts : on resserre encore pour que l'accueil tienne quand même. */
+  @media (max-height: 830px){
+    body.sur-accueil .jm-brand-hero img{max-height:62px;}
+    body.sur-accueil .jm-country{min-height:30px;}
+    body.sur-accueil .jm-flag{font-size:13px;}
+    body.sur-accueil .gros-bouton:not(.principal){min-height:50px;}
+    body.sur-accueil .gros-bouton.principal{min-height:52px;}
+    body.sur-accueil .eyebrow{margin:7px 0 4px 2px;}
+    body.sur-accueil .stat-case{padding:7px 5px;}
+    body.sur-accueil .jm-coverage{padding:4px 16px 5px;}
+  }
+  @media (max-height: 700px){
+    body.sur-accueil .jm-brand-hero, body.sur-accueil .jm-coverage{display:none;}
+  }
   /* ===================================================================
      BANDEAU SUPÉRIEUR (v195) — harmonisé avec les cartes premium. CSS pur :
      taille, position, logo et fonctions inchangés.
@@ -1690,7 +1730,8 @@
 
   <div class="edit-banner" id="editBanner" style="display:none;">
     <span>✏️</span>
-    <span class="edit-banner-text">Modification d'une intervention existante — elle sera mise à jour, pas dupliquée.</span>
+    <span class="edit-banner-text">Modification d'une intervention existante — elle sera mise à jour, pas dupliquée.<span id="editVersion" style="display:none; font-size:11.5px; opacity:0.8; margin-top:2px;"></span></span>
+    <span class="edit-banner-cancel" id="btnRecalcTarif" style="display:none; margin-right:10px;" onclick="recalculerAvecTarifActuel()">Recalculer au tarif actuel</span>
     <span class="edit-banner-cancel" onclick="annulerEdition()">Annuler</span>
   </div>
 
@@ -2839,7 +2880,7 @@
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Dépose</span><br><span id="tkTo">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Type</span><br><span id="tkType">—</span></div>
     <div class="ticket-addr" id="tkPlaqueRow" style="margin-top:6px; display:none;"><span class="tag">Plaque</span><br><span id="tkPlaque">—</span></div>
-    <div class="ticket-row"><span class="l">Forfait de base</span><span class="v" id="tkBase">—</span></div>
+    <div class="ticket-row"><span class="l" id="tkBaseLbl">Forfait de base</span><span class="v" id="tkBase">—</span></div>
     <div class="ticket-addr" style="margin-top:6px;"><span class="tag">Kilométrage</span><br><span id="tkKm">—</span></div>
     <div class="ticket-row" id="rowPlancher" style="display:none;"><span class="l">Forfait minimum remorquage</span><span class="v" id="tkPlancher">—</span></div>
     <div class="km-mention" style="margin-bottom:6px;">Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.</div>
@@ -2866,11 +2907,13 @@
     <div class="ticket-row" id="rowAttente" style="display:none;"><span class="l">Temps d'attente</span><span class="v" id="tkAttente">—</span></div>
     <div class="ticket-row" id="rowPasRoues" style="display:none;"><span class="l">Pas sur roues (treuil/plateau)</span><span class="v" id="tkPasRoues">—</span></div>
     <div class="ticket-row" id="rowVehicleFee" style="display:none;"><span class="l" id="tkVehicleLabel">Supplément véhicule</span><span class="v" id="tkVehicleFee">—</span></div>
+    <div class="ticket-row" id="rowArrondi" style="display:none;"><span class="l" id="tkArrondiLbl">Arrondi au 5 € supérieur</span><span class="v" id="tkArrondi">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
     <div class="ticket-total">
       <span class="lbl">Total à payer</span>
       <span class="amt" id="tkTotal">0 €</span>
     </div>
+    <div class="km-mention" id="tkCompV224" style="display:none; margin-top:6px;"></div>
     <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer dans le journal</button>
     <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer l'intervention</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
@@ -2998,8 +3041,8 @@
           <div class="rate-row"><label>CT — frais prestataire / présentation (€)</label><input type="number" id="r_ctPrestataireFee"></div>
           <div class="rate-row"><label>Capacité max dépanneuse (kg)</label><input type="number" id="r_capacitePoids" step="100"></div>
           <div class="rate-row"><label>Hauteur max chargée (m)</label><input type="number" id="r_capaciteHauteur" step="0.05"></div>
-          <div class="rate-row"><label>Transfert véhicule</label><input type="number" id="r_transfert"></div>
-          <div class="rate-row"><label>Dépannage général</label><input type="number" id="r_depannage"></div>
+          <div class="rate-row"><label>Prise en charge transfert véhicule roulant (Formule A)</label><input type="number" id="r_transfert"></div>
+          <div class="rate-row"><label>Prise en charge dépannage / remorquage (Formule A)</label><input type="number" id="r_depannage"></div>
           <div class="rate-row"><label>Changement de batterie (montage seul)</label><input type="number" id="r_changement_batterie"></div>
           <div class="rate-row"><label>Remorquage / chargement moto</label><input type="number" id="r_moto_remorquage"></div>
           <div class="rate-row"><label>Changement de batterie moto (montage seul)</label><input type="number" id="r_moto_batterie"></div>
@@ -3012,10 +3055,13 @@
 
         <div class="grp">
           <div class="grp-title">Kilométrage</div>
-          <div class="rate-row"><label>Km remorquage / transfert (camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
+          <div class="rate-row"><label>Km dépannage / transfert — Formule A (aller + retour à vide)</label><input type="number" id="r_km_formuleA" step="0.05"></div>
+        <div class="rate-row"><label>Arrondi du prix dépannage / transfert (multiple de, en €)</label><input type="number" id="r_arrondiRemorquage" step="1" min="1"></div>
+        <div class="rate-row"><label>Afficher le prix v224 en comparaison</label><select id="r_comparaisonV224"><option value="0">Non</option><option value="1">Oui</option></select></div>
+        <div class="rate-row"><label>Km camion hors Formule A (moto, épave, levée, désembourbement, CT, retour CT, prestation avec camion)</label><input type="number" id="r_km_remorque" step="0.05"></div>
           <div class="rate-row"><label>Km déplacement simple (véhicule perso)</label><input type="number" id="r_km_deplacement" step="0.05"></div>
-          <div class="rate-row"><label>Seuil dégressif remorquage (km facturables, retour à vide compris)</label><input type="number" id="r_kmDegressifSeuil" step="5"></div>
-          <div class="rate-row"><label>Tarif réduit remorquage au-delà du seuil</label><input type="number" id="r_km_remorque_reduit" step="0.05"></div>
+          <div class="rate-row"><label>Seuil dégressif (hors Formule A, retour à vide compris)</label><input type="number" id="r_kmDegressifSeuil" step="5"></div>
+          <div class="rate-row"><label>Tarif réduit au-delà du seuil (hors Formule A)</label><input type="number" id="r_km_remorque_reduit" step="0.05"></div>
           <div class="rate-row"><label>Geste commercial : km maximum</label><input type="number" id="r_gesteKmMax" step="5"></div>
         </div>
 
@@ -3069,6 +3115,7 @@
         <div class="grp">
           <div class="grp-title">Coût de revient carburant (indicatif)</div>
           <div class="rate-row"><label>Prix gasoil station (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
+        <div class="rate-row"><label>Alerte si le diesel dépasse (€/L, station)</label><input type="number" id="r_seuilAlerteDiesel" step="0.05"></div>
           <div class="rate-row"><label>Prix gasoil autoroute (€/L)</label><input type="number" id="r_dieselAutoroute" step="0.01"></div>
           <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
           <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
@@ -4113,6 +4160,17 @@
     <button class="primary" onclick="enregistrerPuisFermerReglages()">Enregistrer les tarifs</button>
     <button class="ghost" style="color:var(--red);" onclick="abandonnerModifsReglages()">Abandonner les modifications</button>
     <button class="ghost close-modal" onclick="document.getElementById('modalReglagesNonEnrBg').classList.remove('show')">Continuer à modifier</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAlerteDieselBg">
+  <div class="modal">
+    <div class="eyebrow">Carburant</div>
+    <h1 class="page-title" style="font-size:21px;">⛽ Diesel au-dessus de ton seuil</h1>
+    <p style="font-size:13.5px; line-height:1.55; color:var(--white); margin:0 0 14px;" id="alerteDieselTexte"></p>
+    <div class="km-mention" style="margin-bottom:14px;">Information seulement : aucun prix n'a été modifié. Tu décides si et quand tu ajustes ton tarif.</div>
+    <button class="primary" onclick="alerteDieselOuvrirTarifs()">Revoir mes tarifs</button>
+    <button class="ghost close-modal" onclick="fermerAlerteDiesel()">Plus tard</button>
   </div>
 </div>
 
@@ -5323,6 +5381,33 @@ const TYPE_LABELS = {
 };
 
 const DEFAULT_RATES = {
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:75, depannage:90,
+  changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
+  epave_demolition:90, epaveSansRouesFee:30,
+  deblocage_boite:20, deblocage_frein:15, roulettes:25,
+  km_remorque:3.45, km_deplacement:1.20, nuitPct:30, wePct:25, auto:15,
+  battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
+  vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
+  attente15minFee:10,
+  kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
+  diesel:2.40, dieselAutoroute:2.60, conso:15,
+  ct_passage:90, ct_repassage:70, ct_accidente:70, ctPrestataireFee:170,
+  capacitePoids:3500, capaciteHauteur:2.00,
+  tapPct:0.8, tapFixe:0.10,
+  payconiqFixe:0.06,
+  revlinkPct:1.0, revlinkFixe:0.20,
+  plancherRemorquage:140, plancherVsp:120,
+  km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30,
+  km_formuleA:1.95, arrondiRemorquage:5, seuilAlerteDiesel:2.80, comparaisonV224:0
+};
+
+// ===================================================================
+//  v225 — RÉFÉRENCE TARIFAIRE v224 FIGÉE. NE JAMAIS MODIFIER.
+//  Copie exacte des tarifs par défaut et du moteur v224 (3,45 / 2,30 / plancher /
+//  retour longue distance). Sert au mode de secours, à la comparaison et aux
+//  interventions calculées avant la v225. Ni les Réglages ni la synchro n'y touchent.
+// ===================================================================
+const TARIFS_V224 = Object.freeze({
   pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:55, depannage:65,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
@@ -5340,7 +5425,14 @@ const DEFAULT_RATES = {
   revlinkPct:1.0, revlinkFixe:0.20,
   plancherRemorquage:140, plancherVsp:120,
   km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30
-};
+});
+const TYPES_PLANCHER_V224 = Object.freeze(['depannage', 'transfert']);
+// Instantané des tarifs RÉELLEMENT utilisés sur ce téléphone au passage en v225 (écrit une seule fois).
+let TARIFS_V224_UTILISATEUR = null;
+function tarifsV224(){ return TARIFS_V224_UTILISATEUR || TARIFS_V224; }
+// v225 — périmètre de la Formule A : dépanneuse, dépannage/remorquage et transfert roulant uniquement.
+const FORMULE_A_TYPES = Object.freeze(['depannage', 'transfert']);
+
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente'];
 const TYPES_PLANCHER = ['depannage', 'transfert'];
 let RATES = {...DEFAULT_RATES};
@@ -6863,6 +6955,7 @@ function ldSeuil(){
 
 function ldProposer(ctx, calc){
   if(!calc || ctx.ldChoixFait) return false;
+  if(calc.formuleA) return false;   // v225 : pas de tarif retour séparé en Formule A
   if(!calc.retour || !(calc.kmRetourFacture > ldSeuil())) return false;
   return (typeof RATES.km_retour_longue_distance === 'number') && RATES.km_retour_longue_distance > 0;
 }
@@ -6953,7 +7046,7 @@ function descKmFacturableLignes(c, lang, symboles){
   const coutDegressif = c.kmCost - (c.retourLDCost || 0);
   if(geste){
     L.push(fmtKm(kmD) + ' km × ' + fmtTaux(rate) + S.geste + ' = ' + fmt(coutDegressif));
-  } else if(!estRem || kmD <= seuil){
+  } else if(!estRem || c.formuleA || kmD <= seuil){
     L.push(fmtKm(kmD) + ' km × ' + fmtTaux(rate) + ' = ' + fmt(coutDegressif));
   } else {
     L.push(fmtKm(seuil) + ' km × ' + fmtTaux(rate) + ' = ' + fmt(seuil * rate));
@@ -7060,7 +7153,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v222';
+const APP_VERSION = 'jm-express-bon-v225';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -7815,6 +7908,37 @@ function ouvrirPlein(){
   document.getElementById('modalPleinBg').classList.add('show');
 }
 
+
+// ===================================================================
+//  v225 — Alerte diesel : quand un plein dépasse le seuil réglé, on prévient.
+//  Aucun prix n'est modifié automatiquement. Rappel limité (hausse de 0,10 €/L ou 30 jours).
+// ===================================================================
+async function verifierAlerteDiesel(prixL, lieu){
+  const seuil = Number(RATES.seuilAlerteDiesel);
+  if(!(seuil > 0) || !(prixL > 0)) return;
+  const ecartLieu = (lieu === 'autoroute') ? Math.max(0, Number(RATES.dieselAutoroute) - Number(RATES.diesel)) : 0;
+  const prixStation = prixL - ecartLieu;
+  if(prixStation < seuil) return;
+  let dernier = null;
+  try{ const r = await window.storage.get('alerteDiesel'); dernier = r && r.value ? JSON.parse(r.value) : null; }catch(e){}
+  const trenteJours = 30 * 24 * 3600 * 1000;
+  if(dernier && prixStation < dernier.prix + 0.10 && (Date.now() - new Date(dernier.date).getTime()) < trenteJours) return;
+  await window.storage.set('alerteDiesel', JSON.stringify({prix: prixStation, date: new Date().toISOString()}));
+  const ref = Number(RATES.diesel), conso = Number(RATES.conso) || 15;
+  const surcout = Math.max(0, (prixStation - ref) * conso / 100);
+  document.getElementById('alerteDieselTexte').innerHTML =
+    'Plein à <strong>' + prixL.toFixed(3).replace('.', ',') + ' €/L</strong>' + (lieu === 'autoroute' ? ' (autoroute)' : '') +
+    ', au-dessus de ton seuil de ' + seuil.toFixed(2).replace('.', ',') + ' €/L.<br><br>' +
+    'Tes coûts sont calculés sur ' + ref.toFixed(2).replace('.', ',') + ' €/L. À ' + conso + ' L/100 km, cet écart représente environ <strong>+' +
+    surcout.toFixed(3).replace('.', ',') + ' € par km</strong>, pour un tarif de ' + Number(RATES.km_formuleA).toFixed(2).replace('.', ',') + ' €/km.';
+  document.getElementById('modalAlerteDieselBg').classList.add('show');
+}
+function fermerAlerteDiesel(){ document.getElementById('modalAlerteDieselBg').classList.remove('show'); }
+function alerteDieselOuvrirTarifs(){
+  fermerAlerteDiesel();
+  try{ openSettings(); setTimeout(() => { const el = document.getElementById('r_diesel'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); }, 350); }catch(e){}
+}
+
 function fermerPlein(){
   document.getElementById('modalPleinBg').classList.remove('show');
 }
@@ -7845,6 +7969,7 @@ async function enregistrerPlein(){
     await window.storage.set('registreFrais', JSON.stringify(registre));
     fermerPlein();
     showToast('Plein enregistré — ' + fmt(total));
+    try{ await verifierAlerteDiesel(prixL, PLEIN_LIEU); }catch(e){}
   }catch(e){ showToast('Impossible d\'enregistrer le plein'); }
 }
 
@@ -8085,10 +8210,11 @@ function checkJourFerie(){
   if(tgWe && !tgWe.classList.contains('on')) tgWe.classList.add('on');
 }
 
+let RAW_RATES_V225 = null;
 async function loadRates(){
   try{
     const res = await window.storage.get('rates');
-    if(res && res.value) RATES = {...DEFAULT_RATES, ...JSON.parse(res.value)};
+    if(res && res.value){ RAW_RATES_V225 = JSON.parse(res.value); RATES = {...DEFAULT_RATES, ...RAW_RATES_V225}; }
   }catch(e){ /* pas encore de réglages enregistrés */ }
   try{
     let dejaFait = false;
@@ -8112,6 +8238,33 @@ async function loadRates(){
       await window.storage.set('migrTransfert55', '1');
     }
   }catch(e){ /* sans conséquence : le forfait reste modifiable dans les Réglages */ }
+  // v225 — instantané des tarifs v224 réellement utilisés (une seule fois, jamais réécrit),
+  // puis prises en charge dépannage 65 → 90 et transfert 55 → 75 (valeurs personnalisées respectées).
+  try{
+    let snap = null;
+    try{ const s = await window.storage.get('tarifsV224'); snap = (s && s.value) ? JSON.parse(s.value) : null; }catch(e){}
+    if(!snap){
+      snap = {...TARIFS_V224};
+      if(RAW_RATES_V225){
+        for(const k of Object.keys(TARIFS_V224)){
+          if(Object.prototype.hasOwnProperty.call(RAW_RATES_V225, k) && Number.isFinite(Number(RATES[k]))) snap[k] = Number(RATES[k]);
+        }
+      }
+      // Un téléphone déjà synchronisé avec un principal en v225 a pu recevoir 90/75 : ce ne sont pas des tarifs v224.
+      if(snap.depannage === 90) snap.depannage = TARIFS_V224.depannage;
+      if(snap.transfert === 75) snap.transfert = TARIFS_V224.transfert;
+      await window.storage.set('tarifsV224', JSON.stringify(snap));
+    }
+    TARIFS_V224_UTILISATEUR = Object.freeze({...TARIFS_V224, ...snap});
+    let fait = false;
+    try{ const m = await window.storage.get('migrFormuleA'); fait = !!(m && m.value); }catch(e){}
+    if(!fait){
+      if(RATES.depannage === 65) RATES.depannage = 90;
+      if(RATES.transfert === 55) RATES.transfert = 75;
+      if(RAW_RATES_V225) await window.storage.set('rates', JSON.stringify({...RATES}));
+      await window.storage.set('migrFormuleA', '1');
+    }
+  }catch(e){ console.warn('[v225] migration Formule A', e); }
   try{
     const res2 = await window.storage.get('baseAddress');
     if(res2 && res2.value) BASE_ADDRESS = res2.value;
@@ -8167,9 +8320,9 @@ const INVOICE_STRINGS = {
     detail:'DÉTAIL DE L\'INTERVENTION', depart:'Départ : ', priseEnCharge:'Prise en charge : ', depose:'Dépose : ',
     km:'Kilométrage : ', kmAllerRetour:' km × 2 (aller-retour)', kmSimple:' km',
     kmMention:"Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.",
-    forfaitBase:'Forfait de base', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage',
+    forfaitBase:'Forfait de base', priseEnCharge:'Prise en charge', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage',
     ctPrestataire:'Présentation au contrôle technique par prestataire', ctRetour:'Transport retour après contrôle', ctOfficiels:'Frais officiels du contrôle (avancés)',
-    fraisDivers:'Frais divers', manutention:'Manutention / désembourbement (supplément)', annulation:'Déplacement inutile / annulation', retourLD:'dont retour à vide longue distance', arrondi:'Arrondi à l\'euro',
+    fraisDivers:'Frais divers', manutention:'Manutention / désembourbement (supplément)', annulation:'Déplacement inutile / annulation', retourLD:'dont retour à vide longue distance', arrondi:'Arrondi à l\'euro', arrondiGrille:'Arrondi au 5 € supérieur',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
     fournitureBatterie:'Fourniture batterie', deplacementBatterie:'Déplacement achat batterie',
     supplementPasRoues:'Supplément véhicule pas sur ses roues', gardiennage:'Gardiennage (', jours:' j)', attente:'Temps d\'attente (', minAttente:' min)', etatConstate:'ÉTAT CONSTATÉ AVANT CHARGEMENT', ctRepasse:'2e passage contrôle technique',
@@ -8189,9 +8342,9 @@ const INVOICE_STRINGS = {
     detail:'DETAIL VAN DE INTERVENTIE', depart:'Vertrek : ', priseEnCharge:'Ophaling : ', depose:'Aflevering : ',
     km:'Kilometers : ', kmAllerRetour:' km × 2 (heen-terug)', kmSimple:' km',
     kmMention:'Interventiekilometers: werkelijk door het takelvoertuig afgelegde afstand, inclusief de lege terugrit indien nodig.',
-    forfaitBase:'Basisforfait', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen',
+    forfaitBase:'Basisforfait', priseEnCharge:'Tussenkomst', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen',
     ctPrestataire:'Aanbieding bij de keuring door dienstverlener', ctRetour:'Terugtransport na keuring', ctOfficiels:'Officiële keuringskosten (voorgeschoten)',
-    fraisDivers:'Diverse kosten', manutention:'Handling / losmaken (toeslag)', annulation:'Nutteloze verplaatsing / annulering', retourLD:'waarvan lege terugrit lange afstand', arrondi:'Afronding op de euro',
+    fraisDivers:'Diverse kosten', manutention:'Handling / losmaken (toeslag)', annulation:'Nutteloze verplaatsing / annulering', retourLD:'waarvan lege terugrit lange afstand', arrondi:'Afronding op de euro', arrondiGrille:'Afronding naar boven op 5 €',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
     fournitureBatterie:'Levering batterij', deplacementBatterie:'Verplaatsing aankoop batterij',
     supplementPasRoues:'Toeslag voertuig niet op wielen', gardiennage:'Bewaking (', jours:' d)', attente:'Wachttijd (', minAttente:' min)', etatConstate:'VASTGESTELDE STAAT VOOR HET LADEN', ctRepasse:'2e keuringsbeurt',
@@ -8211,9 +8364,9 @@ const INVOICE_STRINGS = {
     detail:'SERVICE DETAILS', depart:'Departure: ', priseEnCharge:'Pick-up: ', depose:'Drop-off: ',
     km:'Mileage: ', kmAllerRetour:' km × 2 (round trip)', kmSimple:' km',
     kmMention:'Intervention mileage: distance actually driven by the tow truck, including the empty return trip when required.',
-    forfaitBase:'Base rate', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge',
+    forfaitBase:'Base rate', priseEnCharge:'Call-out charge', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge',
     ctPrestataire:'MOT presentation by service provider', ctRetour:'Return transport after MOT', ctOfficiels:'Official MOT fees (advanced)',
-    fraisDivers:'Miscellaneous costs', manutention:'Handling / recovery (surcharge)', annulation:'Wasted trip / cancellation', retourLD:'incl. long-distance empty return', arrondi:'Rounding to the euro',
+    fraisDivers:'Miscellaneous costs', manutention:'Handling / recovery (surcharge)', annulation:'Wasted trip / cancellation', retourLD:'incl. long-distance empty return', arrondi:'Rounding to the euro', arrondiGrille:'Rounded up to €5',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
     fournitureBatterie:'Battery supply', deplacementBatterie:'Trip for battery purchase',
     supplementPasRoues:'Surcharge — vehicle not on wheels', gardiennage:'Storage (', jours:' d)', attente:'Waiting time (', minAttente:' min)', etatConstate:'CONDITION NOTED BEFORE LOADING', ctRepasse:'2nd inspection visit',
@@ -9325,6 +9478,7 @@ function afficherTicketDepuisData(d){
   document.getElementById('tkPlaqueRow').style.display = d.plaque ? 'block' : 'none';
   document.getElementById('tkPlaque').textContent = d.plaque || '';
   document.getElementById('tkBase').textContent = fmt(d.base);
+  majLignesFormuleA(d, false);
   document.getElementById('tkKm').innerHTML = formatKmDetailHtml(d);
   afficherLignePlancher(d);
 
@@ -9366,6 +9520,48 @@ function afficherTicketDepuisData(d){
 }
 
 let editingKey = null;
+// v225 — version du moteur de l'intervention en cours de modification (null = nouvelle intervention = tarif actuel).
+let VERSION_EDITION = null;
+let DERNIER_RESULTAT_MOTEUR = null;
+function majBandeauVersion(){
+  const v = document.getElementById('editVersion'), b = document.getElementById('btnRecalcTarif');
+  if(!v || !b) return;
+  if(VERSION_EDITION === 'v224'){ v.textContent = 'Tarif d\'origine (v224) conservé'; v.style.display = 'block'; b.style.display = 'inline-block'; }
+  else if(VERSION_EDITION === 'A'){ v.textContent = 'Tarif actuel (Formule A)'; v.style.display = 'block'; b.style.display = 'none'; }
+  else { v.style.display = 'none'; b.style.display = 'none'; }
+}
+async function recalculerAvecTarifActuel(){
+  if(!confirm('Recalculer cette intervention avec le tarif actuel (Formule A) ?\n\nLe prix peut changer. Une facture déjà émise n\'est jamais modifiée.')) return;
+  VERSION_EDITION = 'A'; majBandeauVersion();
+  await calculerAvecRetour();
+  showToast('Recalculée au tarif actuel — enregistre pour confirmer');
+}
+function majLignesFormuleA(c, depuisCalcul){
+  if(!c) return;
+  const lbl = document.getElementById('tkBaseLbl');
+  if(lbl) lbl.textContent = c.formuleA ? 'Prise en charge' : 'Forfait de base';
+  const row = document.getElementById('rowArrondi');
+  if(row){
+    const montrer = !!c.formuleA && Number(c.arrondiAjout) >= 0.005;
+    row.style.display = montrer ? 'flex' : 'none';
+    if(montrer){
+      document.getElementById('tkArrondiLbl').textContent = 'Arrondi au ' + (c.pasArrondi || 5) + ' € supérieur';
+      document.getElementById('tkArrondi').textContent = '+' + fmt(Number(c.arrondiAjout));
+    }
+  }
+  const comp = document.getElementById('tkCompV224');
+  if(comp){
+    let txt = '';
+    if(depuisCalcul && Number(RATES.comparaisonV224) === 1 && c.formuleA && DERNIERE_ENTREE_MOTEUR){
+      try{
+        const v = MOTEUR_v224_calculerTarif({...DERNIERE_ENTREE_MOTEUR, moteurVersion: 'v224'}, tarifsV224(), {typesRemorquage: TYPES_REMORQUAGE});
+        const e = Math.round((c.total - v.total) * 100) / 100;
+        txt = 'Ancienne grille (v224) : ' + fmt(v.total) + ' · écart ' + (e >= 0 ? '+' : '') + fmt(e);
+      }catch(err){ txt = ''; }
+    }
+    comp.textContent = txt; comp.style.display = txt ? 'block' : 'none';
+  }
+}
 
 async function modifierDepuisRoute(key){
   closeFeuilleDeRoute();
@@ -9504,6 +9700,8 @@ async function chargerInterventionDepuisJournal(key){
   if(notesEl) notesEl.value = d.etatLieuxNotes || '';
 
   editingKey = key;
+  VERSION_EDITION = (d.moteurVersion === 'A') ? 'A' : 'v224';
+  majBandeauVersion();
   document.getElementById('editBanner').style.display = 'flex';
   updateAdvancedSummary();
   await calculerAvecRetour();
@@ -9514,6 +9712,7 @@ async function chargerInterventionDepuisJournal(key){
 
 function annulerEdition(){
   editingKey = null;
+  VERSION_EDITION = null; majBandeauVersion();
   document.getElementById('editBanner').style.display = 'none';
   document.getElementById('ticket').classList.remove('show');
   lastCalc = null;
@@ -9883,7 +10082,7 @@ function lignesDocument(c, lang, meta){
     add(S.annulation, c.annulationMontant || 0, 'annulation');
     add(S.fraisDivers + (c.fraisLibelle ? ' — ' + c.fraisLibelle : ''), c.fraisMontant || 0);
   } else {
-    add(S.forfaitBase, c.base, 'forfait');
+    add(c.formuleA ? (S.priseEnCharge || S.forfaitBase) : S.forfaitBase, c.base, 'forfait');
     add(S.kilometrage + (c.retourLongueDistance && c.retourLDCost > 0 ? ' (' + S.retourLD + ' ' + fmt(c.retourLDCost) + ')' : ''), c.kmCost, 'km');
     add(S.forfaitMinimum, c.plancherComplement > 0 ? c.plancherComplement : 0);
     (c.extras || []).forEach(e => add('+ ' + (extraLabels[e.type] || e.label), e.cost, 'extra'));
@@ -9905,9 +10104,11 @@ function lignesDocument(c, lang, meta){
   }
   if(c.remiseAmount > 0) L.push({label:S.remise, amount:-c.remiseAmount, type:'remise'});
   if(typeof c.total === 'number'){
+    // v225 : la somme se fait sur les montants tels qu'imprimés (au centime), pour que lignes = total, toujours.
+    L.forEach(l => { l.amount = Math.round(l.amount * 100) / 100; });
     const somme = L.reduce((s, l) => s + l.amount, 0);
     const ecart = Math.round((c.total - somme) * 100) / 100;
-    if(Math.abs(ecart) >= 0.01) L.push({label: S.arrondi, amount: ecart, type:'arrondi'});
+    if(Math.abs(ecart) >= 0.01) L.push({label: (c.formuleA && c.pasArrondi) ? (S.arrondiGrille || S.arrondi).replace('5', String(c.pasArrondi)) : S.arrondi, amount: ecart, type:'arrondi'});
   }
   return L;
 }
@@ -11726,7 +11927,171 @@ function MOTEUR_kmCost(km, kmRate, kmMultiplier, estRemorquage, tarifs) {
  * @param {object} config { typesRemorquage: [...] }
  * @returns {object} Le détail complet + le total, dans la même structure que lastCalc
  */
+function MOTEUR_A_calculerTarif(d, tarifs, config) {
+  const typesRemorquage = config.typesRemorquage;
+  const type = d.type;
+  const FORMULE_A = FORMULE_A_TYPES.includes(type);
+
+  const extras = (d.extras || []).map(t => ({ type: t, cost: tarifs[t] }));
+  const extrasCost = extras.reduce((sum, e) => sum + e.cost, 0);
+
+  const isBatt = type === 'changement_batterie' || type === 'moto_batterie';
+  const battDeplacement = isBatt && !!d.battDeplacement;
+  const battPrice = isBatt ? (d.battPrice || 0) : 0;
+
+  const joursGardiennage = d.gardiennageOn ? (d.joursGardiennage || 0) : 0;
+  const gardiennageCost = joursGardiennage * tarifs.gardiennageJour;
+
+  const minutesAttente = d.attenteOn ? (d.minutesAttente || 0) : 0;
+  const attenteCost = Math.ceil(minutesAttente / 15) * tarifs.attente15minFee;
+
+  const isLeveeSaisie = type === 'levee_saisie';
+  const ctRepasse = isLeveeSaisie ? (d.ctRepasseMontant || 0) : 0;
+
+  const donneesCT = d.donneesCT || null;
+  const ctOfficielsCost = (donneesCT && donneesCT.fraisOfficielsAvances) ? donneesCT.fraisOfficiels : 0;
+  const ctPrestataireCost = donneesCT ? donneesCT.fraisPrestataire : 0;
+
+  const estEnlise = type === 'desembourbement';
+  const operationsEnlise = estEnlise ? (d.operationsEnlise || []).map(o => ({ ...o })) : [];
+  const manutMinutes = operationsEnlise.reduce((s, o) => s + (o.minutes || 0), 0);
+  const manutSupp = operationsEnlise.reduce((s, o) => s + (o.supp || 0), 0);
+
+  const annulation = !!d.annulation;
+  const annulationMontant = annulation ? (d.annulationMontant || 0) : 0;
+
+  const isEpave = type === 'epave_demolition';
+  const pasRoues = isEpave && !!d.pasRoues;
+  const pasRouesFee = pasRoues ? tarifs.epaveSansRouesFee : 0;
+
+  const base = tarifs[type];
+  const camionOn = !!d.camionOn;
+  const kmRateNormal = FORMULE_A
+    ? tarifs.km_formuleA
+    : ((typesRemorquage.includes(type) || camionOn) ? tarifs.km_remorque : tarifs.km_deplacement);
+
+  const km = d.km || 0;
+  const kmExcept = (d.kmTarifExceptionnel === undefined || d.kmTarifExceptionnel === null || d.kmTarifExceptionnel === '')
+    ? NaN
+    : parseFloat(d.kmTarifExceptionnel);
+  const gesteDemande = (!isNaN(kmExcept) && kmExcept > 0);
+  const gesteHorsPlage = gesteDemande && km > tarifs.gesteKmMax;
+  const kmTarifExcept = (gesteDemande && !gesteHorsPlage) ? kmExcept : null;
+  const kmRate = kmTarifExcept !== null ? kmTarifExcept : kmRateNormal;
+
+  // Retour CT : toujours au tarif camion (3,45 €/km), jamais à la Formule A.
+  const ctRetourCost = donneesCT ? donneesCT.kmRetour * (FORMULE_A ? (kmTarifExcept !== null ? kmTarifExcept : tarifs.km_remorque) : kmRate) : 0;
+  const estRemorquage = typesRemorquage.includes(type) || camionOn;
+  const retourVide = !!d.retour;
+  const kmRetourFourni = parseFloat(d.kmRetourVide);
+  const kmRetourVide = retourVide ? ((!isNaN(kmRetourFourni) && kmRetourFourni >= 0) ? kmRetourFourni : km) : 0;
+  const kmRetourVerifie = retourVide && !!d.kmRetourVerifie;
+  const retourCTKm = donneesCT ? (donneesCT.kmRetour || 0) : 0;
+  const retourDoubleConfirme = !!d.retourDoubleConfirme;
+  const retourVideNeutralise = retourVide && retourCTKm > 0 && !retourDoubleConfirme;
+  const kmRetourFacture = retourVideNeutralise ? 0 : kmRetourVide;
+  const kmFacturable = Math.round((km + kmRetourFacture) * 10) / 10;
+  const tarifRetourLD = (typeof tarifs.km_retour_longue_distance === 'number') ? tarifs.km_retour_longue_distance : 0;
+  const retourLongueDistance = retourVide && kmRetourFacture > 0 && d.retourLongueDistance === true && tarifRetourLD > 0 && !FORMULE_A;
+  const kmDegressif = retourLongueDistance ? Math.round(km * 10) / 10 : kmFacturable;
+  const retourLDCost = retourLongueDistance ? kmRetourFacture * tarifRetourLD : 0;
+  const kmMultiplier = 1;
+  const kmCost = (kmTarifExcept !== null
+    ? kmDegressif * kmTarifExcept
+    : (FORMULE_A ? kmDegressif * kmRate : MOTEUR_kmCost(kmDegressif, kmRate, 1, estRemorquage, tarifs))) + retourLDCost;
+  const typesPlancher = config.typesPlancher || TYPES_PLANCHER;
+  const plancherVl = (typeof tarifs.plancherRemorquage === 'number') ? tarifs.plancherRemorquage : 0;
+  const plancher = (d.vehicleType === 'vsp' && typeof tarifs.plancherVsp === 'number') ? tarifs.plancherVsp : plancherVl;
+  const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
+  const plancherComplement = (plancherApplicable && (base + kmCost) < plancher) ? (plancher - (base + kmCost)) : 0;
+
+  const vehicleFeeMap = {
+    suv: tarifs.vehiculeSuvFee,
+    electrique: tarifs.vehiculeElectriqueFee,
+    utilitaire: tarifs.vehiculeUtilitaireFee
+  };
+  const vehicleFee = vehicleFeeMap[d.vehicleType] || 0;
+
+  const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
+  const nuitCost = (!annulation && d.nuit) ? subtotal * (tarifs.nuitPct / 100) : 0;
+  const weCost = (!annulation && d.we) ? subtotal * (tarifs.wePct / 100) : 0;
+  const autoCost = (!annulation && d.auto) ? tarifs.auto : 0;
+  const battCost = (!annulation && battPrice > 0) ? battPrice * (1 + tarifs.battMarginPct / 100) : 0;
+  const battDeplacementCost = (!annulation && battDeplacement) ? tarifs.battDeplacementFee : 0;
+
+  const fraisMontant = d.fraisMontant || 0;
+
+  const totalAvantRemise = annulation
+    ? (annulationMontant + fraisMontant)
+    : (subtotal + nuitCost + weCost + autoCost + battCost + battDeplacementCost
+       + gardiennageCost + attenteCost + fraisMontant + manutSupp
+       + ctOfficielsCost + ctPrestataireCost + ctRetourCost);
+
+  const remiseValue = d.remiseValue || 0;
+  const remiseUnit = d.remiseUnit || 'euro';
+  // v225 — Formule A : prix de grille arrondi au multiple supérieur AVANT la remise,
+  // puis remise soustraite exactement (en €, ou en % du montant arrondi). Une seule fois, à la fin.
+  const pasArrondi = (FORMULE_A && !annulation && Number(tarifs.arrondiRemorquage) > 0) ? Number(tarifs.arrondiRemorquage) : 0;
+  const arrondiGrille = pasArrondi ? Math.ceil(Math.round(Math.max(0, totalAvantRemise) * 100) / 100 / pasArrondi - 1e-9) * pasArrondi : null;
+  const baseRemise = pasArrondi ? arrondiGrille : totalAvantRemise;
+  const remiseAmount = remiseValue <= 0
+    ? 0
+    : (remiseUnit === 'pct' ? baseRemise * (remiseValue / 100) : remiseValue);
+  const total = pasArrondi
+    ? Math.round(Math.max(0, arrondiGrille - remiseAmount) * 100) / 100
+    : Math.round(Math.max(0, totalAvantRemise - remiseAmount));
+  const arrondiAjout = pasArrondi ? Math.round((arrondiGrille - totalAvantRemise) * 100) / 100 : 0;
+
+  return {
+    formuleA: FORMULE_A, pasArrondi, arrondiGrille, arrondiAjout, moteurVersion: 'A',
+    type, km, retour: !!d.retour, camionOn, nuit: !!d.nuit, we: !!d.we, auto: !!d.auto,
+    base, kmCost, kmTarifExcept, kmRateNormal, kmRate, kmMultiplier, estRemorquage,
+    kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme,
+    kmFacturable, kmSeuil: tarifs.kmDegressifSeuil, kmRateReduit: tarifs.km_remorque_reduit,
+    retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
+    plancher, plancherApplicable, plancherComplement,
+    gesteDemande, gesteHorsPlage,
+    ctRepasse, nuitCost, weCost, autoCost,
+    extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost,
+    joursGardiennage, gardiennageCost, minutesAttente, attenteCost,
+    pasRoues, pasRouesFee, vehicleType: d.vehicleType || '', vehicleFee,
+    remiseValue, remiseUnit, remiseAmount,
+    fraisMontant, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost,
+    operationsEnlise, manutMinutes, manutSupp,
+    annulation, annulationMontant,
+    subtotal, totalAvantRemise, total
+  };
+}
+
+// v225 — point d'entrée unique : devis, devis rapide, WhatsApp, validation finale, enregistrement.
+// Une intervention calculée en v224 garde le moteur v224 figé (avec les tarifs de l'époque).
 function MOTEUR_calculerTarif(d, tarifs, config) {
+  if(d && d.moteurVersion === 'v224'){
+    const r = MOTEUR_v224_calculerTarif(d, tarifsV224(), config);
+    r.moteurVersion = 'v224'; r.formuleA = false; r.pasArrondi = 0; r.arrondiGrille = null; r.arrondiAjout = 0;
+    return r;
+  }
+  return MOTEUR_A_calculerTarif(d, tarifs, config);
+}
+
+// ===================== MOTEUR v224 FIGÉ — NE JAMAIS MODIFIER =====================
+function MOTEUR_v224_kmCost(km, kmRate, kmMultiplier, estRemorquage, tarifs) {
+  if (!estRemorquage || km <= tarifs.kmDegressifSeuil) {
+    return km * kmRate * kmMultiplier;
+  }
+  const seuil = tarifs.kmDegressifSeuil;
+  return (seuil * kmRate + (km - seuil) * tarifs.km_remorque_reduit) * kmMultiplier;
+}
+
+/**
+ * Calcule le montant d'une intervention.
+ *
+ * @param {object} d      Données de l'intervention (voir DONNEES_PAR_DEFAUT)
+ * @param {object} tarifs Les tarifs (équivalent de RATES dans l'application)
+ * @param {object} config { typesRemorquage: [...] }
+ * @returns {object} Le détail complet + le total, dans la même structure que lastCalc
+ */
+function MOTEUR_v224_calculerTarif(d, tarifs, config) {
   const typesRemorquage = config.typesRemorquage;
   const type = d.type;
 
@@ -11795,8 +12160,8 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
   const kmMultiplier = 1;
   const kmCost = (kmTarifExcept !== null
     ? kmDegressif * kmTarifExcept
-    : MOTEUR_kmCost(kmDegressif, kmRate, 1, estRemorquage, tarifs)) + retourLDCost;
-  const typesPlancher = config.typesPlancher || TYPES_PLANCHER;
+    : MOTEUR_v224_kmCost(kmDegressif, kmRate, 1, estRemorquage, tarifs)) + retourLDCost;
+  const typesPlancher = config.typesPlancher || TYPES_PLANCHER_V224;
   const plancherVl = (typeof tarifs.plancherRemorquage === 'number') ? tarifs.plancherRemorquage : 0;
   const plancher = (d.vehicleType === 'vsp' && typeof tarifs.plancherVsp === 'number') ? tarifs.plancherVsp : plancherVl;
   const plancherApplicable = !annulation && plancher > 0 && typesPlancher.includes(type);
@@ -11850,6 +12215,7 @@ function MOTEUR_calculerTarif(d, tarifs, config) {
     subtotal, totalAvantRemise, total
   };
 }
+// ===================== FIN DU MOTEUR v224 FIGÉ =====================
 
 const MOTEUR_DONNEES_PAR_DEFAUT = {
   type: 'depannage',
@@ -12503,8 +12869,11 @@ function calculer(){
       kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
       retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD;
 
-  if(MOTEUR_ACTIF){
+  // v225 : un seul chemin de calcul. Mode de secours = moteur v224 figé ; intervention rouverte = sa version d'origine.
+  const versionCalcul = (typeof MOTEUR_ACTIF !== 'undefined' && !MOTEUR_ACTIF) ? 'v224' : (VERSION_EDITION || 'A');
+  if(true){
     DERNIERE_ENTREE_MOTEUR = {
+      moteurVersion: versionCalcul,
       type, km, nuit, we, auto, retour, camionOn,
       kmRetourVide: rvDonnees.kmRetourVide, kmRetourVerifie: rvDonnees.kmRetourVerifie,
       retourDoubleConfirme: rvDonnees.retourDoubleConfirme,
@@ -12544,6 +12913,7 @@ function calculer(){
     battCost = R.battCost; battDeplacementCost = R.battDeplacementCost;
     totalAvantRemise = R.totalAvantRemise; remiseAmount = R.remiseAmount;
     total = R.total;
+    DERNIER_RESULTAT_MOTEUR = R;
     // v220 : un dépannage/transfert normal ne doit jamais sortir 0 € sur le secours.
     // Si cela arrive encore sans annulation ni remise totale, recalcul strict avec les
     // barèmes embarqués connus, sans toucher au moteur de calcul.
@@ -12601,6 +12971,14 @@ function calculer(){
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  lastCalc.moteurVersion = versionCalcul;
+  if(DERNIER_RESULTAT_MOTEUR){
+    lastCalc.formuleA = !!DERNIER_RESULTAT_MOTEUR.formuleA;
+    lastCalc.pasArrondi = DERNIER_RESULTAT_MOTEUR.pasArrondi || 0;
+    lastCalc.arrondiGrille = DERNIER_RESULTAT_MOTEUR.arrondiGrille;
+    lastCalc.arrondiAjout = DERNIER_RESULTAT_MOTEUR.arrondiAjout || 0;
+  }
+  majLignesFormuleA(lastCalc, true);
 
   document.getElementById('tkNum').textContent = 'BON N°' + Date.now().toString().slice(-6);
   document.getElementById('tkDate').textContent = new Date().toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -12969,7 +13347,7 @@ async function enregistrer(){
     await window.storage.set(id, JSON.stringify(entry));
     const idNouvellementCree = editingKey ? null : id;   // seulement pour une création, pas une modification
     showToast(editingKey ? 'Intervention modifiée' : 'Intervention enregistrée');
-    editingKey = null;
+    editingKey = null; VERSION_EDITION = null; majBandeauVersion();
     document.getElementById('editBanner').style.display = 'none';
     clearReceiptPhoto();
     clearEpavePhotos();
@@ -14906,6 +15284,7 @@ async function chargerStatsMoteur(){
     const resultat = original.apply(this, arguments);   // le calcul réel, inchangé
     try{
       if(!lastCalc) return resultat;
+      if(lastCalc.formuleA || lastCalc.moteurVersion === 'v224') return resultat;   // v225 : couverts par les tests dédiés
       const CTX = {TYPES_REMORQUAGE, TYPES_CT: (typeof TYPES_CT !== 'undefined') ? TYPES_CT : [], TYPE_LABELS};
       const obtenu = calculerTarif(lireFormulairePourMoteur(), RATES, CTX);
       const divergents = [];
@@ -15411,6 +15790,42 @@ setInterval(() => { if(syncActif() && navigator.onLine) synchroniser(); }, 12000
 window.addEventListener('load', () => { syncMajIndicateur(); setTimeout(() => { if(syncActif()) synchroniser(); }, 1500); });
 // Code d'association reçu par QR (#pair=XXXX) : pré-rempli
 try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() => { const el = document.getElementById('syncCodeSaisi'); if(el) el.value = m[1].toUpperCase(); }, 800); } }catch(e){}
+
+// ===================================================================
+//  v224 — l'accueil tient toujours sur l'écran, sans défiler.
+//  On mesure la place réellement disponible (zones réservées de l'iPhone comprises)
+//  et on retire progressivement le décor : compactage, puis « Nos interventions »,
+//  puis la bannière. Aucune donnée ni fonction n'est touchée.
+// ===================================================================
+function ajusterHauteurAccueil(){
+  if(!document.body.classList.contains('sur-accueil')) return;
+  const barre = document.querySelector('.tabbar');
+  if(!barre) return;
+  const dispo = () => barre.getBoundingClientRect().top - 4;
+  const bas = () => {
+    let b = 0;
+    ['.jm-coverage', '.jm-brand-hero', '.accueil-grid'].forEach(s => {
+      const e = document.querySelector(s);
+      if(e && getComputedStyle(e).display !== 'none') b = Math.max(b, e.getBoundingClientRect().bottom);
+    });
+    return b;
+  };
+  document.body.classList.remove('acc-1', 'acc-2', 'acc-3');
+  for(const cls of ['acc-1', 'acc-2', 'acc-3']){
+    if(bas() <= dispo()) return;
+    document.body.classList.add(cls);
+  }
+}
+window.addEventListener('resize', ajusterHauteurAccueil);
+window.addEventListener('orientationchange', () => setTimeout(ajusterHauteurAccueil, 250));
+window.addEventListener('load', () => setTimeout(ajusterHauteurAccueil, 300));
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') setTimeout(ajusterHauteurAccueil, 150); });
+(function brancherAjustement(){
+  const _show = window.showTab;
+  if(typeof _show === 'function'){ window.showTab = function(){ const r = _show.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
+  const _maj = window.majResumeAccueil;
+  if(typeof _maj === 'function'){ window.majResumeAccueil = async function(){ const r = await _maj.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
+})();
 </script>
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 
