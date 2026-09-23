@@ -1587,6 +1587,115 @@
   #modalMenuBg .menu-item:last-child .menu-desc{align-self:start;}
   #modalMenuBg .close-modal{min-height:48px;border-radius:16px;font-weight:800;background:color-mix(in srgb,var(--panel-2) 95%,var(--orange) 5%);}
   @media(max-width:360px){#modalMenuBg .modal{padding:14px 12px 13px}#modalMenuBg .menu-grid{gap:7px}#modalMenuBg .menu-item{min-height:86px;padding:10px}#modalMenuBg .menu-lbl{font-size:13px}#modalMenuBg .menu-desc{font-size:10px}}
+
+
+/* === v237 — PROPOSITION VISUELLE JM EXPRESS : accents par univers, CSS uniquement === */
+:root{
+  --jm-blue:#168BFF; --jm-cyan:#17C7D9; --jm-green:#20C766; --jm-purple:#A84DFF;
+  --jm-magenta:#F13B8C; --jm-red:#FF4D4F; --jm-gold:#FFB11A;
+}
+
+/* Transitions pro, courtes : jamais d'effet "gaming" */
+@media (prefers-reduced-motion:no-preference){
+  .tab-section[style*="display: block"], .modal-bg.show .modal{animation:jmV237In .22s cubic-bezier(.2,.75,.25,1) both}
+  .gros-bouton,.stat-case,.menu-item,.service-card,.route-card,.grp,.qq-result,.ticket,.bac-btn,.bac-state{transition:transform .14s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+  @keyframes jmV237In{from{opacity:.45;transform:translateY(7px) scale(.992)}to{opacity:1;transform:none}}
+}
+
+/* Accueil — chaque indicateur a sa propre identité sans casser la marque orange */
+body.sur-accueil .accueil-stats .stat-case:nth-child(1){border-color:rgba(255,149,0,.56);background:linear-gradient(150deg,rgba(255,149,0,.14),var(--panel) 55%)}
+body.sur-accueil .accueil-stats .stat-case:nth-child(2){border-color:rgba(32,199,102,.50);background:linear-gradient(150deg,rgba(32,199,102,.13),var(--panel) 55%)}
+body.sur-accueil .accueil-stats .stat-case:nth-child(3){border-color:rgba(22,139,255,.52);background:linear-gradient(150deg,rgba(22,139,255,.13),var(--panel) 55%)}
+body.sur-accueil .accueil-stats .stat-case:nth-child(2) .stat-val{color:var(--jm-green)!important}
+body.sur-accueil .accueil-stats .stat-case:nth-child(3) .stat-val{color:var(--jm-blue)!important}
+body.sur-accueil .accueil-grid .gros-bouton:not(.principal){position:relative;overflow:hidden}
+body.sur-accueil .accueil-grid .gros-bouton:not(.principal)::after{content:"";position:absolute;inset:auto 10px 0;height:2px;border-radius:2px;background:var(--jm-blue);opacity:.8}
+body.sur-accueil .accueil-grid .gros-bouton:nth-child(3)::after{background:var(--jm-cyan)}
+body.sur-accueil .accueil-grid .gros-bouton:nth-child(4)::after{background:var(--jm-red)}
+body.sur-accueil .accueil-grid .gros-bouton:nth-child(5)::after{background:var(--jm-purple)}
+body.sur-accueil .accueil-grid .gros-bouton:nth-child(6)::after{background:var(--jm-green)}
+
+/* Barre basse — couleurs différentes selon l'univers */
+.tab-btn[data-tab="tabAccueil"].active .tab-ico,.tab-btn[data-tab="tabAccueil"].active .tab-lbl{color:var(--orange)!important}
+.tab-btn[data-tab="tabHistorique"].active .tab-ico,.tab-btn[data-tab="tabHistorique"].active .tab-lbl{color:var(--jm-cyan)!important}
+.tab-btn[data-tab="tabRoute"].active .tab-ico,.tab-btn[data-tab="tabRoute"].active .tab-lbl{color:var(--jm-blue)!important}
+.tab-btn[data-tab="tabDevis"].active .tab-ico,.tab-btn[data-tab="tabDevis"].active .tab-lbl{color:var(--jm-purple)!important}
+
+/* Bon d'intervention — violet/bleu technique avec CTA orange conservé */
+#tabNouveau>.card{border-color:rgba(168,77,255,.44)!important;box-shadow:0 16px 42px rgba(72,35,120,.14)!important;position:relative;overflow:hidden}
+#tabNouveau>.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--jm-purple),var(--jm-blue),var(--orange))}
+#tabNouveau>.eyebrow{color:var(--jm-purple)!important}
+#tabNouveau input:focus,#tabNouveau textarea:focus{border-color:var(--jm-blue)!important;box-shadow:0 0 0 3px rgba(22,139,255,.14)!important}
+#tabNouveau #type{font-weight:850;color:var(--white);border:1px solid rgba(168,77,255,.65)!important;background:linear-gradient(135deg,rgba(168,77,255,.20),rgba(22,139,255,.11)),var(--panel-2)!important;box-shadow:0 7px 18px rgba(59,34,94,.13);padding-right:38px}
+#tabNouveau #type:focus{border-color:var(--jm-purple)!important;box-shadow:0 0 0 3px rgba(168,77,255,.16)!important}
+#tabNouveau #type option{background:#13202a;color:#f7fafc}
+
+/* Historique — cyan */
+#tabHistorique>.eyebrow,#tabHistorique .page-title{position:relative}
+#tabHistorique .hist-item{border-left:3px solid rgba(23,199,217,.72);box-shadow:0 8px 24px rgba(0,89,104,.07)}
+#tabHistorique .hist-item:active{border-left-color:var(--jm-cyan);transform:scale(.994)}
+
+/* Feuille de route — bleu */
+#modalRouteBg .modal{border-color:rgba(22,139,255,.55)!important;box-shadow:0 22px 58px rgba(0,61,125,.20)!important}
+#modalRouteBg .modal:before{background:linear-gradient(90deg,var(--jm-blue),var(--jm-cyan),var(--orange))!important}
+#modalRouteBg .route-card{border-left-color:var(--jm-blue)!important}
+#modalRouteBg .dispatch-mode button.on{border-color:var(--jm-blue)!important;color:var(--jm-blue)!important;background:rgba(22,139,255,.12)!important}
+
+/* Devis — violet */
+#modalQuickQuoteBg .modal{border:1px solid rgba(168,77,255,.58);box-shadow:0 22px 58px rgba(72,35,120,.22)}
+#modalQuickQuoteBg .modal::before{content:"";display:block;height:3px;margin:-20px -20px 16px;background:linear-gradient(90deg,var(--jm-purple),var(--jm-magenta),var(--orange))}
+#modalQuickQuoteBg .primary{background:linear-gradient(135deg,#8E35F3,var(--jm-purple));border-color:#C77BFF;box-shadow:0 9px 24px rgba(168,77,255,.25)}
+#modalQuickQuoteBg select:focus,#modalQuickQuoteBg input:focus{border-color:var(--jm-purple);box-shadow:0 0 0 3px rgba(168,77,255,.14)}
+
+/* Facture / bon / documents — magenta-rouge premium dans l'app, contenu PDF inchangé pour cette proposition */
+#modalInvoiceBg .modal,#modalBdcBg .modal,#modalActionsFactureBg .modal,#modalListeBdcBg .modal{border:1px solid rgba(241,59,140,.45);box-shadow:0 22px 60px rgba(95,24,58,.18)}
+#modalInvoiceBg .modal::before,#modalBdcBg .modal::before{content:"";display:block;height:3px;margin:-20px -20px 16px;background:linear-gradient(90deg,var(--jm-magenta),var(--jm-red),var(--orange))}
+#modalInvoiceBg .grp-title,#modalBdcBg .grp-title{color:var(--jm-magenta)!important}
+#modalInvoiceBg .primary,#modalBdcBg .primary{background:linear-gradient(135deg,#E82F7F,#FF575A);border-color:#FF7C9E;box-shadow:0 9px 24px rgba(241,59,140,.24)}
+
+/* QR / Paiement — or + vert : attire l'œil sans rendre le QR illisible */
+#modalQrRevolutBg .modal,#modalPaiementBg .modal,#modalStatutPaiementBg .modal{border:1px solid rgba(255,177,26,.58);box-shadow:0 22px 58px rgba(117,79,0,.18)}
+#modalQrRevolutBg #qrRevolutBox,#modalPaiementBg .qr-box{box-shadow:0 0 0 3px rgba(255,177,26,.20),0 16px 34px rgba(0,0,0,.18)!important}
+#modalPaiementBg .primary,#modalQrRevolutBg .primary{background:linear-gradient(135deg,#15A94F,var(--jm-green));border-color:#42DE80;box-shadow:0 8px 24px rgba(32,199,102,.24)}
+
+/* Clients — vert */
+#modalClientsBg .modal{border:1px solid rgba(32,199,102,.48);box-shadow:0 22px 58px rgba(17,99,54,.18)}
+#modalClientsBg .page-title,#modalClientsBg .grp-title{color:color-mix(in srgb,var(--white) 88%,var(--jm-green) 12%)}
+#modalClientsBg input:focus{border-color:var(--jm-green);box-shadow:0 0 0 3px rgba(32,199,102,.13)}
+
+/* Réglages — cyan/bleu, distinct de l'administratif orange */
+#modalBg .modal{border-color:rgba(23,199,217,.40)!important}
+#modalBg .settings-category>.extras-header{background:linear-gradient(90deg,rgba(23,199,217,.10),rgba(22,139,255,.07),var(--card))!important}
+#modalBg .grp-title{color:var(--jm-cyan)!important}
+
+/* Barre terrain A/B — vraie palette opérationnelle */
+.barre-actions-contextuelle{border:1px solid rgba(22,139,255,.30);box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.bac-state.depart{background:linear-gradient(135deg,#E88300,var(--orange))!important;border-color:#FFB642!important}
+.bac-state.fin{background:linear-gradient(135deg,#149348,var(--jm-green))!important;border-color:#47DC85!important}
+.bac-actions .bac-btn:nth-child(1){border-color:rgba(22,139,255,.50);background:rgba(22,139,255,.10)}
+.bac-actions .bac-btn:nth-child(2){border-color:rgba(255,177,26,.44);background:rgba(255,177,26,.08)}
+.bac-actions .bac-btn:nth-child(3){border-color:rgba(168,77,255,.52);background:rgba(168,77,255,.11)}
+.bac-actions .bac-btn:nth-child(4){border-color:rgba(23,199,217,.48);background:rgba(23,199,217,.09)}
+
+/* Ticket / résultat calcul — total plus percutant mais professionnel */
+.ticket{border:1px solid rgba(168,77,255,.34)}
+.ticket-total{border-color:rgba(32,199,102,.42)!important;background:linear-gradient(135deg,rgba(32,199,102,.10),rgba(22,139,255,.06),var(--panel))!important}
+.ticket-total .amt{color:var(--jm-green)!important;text-shadow:0 2px 18px rgba(32,199,102,.28)!important}
+
+/* Menu services : catégories différenciées */
+.services-grid .service-card:nth-child(6n+1){border-color:rgba(255,77,79,.55);background:linear-gradient(145deg,rgba(255,77,79,.16),#101a21 58%)}
+.services-grid .service-card:nth-child(6n+2){border-color:rgba(22,139,255,.55);background:linear-gradient(145deg,rgba(22,139,255,.15),#101a21 58%)}
+.services-grid .service-card:nth-child(6n+3){border-color:rgba(255,177,26,.55);background:linear-gradient(145deg,rgba(255,177,26,.14),#101a21 58%)}
+.services-grid .service-card:nth-child(6n+4){border-color:rgba(32,199,102,.55);background:linear-gradient(145deg,rgba(32,199,102,.14),#101a21 58%)}
+.services-grid .service-card:nth-child(6n+5){border-color:rgba(168,77,255,.55);background:linear-gradient(145deg,rgba(168,77,255,.14),#101a21 58%)}
+.services-grid .service-card:nth-child(6n){border-color:rgba(23,199,217,.55);background:linear-gradient(145deg,rgba(23,199,217,.14),#101a21 58%)}
+.service-card:active{transform:scale(.985);filter:brightness(1.08)}
+
+/* Light mode : garder la lisibilité, réduire le néon */
+html:not([data-theme="dark"]) #tabNouveau #type{color:#172027;background:linear-gradient(135deg,rgba(168,77,255,.09),rgba(22,139,255,.06)),#fff!important}
+html:not([data-theme="dark"]) #tabNouveau #type option{background:#fff;color:#172027}
+html:not([data-theme="dark"]) .ticket-total{background:linear-gradient(135deg,rgba(32,199,102,.08),rgba(22,139,255,.05),#fff)!important}
+
 </style>
 </head>
 <body>
