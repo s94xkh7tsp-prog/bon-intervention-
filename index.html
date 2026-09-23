@@ -1697,6 +1697,35 @@ html:not([data-theme="dark"]) #tabNouveau #type option{background:#fff;color:#17
 html:not([data-theme="dark"]) .ticket-total{background:linear-gradient(135deg,rgba(32,199,102,.08),rgba(22,139,255,.05),#fff)!important}
 
 </style>
+
+<style id="jm-v238-service-picker-style">
+/* v238 — Sélecteur de services visuel, sans toucher au moteur tarifaire */
+.services-grid{grid-template-columns:1fr!important;gap:10px!important}
+.services-grid .service-card{min-height:76px!important;padding:12px 14px!important;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.services-grid .service-card:after{content:'›';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:900;color:rgba(255,255,255,.72)}
+.services-grid .service-head{margin-bottom:5px!important}.services-grid .service-name{font-size:14px!important}.services-grid .service-desc{font-size:11.5px!important;padding-right:22px}
+
+.jm-service-picker-trigger{width:100%;min-height:62px;border:1px solid rgba(90,122,140,.58);border-radius:16px;background:linear-gradient(145deg,#14242d,#0e181f);color:#f8fbfd;display:flex;align-items:center;gap:12px;padding:10px 14px;text-align:left;box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.18);font:inherit}
+.jm-service-picker-trigger:active{transform:scale(.99)}
+.jm-service-picker-trigger .jm-sp-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:linear-gradient(145deg,rgba(255,149,0,.30),rgba(255,149,0,.08));border:1px solid rgba(255,165,20,.55);box-shadow:0 0 16px rgba(255,149,0,.12)}
+.jm-service-picker-trigger .jm-sp-copy{min-width:0;flex:1}.jm-service-picker-trigger .jm-sp-kicker{display:block;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#8fa6b3;font-weight:800;margin-bottom:2px}.jm-service-picker-trigger .jm-sp-label{display:block;font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jm-service-picker-trigger .jm-sp-chevron{font-size:22px;color:#ff9a00}
+
+.jm-service-picker-bg{position:fixed;inset:0;z-index:12050;background:rgba(2,8,12,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;align-items:flex-end;justify-content:center;padding:0}
+.jm-service-picker-bg.show{display:flex;animation:jmSpFade .16s ease both}
+.jm-service-picker-panel{width:min(100%,620px);max-height:88dvh;background:linear-gradient(180deg,#10202a,#081116 82%);border:1px solid #345262;border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -18px 50px rgba(0,0,0,.55);overflow:hidden;animation:jmSpUp .22s cubic-bezier(.2,.8,.2,1) both}
+.jm-service-picker-head{padding:14px 14px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(94,129,148,.24);background:rgba(11,23,30,.92);position:sticky;top:0;z-index:2}.jm-service-picker-head strong{font-size:18px;flex:1}.jm-service-picker-close{width:38px;height:38px;border-radius:12px;border:1px solid #3b5665;background:#162832;color:white;font-size:22px}
+.jm-service-search-wrap{padding:10px 12px 6px;background:#0d1a22}.jm-service-search{width:100%;height:44px;border-radius:13px!important;border:1px solid #385667!important;background:#132630!important;color:white!important;padding:0 13px!important;font-size:14px!important}
+.jm-service-list{padding:8px 12px calc(env(safe-area-inset-bottom) + 14px);overflow-y:auto;max-height:68dvh;-webkit-overflow-scrolling:touch;scroll-snap-type:y proximity}
+.jm-service-choice{--svc:#ff9500;width:100%;min-height:70px;margin:8px 0;border-radius:16px;border:1px solid color-mix(in srgb,var(--svc) 62%,#29414e);background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 28%,#13212a),#101a21 58%);color:white;display:flex;align-items:center;gap:12px;padding:10px 13px;text-align:left;box-shadow:0 8px 20px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.04);scroll-snap-align:start;font:inherit;position:relative;overflow:hidden}
+.jm-service-choice:before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:var(--svc);box-shadow:0 0 14px var(--svc)}
+.jm-service-choice:active{transform:scale(.985);filter:brightness(1.08)}.jm-service-choice.selected{border-width:2px;box-shadow:0 0 0 1px color-mix(in srgb,var(--svc) 42%,transparent),0 0 22px color-mix(in srgb,var(--svc) 22%,transparent)}
+.jm-service-choice .jm-svc-icon{width:44px;height:44px;flex:0 0 44px;border-radius:13px;display:grid;place-items:center;font-size:23px;background:color-mix(in srgb,var(--svc) 26%,#0c151b);border:1px solid color-mix(in srgb,var(--svc) 58%,#2b4654);box-shadow:0 0 15px color-mix(in srgb,var(--svc) 18%,transparent)}
+.jm-service-choice .jm-svc-copy{min-width:0;flex:1}.jm-service-choice .jm-svc-name{display:block;font-size:14.5px;font-weight:900;line-height:1.16}.jm-service-choice .jm-svc-sub{display:block;color:#b9c8d0;font-size:10.8px;margin-top:3px}.jm-service-choice .jm-svc-arrow{font-size:22px;color:var(--svc);font-weight:900}
+.jm-service-empty{text-align:center;color:#91a5b0;padding:28px 10px}
+@keyframes jmSpFade{from{opacity:0}to{opacity:1}}@keyframes jmSpUp{from{transform:translateY(22px);opacity:.7}to{transform:none;opacity:1}}
+@media(max-width:380px){.jm-service-picker-panel{max-height:92dvh}.jm-service-choice{min-height:64px}.jm-service-choice .jm-svc-name{font-size:13.5px}}
+</style>
+
 </head>
 <body>
 
@@ -15192,7 +15221,71 @@ async function copierTournee(){ try{await navigator.clipboard.writeText(await co
 async function imprimerTourneePDF(){
   const text=await construireTourneePartage(true), w=window.open('','_blank'); if(!w){showToast('Autorise la fenêtre pour créer le PDF');return;}
   const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>JM Express - Feuille de route</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:28px;color:#172027}h1{font-size:20px}pre{white-space:pre-wrap;font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif}@media print{body{margin:12mm}}</style></head><body><h1>JM EXPRESS — Feuille de route</h1><pre>'+esc+'</pre><script>setTimeout(()=>window.print(),250)<\/script></body></html>');w.document.close();
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>JM Express - Feuille de route</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:28px;color:#172027}h1{font-size:20px}pre{white-space:pre-wrap;font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif}@media print{body{margin:12mm}}</style></head><body><h1>JM EXPRESS — Feuille de route</h1><pre>'+esc+'</pre><script>setTimeout(()=>window.print(),250)<\/script>
+<div class="jm-service-picker-bg" id="jmServicePickerBg" aria-hidden="true" onclick="if(event.target===this) jmCloseServicePicker()">
+  <div class="jm-service-picker-panel" role="dialog" aria-modal="true" aria-labelledby="jmServicePickerTitle">
+    <div class="jm-service-picker-head"><strong id="jmServicePickerTitle">Choisir un service</strong><button type="button" class="jm-service-picker-close" onclick="jmCloseServicePicker()" aria-label="Fermer">×</button></div>
+    <div class="jm-service-search-wrap"><input id="jmServiceSearch" class="jm-service-search" type="search" placeholder="Rechercher un service…" autocomplete="off" oninput="jmFilterServicePicker(this.value)"></div>
+    <div class="jm-service-list" id="jmServiceList"></div>
+  </div>
+</div>
+
+
+<script id="jm-v238-service-picker-script">
+(function(){
+  const TARGETS=['type','qqType','rdvType'];
+  let activeSelect=null;
+  const palette=['#ff4d4f','#168bff','#ffb11a','#20c766','#a84dff','#17c7d9','#ff7a1a','#00b894'];
+  function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+  function meta(label){
+    const t=norm(label);
+    if(t.includes('batterie')||t.includes('alternateur')) return ['🔋','#168bff','Assistance électrique'];
+    if(t.includes('pneu')||t.includes('roue')) return ['🛞','#ffb11a','Pneu / roue'];
+    if(t.includes('diagnostic')||t.includes('obd')) return ['🧰','#a84dff','Diagnostic'];
+    if(t.includes('carburant')) return ['⛽','#17c7d9','Carburant'];
+    if(t.includes('treuillage')||t.includes('desembourb')) return ['🪝','#ff7a1a','Intervention spéciale'];
+    if(t.includes('controle technique')||t.includes('ct ')) return ['📋','#20c766','Contrôle technique'];
+    if(t.includes('moto')) return ['🏍️','#ff4d4f','Deux-roues'];
+    if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP'];
+    if(t.includes('transfert')||t.includes('transport')) return ['🚚','#20c766','Transport'];
+    if(t.includes('epave')||t.includes('demolition')) return ['♻️','#00b894','Enlèvement'];
+    if(t.includes('saisie')) return ['🚓','#a84dff','Transfert administratif'];
+    if(t.includes('depannage')||t.includes('remorquage')) return ['🚨','#ff4d4f','Dépannage / remorquage'];
+    return ['🔧','#ff9500','Service JM Express'];
+  }
+  function updateTrigger(sel){
+    if(!sel)return; const btn=sel._jmPickerBtn; if(!btn)return;
+    const opt=sel.selectedOptions && sel.selectedOptions[0];
+    const label=opt?opt.textContent.trim():'Choisir un service'; const m=meta(label);
+    btn.querySelector('.jm-sp-icon').textContent=m[0]; btn.querySelector('.jm-sp-label').textContent=label;
+    btn.querySelector('.jm-sp-icon').style.borderColor=m[1]; btn.querySelector('.jm-sp-chevron').style.color=m[1];
+  }
+  function enhance(sel){
+    if(!sel||sel.dataset.jmServicePicker==='1')return; sel.dataset.jmServicePicker='1';
+    const btn=document.createElement('button'); btn.type='button'; btn.className='jm-service-picker-trigger';
+    btn.innerHTML='<span class="jm-sp-icon">🔧</span><span class="jm-sp-copy"><span class="jm-sp-kicker">Service</span><span class="jm-sp-label">Choisir un service</span></span><span class="jm-sp-chevron">›</span>';
+    btn.addEventListener('click',()=>window.jmOpenServicePicker(sel));
+    sel.insertAdjacentElement('afterend',btn); sel._jmPickerBtn=btn; sel.style.display='none';
+    sel.addEventListener('change',()=>updateTrigger(sel));
+    new MutationObserver(()=>updateTrigger(sel)).observe(sel,{childList:true,subtree:true}); updateTrigger(sel);
+  }
+  window.jmOpenServicePicker=function(sel){
+    activeSelect=sel; const list=document.getElementById('jmServiceList'); const bg=document.getElementById('jmServicePickerBg'); const search=document.getElementById('jmServiceSearch'); if(!list||!bg)return;
+    list.innerHTML=''; [...sel.options].forEach((opt,idx)=>{
+      if(opt.disabled||!opt.textContent.trim())return; const label=opt.textContent.trim(), m=meta(label); const b=document.createElement('button'); b.type='button'; b.className='jm-service-choice'+(idx===sel.selectedIndex?' selected':''); b.style.setProperty('--svc',m[1]); b.dataset.search=norm(label+' '+m[2]);
+      b.innerHTML='<span class="jm-svc-icon">'+m[0]+'</span><span class="jm-svc-copy"><span class="jm-svc-name"></span><span class="jm-svc-sub">'+m[2]+'</span></span><span class="jm-svc-arrow">›</span>'; b.querySelector('.jm-svc-name').textContent=label;
+      b.addEventListener('click',()=>{sel.selectedIndex=idx; sel.dispatchEvent(new Event('change',{bubbles:true})); updateTrigger(sel); jmCloseServicePicker();}); list.appendChild(b);
+    });
+    search.value=''; bg.classList.add('show'); bg.setAttribute('aria-hidden','false'); setTimeout(()=>{const cur=list.querySelector('.selected'); if(cur)cur.scrollIntoView({block:'center'});},40);
+  };
+  window.jmCloseServicePicker=function(){const bg=document.getElementById('jmServicePickerBg'); if(bg){bg.classList.remove('show'); bg.setAttribute('aria-hidden','true')} activeSelect=null};
+  window.jmFilterServicePicker=function(q){const n=norm(q); document.querySelectorAll('#jmServiceList .jm-service-choice').forEach(b=>b.style.display=!n||b.dataset.search.includes(n)?'flex':'none'); const visible=[...document.querySelectorAll('#jmServiceList .jm-service-choice')].some(b=>b.style.display!=='none'); let e=document.getElementById('jmServiceEmpty'); if(!visible){if(!e){e=document.createElement('div');e.id='jmServiceEmpty';e.className='jm-service-empty';e.textContent='Aucun service trouvé';document.getElementById('jmServiceList').appendChild(e)}}else if(e)e.remove()};
+  function boot(){TARGETS.forEach(id=>enhance(document.getElementById(id)))}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+</body></html>');w.document.close();
 }
 function ouvrirPartageTournee(){
   const old=document.getElementById('modalPartageTournee'); if(old)old.remove();
