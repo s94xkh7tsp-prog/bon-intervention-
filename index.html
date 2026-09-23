@@ -1726,6 +1726,35 @@ html:not([data-theme="dark"]) .ticket-total{background:linear-gradient(135deg,rg
 @media(max-width:380px){.jm-service-picker-panel{max-height:92dvh}.jm-service-choice{min-height:64px}.jm-service-choice .jm-svc-name{font-size:13.5px}}
 </style>
 
+
+<style id="jm-v240-coherence-style">
+/* v240 — cohérence visuelle véhicules, paiements et prestations */
+:root{--jm-red:#ff4d4f;--jm-blue:#168bff;--jm-amber:#ffb11a;--jm-green:#20c766;--jm-purple:#a84dff;--jm-cyan:#17c7d9;--jm-orange:#ff7a1a;--jm-teal:#00b894}
+/* Types de véhicule : une identité stable et lisible */
+#vtNormale,#qqVtNormale{--vt:#ff9500}#vtVsp,#qqVtVsp{--vt:#17c7d9}#vtSuv,#qqVtSuv{--vt:#ffb11a}#vtElectrique,#qqVtElectrique{--vt:#20c766}#vtUtilitaire,#qqVtUtilitaire{--vt:#168bff}
+#vtNormale,#vtVsp,#vtSuv,#vtElectrique,#vtUtilitaire,#qqVtNormale,#qqVtVsp,#qqVtSuv,#qqVtElectrique,#qqVtUtilitaire{border-color:color-mix(in srgb,var(--vt) 38%,#35505e)!important;transition:.16s ease;position:relative;overflow:hidden}
+#vtNormale:before,#vtVsp:before,#vtSuv:before,#vtElectrique:before,#vtUtilitaire:before,#qqVtNormale:before,#qqVtVsp:before,#qqVtSuv:before,#qqVtElectrique:before,#qqVtUtilitaire:before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--vt);opacity:.7}
+#vtNormale.on,#vtVsp.on,#vtSuv.on,#vtElectrique.on,#vtUtilitaire.on,#qqVtNormale.on,#qqVtVsp.on,#qqVtSuv.on,#qqVtElectrique.on,#qqVtUtilitaire.on{color:#fff!important;border-color:var(--vt)!important;background:linear-gradient(145deg,color-mix(in srgb,var(--vt) 27%,#13212a),#101a21 72%)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--vt) 30%,transparent),0 0 18px color-mix(in srgb,var(--vt) 20%,transparent)!important}
+#vtNormale.on svg,#vtSuv.on svg,#vtElectrique.on svg,#vtUtilitaire.on svg,#qqVtNormale.on svg,#qqVtSuv.on svg,#qqVtElectrique.on svg,#qqVtUtilitaire.on svg{stroke:var(--vt)!important;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--vt) 55%,transparent))}
+/* Acompte / encaissement */
+#tgAcompte{border-color:rgba(32,199,102,.42)!important}#tgAcompte.on{color:#fff!important;border-color:#20c766!important;background:linear-gradient(145deg,rgba(32,199,102,.24),#101a21)!important;box-shadow:0 0 18px rgba(32,199,102,.16)!important}
+/* Sections dépliables : mieux différencier sans saturer */
+#suppToggle{border-left:3px solid var(--jm-purple)!important}#optToggle{border-left:3px solid var(--jm-cyan)!important}
+/* Picker services : catégories visuelles cohérentes */
+.jm-service-group{position:sticky;top:0;z-index:1;margin:14px 0 6px;padding:7px 10px;border-radius:10px;background:rgba(9,18,24,.94);border:1px solid rgba(94,129,148,.20);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:10.5px;font-weight:900;letter-spacing:1.15px;text-transform:uppercase;color:#b9cad3;display:flex;align-items:center;gap:7px}
+.jm-service-group:before{content:'';width:20px;height:3px;border-radius:3px;background:var(--grp,#ff9500);box-shadow:0 0 10px color-mix(in srgb,var(--grp,#ff9500) 50%,transparent)}
+.jm-service-list{scroll-behavior:smooth}
+.jm-service-choice .jm-svc-sub{font-weight:650;letter-spacing:.1px}
+/* Le déclencheur reprend vraiment la couleur du service */
+.jm-service-picker-trigger{--svc:#ff9500;border-color:color-mix(in srgb,var(--svc) 52%,#35505e)!important;background:linear-gradient(145deg,color-mix(in srgb,var(--svc) 14%,#14242d),#0e181f 68%)!important}
+.jm-service-picker-trigger .jm-sp-icon{background:linear-gradient(145deg,color-mix(in srgb,var(--svc) 30%,#13212a),#0e181f)!important;border-color:color-mix(in srgb,var(--svc) 70%,#35505e)!important;box-shadow:0 0 16px color-mix(in srgb,var(--svc) 18%,transparent)!important}
+.jm-service-picker-trigger .jm-sp-chevron{color:var(--svc)!important}
+/* Texte / contrôles secondaires : contraste plus net */
+.grp>label,.section-label{color:#9fb2bd}
+input::placeholder,textarea::placeholder{color:#778b96!important;opacity:1}
+@media(max-width:380px){.jm-service-group{font-size:9.8px}.jm-service-choice{margin:6px 0}}
+</style>
+
 </head>
 <body>
 
@@ -15221,7 +15250,36 @@ async function copierTournee(){ try{await navigator.clipboard.writeText(await co
 async function imprimerTourneePDF(){
   const text=await construireTourneePartage(true), w=window.open('','_blank'); if(!w){showToast('Autorise la fenêtre pour créer le PDF');return;}
   const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>JM Express - Feuille de route</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:28px;color:#172027}h1{font-size:20px}pre{white-space:pre-wrap;font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif}@media print{body{margin:12mm}}</style></head><body><h1>JM EXPRESS — Feuille de route</h1><pre>'+esc+'</pre><script>setTimeout(()=>window.print(),250)<\/script></body></html>');w.document.close();
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>JM Express - Feuille de route</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:28px;color:#172027}h1{font-size:20px}pre{white-space:pre-wrap;font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif}@media print{body{margin:12mm}}</style>
+<style id="jm-v240-coherence-style">
+/* v240 — cohérence visuelle véhicules, paiements et prestations */
+:root{--jm-red:#ff4d4f;--jm-blue:#168bff;--jm-amber:#ffb11a;--jm-green:#20c766;--jm-purple:#a84dff;--jm-cyan:#17c7d9;--jm-orange:#ff7a1a;--jm-teal:#00b894}
+/* Types de véhicule : une identité stable et lisible */
+#vtNormale,#qqVtNormale{--vt:#ff9500}#vtVsp,#qqVtVsp{--vt:#17c7d9}#vtSuv,#qqVtSuv{--vt:#ffb11a}#vtElectrique,#qqVtElectrique{--vt:#20c766}#vtUtilitaire,#qqVtUtilitaire{--vt:#168bff}
+#vtNormale,#vtVsp,#vtSuv,#vtElectrique,#vtUtilitaire,#qqVtNormale,#qqVtVsp,#qqVtSuv,#qqVtElectrique,#qqVtUtilitaire{border-color:color-mix(in srgb,var(--vt) 38%,#35505e)!important;transition:.16s ease;position:relative;overflow:hidden}
+#vtNormale:before,#vtVsp:before,#vtSuv:before,#vtElectrique:before,#vtUtilitaire:before,#qqVtNormale:before,#qqVtVsp:before,#qqVtSuv:before,#qqVtElectrique:before,#qqVtUtilitaire:before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--vt);opacity:.7}
+#vtNormale.on,#vtVsp.on,#vtSuv.on,#vtElectrique.on,#vtUtilitaire.on,#qqVtNormale.on,#qqVtVsp.on,#qqVtSuv.on,#qqVtElectrique.on,#qqVtUtilitaire.on{color:#fff!important;border-color:var(--vt)!important;background:linear-gradient(145deg,color-mix(in srgb,var(--vt) 27%,#13212a),#101a21 72%)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--vt) 30%,transparent),0 0 18px color-mix(in srgb,var(--vt) 20%,transparent)!important}
+#vtNormale.on svg,#vtSuv.on svg,#vtElectrique.on svg,#vtUtilitaire.on svg,#qqVtNormale.on svg,#qqVtSuv.on svg,#qqVtElectrique.on svg,#qqVtUtilitaire.on svg{stroke:var(--vt)!important;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--vt) 55%,transparent))}
+/* Acompte / encaissement */
+#tgAcompte{border-color:rgba(32,199,102,.42)!important}#tgAcompte.on{color:#fff!important;border-color:#20c766!important;background:linear-gradient(145deg,rgba(32,199,102,.24),#101a21)!important;box-shadow:0 0 18px rgba(32,199,102,.16)!important}
+/* Sections dépliables : mieux différencier sans saturer */
+#suppToggle{border-left:3px solid var(--jm-purple)!important}#optToggle{border-left:3px solid var(--jm-cyan)!important}
+/* Picker services : catégories visuelles cohérentes */
+.jm-service-group{position:sticky;top:0;z-index:1;margin:14px 0 6px;padding:7px 10px;border-radius:10px;background:rgba(9,18,24,.94);border:1px solid rgba(94,129,148,.20);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:10.5px;font-weight:900;letter-spacing:1.15px;text-transform:uppercase;color:#b9cad3;display:flex;align-items:center;gap:7px}
+.jm-service-group:before{content:'';width:20px;height:3px;border-radius:3px;background:var(--grp,#ff9500);box-shadow:0 0 10px color-mix(in srgb,var(--grp,#ff9500) 50%,transparent)}
+.jm-service-list{scroll-behavior:smooth}
+.jm-service-choice .jm-svc-sub{font-weight:650;letter-spacing:.1px}
+/* Le déclencheur reprend vraiment la couleur du service */
+.jm-service-picker-trigger{--svc:#ff9500;border-color:color-mix(in srgb,var(--svc) 52%,#35505e)!important;background:linear-gradient(145deg,color-mix(in srgb,var(--svc) 14%,#14242d),#0e181f 68%)!important}
+.jm-service-picker-trigger .jm-sp-icon{background:linear-gradient(145deg,color-mix(in srgb,var(--svc) 30%,#13212a),#0e181f)!important;border-color:color-mix(in srgb,var(--svc) 70%,#35505e)!important;box-shadow:0 0 16px color-mix(in srgb,var(--svc) 18%,transparent)!important}
+.jm-service-picker-trigger .jm-sp-chevron{color:var(--svc)!important}
+/* Texte / contrôles secondaires : contraste plus net */
+.grp>label,.section-label{color:#9fb2bd}
+input::placeholder,textarea::placeholder{color:#778b96!important;opacity:1}
+@media(max-width:380px){.jm-service-group{font-size:9.8px}.jm-service-choice{margin:6px 0}}
+</style>
+
+</head><body><h1>JM EXPRESS — Feuille de route</h1><pre>'+esc+'</pre><script>setTimeout(()=>window.print(),250)<\/script></body></html>');w.document.close();
 }
 function ouvrirPartageTournee(){
   const old=document.getElementById('modalPartageTournee'); if(old)old.remove();
@@ -16338,30 +16396,38 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
 (function(){
   const TARGETS=['type','qqType','rdvType'];
   let activeSelect=null;
-  const palette=['#ff4d4f','#168bff','#ffb11a','#20c766','#a84dff','#17c7d9','#ff7a1a','#00b894'];
   function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
   function meta(label){
     const t=norm(label);
-    if(t.includes('batterie')||t.includes('alternateur')) return ['🔋','#168bff','Assistance électrique'];
-    if(t.includes('pneu')||t.includes('roue')) return ['🛞','#ffb11a','Pneu / roue'];
-    if(t.includes('diagnostic')||t.includes('obd')) return ['🧰','#a84dff','Diagnostic'];
-    if(t.includes('carburant')) return ['⛽','#17c7d9','Carburant'];
-    if(t.includes('treuillage')||t.includes('desembourb')) return ['🪝','#ff7a1a','Intervention spéciale'];
-    if(t.includes('controle technique')||t.includes('ct ')) return ['📋','#20c766','Contrôle technique'];
-    if(t.includes('moto')) return ['🏍️','#ff4d4f','Deux-roues'];
-    if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP'];
-    if(t.includes('transfert')||t.includes('transport')) return ['🚚','#20c766','Transport'];
-    if(t.includes('epave')||t.includes('demolition')) return ['♻️','#00b894','Enlèvement'];
-    if(t.includes('saisie')) return ['🚓','#a84dff','Transfert administratif'];
-    if(t.includes('depannage')||t.includes('remorquage')) return ['🚨','#ff4d4f','Dépannage / remorquage'];
-    return ['🔧','#ff9500','Service JM Express'];
+    if(t.includes('depannage')||t.includes('remorquage general')) return ['🚨','#ff4d4f','Dépannage / remorquage','Remorquage & dépannage',10];
+    if(t.includes('transfert')||t.includes('transport')) return ['🚚','#20c766','Transport de véhicule','Transport & transfert',20];
+    if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP / sans permis','Transport & transfert',21];
+    if(t.includes('moto')) return ['🏍️','#a84dff','Deux-roues','Transport & transfert',22];
+    if(t.includes('batterie')||t.includes('alternateur')) return ['🔋','#168bff','Batterie / électricité','Assistance sur place',30];
+    if(t.includes('pneu')||t.includes('roue')) return ['🛞','#ffb11a','Pneu / roue','Assistance sur place',31];
+    if(t.includes('diagnostic')||t.includes('obd')) return ['🧰','#a84dff','Diagnostic','Assistance sur place',32];
+    if(t.includes('carburant')) return ['⛽','#17c7d9','Carburant','Assistance sur place',33];
+    if(t.includes('treuillage')||t.includes('desembourb')) return ['🪝','#ff7a1a','Treuillage / sortie','Interventions spéciales',40];
+    if(t.includes('epave')||t.includes('demolition')) return ['♻️','#00b894','Épave / enlèvement','Interventions spéciales',41];
+    if(t.includes('saisie')) return ['🚓','#a84dff','Levée / saisie','Interventions spéciales',42];
+    if(t.includes('controle technique')||t.includes('ct ')||t.startsWith('ct')) return ['📋','#20c766','Contrôle technique','Contrôle technique',50];
+    return ['🔧','#ff9500','Autre prestation','Autres services',90];
   }
+  const groupMeta={
+    'Remorquage & dépannage':['🚨','#ff4d4f'],
+    'Transport & transfert':['🚚','#20c766'],
+    'Assistance sur place':['🧰','#168bff'],
+    'Interventions spéciales':['🪝','#ff7a1a'],
+    'Contrôle technique':['📋','#20c766'],
+    'Autres services':['🔧','#ff9500']
+  };
   function updateTrigger(sel){
     if(!sel)return; const btn=sel._jmPickerBtn; if(!btn)return;
-    const opt=sel.selectedOptions && sel.selectedOptions[0];
+    const opt=sel.selectedOptions&&sel.selectedOptions[0];
     const label=opt?opt.textContent.trim():'Choisir un service'; const m=meta(label);
+    btn.style.setProperty('--svc',m[1]);
     btn.querySelector('.jm-sp-icon').textContent=m[0]; btn.querySelector('.jm-sp-label').textContent=label;
-    btn.querySelector('.jm-sp-icon').style.borderColor=m[1]; btn.querySelector('.jm-sp-chevron').style.color=m[1];
+    btn.querySelector('.jm-sp-kicker').textContent=m[2];
   }
   function enhance(sel){
     if(!sel||sel.dataset.jmServicePicker==='1')return; sel.dataset.jmServicePicker='1';
@@ -16373,18 +16439,30 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
     new MutationObserver(()=>updateTrigger(sel)).observe(sel,{childList:true,subtree:true}); updateTrigger(sel);
   }
   window.jmOpenServicePicker=function(sel){
-    activeSelect=sel; const list=document.getElementById('jmServiceList'); const bg=document.getElementById('jmServicePickerBg'); const search=document.getElementById('jmServiceSearch'); if(!list||!bg)return;
-    list.innerHTML=''; [...sel.options].forEach((opt,idx)=>{
-      if(opt.disabled||!opt.textContent.trim())return; const label=opt.textContent.trim(), m=meta(label); const b=document.createElement('button'); b.type='button'; b.className='jm-service-choice'+(idx===sel.selectedIndex?' selected':''); b.style.setProperty('--svc',m[1]); b.dataset.search=norm(label+' '+m[2]);
-      b.innerHTML='<span class="jm-svc-icon">'+m[0]+'</span><span class="jm-svc-copy"><span class="jm-svc-name"></span><span class="jm-svc-sub">'+m[2]+'</span></span><span class="jm-svc-arrow">›</span>'; b.querySelector('.jm-svc-name').textContent=label;
-      b.addEventListener('click',()=>{sel.selectedIndex=idx; sel.dispatchEvent(new Event('change',{bubbles:true})); updateTrigger(sel); jmCloseServicePicker();}); list.appendChild(b);
+    activeSelect=sel; const list=document.getElementById('jmServiceList'), bg=document.getElementById('jmServicePickerBg'), search=document.getElementById('jmServiceSearch'); if(!list||!bg)return;
+    list.innerHTML='';
+    const rows=[...sel.options].map((opt,idx)=>({opt,idx,label:opt.textContent.trim(),m:meta(opt.textContent.trim())})).filter(x=>!x.opt.disabled&&x.label);
+    rows.sort((a,b)=>a.m[4]-b.m[4]||a.idx-b.idx);
+    let lastGroup='';
+    rows.forEach(x=>{
+      const {idx,label,m}=x;
+      if(m[3]!==lastGroup){lastGroup=m[3];const h=document.createElement('div');h.className='jm-service-group';const gm=groupMeta[lastGroup]||['🔧','#ff9500'];h.style.setProperty('--grp',gm[1]);h.textContent=gm[0]+' '+lastGroup;list.appendChild(h)}
+      const b=document.createElement('button'); b.type='button'; b.className='jm-service-choice'+(idx===sel.selectedIndex?' selected':''); b.style.setProperty('--svc',m[1]); b.dataset.search=norm(label+' '+m[2]+' '+m[3]);
+      b.innerHTML='<span class="jm-svc-icon">'+m[0]+'</span><span class="jm-svc-copy"><span class="jm-svc-name"></span><span class="jm-svc-sub">'+m[2]+'</span></span><span class="jm-svc-arrow">›</span>';
+      b.querySelector('.jm-svc-name').textContent=label;
+      b.addEventListener('click',()=>{sel.selectedIndex=idx;sel.dispatchEvent(new Event('change',{bubbles:true}));updateTrigger(sel);jmCloseServicePicker()}); list.appendChild(b);
     });
-    search.value=''; bg.classList.add('show'); bg.setAttribute('aria-hidden','false'); setTimeout(()=>{const cur=list.querySelector('.selected'); if(cur)cur.scrollIntoView({block:'center'});},40);
+    search.value=''; bg.classList.add('show'); bg.setAttribute('aria-hidden','false');
+    setTimeout(()=>{const cur=list.querySelector('.selected');if(cur)cur.scrollIntoView({block:'center',behavior:'smooth'})},60);
   };
-  window.jmCloseServicePicker=function(){const bg=document.getElementById('jmServicePickerBg'); if(bg){bg.classList.remove('show'); bg.setAttribute('aria-hidden','true')} activeSelect=null};
-  window.jmFilterServicePicker=function(q){const n=norm(q); document.querySelectorAll('#jmServiceList .jm-service-choice').forEach(b=>b.style.display=!n||b.dataset.search.includes(n)?'flex':'none'); const visible=[...document.querySelectorAll('#jmServiceList .jm-service-choice')].some(b=>b.style.display!=='none'); let e=document.getElementById('jmServiceEmpty'); if(!visible){if(!e){e=document.createElement('div');e.id='jmServiceEmpty';e.className='jm-service-empty';e.textContent='Aucun service trouvé';document.getElementById('jmServiceList').appendChild(e)}}else if(e)e.remove()};
+  window.jmCloseServicePicker=function(){const bg=document.getElementById('jmServicePickerBg');if(bg){bg.classList.remove('show');bg.setAttribute('aria-hidden','true')}activeSelect=null};
+  window.jmFilterServicePicker=function(q){
+    const n=norm(q); let visible=0; document.querySelectorAll('#jmServiceList .jm-service-choice').forEach(b=>{const ok=!n||b.dataset.search.includes(n);b.style.display=ok?'flex':'none';if(ok)visible++});
+    document.querySelectorAll('#jmServiceList .jm-service-group').forEach(h=>{let el=h.nextElementSibling,has=false;while(el&&!el.classList.contains('jm-service-group')){if(el.classList.contains('jm-service-choice')&&el.style.display!=='none'){has=true;break}el=el.nextElementSibling}h.style.display=has?'flex':'none'});
+    let e=document.getElementById('jmServiceEmpty'); if(!visible){if(!e){e=document.createElement('div');e.id='jmServiceEmpty';e.className='jm-service-empty';e.textContent='Aucun service trouvé';document.getElementById('jmServiceList').appendChild(e)}}else if(e)e.remove();
+  };
   function boot(){TARGETS.forEach(id=>enhance(document.getElementById(id)))}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot); else boot();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
 
