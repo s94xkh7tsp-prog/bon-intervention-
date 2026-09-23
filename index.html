@@ -907,6 +907,22 @@
   .bac-btn span{font-size:11px; font-weight:700; letter-spacing:0.2px;}
   .bac-btn.principal{background:var(--orange); color:#fff; flex:1.35; box-shadow:0 3px 12px rgba(232,115,12,0.35);}
   .bac-btn.principal:active{background:var(--orange); filter:brightness(0.92);}
+
+  /* v231 — Barre terrain A/B : réutilise les fonctions existantes, sans toucher au moteur tarifaire */
+  body.avec-barre-actions{padding-bottom:calc(202px + env(safe-area-inset-bottom));}
+  .barre-actions-contextuelle{flex-wrap:wrap; gap:7px; padding:8px;}
+  .bac-etat{width:100%; display:flex; gap:7px;}
+  .bac-etat .bac-state{flex:1; border:0; min-height:38px; border-radius:13px; font-weight:800; font-size:12px; cursor:pointer;}
+  .bac-state.depart{background:var(--orange);color:#fff;}
+  .bac-state.fin{background:var(--green);color:#fff;}
+  .bac-actions{width:100%;display:flex;gap:7px;}
+  .bac-actions .bac-btn{min-width:0;padding:9px 2px;}
+  .bac-actions .bac-btn span{font-size:10px;}
+  .terrain-sheet .msg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  .terrain-sheet .msg-choice{border:1px solid var(--line);background:var(--panel2);color:var(--white);border-radius:13px;padding:12px 9px;text-align:left;font-weight:700;font-size:12px;line-height:1.25;}
+  .terrain-sheet .msg-choice:active{transform:scale(.98);}
+  .terrain-sheet .msg-choice.wide{grid-column:1/-1;}
+  .terrain-sheet .sheet-note{font-size:11.5px;color:var(--grey);line-height:1.4;margin:8px 0 0;}
   .tab-btn{
     flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px;
     color:var(--grey); cursor:pointer; user-select:none; position:relative; border-radius:12px;
@@ -1064,7 +1080,7 @@
 
   /* v223 : l'accueil tient en entier sur un écran de téléphone, sans défiler.
      Uniquement des hauteurs/espacements réduits sur la vitrine et les raccourcis. */
-  body.sur-accueil .jm-brand-hero img{max-height:84px; object-fit:contain; object-position:center; background:#0d151a;}
+  body.sur-accueil .jm-brand-hero img{max-height:118px; object-fit:contain; object-position:center; background:#0d151a;}
   body.sur-accueil .jm-coverage{padding:5px 16px 6px;}
   body.sur-accueil .jm-coverage-head{margin-bottom:5px;}
   body.sur-accueil .jm-country{flex:0 0 64px; min-height:36px; gap:0;}
@@ -1075,21 +1091,9 @@
   body.sur-accueil .holiday-banner{margin-bottom:8px;}
   body.sur-accueil .accueil-stats{margin-top:2px;}
   body.sur-accueil > .jm-brand-hero{margin-top:8px;}
-  /* v224 : paliers appliqués d'après la place RÉELLEMENT disponible sur l'appareil
-     (zones réservées de l'iPhone comprises), pour que l'accueil ne défile jamais. */
-  body.acc-1 .jm-brand-hero img{max-height:70px;}
-  body.acc-1 .jm-country{min-height:30px;}
-  body.acc-1 .jm-flag{font-size:13px;}
-  body.acc-1 .gros-bouton:not(.principal){min-height:50px;}
-  body.acc-1 .gros-bouton.principal{min-height:52px;}
-  body.acc-1 .eyebrow{margin:7px 0 4px 2px;}
-  body.acc-1 .stat-case{padding:7px 5px;}
-  body.acc-2 .jm-coverage{display:none !important;}
-  body.acc-3 .jm-brand-hero{display:none !important;}
-
   /* Écrans plus courts : on resserre encore pour que l'accueil tienne quand même. */
   @media (max-height: 830px){
-    body.sur-accueil .jm-brand-hero img{max-height:62px;}
+    body.sur-accueil .jm-brand-hero img{max-height:100px;}
     body.sur-accueil .jm-country{min-height:30px;}
     body.sur-accueil .jm-flag{font-size:13px;}
     body.sur-accueil .gros-bouton:not(.principal){min-height:50px;}
@@ -1563,6 +1567,26 @@
   @media(orientation:landscape) and (max-height:520px){.services-wrap{max-width:760px}.services-hero{height:auto;aspect-ratio:850/261}.services-grid{grid-template-columns:repeat(3,1fr)}.service-card{min-height:62px}.services-modal{padding-top:6px}.services-top{min-height:36px}.services-close{width:36px;height:36px}}
 
 
+
+  /* v235 — rendu premium du menu Réglages, CSS uniquement */
+  #modalMenuBg{backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  #modalMenuBg .modal{background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 96%,#0b2435 4%),var(--panel));border:1px solid color-mix(in srgb,var(--line) 70%,var(--orange) 30%);border-radius:28px 28px 22px 22px;padding:18px 16px 16px;box-shadow:0 22px 60px rgba(4,18,28,.28);}
+  #modalMenuBg .eyebrow{display:inline-flex;align-items:center;gap:6px;color:var(--orange);font-size:10px;font-weight:900;letter-spacing:1.35px;background:var(--orange-soft);border:1px solid color-mix(in srgb,var(--orange) 30%,transparent);border-radius:999px;padding:5px 9px;margin-bottom:6px;}
+  #modalMenuBg .page-title{margin:0 0 14px!important;font-size:27px!important;letter-spacing:-.7px;}
+  #modalMenuBg .menu-grid{gap:9px;margin-bottom:13px;}
+  #modalMenuBg .menu-item{min-height:94px;padding:12px 12px 11px;border-radius:17px;gap:2px;background:linear-gradient(150deg,color-mix(in srgb,var(--panel-2) 94%,white 6%),var(--panel-2));border:1px solid color-mix(in srgb,var(--line) 86%,var(--orange) 14%);box-shadow:0 3px 11px rgba(13,36,48,.07);}
+  #modalMenuBg .menu-item::before{height:2px;opacity:.55;background:linear-gradient(90deg,var(--orange),transparent 65%);}
+  #modalMenuBg .menu-ico{width:31px;height:31px;border-radius:9px;margin:0 0 5px;color:var(--orange)!important;background:color-mix(in srgb,var(--orange-soft) 88%,transparent);border:1px solid color-mix(in srgb,var(--orange) 22%,transparent);}
+  #modalMenuBg .menu-ico svg{width:18px;height:18px;stroke:var(--orange)!important;color:var(--orange)!important;}
+  #modalMenuBg .menu-lbl{font-size:14px;font-weight:820;line-height:1.16;letter-spacing:-.18px;}
+  #modalMenuBg .menu-desc{font-size:10.8px;line-height:1.22;color:var(--grey);margin-top:2px;}
+  #modalMenuBg .menu-item:nth-child(4n+3),#modalMenuBg .menu-item:nth-child(4n+4){background:linear-gradient(150deg,color-mix(in srgb,var(--panel-2) 96%,#52768a 4%),var(--panel-2));}
+  #modalMenuBg .menu-item:last-child{grid-column:1/-1;min-height:72px;display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:8px;padding:11px 13px;background:linear-gradient(105deg,var(--orange-soft),var(--panel-2) 52%);border-color:color-mix(in srgb,var(--orange) 35%,var(--line));}
+  #modalMenuBg .menu-item:last-child .menu-ico{grid-row:1/3;margin:0;}
+  #modalMenuBg .menu-item:last-child .menu-lbl{align-self:end;font-size:15px;}
+  #modalMenuBg .menu-item:last-child .menu-desc{align-self:start;}
+  #modalMenuBg .close-modal{min-height:48px;border-radius:16px;font-weight:800;background:color-mix(in srgb,var(--panel-2) 95%,var(--orange) 5%);}
+  @media(max-width:360px){#modalMenuBg .modal{padding:14px 12px 13px}#modalMenuBg .menu-grid{gap:7px}#modalMenuBg .menu-item{min-height:86px;padding:10px}#modalMenuBg .menu-lbl{font-size:13px}#modalMenuBg .menu-desc{font-size:10px}}
 </style>
 </head>
 <body>
@@ -1940,6 +1964,7 @@
             <textarea rows="1" id="addrTo" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrTo'); checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')" readonly onclick="ouvrirSaisieAdresse('addrTo')"></textarea>
             <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); effacerChamp('addrTo')" onclick="effacerChamp('addrTo')" title="Effacer">✕</button>
             <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('addrTo')" onclick="dicterAdresse('addrTo')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+            <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('addrTo')" onclick="useMyLocation('addrTo')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
           </div>
           <div class="addr-suggest" id="addrToSuggest" style="display:none;"></div>
           <div class="access-hint" id="addrToAccessHint" style="display:none;"></div>
@@ -2602,6 +2627,19 @@
 
     
 
+    <div class="field" id="acompteBloc">
+      <div class="toggles" style="margin-bottom:8px;">
+        <div class="toggle" id="tgAcompte" onclick="toggleAcompteUI()">💶 Acompte reçu avant départ</div>
+      </div>
+      <div id="acompteFields" style="display:none; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--panel2);">
+        <div class="field-row" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:8px;"><label>Montant de l’acompte (€)</label><input type="number" id="acompteMontant" min="0" step="0.01" inputmode="decimal" placeholder="100.00" oninput="majAcompteApercu()"></div>
+          <div class="field" style="margin-bottom:8px;"><label>Moyen</label><select id="acompteMoyen"><option value="Lien Revolut">Lien/QR Revolut</option><option value="Virement">Virement</option><option value="Payconiq">Payconiq / Bancontact Pro</option><option value="Carte">Carte</option><option value="Tap to Pay">Tap to Pay (Revolut)</option><option value="Espèces">Espèces</option><option value="Autre">Autre</option></select></div>
+        </div>
+        <div class="km-mention" id="acompteApercu" style="margin:0;border-left-color:var(--green);">L’acompte sera déduit du solde à encaisser, jamais du prix de l’intervention.</div>
+      </div>
+    </div>
+
     <div class="field">
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 19h2"/></svg> Tap to Pay (Revolut)</div>
@@ -3023,20 +3061,48 @@
 </nav>
 
 <div class="barre-actions-contextuelle" id="barreActionsContextuelle">
-  <div class="bac-btn" onclick="appelerClient()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-    <span>Appeler</span>
+  <div class="bac-etat">
+    <button type="button" class="bac-state depart" id="bacDepartBtn" onclick="actionTerrainDepart()">▶ Départ</button>
+    <button type="button" class="bac-state fin" id="bacTerminerBtn" onclick="actionTerrainTerminer()">✓ Terminer</button>
   </div>
-  <a class="bac-btn" id="bacGpsBtn" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
-    <span id="bacGpsLabel">GPS</span>
-  </a>
-  <div class="bac-btn principal" onclick="calculerAvecRetour()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M13 11h3M8 15h2M13 15h3"/></svg>
-    <span>Calculer</span>
+  <div class="bac-actions">
+    <a class="bac-btn" id="bacGpsBtn" href="#"><span style="font-size:20px">📍</span><span id="bacGpsLabel">GPS</span></a>
+    <div class="bac-btn" onclick="appelerClient()"><span style="font-size:20px">📞</span><span>Appeler</span></div>
+    <div class="bac-btn principal" onclick="ouvrirMessagesTerrain()"><span style="font-size:20px">💬</span><span>Message</span></div>
+    <div class="bac-btn" onclick="photoTerrainRapide()"><span style="font-size:20px">📸</span><span>Photo</span></div>
+    <div class="bac-btn" onclick="ouvrirPlusTerrain()"><span style="font-size:20px">⋯</span><span>Plus</span></div>
   </div>
 </div>
 
+<div class="modal-bg" id="terrainMsgBg" onclick="if(event.target===this)fermerMessagesTerrain()">
+  <div class="modal terrain-sheet">
+    <h3>💬 Message client</h3>
+    <div class="msg-grid">
+      <button class="msg-choice wide" onclick="messageTerrain('route_position')">📍 En route + ma localisation</button>
+      <button class="msg-choice" onclick="messageTerrain('arrive')">🚚 Je suis arrivé</button>
+      <button class="msg-choice" onclick="messageTerrain('retard')">⏱️ Retard imprévu</button>
+      <button class="msg-choice wide" onclick="messageTerrain('trafic')">🚧 Ralentissements / embouteillage autoroute</button>
+      <button class="msg-choice" onclick="messageTerrain('deviation')">↪️ Route fermée / déviation</button>
+      <button class="msg-choice" onclick="messageTerrain('termine')">✅ Intervention terminée</button>
+    </div>
+    <p class="sheet-note">Le message est préparé pour WhatsApp. Une adaptation de tarif n'est jamais appliquée automatiquement : elle reste à confirmer par toi.</p>
+    <button class="ghost" style="margin-top:12px" onclick="fermerMessagesTerrain()">Fermer</button>
+  </div>
+</div>
+<div class="modal-bg" id="terrainPlusBg" onclick="if(event.target===this)fermerPlusTerrain()">
+  <div class="modal terrain-sheet">
+    <h3>⋯ Actions terrain</h3>
+    <div class="msg-grid">
+      <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
+      <button class="msg-choice" onclick="terrainAttente()">⏳ Attente client</button>
+      <button class="msg-choice" onclick="terrainIncident()">⚠️ Difficulté / incident</button>
+      <button class="msg-choice" onclick="terrainAnnulation()">❌ Annulation / absent</button>
+      <button class="msg-choice" onclick="terrainAcompte()">💶 Acompte reçu</button>
+      <button class="msg-choice wide" onclick="calculerAvecRetour();fermerPlusTerrain()">🧮 Calculer / actualiser le tarif</button>
+    </div>
+    <button class="ghost" style="margin-top:12px" onclick="fermerPlusTerrain()">Fermer</button>
+  </div>
+</div>
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3>Réglages</h3>
@@ -5463,7 +5529,8 @@ const FORMULE_A_TYPES = Object.freeze(['depannage', 'transfert', 'transport_mate
 const TYPES_REMORQUAGE = ['transfert', 'depannage', 'moto_remorquage', 'levee_saisie', 'epave_demolition', 'desembourbement', 'ct_accidente', 'transport_materiel'];
 const TYPES_PLANCHER = ['depannage', 'transfert', 'transport_materiel'];
 let RATES = {...DEFAULT_RATES};
-let BASE_ADDRESS = 'Rue du Blé 46, Monceau-sur-Sambre';
+const BASE_ADDRESS_FALLBACK = 'Rue du Blé 46, Monceau-sur-Sambre';
+let BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
 let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
@@ -7180,7 +7247,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v226';
+const APP_VERSION = 'jm-express-bon-v236';
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -8294,7 +8361,8 @@ async function loadRates(){
   }catch(e){ console.warn('[v225] migration Formule A', e); }
   try{
     const res2 = await window.storage.get('baseAddress');
-    if(res2 && res2.value) BASE_ADDRESS = res2.value;
+    if(res2 && res2.value && String(res2.value).trim()) BASE_ADDRESS = String(res2.value).trim();
+    else BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
   }catch(e){ /* pas encore d'adresse enregistrée, on garde la valeur par défaut */ }
   try{
     const res2b = await window.storage.get('revolutLink');
@@ -8437,6 +8505,7 @@ function updateNightHoursLabel(){
 
 function prefillDepartAddress(){
   const el = document.getElementById('addrDepart');
+  if(!BASE_ADDRESS || !String(BASE_ADDRESS).trim()) BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
   if(el && !el.value.trim()) el.value = BASE_ADDRESS;
 }
 
@@ -8600,7 +8669,12 @@ function showTab(tab, forcer){
     document.body.classList.toggle('sur-nouveau', tab === 'tabNouveau');
     if(tab !== 'tabNouveau'){ document.getElementById('barreActionsContextuelle').classList.remove('show'); document.body.classList.remove('avec-barre-actions'); }
     if(tab === 'tabAccueil') majResumeAccueil();
-    if(tab === 'tabNouveau') majBarreActionsContextuelle();
+    if(tab === 'tabNouveau'){
+      // v226 : comportement v223 restauré — une nouvelle mission part de la base habituelle
+      // uniquement si aucun autre départ n'est déjà renseigné (dispatch/édition conservés).
+      if(!editingKey) prefillDepartAddress();
+      majBarreActionsContextuelle();
+    }
     window.scrollTo({top:0, behavior:'smooth'});
   } else {
     if(tab === 'tabDevis') openQuickQuote();
@@ -9730,6 +9804,16 @@ async function chargerInterventionDepuisJournal(key){
   const notesEl = document.getElementById('etatLieuxNotes');
   if(notesEl) notesEl.value = d.etatLieuxNotes || '';
 
+  const ac = d.paiement && d.paiement.acompte;
+  if(ac && ac.montant > 0){
+    document.getElementById('acompteMontant').value = ac.montant;
+    document.getElementById('acompteMoyen').value = ac.moyen || 'Lien Revolut';
+    toggleAcompteUI(true);
+  } else {
+    document.getElementById('acompteMontant').value = '';
+    toggleAcompteUI(false);
+  }
+
   ecrireMateriel(d.type === 'transport_materiel' ? d.materiel : null);
   editingKey = key;
   VERSION_EDITION = (d.moteurVersion === 'A') ? 'A' : 'v224';
@@ -10062,11 +10146,24 @@ async function genererRecu(){
     }
     y += 18;
 
-    pdf.rect(50, y, 495, 44, {mode:'f', rgb:[252,240,226]});
-    pdf.text(64, y + 28, 'MONTANT REÇU', {font:'F2', size:12});
-    const montant = fmt(c.total);
-    pdf.text(531 - (montant.length * 8.2), y + 29, montant, {font:'F2', size:17, rgb:[196,136,0]});
-    y += 62;
+    const recuPaiement = montantRecu(c);
+    const restePaiement = resteADevoir(c);
+    const acomptePdf = c.paiement && c.paiement.acompte;
+    pdf.rect(50, y, 495, acomptePdf ? 76 : 60, {mode:'f', rgb:[252,240,226]});
+    pdf.text(64, y + 20, 'TOTAL INTERVENTION', {font:'F2', size:11});
+    pdf.text(455, y + 20, fmt(c.total), {font:'F2', size:12, rgb:[196,136,0]});
+    if(acomptePdf){
+      pdf.text(64, y + 38, 'ACOMPTE DÉJÀ REÇU', {font:'F2', size:10});
+      pdf.text(455, y + 38, '- ' + fmt(acomptePdf.montant), {font:'F2', size:11});
+      pdf.text(64, y + 55, 'RESTE À PAYER', {font:'F2', size:11});
+      pdf.text(455, y + 55, fmt(restePaiement), {font:'F2', size:13, rgb:[196,136,0]});
+      y += 90;
+      pdf.text(50, y, 'Acompte : ' + (acomptePdf.moyen || 'moyen non précisé') + (acomptePdf.date ? ' · ' + new Date(acomptePdf.date).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : ''), {size:8.5, gray:0.4}); y += 14;
+    } else {
+      pdf.text(64, y + 40, recuPaiement>0?'MONTANT REÇU':'RESTE À PAYER', {font:'F2', size:11});
+      pdf.text(455, y + 40, fmt(recuPaiement>0?recuPaiement:restePaiement), {font:'F2', size:13, rgb:[196,136,0]});
+      y += 74;
+    }
 
     pdf.text(50, y, 'Ce document est un reçu de paiement. Il ne tient pas lieu de facture', {size:9, gray:0.4}); y += 12;
     pdf.text(50, y, 'et ne peut pas être présenté à une assurance ou à une comptabilité.', {size:9, gray:0.4}); y += 12;
@@ -10371,6 +10468,14 @@ function construirePdfFacture(c, meta){
     pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
     pdf.text(56, y+15, S.totalTvac, {font:'F2', size:13});
     pdf.text(455, y+15, fmt(c.total), {font:'F2', size:14, rgb:[196,136,0]});
+    if(c.paiement && c.paiement.acompte && c.paiement.acompte.montant > 0){
+      y += 38;
+      pdf.text(56, y, 'Acompte déjà reçu (' + (c.paiement.acompte.moyen || 'moyen non précisé') + ')', {size:9.5, gray:0.3});
+      pdf.text(455, y, '- ' + fmt(c.paiement.acompte.montant), {size:10});
+      y += 16;
+      pdf.text(56, y, 'Reste à payer', {font:'F2', size:10.5});
+      pdf.text(455, y, fmt(Math.max(0,c.total-c.paiement.acompte.montant)), {font:'F2', size:11, rgb:[196,136,0]});
+    }
     y += 34;
 
     pdf.text(50, y, S.franchise, {size:8.5, gray:0.4});
@@ -13046,7 +13151,12 @@ function calculer(){
   lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
-    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+  const acompteCalc = lastCalc.acompteForm;
+  if(acompteCalc && acompteCalc.montant > 0){
+    const recuAcompte = Math.min(total, acompteCalc.montant);
+    lastCalc.paiement = {statut: recuAcompte >= total ? 'paye' : 'partiel', recu: recuAcompte, moyen: acompteCalc.moyen, acompte:{montant:recuAcompte,moyen:acompteCalc.moyen,date:new Date().toISOString()}, date:new Date().toISOString()};
+  }
   lastCalc.moteurVersion = versionCalcul;
   lastCalc.materiel = (lastCalc.type === 'transport_materiel') ? lireMateriel() : null;
   if(DERNIER_RESULTAT_MOTEUR){
@@ -13317,6 +13427,9 @@ function majBarreActionsContextuelle(){
   barre.classList.toggle('show', visible);
   document.body.classList.toggle('avec-barre-actions', visible);
   majLibelleGpsIntelligent();
+  const dep=document.getElementById('bacDepartBtn');
+  const hrDep=document.getElementById('hr_depart');
+  if(dep) dep.textContent=(hrDep && hrDep.value)?'↻ Reprendre':'▶ Départ';
 }
 
 function vehiculeDejaCharge(){
@@ -13414,6 +13527,15 @@ async function enregistrer(){
         entry.paiement = {statut: 'attente', recu: 0, moyen: 'Lien Revolut', fraisRevlink: 0, date: null};
       }
     }
+    const acompte = entry.acompteForm || lireAcompteForm();
+    if(acompte && acompte.montant > 0){
+      const ancienAcompte = entry.paiement && entry.paiement.acompte;
+      const dateAcompte = ancienAcompte && ancienAcompte.montant === acompte.montant && ancienAcompte.moyen === acompte.moyen ? ancienAcompte.date : new Date().toISOString();
+      const recu = Math.min(entry.total || acompte.montant, acompte.montant);
+      entry.paiement = {...(entry.paiement||{}), statut: recu >= (entry.total||Infinity) ? 'paye' : 'partiel', recu, moyen: acompte.moyen, acompte:{montant:recu,moyen:acompte.moyen,date:dateAcompte}, date:dateAcompte};
+      entry.paye = recu >= (entry.total||Infinity);
+    }
+    delete entry.acompteForm;
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
@@ -13437,6 +13559,8 @@ async function enregistrer(){
     document.getElementById('tgRevolut').classList.remove('on');
     document.getElementById('tgPayconiq').classList.remove('on');
     document.getElementById('tgRevlink').classList.remove('on');
+    document.getElementById('acompteMontant').value='';
+    toggleAcompteUI(false);
     majApercuRevolut();
     majApercuPayconiq();
     majApercuRevlink();
@@ -14005,6 +14129,99 @@ function majDonneurOrdreUI(){
   if(sigGrp) sigGrp.style.display = (v === 'garage' || v === 'assistance' || v === 'leasing') ? 'block' : 'none';
 }
 
+function ouvrirMessagesTerrain(){ const b=document.getElementById('terrainMsgBg'); if(b)b.classList.add('show'); }
+function fermerMessagesTerrain(){ const b=document.getElementById('terrainMsgBg'); if(b)b.classList.remove('show'); }
+function ouvrirPlusTerrain(){ const b=document.getElementById('terrainPlusBg'); if(b)b.classList.add('show'); }
+function fermerPlusTerrain(){ const b=document.getElementById('terrainPlusBg'); if(b)b.classList.remove('show'); }
+function terrainTampon(cle){ if(typeof tamponnerHoraire==='function') tamponnerHoraire(cle); fermerPlusTerrain(); }
+function actionTerrainDepart(){
+  if(typeof tamponnerHoraire==='function') tamponnerHoraire('depart');
+  const b=document.getElementById('bacDepartBtn'); if(b)b.textContent='↻ Reprendre';
+  showToast('Départ enregistré');
+}
+function actionTerrainTerminer(){
+  if(typeof ouvrirVerificationFin==='function') ouvrirVerificationFin();
+  else if(typeof tamponnerHoraire==='function'){ tamponnerHoraire('fin'); showToast('Fin enregistrée'); }
+}
+function photoTerrainRapide(){
+  const charge=vehiculeDejaCharge();
+  const id=charge?'dechargPhotos':'etatLieuxPhotos';
+  const el=document.getElementById(id);
+  if(el){ el.click(); return; }
+  const incident=document.getElementById('incidentPhotos'); if(incident) incident.click(); else showToast('Ouvre la section Photos de l’intervention');
+}
+function toggleAcompteUI(force){
+  const tg=document.getElementById('tgAcompte'), box=document.getElementById('acompteFields');
+  if(!tg||!box) return;
+  if(typeof force==='boolean') tg.classList.toggle('on',force); else tg.classList.toggle('on');
+  box.style.display=tg.classList.contains('on')?'block':'none';
+  majAcompteApercu();
+}
+function lireAcompteForm(){
+  const tg=document.getElementById('tgAcompte');
+  if(!tg||!tg.classList.contains('on')) return null;
+  const montant=Math.round(((parseFloat(document.getElementById('acompteMontant').value)||0)*100))/100;
+  if(montant<=0) return null;
+  return {montant,moyen:document.getElementById('acompteMoyen').value||'Non précisé'};
+}
+function majAcompteApercu(){
+  const el=document.getElementById('acompteApercu'); if(!el) return;
+  const a=lireAcompteForm(); const total=lastCalc&&Number(lastCalc.total)||0;
+  if(!a){ el.textContent='L’acompte sera déduit du solde à encaisser, jamais du prix de l’intervention.'; return; }
+  const reste=Math.max(0,total-a.montant);
+  el.innerHTML=total>0?'Acompte <strong>'+fmt(a.montant)+'</strong> · Total <strong>'+fmt(total)+'</strong> · Reste <strong>'+fmt(reste)+'</strong>':'Acompte <strong>'+fmt(a.montant)+'</strong> enregistré — il sera déduit du solde après calcul.';
+}
+function terrainAcompte(){
+  fermerPlusTerrain();
+  const tg=document.getElementById('tgAcompte'); if(!tg) return;
+  toggleAcompteUI(true);
+  const box=document.getElementById('acompteBloc'); if(box) box.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{const x=document.getElementById('acompteMontant'); if(x)x.focus();},350);
+  showToast('Encode l’acompte reçu avant le départ');
+}
+
+function terrainAttente(){
+  fermerPlusTerrain();
+  const tg=document.getElementById('tgAttente'); if(tg && !tg.classList.contains('on')) tg.click();
+  const f=document.getElementById('attenteField'); if(f) f.scrollIntoView({behavior:'smooth',block:'center'});
+  showToast('Temps d’attente prêt à encoder');
+}
+function terrainIncident(){
+  fermerPlusTerrain();
+  const el=document.getElementById('incidentPhotos'); if(el) el.click(); else showToast('Ajoute une note ou une photo de la difficulté');
+}
+function terrainAnnulation(){
+  fermerPlusTerrain();
+  const tg=document.getElementById('tgAnnulation'); if(tg && !tg.classList.contains('on')) tg.click();
+  const box=document.getElementById('annulationBox'); if(box) box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function terrainNumeroWhatsApp(){
+  let n=numeroClientPropre().replace(/[^0-9]/g,'');
+  if(n.startsWith('0')) n='32'+n.slice(1);
+  return n;
+}
+function terrainPositionLien(){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation){ resolve(''); return; }
+    navigator.geolocation.getCurrentPosition(p=>resolve('https://maps.google.com/?q='+p.coords.latitude.toFixed(6)+','+p.coords.longitude.toFixed(6)),()=>resolve(''),{enableHighAccuracy:true,timeout:7000,maximumAge:60000});
+  });
+}
+async function messageTerrain(type){
+  const n=terrainNumeroWhatsApp(); if(!n){ showToast('Indique d’abord le numéro du client'); return; }
+  let pos=''; if(type==='route_position') pos=await terrainPositionLien();
+  const base='Bonjour, JM Express Auto Dépannage. ';
+  const textes={
+    route_position: base+'Je suis en route vers vous.'+(pos?' Voici ma localisation actuelle : '+pos:' Je vous tiens informé de mon arrivée.'),
+    arrive: base+'Je suis arrivé sur place.',
+    retard: base+'Je rencontre un imprévu qui retarde légèrement mon arrivée. Je fais au plus vite et je vous tiens informé. Merci pour votre compréhension.',
+    trafic: base+'Je suis actuellement en route vers vous. La circulation est fortement ralentie sur l’autoroute, ce qui peut augmenter le temps nécessaire pour l’intervention. Je fais au plus vite et je vous tiens informé. Si ces conditions entraînent des frais supplémentaires, je vous les confirmerai avant de poursuivre.',
+    deviation: base+'Une route est actuellement fermée ou une déviation m’est imposée. Mon arrivée peut être retardée. Je vous tiens informé.',
+    termine: base+'L’intervention est terminée. Merci pour votre confiance.'
+  };
+  const msg=textes[type]||base;
+  fermerMessagesTerrain();
+  window.location.href='https://wa.me/'+n+'?text='+encodeURIComponent(msg);
+}
 function numeroClientPropre(){
   return (document.getElementById('telClient').value || '').replace(/[^0-9+]/g, '');
 }
@@ -14623,6 +14840,7 @@ async function enregistrerPaiement(){
     const moyenFinal = repartition
       ? repartition.map(r => r.moyen).join(' + ')   // ex. « Espèces + Virement »
       : moyen;
+    const ancienAcompte = d.paiement && d.paiement.acompte ? {...d.paiement.acompte} : null;
     d.paiement = {
       statut: st,
       recu: recuFinal,
@@ -14631,7 +14849,8 @@ async function enregistrerPaiement(){
       fraisTapToPay,
       fraisPayconiq,
       fraisRevlink,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      acompte: ancienAcompte && recuFinal >= ancienAcompte.montant ? ancienAcompte : null
     };
     d.paye = (st === 'paye');   // on garde le booléen synchronisé pour le reste de l'appli
     await window.storage.set(paiementKeyEnCours, JSON.stringify(d));
@@ -14815,7 +15034,7 @@ function partageDatePrevue(d){
 function partagePaiement(d){
   const st=statutPaiement(d), reste=resteADevoir(d);
   if(st==='paye') return 'Payé';
-  if(st==='partiel') return 'Partiel — reste '+fmt(reste);
+  if(st==='partiel'){ const a=d.paiement&&d.paiement.acompte; return a?'Acompte '+fmt(a.montant)+' reçu — reste '+fmt(reste):'Partiel — reste '+fmt(reste); }
   return 'À payer'+((d.total||0)>0?' — '+fmt(reste):'');
 }
 function partageMissionTexte(it, statut){
@@ -15826,6 +16045,16 @@ function syncMajEcranReglages(){
   if(ap) ap.innerHTML = (SYNC.appareils || []).map(d => `<div class="ticket-row" style="border:0; padding:6px 0;"><span class="l">${d.revoked ? '⛔ ' : '📱 '}${d.nom} <span style="color:var(--grey); font-size:11px;">· ${d.id}${d.id === SYNC.deviceId ? ' (celui-ci)' : ''}</span></span>${(!d.revoked && d.id !== SYNC.deviceId) ? `<span class="v"><button type="button" class="ghost" style="padding:6px 10px; font-size:12px;" onclick="syncRevoquer('${d.id}')">Révoquer</button></span>` : `<span class="v" style="color:var(--grey); font-size:11px;">${d.revoked ? 'révoqué' : ''}</span>`}</div>`).join('') || '<div class="km-mention">Aucun autre appareil.</div>';
 }
 // --- Indicateur discret (feuille de route) ---
+let BATTERIE_AVERTIE=false;
+async function surveillerBatterieTerrain(){
+  try{
+    if(!navigator.getBattery) return; const b=await navigator.getBattery();
+    const check=()=>{ if(b.level<=0.20 && !b.charging && !BATTERIE_AVERTIE){ BATTERIE_AVERTIE=true; showToast('🔋 Batterie faible — téléphone de secours conseillé'); } if(b.level>0.25||b.charging) BATTERIE_AVERTIE=false; };
+    check(); b.addEventListener('levelchange',check); b.addEventListener('chargingchange',check);
+  }catch(e){}
+}
+setTimeout(surveillerBatterieTerrain,2500);
+
 function syncMajIndicateur(){
   const el = document.getElementById('syncIndicateur'); if(!el) return;
   if(!syncActif()){ el.style.display = 'none'; return; }
@@ -15868,41 +16097,6 @@ window.addEventListener('load', () => { syncMajIndicateur(); setTimeout(() => { 
 // Code d'association reçu par QR (#pair=XXXX) : pré-rempli
 try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() => { const el = document.getElementById('syncCodeSaisi'); if(el) el.value = m[1].toUpperCase(); }, 800); } }catch(e){}
 
-// ===================================================================
-//  v224 — l'accueil tient toujours sur l'écran, sans défiler.
-//  On mesure la place réellement disponible (zones réservées de l'iPhone comprises)
-//  et on retire progressivement le décor : compactage, puis « Nos interventions »,
-//  puis la bannière. Aucune donnée ni fonction n'est touchée.
-// ===================================================================
-function ajusterHauteurAccueil(){
-  if(!document.body.classList.contains('sur-accueil')) return;
-  const barre = document.querySelector('.tabbar');
-  if(!barre) return;
-  const dispo = () => barre.getBoundingClientRect().top - 4;
-  const bas = () => {
-    let b = 0;
-    ['.jm-coverage', '.jm-brand-hero', '.accueil-grid'].forEach(s => {
-      const e = document.querySelector(s);
-      if(e && getComputedStyle(e).display !== 'none') b = Math.max(b, e.getBoundingClientRect().bottom);
-    });
-    return b;
-  };
-  document.body.classList.remove('acc-1', 'acc-2', 'acc-3');
-  for(const cls of ['acc-1', 'acc-2', 'acc-3']){
-    if(bas() <= dispo()) return;
-    document.body.classList.add(cls);
-  }
-}
-window.addEventListener('resize', ajusterHauteurAccueil);
-window.addEventListener('orientationchange', () => setTimeout(ajusterHauteurAccueil, 250));
-window.addEventListener('load', () => setTimeout(ajusterHauteurAccueil, 300));
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') setTimeout(ajusterHauteurAccueil, 150); });
-(function brancherAjustement(){
-  const _show = window.showTab;
-  if(typeof _show === 'function'){ window.showTab = function(){ const r = _show.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
-  const _maj = window.majResumeAccueil;
-  if(typeof _maj === 'function'){ window.majResumeAccueil = async function(){ const r = await _maj.apply(this, arguments); setTimeout(ajusterHauteurAccueil, 60); return r; }; }
-})();
 </script>
 <script>setInterval(()=>{ if(typeof THEME_MODE!=='undefined' && THEME_MODE==='auto') applyTheme(); },60000);</script>
 

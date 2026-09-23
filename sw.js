@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v226';
+const CACHE_NAME = 'jm-express-bon-v236';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
