@@ -7414,7 +7414,11 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v242';
+const APP_VERSION = 'jm-express-bon-v243';
+function numeroVersion(tag){
+  const m = String(tag || '').match(/v(\d+)$/);
+  return m ? Number(m[1]) : NaN;
+}
 function ouvrirPresentationServices(){
   const el=document.getElementById('servicesModal'); if(!el)return;
   el.classList.add('show'); el.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
@@ -7462,9 +7466,14 @@ async function verifierVersionManuelle(){
     const publiee = m ? m[0] : null;
     if(pub) pub.textContent = publiee ? publiee.replace('jm-express-bon-', '') : 'inconnue';
     if(!publiee){ etatVersion('inconnu', 'Version publiée illisible.', heure); return; }
-    if(publiee === APP_VERSION){
+    const nInst = numeroVersion(APP_VERSION);
+    const nPub = numeroVersion(publiee);
+    if(publiee === APP_VERSION || (Number.isFinite(nInst) && Number.isFinite(nPub) && nInst >= nPub)){
       document.getElementById('majBanniere')?.classList.remove('show');
-      etatVersion('ajour', 'Ton application est à jour.', heure);
+      const detail = (nInst > nPub)
+        ? 'Version installée plus récente que la version publiée détectée. Aucune mise à jour nécessaire.'
+        : 'Ton application est à jour.';
+      etatVersion('ajour', detail, heure);
     } else {
       etatVersion('maj', 'Nouvelle version disponible : ' + publiee.replace('jm-express-bon-', '') + '. Touche « Mettre à jour » dans le bandeau orange en haut.', heure);
       document.getElementById('majBanniere').classList.add('show');
@@ -7483,7 +7492,9 @@ async function verifierMiseAJour(){
     const txt = await res.text();
     const m = txt.match(/jm-express-bon-v\d+/);
     if(!m) return;
-    if(m[0] !== APP_VERSION){
+    const nInst = numeroVersion(APP_VERSION);
+    const nPub = numeroVersion(m[0]);
+    if(Number.isFinite(nInst) && Number.isFinite(nPub) ? nPub > nInst : m[0] !== APP_VERSION){
       document.getElementById('majBanniere')?.classList.add('show');
     } else {
       document.getElementById('majBanniere')?.classList.remove('show');
