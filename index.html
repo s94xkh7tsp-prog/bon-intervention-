@@ -1754,6 +1754,61 @@ html:not([data-theme="dark"]) .ticket-total{background:linear-gradient(135deg,rg
 input::placeholder,textarea::placeholder{color:#778b96!important;opacity:1}
 @media(max-width:380px){.jm-service-group{font-size:9.8px}.jm-service-choice{margin:6px 0}}
 </style>
+<style id="jm-v246-listes-style">
+/* v246 — Listes de prestations, manutentions et checklist au langage du sélecteur de services.
+   Présentation uniquement : les vraies cases à cocher, valeurs, IDs et calculs restent en place. */
+.jm-list-scroll{max-height:min(62vh,540px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scroll-snap-type:y proximity;padding:2px 2px 6px}
+label.extra-item[data-jm-ico]{--svc:#ff9500;position:relative;min-height:64px;margin:8px 0;padding:11px 50px 25px 68px!important;border-radius:16px;
+  border:1px solid color-mix(in srgb,var(--svc) 55%,#29414e);background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 24%,#13212a),#101a21 60%);
+  color:#f5f8fa!important;font-size:14.5px!important;font-weight:900;line-height:1.18;align-items:flex-start!important;gap:0!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.04);scroll-snap-align:start;overflow:hidden;transition:transform .12s ease,box-shadow .16s ease,border-color .16s ease}
+label.extra-item[data-jm-ico] span{font-weight:inherit;line-height:1.25!important}
+label.extra-item[data-jm-ico]:before{content:attr(data-jm-ico);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:22px;
+  background:color-mix(in srgb,var(--svc) 26%,#0c151b);border:1px solid color-mix(in srgb,var(--svc) 58%,#2b4654);box-shadow:0 0 15px color-mix(in srgb,var(--svc) 18%,transparent)}
+label.extra-item[data-jm-ico]:after{content:attr(data-jm-sub);position:absolute;left:68px;right:50px;bottom:8px;font-size:10.8px;font-weight:650;letter-spacing:.1px;color:#b9c8d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+label.extra-item[data-jm-ico] > input[type=checkbox]{-webkit-appearance:none;appearance:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);width:24px!important;height:24px!important;margin:0;
+  border-radius:8px;border:2px solid color-mix(in srgb,var(--svc) 75%,#3b5665);background:#0c151b center/15px no-repeat;cursor:pointer}
+label.extra-item[data-jm-ico] > input[type=checkbox]:checked{background-color:var(--svc);border-color:var(--svc);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+label.extra-item[data-jm-ico]:has(input:checked){border-width:2px;border-color:var(--svc);background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 34%,#13212a),#101a21 64%)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--svc) 42%,transparent),0 0 22px color-mix(in srgb,var(--svc) 22%,transparent)}
+label.extra-item[data-jm-ico]:active{transform:scale(.985);filter:brightness(1.08)}
+/* Mode jour : mêmes cartes, fond clair */
+html:not([data-theme="dark"]) label.extra-item[data-jm-ico]{background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 13%,#ffffff),#ffffff 62%);color:#172027!important;border-color:color-mix(in srgb,var(--svc) 45%,#cbd5da)}
+html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:after{color:#60727c}
+html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:before{background:color-mix(in srgb,var(--svc) 16%,#ffffff)}
+html:not([data-theme="dark"]) label.extra-item[data-jm-ico] > input[type=checkbox]:not(:checked){background-color:#ffffff}
+html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:has(input:checked){background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 22%,#ffffff),#ffffff 66%)!important}
+/* Familles : même en-tête que le sélecteur (.jm-service-group, v240) */
+.jm-list-scroll .jm-service-group{margin:12px 0 4px}
+.jm-list-scroll .jm-service-group:first-child{margin-top:2px}
+html:not([data-theme="dark"]) .jm-list-scroll .jm-service-group{background:rgba(255,255,255,.94);color:#60727c;border-color:#dfe6ea}
+/* En-têtes des sections dépliables (Nouvelle intervention + Devis rapide) : cartes comme le déclencheur du sélecteur */
+#tabNouveau .extras-header,#modalQuickQuoteBg .extras-header{--sec:#ff9500;border-radius:16px!important;min-height:54px;padding:10px 14px!important;
+  border:1px solid color-mix(in srgb,var(--sec) 45%,#35505e)!important;border-left:4px solid var(--sec)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--sec) 12%,#14242d),#0e181f 70%)!important;box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.14)}
+#tabNouveau .extras-header label,#modalQuickQuoteBg .extras-header label{font-weight:900!important;color:#f5f8fa!important}
+#tabNouveau .extras-header .extras-chevron,#modalQuickQuoteBg .extras-header .extras-chevron{color:var(--sec)!important}
+#tabNouveau .extras-header .extras-summary,#modalQuickQuoteBg .extras-header .extras-summary{color:color-mix(in srgb,var(--sec) 70%,#ffffff)!important}
+html:not([data-theme="dark"]) #tabNouveau .extras-header,html:not([data-theme="dark"]) #modalQuickQuoteBg .extras-header{background:linear-gradient(145deg,color-mix(in srgb,var(--sec) 10%,#ffffff),#ffffff 70%)!important}
+html:not([data-theme="dark"]) #tabNouveau .extras-header label,html:not([data-theme="dark"]) #modalQuickQuoteBg .extras-header label{color:#172027!important}
+.extras-header[onclick^="toggleExtrasList"]{--sec:#ff9500}
+.extras-header[onclick^="qqTogglePrecisions"]{--sec:#a84dff}
+.extras-header[onclick^="togglePlusOptions"]{--sec:#17c7d9}
+.extras-header[onclick^="toggleAdvancedOptions"]{--sec:#17c7d9}
+.extras-header[onclick^="toggleManutList"]{--sec:#ff7a1a}
+.extras-header[onclick^="toggleChecklist"]{--sec:#20c766}
+.extras-header[onclick^="toggleHoraires"]{--sec:#168bff}
+.extras-header[onclick^="toggleTracabilite"]{--sec:#5e8194}
+.extras-header[onclick^="toggleClientPro"]{--sec:#168bff}
+/* Sous-titre « Prestations en plus » dans le devis rapide */
+#qqPrecisions > label{font-size:10.5px;font-weight:900;letter-spacing:1.15px;text-transform:uppercase;color:#b9cad3}
+label.extra-item[data-jm-ico]{font-family:'Inter',sans-serif!important;text-transform:none!important;letter-spacing:0!important}
+label.extra-item[data-jm-ico]:after{font-family:inherit;text-transform:none;letter-spacing:.1px}
+label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-height:24px!important;padding:0!important;flex:0 0 24px!important}
+@media(max-width:380px){label.extra-item[data-jm-ico]{min-height:60px;font-size:13.5px!important}}
+</style>
+
 
 </head>
 <body>
@@ -3749,6 +3804,242 @@ input::placeholder,textarea::placeholder{color:#778b96!important;opacity:1}
   </div>
 </div>
 
+<div class="modal-bg" id="modalRachatBg">
+  <div class="modal">
+    <div id="rachatVueListe">
+      <div class="eyebrow">Rachat · épave</div>
+      <h1 class="page-title" style="font-size:24px;">🚗 Rachat de véhicules</h1>
+      <button class="primary" onclick="rachatNouvelle()">+ Nouvelle fiche</button>
+      <div id="rachatListe" style="margin-top:14px;"></div>
+      <details class="grp" style="margin-top:14px;" ontoggle="if(this.open) stockRegistreAfficher()">
+        <summary class="grp-title" style="cursor:pointer;">📒 Registre des véhicules (comptable)</summary>
+        <div style="display:flex; gap:8px; margin:8px 0;">
+          <select id="regPeriode" onchange="stockRegistreAfficher()" style="flex:1;"><option value="annee">Cette année</option><option value="mois">Ce mois</option><option value="anneePrec">Année précédente</option><option value="tout">Tout</option></select>
+          <select id="regStatut" onchange="stockRegistreAfficher()" style="flex:1;"><option value="tous">Tous</option><option value="stock">En stock</option><option value="sorti">Sortis</option><option value="annule">Annulés</option></select>
+        </div>
+        <div id="regListe"></div>
+        <div class="km-mention" id="regTotaux" style="margin:8px 0;"></div>
+        <button class="ghost" onclick="stockExportCsv()">📤 Exporter pour le comptable (Excel)</button>
+      </details>
+      <details class="grp" style="margin-top:14px;">
+        <summary class="grp-title" style="cursor:pointer;">⚙️ Mes repères de prix</summary>
+        <div class="km-mention" style="margin:8px 0;">Repris dans chaque demande d'avis. Valeurs de départ : marché belge, septembre 2026.</div>
+        <div class="field"><label>Mon mécanicien (€/h)</label><input type="number" id="rachatR_tauxMecano" step="1"></div>
+        <div class="field"><label>Garage indépendant (€/h)</label><input type="number" id="rachatR_tauxGarage" step="1"></div>
+        <div class="field"><label>Ma remise sur les pièces (%)</label><input type="number" id="rachatR_remisePieces" step="1"></div>
+        <div class="field"><label>Ferraille, carcasse complète (€/tonne)</label><input type="number" id="rachatR_ferrailleTonne" step="5"></div>
+        <div class="field"><label>Remise en vente : CT occasion, Car-Pass, nettoyage, annonce (€)</label><input type="number" id="rachatR_fraisRemiseVente" step="5"></div>
+        <div class="field"><label>Marge visée revente (%)</label><input type="number" id="rachatR_margeRevente" step="1"></div>
+        <div class="field"><label>Marge visée pièces (%)</label><input type="number" id="rachatR_margePieces" step="1"></div>
+        <button class="ghost" onclick="rachatSauverReperes()">Enregistrer mes repères</button>
+      </details>
+      <button class="ghost close-modal" onclick="closeRachat()">Fermer</button>
+    </div>
+
+    <div id="rachatVueFiche" style="display:none;">
+      <div class="eyebrow" style="cursor:pointer;" onclick="rachatRetourListe()">← Fiches</div>
+      <h1 class="page-title" style="font-size:22px;" id="rachatTitre">Nouvelle fiche</h1>
+
+      <div class="grp">
+        <div class="grp-title">📸 Photos <span id="rachatPhotosNb" style="font-weight:400; opacity:.7;"></span></div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">
+          <label id="rachatPh_avant" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Avant</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('avant', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('avant')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_arriere" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Arrière</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('arriere', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('arriere')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_profil" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Profil</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('profil', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('profil')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_interieur" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Intérieur</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('interieur', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('interieur')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_compteur" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Compteur</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('compteur', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('compteur')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_degats" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Dégâts</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('degats', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('degats')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_chassis" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Plaque châssis</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('chassis', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('chassis')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+          <label id="rachatPh_papiers" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Papiers</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('papiers', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('papiers')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">Numéro de châssis (VIN)</div>
+        <input type="text" id="rachatVin" maxlength="20" placeholder="17 caractères" autocapitalize="characters" autocorrect="off" spellcheck="false" style="font-family:'JetBrains Mono',monospace; letter-spacing:1px;" oninput="rachatVinMaj()">
+        <div class="km-mention" id="rachatVinInfo" style="display:none; margin-top:8px;"></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">Véhicule</div>
+        <div class="field"><label>Marque</label><input type="text" id="rachatMarque" oninput="rachatVinMaj()"></div>
+        <div class="field"><label>Modèle / version</label><input type="text" id="rachatModele"></div>
+        <div class="field"><label>Immatriculation</label><input type="text" id="rachatImmat" autocapitalize="characters"></div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Année</label><input type="number" id="rachatAnnee" inputmode="numeric"></div>
+          <div class="field" style="flex:1;"><label>Kilométrage</label><input type="number" id="rachatKilometrage" inputmode="numeric"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Carburant</label><select id="rachatCarburant"><option value=""></option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option><option>LPG</option></select></div>
+          <div class="field" style="flex:1;"><label>Boîte</label><select id="rachatBoite"><option value=""></option><option>Manuelle</option><option>Automatique</option></select></div>
+        </div>
+        <div class="field"><label>État</label><select id="rachatEtat"><option value=""></option><option>Roule</option><option>Ne roule pas</option><option>Accidenté</option><option>Épave</option></select></div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Clés</label><select id="rachatCles"><option value=""></option><option>Oui</option><option>Double</option><option>Non</option></select></div>
+          <div class="field" style="flex:1;"><label>Papiers</label><select id="rachatPapiers"><option value=""></option><option>Oui</option><option>Non</option></select></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Contrôle technique</label><select id="rachatCt"><option value=""></option><option>Valide</option><option>Expiré</option><option>Inconnu</option></select></div>
+          <div class="field" style="flex:1;"><label>Car-Pass</label><select id="rachatCarpass"><option value=""></option><option>Oui</option><option>Non</option></select></div>
+        </div>
+        <div class="field"><label>Problèmes annoncés par le client</label><textarea id="rachatProblemes" rows="3"></textarea></div>
+        <div class="field"><label>Prix demandé par le client (€)</label><input type="number" id="rachatPrixDemande" inputmode="decimal"></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">Client et enlèvement</div>
+        <div class="field"><label>Nom</label><input type="text" id="rachatClientNom"></div>
+        <div class="field"><label>Téléphone</label><input type="tel" id="rachatClientTel"></div>
+        <div class="field"><label>Adresse du véhicule</label><input type="text" id="rachatAdresse"></div>
+        <div class="field"><label>Distance aller depuis la base (km)</label><input type="number" id="rachatKm" inputmode="decimal" oninput="rachatMajEnlevement()"></div>
+        <label style="display:flex; gap:8px; align-items:center; font-size:14px; margin:4px 0 8px;"><input type="checkbox" id="rachatApporte" onchange="rachatMajEnlevement()" style="width:auto;"> Le client amène le véhicule</label>
+        <div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">Coût d'enlèvement (tarif dépannage)</span><span class="v" id="rachatEnlevement">—</span></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">Demander un avis</div>
+        <button class="primary" onclick="rachatPartager()">Envoyer à mon ChatGPT / mon Claude</button>
+        <button class="ghost" style="margin-top:8px;" onclick="rachatCopierTexte()">Copier le texte seulement</button>
+        <div class="field" style="margin-top:12px;"><label>Coller l'avis reçu</label><textarea id="rachatAvis" rows="5" placeholder="Colle ici la réponse de ChatGPT ou Claude"></textarea></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">Décision et suivi</div>
+        <div class="field"><label>Voie choisie</label><select id="rachatVoie"><option value="">— pas encore décidé —</option><option value="revente">Réparer et revendre</option><option value="pieces">Pièces</option><option value="demolition">Démolition</option><option value="non">Pas acheté</option></select></div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Prix payé (€)</label><input type="number" id="rachatPrixPaye" inputmode="decimal"></div>
+          <div class="field" style="flex:1;"><label>Réparations réelles (€)</label><input type="number" id="rachatReparations" inputmode="decimal"></div>
+        </div>
+        <div class="field"><label>Prix de revente obtenu (€)</label><input type="number" id="rachatPrixRevente" inputmode="decimal"></div>
+        <div class="field"><label>Notes</label><textarea id="rachatNotes" rows="3"></textarea></div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-title">📦 Stock et documents</div>
+        <div id="stockBloc"></div>
+      </div>
+
+      <button class="primary" onclick="rachatEnregistrer()">Enregistrer la fiche</button>
+      <button class="ghost" style="margin-top:8px;" id="rachatBtnSuppr" onclick="rachatSupprimer()">🗑 Supprimer la fiche</button>
+      <button class="ghost close-modal" onclick="rachatRetourListe()">Retour aux fiches</button>
+    </div>
+    <div id="stockVueAchat" style="display:none;">
+      <div class="eyebrow" style="cursor:pointer;" onclick="stockVue('rachatVueFiche')">← Fiche</div>
+      <h1 class="page-title" style="font-size:22px;">Bon d'achat</h1>
+      <div class="km-mention" id="achVehicule" style="margin-bottom:10px;"></div>
+      <div class="grp">
+        <div class="grp-title">Vendeur</div>
+        <div class="field"><label>Nom et prénom</label><input type="text" id="achVendeurNom"></div>
+        <div class="field"><label>Adresse</label><input type="text" id="achVendeurAdresse"></div>
+        <div class="field"><label>Téléphone</label><input type="tel" id="achVendeurTel"></div>
+        <div class="field"><label>N° de carte d'identité (facultatif)</label><input type="text" id="achVendeurId"></div>
+      </div>
+      <div class="grp">
+        <div class="grp-title">Véhicule et prix</div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Immatriculation</label><input type="text" id="achImmat" autocapitalize="characters"></div>
+          <div class="field" style="flex:1;"><label>Km relevé</label><input type="number" id="achKm" inputmode="numeric"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label>Prix d'achat (€)</label><input type="number" id="achPrix" inputmode="decimal"></div>
+          <div class="field" style="flex:1;"><label>Date</label><input type="date" id="achDate"></div>
+        </div>
+        <div class="field"><label>Paiement</label><select id="achPaiement"><option>Espèces</option><option>Virement</option><option>Payconiq</option><option>Autre</option></select></div>
+      </div>
+      <div class="grp">
+        <div class="grp-title">Signature du vendeur</div>
+        <div class="sig-wrap"><canvas id="sigAchatVendeur" style="width:100%; height:150px; display:block; touch-action:none;"></canvas></div>
+        <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigAchatVendeur')">Effacer</button>
+      </div>
+      <div class="grp">
+        <div class="grp-title">Ta signature (JM Express)</div>
+        <div class="sig-wrap"><canvas id="sigAchatJm" style="width:100%; height:150px; display:block; touch-action:none;"></canvas></div>
+        <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigAchatJm')">Effacer</button>
+      </div>
+      <div class="km-mention" style="margin-bottom:10px;">Une fois signé, le bon reçoit son numéro et ne peut plus être supprimé : seulement annulé, avec un motif.</div>
+      <button class="primary" onclick="stockSignerAchat()">Signer et établir le bon d'achat</button>
+      <button class="ghost close-modal" onclick="stockVue('rachatVueFiche')">Retour à la fiche</button>
+    </div>
+
+    <div id="stockVueSortie" style="display:none;">
+      <div class="eyebrow" style="cursor:pointer;" onclick="stockVue('rachatVueFiche')">← Fiche</div>
+      <h1 class="page-title" style="font-size:22px;">Sortie du véhicule</h1>
+      <div class="km-mention" id="sorVehicule" style="margin-bottom:10px;"></div>
+      <div class="toggles" id="sorTypes" data-t="vendu">
+        <div class="toggle on" data-t="vendu" onclick="stockTypeSortie('vendu')">Vendu</div>
+        <div class="toggle" data-t="pieces" onclick="stockTypeSortie('pieces')">Pièces</div>
+        <div class="toggle" data-t="demoli" onclick="stockTypeSortie('demoli')">Démoli</div>
+        <div class="toggle" data-t="autre" onclick="stockTypeSortie('autre')">Autre</div>
+      </div>
+      <div class="grp">
+        <div style="display:flex; gap:8px;">
+          <div class="field" style="flex:1;"><label id="sorMontantLbl">Prix de vente (€)</label><input type="number" id="sorMontant" inputmode="decimal"></div>
+          <div class="field" style="flex:1;"><label>Date</label><input type="date" id="sorDate"></div>
+        </div>
+        <div id="sorBlocVente">
+          <div class="field"><label>Acheteur (nom ou société)</label><input type="text" id="sorAcheteurNom"></div>
+          <div class="field"><label>Adresse</label><input type="text" id="sorAcheteurAdresse"></div>
+          <div class="field"><label>N° TVA (marchand, export…)</label><input type="text" id="sorAcheteurTva"></div>
+          <div style="display:flex; gap:8px;">
+            <div class="field" style="flex:2;"><label>Vendu via un intermédiaire</label><input type="text" id="sorTiersNom" placeholder="Nom (facultatif)"></div>
+            <div class="field" style="flex:1;"><label>Commission (€)</label><input type="number" id="sorTiersCommission" inputmode="decimal"></div>
+          </div>
+          <div class="field"><label>Document</label><select id="sorDoc"><option value="facture">Facture (numérotation de tes factures)</option><option value="bon">Bon de vente</option><option value="aucun">Aucun document</option></select></div>
+        </div>
+        <div id="sorBlocDemoli" style="display:none;">
+          <div class="field"><label>N° du certificat de destruction</label><input type="text" id="sorCertificat"></div>
+          <div class="field"><label>Centre agréé</label><input type="text" id="sorCentre"></div>
+        </div>
+        <div id="sorBlocAutre" style="display:none;">
+          <div class="field"><label>Précise</label><input type="text" id="sorLibelle"></div>
+        </div>
+      </div>
+      <button class="primary" onclick="stockEnregistrerSortie()">Enregistrer la sortie</button>
+      <button class="ghost close-modal" onclick="stockVue('rachatVueFiche')">Retour à la fiche</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalMenuBg">
   <div class="modal">
     <div class="eyebrow">Accès rapide</div>
@@ -3758,6 +4049,11 @@ input::placeholder,textarea::placeholder{color:#778b96!important;opacity:1}
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Rendez-vous</span>
         <span class="menu-desc">Programmer une course</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openRachat();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6.5 17l1.2-5.2A2 2 0 0 1 9.6 10h4.8a2 2 0 0 1 1.9 1.8L17.5 17"/><circle cx="8" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/><path d="M12 3v4M10 5h4"/></svg></span>
+        <span class="menu-lbl">Rachat / épave</span>
+        <span class="menu-desc">Fiches véhicules, avis</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openPaiement();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg></span>
@@ -6216,6 +6512,565 @@ async function partagerLienPaiement(){
 function openMenu(){ document.getElementById('modalMenuBg').classList.add('show'); }
 function closeMenu(){ document.getElementById('modalMenuBg').classList.remove('show'); }
 
+// ===================================================================
+//  v244 — MODULE RACHAT / ÉPAVE (étape 1 : fiches, VIN, repères, partage)
+//  Module ajouté à côté de l'existant : aucune page, aucun tarif, aucune
+//  fonction existante n'est modifiée. Fiches texte : stockage habituel
+//  (synchronisées A/B). Photos : IndexedDB (gros volumes, jamais synchronisées).
+// ===================================================================
+const RACHAT_REPERES_DEFAUT = {tauxMecano:40, tauxGarage:75, remisePieces:25, ferrailleTonne:150, fraisRemiseVente:150, margeRevente:30, margePieces:40};
+const RACHAT_PHOTOS_SLOTS = [['avant','Avant'],['arriere','Arrière'],['profil','Profil'],['interieur','Intérieur'],['compteur','Compteur'],['degats','Dégâts'],['chassis','Plaque châssis'],['papiers','Papiers']];
+const RACHAT_VOIES = {'':'— pas encore décidé —', revente:'Réparer et revendre', pieces:'Pièces', demolition:'Démolition', non:'Pas acheté'};
+let RACHAT_ID = null, RACHAT_PHOTOS = {}, RACHAT_REPERES = {...RACHAT_REPERES_DEFAUT};
+
+// --- Photos : IndexedDB ---
+function rachatDb(){
+  return new Promise((ok, ko) => {
+    const r = indexedDB.open('jmRachatPhotos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('photos');
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  });
+}
+async function rachatPhotosLire(id){
+  try{ const db = await rachatDb(); return await new Promise(ok => { const t = db.transaction('photos').objectStore('photos').get(id); t.onsuccess = () => ok(t.result || {}); t.onerror = () => ok({}); }); }
+  catch(e){ return {}; }
+}
+async function rachatPhotosEcrire(id, photos){
+  const db = await rachatDb();
+  return new Promise((ok, ko) => { const tx = db.transaction('photos', 'readwrite'); tx.objectStore('photos').put(photos, id); tx.oncomplete = ok; tx.onerror = () => ko(tx.error); });
+}
+async function rachatPhotosSupprimer(id){
+  try{ const db = await rachatDb(); db.transaction('photos', 'readwrite').objectStore('photos').delete(id); }catch(e){}
+}
+function rachatCompresser(file){
+  return new Promise((ok, ko) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1280, s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('image illisible')); };
+    img.src = url;
+  });
+}
+async function rachatAjouterPhoto(slot, input){
+  const f = input.files && input.files[0]; if(!f) return;
+  try{ RACHAT_PHOTOS[slot] = await rachatCompresser(f); rachatAfficherPhotos(); }
+  catch(e){ showToast('Photo illisible'); }
+  input.value = '';
+}
+function rachatRetirerPhoto(slot){ delete RACHAT_PHOTOS[slot]; rachatAfficherPhotos(); }
+function rachatAfficherPhotos(){
+  RACHAT_PHOTOS_SLOTS.forEach(([k]) => {
+    const box = document.getElementById('rachatPh_' + k); if(!box) return;
+    const d = RACHAT_PHOTOS[k];
+    box.querySelector('.rph-img').style.backgroundImage = d ? 'url(' + d + ')' : 'none';
+    box.querySelector('.rph-plus').style.display = d ? 'none' : 'block';
+    box.querySelector('.rph-x').style.display = d ? 'flex' : 'none';
+  });
+  const n = Object.keys(RACHAT_PHOTOS).length;
+  document.getElementById('rachatPhotosNb').textContent = n ? n + ' photo' + (n > 1 ? 's' : '') : 'aucune photo';
+}
+
+// --- VIN : contrôle et décodage (indicatif) ---
+const RACHAT_WMI = {VF1:'Renault',VF3:'Peugeot',VR3:'Peugeot',VF7:'Citroën',VR7:'Citroën',VR1:'DS',UU1:'Dacia',VF6:'Renault Trucks',
+  WVW:'Volkswagen',WV1:'Volkswagen Utilitaires',WV2:'Volkswagen Utilitaires',WAU:'Audi',WUA:'Audi',WBA:'BMW',WBS:'BMW M',WBY:'BMW i',WMW:'Mini',
+  WDB:'Mercedes-Benz',WDD:'Mercedes-Benz',W1K:'Mercedes-Benz',WDF:'Mercedes-Benz Utilitaires',W1V:'Mercedes-Benz Utilitaires',WMX:'Mercedes-AMG',
+  W0L:'Opel',W0V:'Opel',WF0:'Ford',VS6:'Ford',NM0:'Ford',WP0:'Porsche',WP1:'Porsche',VSS:'Seat',VSK:'Nissan',TMB:'Škoda',ZFA:'Fiat',ZFB:'Fiat Utilitaires',
+  ZAR:'Alfa Romeo',ZAP:'Piaggio',ZCF:'Iveco',ZFF:'Ferrari',ZHW:'Lamborghini',VNK:'Toyota',SB1:'Toyota',JTD:'Toyota',JTE:'Toyota',JTM:'Toyota',
+  JN1:'Nissan',SJN:'Nissan',KNA:'Kia',KNE:'Kia',U5Y:'Kia',KMH:'Hyundai',TMA:'Hyundai',NLH:'Hyundai',JMZ:'Mazda',JHM:'Honda',SHH:'Honda',
+  JSA:'Suzuki',TSM:'Suzuki',JMB:'Mitsubishi',YV1:'Volvo',YV4:'Volvo',YS3:'Saab',SAL:'Land Rover',SAJ:'Jaguar',SCC:'Lotus',XTA:'Lada',
+  LSJ:'MG',LRW:'Tesla',XP7:'Tesla',LVS:'Ford (Chine)',LBV:'BMW (Chine)',LYV:'Volvo (Chine)'};
+const RACHAT_ANNEE = 'ABCDEFGHJKLMNPRSTVWXY123456789';
+function rachatVinAnalyse(vin){
+  vin = (vin || '').toUpperCase().replace(/\s+/g, '');
+  if(!vin) return {etat:'vide'};
+  if(/[IOQ]/.test(vin)) return {etat:'ko', msg:'Les lettres I, O et Q n\'existent pas dans un VIN (confusion avec 1 et 0).'};
+  if(!/^[A-HJ-NPR-Z0-9]*$/.test(vin)) return {etat:'ko', msg:'Caractère non autorisé.'};
+  if(vin.length !== 17) return {etat:'ko', msg:vin.length + ' caractères sur 17.'};
+  const wmi = vin.slice(0, 3), marque = RACHAT_WMI[wmi] || RACHAT_WMI[wmi.slice(0, 2) + 'W'] || null;
+  const i = RACHAT_ANNEE.indexOf(vin[9]); const annees = i < 0 ? [] : [1980 + i, 2010 + i].filter(a => a <= new Date().getFullYear() + 1);
+  return {etat:'ok', wmi, marque, annees};
+}
+function rachatVinMaj(){
+  const el = document.getElementById('rachatVin'); el.value = el.value.toUpperCase().replace(/\s+/g, '');
+  const a = rachatVinAnalyse(el.value), box = document.getElementById('rachatVinInfo');
+  if(a.etat === 'vide'){ box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  if(a.etat === 'ko'){ box.style.borderLeftColor = 'var(--red)'; box.innerHTML = '⚠️ ' + a.msg; return; }
+  const marqueSaisie = (document.getElementById('rachatMarque').value || '').trim().toLowerCase();
+  const incoherent = a.marque && marqueSaisie && !a.marque.toLowerCase().split(/[ (]/)[0].includes(marqueSaisie.split(' ')[0]) && !marqueSaisie.includes(a.marque.toLowerCase().split(/[ (]/)[0]);
+  box.style.borderLeftColor = incoherent ? 'var(--red)' : 'var(--green)';
+  box.innerHTML = '✓ VIN valide · constructeur : <strong>' + (a.marque || 'non reconnu (' + a.wmi + ')') + '</strong>' +
+    (a.annees.length ? ' · année codée : ' + a.annees.join(' ou ') + ' <span style="opacity:.7">(indicatif : pas toujours codée sur les véhicules européens)</span>' : '') +
+    (incoherent ? '<br>🚩 <strong>La marque saisie ne correspond pas au VIN.</strong> À vérifier avant tout achat.' : '');
+}
+
+// --- Enlèvement : même moteur que les interventions (Formule A dépannage) ---
+function rachatEnlevement(){
+  const apporte = document.getElementById('rachatApporte').checked;
+  const k = parseFloat(document.getElementById('rachatKm').value);
+  if(apporte) return 0;
+  if(!(k > 0)) return null;
+  try{ return MOTEUR_calculerTarif({type:'depannage', km:k, retour:true, kmRetourVide:k, kmRetourVerifie:true}, RATES, {typesRemorquage: TYPES_REMORQUAGE}).total; }
+  catch(e){ return null; }
+}
+function rachatMajEnlevement(){
+  const v = rachatEnlevement(), el = document.getElementById('rachatEnlevement');
+  el.textContent = v === null ? '—' : (v === 0 ? 'amené par le client' : fmt(v));
+}
+
+// --- Fiche : lecture / écriture ---
+const RACHAT_CHAMPS = ['Marque','Modele','Immat','Annee','Kilometrage','Carburant','Boite','Etat','Cles','Papiers','Ct','Carpass','Problemes','PrixDemande','Adresse','Km','ClientNom','ClientTel','Voie','PrixPaye','Reparations','PrixRevente','Notes','Avis'];
+function rachatLireFormulaire(){
+  const f = {}; const v = id => (document.getElementById('rachat' + id) || {}).value || '';
+  [...new Set(RACHAT_CHAMPS)].forEach(k => f[k.charAt(0).toLowerCase() + k.slice(1)] = v(k).trim());
+  f.vin = (document.getElementById('rachatVin').value || '').toUpperCase().trim();
+  f.apporte = document.getElementById('rachatApporte').checked;
+  f.enlevement = rachatEnlevement();
+  return f;
+}
+function rachatEcrireFormulaire(f){
+  f = f || {};
+  [...new Set(RACHAT_CHAMPS)].forEach(k => { const el = document.getElementById('rachat' + k); if(el) el.value = f[k.charAt(0).toLowerCase() + k.slice(1)] || ''; });
+  document.getElementById('rachatVin').value = f.vin || '';
+  document.getElementById('rachatApporte').checked = !!f.apporte;
+  rachatVinMaj(); rachatMajEnlevement();
+}
+
+// --- Écrans ---
+async function openRachat(){
+  try{ const r = await window.storage.get('rachatReperes'); RACHAT_REPERES = {...RACHAT_REPERES_DEFAUT, ...JSON.parse(r.value)}; }catch(e){ RACHAT_REPERES = {...RACHAT_REPERES_DEFAUT}; }
+  stockVue('rachatVueListe');
+  document.getElementById('modalRachatBg').classList.add('show');
+  await rachatListe();
+}
+function closeRachat(){ document.getElementById('modalRachatBg').classList.remove('show'); }
+async function rachatListe(){
+  const box = document.getElementById('rachatListe');
+  let keys = []; try{ keys = (await window.storage.list('rachat:')).keys || []; }catch(e){}
+  const fiches = [];
+  for(const k of keys){ try{ const r = await window.storage.get(k); fiches.push({key:k, d:JSON.parse(r.value)}); }catch(e){} }
+  fiches.sort((a, b) => (b.d.maj || '').localeCompare(a.d.maj || ''));
+  box.innerHTML = fiches.length ? fiches.map(({key, d}) => {
+    const titre = [d.marque, d.modele, d.annee].filter(Boolean).join(' ') || 'Véhicule sans nom';
+    const voie = d.achat ? stockLibelleStatut(d) + ' · ' + d.achat.numero : (d.voie ? RACHAT_VOIES[d.voie] : 'à décider');
+    const prix = d.prixPaye ? ' · payé ' + d.prixPaye + ' €' : (d.prixDemande ? ' · demandé ' + d.prixDemande + ' €' : '');
+    return `<div class="hist-item" style="padding:12px 14px; margin-bottom:8px; cursor:pointer;" onclick="rachatOuvrir('${key}')">
+      <div style="font-weight:600;">🚗 ${titre.replace(/</g,'&lt;')}</div>
+      <div style="font-size:12.5px; color:var(--grey); margin-top:3px;">${voie}${prix}${d.vin ? ' · VIN …' + d.vin.slice(-6) : ''}</div></div>`;
+  }).join('') : '<div class="km-mention">Aucune fiche pour l\'instant.</div>';
+  ['tauxMecano','tauxGarage','remisePieces','ferrailleTonne','fraisRemiseVente','margeRevente','margePieces'].forEach(k => { const el = document.getElementById('rachatR_' + k); if(el) el.value = RACHAT_REPERES[k]; });
+}
+async function rachatSauverReperes(){
+  ['tauxMecano','tauxGarage','remisePieces','ferrailleTonne','fraisRemiseVente','margeRevente','margePieces'].forEach(k => { const v = parseFloat(document.getElementById('rachatR_' + k).value); RACHAT_REPERES[k] = Number.isFinite(v) ? v : RACHAT_REPERES_DEFAUT[k]; });
+  await window.storage.set('rachatReperes', JSON.stringify(RACHAT_REPERES));
+  showToast('Repères enregistrés');
+}
+async function rachatNouvelle(){
+  RACHAT_ID = null; RACHAT_PHOTOS = {};
+  rachatEcrireFormulaire({});
+  rachatAfficherPhotos();
+  document.getElementById('rachatTitre').textContent = 'Nouvelle fiche';
+  document.getElementById('rachatBtnSuppr').style.display = 'none';
+  stockVue('rachatVueFiche'); stockAfficher();
+}
+async function rachatOuvrir(key){
+  let d = {}; try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){}
+  RACHAT_ID = key; RACHAT_PHOTOS = await rachatPhotosLire(key);
+  rachatEcrireFormulaire(d); rachatAfficherPhotos();
+  document.getElementById('rachatTitre').textContent = [d.marque, d.modele, d.annee].filter(Boolean).join(' ') || 'Fiche véhicule';
+  document.getElementById('rachatBtnSuppr').style.display = d.achat ? 'none' : 'block';
+  stockVue('rachatVueFiche'); stockAfficher();
+}
+function rachatRetourListe(){ stockVue('rachatVueListe'); rachatListe(); }
+async function rachatEnregistrer(){
+  const f = rachatLireFormulaire();
+  const vin = rachatVinAnalyse(f.vin);
+  if(f.vin && vin.etat === 'ko' && !confirm('Le VIN semble incorrect (' + vin.msg + ')\nEnregistrer quand même ?')) return;
+  const key = RACHAT_ID || ('rachat:' + Date.now() + '-' + Math.random().toString(36).slice(2, 7));
+  let avant = {}; try{ avant = JSON.parse((await window.storage.get(key)).value); }catch(e){}
+  const d = {...avant, ...f, cree: avant.cree || new Date().toISOString(), maj: new Date().toISOString(), nbPhotos: Object.keys(RACHAT_PHOTOS).length};
+  await window.storage.set(key, JSON.stringify(d));
+  try{ await rachatPhotosEcrire(key, RACHAT_PHOTOS); }catch(e){ showToast('Fiche enregistrée, mais les photos n\'ont pas pu être sauvegardées'); }
+  RACHAT_ID = key;
+  document.getElementById('rachatBtnSuppr').style.display = d.achat ? 'none' : 'block';
+  showToast('Fiche enregistrée'); stockAfficher();
+}
+async function rachatSupprimer(){
+  if(!RACHAT_ID) return;
+  try{ const d0 = JSON.parse((await window.storage.get(RACHAT_ID)).value); if(d0.achat){ showToast('Bon d\'achat ' + d0.achat.numero + ' signé : utilise « Annuler l\'achat »'); return; } }catch(e){}
+  if(!confirm('Supprimer définitivement cette fiche et ses photos ?')) return;
+  await window.storage.delete(RACHAT_ID); await rachatPhotosSupprimer(RACHAT_ID);
+  RACHAT_ID = null; showToast('Fiche supprimée'); rachatRetourListe();
+}
+
+// --- Partage vers mon ChatGPT / mon Claude (abonnement personnel, sans coût API) ---
+function rachatTexte(){
+  const f = rachatLireFormulaire(), R = RACHAT_REPERES, v = rachatVinAnalyse(f.vin);
+  const L = (lib, val) => val ? lib + ' : ' + val + '\n' : '';
+  return 'Avis de rachat JM Express — analyse selon mes consignes (3 voies : réparer-revendre, pièces, démolition).\n\n' +
+    'VÉHICULE\n' + L('Marque', f.marque) + L('Modèle', f.modele) + L('Année annoncée', f.annee) + L('Kilométrage', f.kilometrage && f.kilometrage + ' km') +
+    L('Carburant', f.carburant) + L('Boîte', f.boite) + L('État', f.etat) + L('Clés', f.cles) + L('Papiers', f.papiers) + L('Contrôle technique', f.ct) + L('Car-Pass', f.carpass) +
+    L('VIN', f.vin && (f.vin + (v.etat === 'ok' ? ' (constructeur décodé : ' + (v.marque || 'non reconnu') + ')' : ' (⚠️ ' + v.msg + ')'))) +
+    L('Problèmes annoncés', f.problemes) + L('Prix demandé par le client', f.prixDemande && f.prixDemande + ' €') +
+    L('Enlèvement', f.apporte ? 'le client amène le véhicule' : (f.enlevement ? fmt(f.enlevement) + ' (' + f.km + ' km aller)' : '')) + L('Adresse', f.adresse) +
+    '\nMES REPÈRES\nMécanicien : ' + R.tauxMecano + ' €/h · pièces prix public − ' + R.remisePieces + ' %\nGarage indépendant : ' + R.tauxGarage + ' €/h\n' +
+    'Ferraille : ' + R.ferrailleTonne + ' €/t · remise en vente ≈ ' + R.fraisRemiseVente + ' € · marge revente ' + R.margeRevente + ' %, pièces ' + R.margePieces + ' %\n' +
+    '\nDonne : alertes, ce que tu vois, réparations (heures, mon coût / prix garage), les 3 voies avec prix d\'achat max, voie et offre conseillées + confiance, points à vérifier sur place, message WhatsApp au client.' +
+    (Object.keys(RACHAT_PHOTOS).length ? '\n\nPhotos jointes : ' + RACHAT_PHOTOS_SLOTS.filter(([k]) => RACHAT_PHOTOS[k]).map(([, l]) => l).join(', ') + '.' : '');
+}
+async function rachatPartager(){
+  const texte = rachatTexte();
+  const fichiers = [];
+  for(const [k, lib] of RACHAT_PHOTOS_SLOTS){
+    const d = RACHAT_PHOTOS[k]; if(!d) continue;
+    try{ const blob = await (await fetch(d)).blob(); fichiers.push(new File([blob], 'vehicule-' + k + '.jpg', {type:'image/jpeg'})); }catch(e){}
+  }
+  try{
+    if(fichiers.length && navigator.canShare && navigator.canShare({files: fichiers})){ await navigator.share({text: texte, files: fichiers}); return; }
+    if(navigator.share){ await navigator.share({text: texte}); if(fichiers.length) showToast('Photos non jointes : ajoute-les à la main dans ChatGPT / Claude'); return; }
+  }catch(e){ if(e && e.name === 'AbortError') return; }
+  rachatCopierTexte();
+}
+
+// ===================================================================
+//  v245 — RACHAT : STOCK, DOCUMENTS ET REGISTRE (franchise TVA art. 56bis)
+//  Achat signé → stock → frais → sortie (vente / pièces / démolition / autre).
+//  Documents numérotés et figés : jamais supprimés, seulement annulés.
+// ===================================================================
+const STOCK_ETAPES = {stock:'En stock', reparation:'En réparation', vente:'En vente'};
+const STOCK_SORTIES = {vendu:'Vendu', pieces:'Démonté pour pièces', demoli:'Démoli', autre:'Autre'};
+function stockStatut(d){
+  if(d.annulation) return 'annule';
+  if(d.sortie && !d.sortie.annulee) return 'sorti';
+  if(d.achat) return d.etape && STOCK_ETAPES[d.etape] ? d.etape : 'stock';
+  return 'evaluation';
+}
+function stockLibelleStatut(d){
+  const s = stockStatut(d);
+  if(s === 'evaluation') return 'À évaluer';
+  if(s === 'annule') return 'Achat annulé';
+  if(s === 'sorti') return 'Sorti — ' + (STOCK_SORTIES[d.sortie.type] || '');
+  return STOCK_ETAPES[s];
+}
+const n2 = v => { const x = parseFloat(String(v === undefined || v === null ? '' : v).replace(',', '.')); return Number.isFinite(x) ? Math.round(x * 100) / 100 : 0; };
+function stockTotaux(d){
+  const achat = d.achat ? n2(d.achat.prix) : 0;
+  const frais = (d.frais || []).reduce((s, f) => s + n2(f.montant), 0);
+  const so = d.sortie && !d.sortie.annulee ? d.sortie : null;
+  const recette = so ? n2(so.montant) : 0, commission = so && so.tiers ? n2(so.tiers.commission) : 0;
+  const revient = Math.round((achat + frais + commission) * 100) / 100;
+  return {achat, frais: Math.round(frais * 100) / 100, commission, revient, recette, marge: so ? Math.round((recette - revient) * 100) / 100 : null};
+}
+async function stockNumero(cle, prefixe){
+  const an = new Date().getFullYear(); let c = {};
+  try{ c = JSON.parse((await window.storage.get(cle)).value); }catch(e){}
+  const n = (c.annee === an ? c.n : 0) + 1;
+  await window.storage.set(cle, JSON.stringify({annee: an, n}));
+  return prefixe + '-' + an + '-' + String(n).padStart(3, '0');
+}
+function stockRefuserSecours(){
+  if(typeof syncEstSecours === 'function' && syncEstSecours()){ showToast('Documents d\'achat et de vente : à établir sur le téléphone principal'); return true; }
+  return false;
+}
+async function stockFiche(){ try{ return JSON.parse((await window.storage.get(RACHAT_ID)).value); }catch(e){ return null; } }
+async function stockSauver(d){ d.maj = new Date().toISOString(); await window.storage.set(RACHAT_ID, JSON.stringify(d)); }
+function stockVehiculeTexte(d){ return [d.marque, d.modele, d.annee].filter(Boolean).join(' ') || 'Véhicule'; }
+
+// --- Affichage du bloc Stock dans la fiche ---
+async function stockAfficher(){
+  const box = document.getElementById('stockBloc'); if(!box) return;
+  if(!RACHAT_ID){ box.innerHTML = '<div class="km-mention">Enregistre d\'abord la fiche pour établir un bon d\'achat.</div>'; return; }
+  const d = await stockFiche() || {}; const t = stockTotaux(d), s = stockStatut(d);
+  const bs = document.getElementById('rachatBtnSuppr'); if(bs) bs.style.display = d.achat ? 'none' : 'block';
+  let h = '<div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">Statut</span><span class="v"><strong>' + stockLibelleStatut(d) + '</strong></span></div>';
+  if(!d.achat){
+    h += '<button class="primary" onclick="stockOuvrirAchat()">✍️ Établir le bon d\'achat</button>';
+  } else {
+    const a = d.achat;
+    h += '<div class="km-mention">Bon d\'achat <strong>' + a.numero + '</strong> · ' + fmt(n2(a.prix)) + ' · ' + new Date(a.date).toLocaleDateString('fr-BE') + ' · vendeur ' + (a.vendeur.nom || '') + '</div>';
+    h += '<div style="display:flex; gap:8px; margin:8px 0;"><button class="ghost" onclick="stockPdfAchat()">📄 Réimprimer</button>' + (s !== 'annule' && s !== 'sorti' ? '<button class="ghost" onclick="stockAnnulerAchat()">Annuler l\'achat</button>' : '') + '</div>';
+    if(d.annulation) h += '<div class="km-mention" style="border-left-color:var(--red);">Achat annulé le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — motif : ' + d.annulation.motif + '</div>';
+    if(s !== 'annule'){
+      if(s !== 'sorti') h += '<div class="field"><label>Étape</label><select onchange="stockEtape(this.value)">' + Object.entries(STOCK_ETAPES).map(([k, l]) => '<option value="' + k + '"' + (s === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></div>';
+      // Frais
+      h += '<div class="grp-title" style="margin-top:10px;">Frais engagés</div>';
+      h += (d.frais || []).map((f, i) => '<div class="ticket-row" style="border:0; padding:3px 0;"><span class="l">' + new Date(f.date).toLocaleDateString('fr-BE') + ' · ' + f.libelle.replace(/</g, '&lt;') + '</span><span class="v">' + fmt(n2(f.montant)) + (s !== 'sorti' ? ' <span style="cursor:pointer; color:var(--red);" onclick="stockRetirerFrais(' + i + ')">✕</span>' : '') + '</span></div>').join('') || '<div class="km-mention">Aucun frais.</div>';
+      if(s !== 'sorti') h += '<div style="display:flex; gap:6px; margin-top:6px;"><input type="text" id="stockFraisLib" placeholder="Réparation, pièces, CT…" style="flex:2;"><input type="number" id="stockFraisMt" placeholder="€" inputmode="decimal" style="flex:1;"><button class="ghost" style="flex:0 0 auto; padding:0 14px;" onclick="stockAjouterFrais()">+</button></div>';
+      h += '<div class="ticket-row" style="border:0; padding:6px 0 0;"><span class="l">Coût de revient (achat + frais' + (t.commission ? ' + commission' : '') + ')</span><span class="v"><strong>' + fmt(t.revient) + '</strong></span></div>';
+      // Sortie
+      if(d.sortie && !d.sortie.annulee){
+        const so = d.sortie;
+        h += '<div class="grp-title" style="margin-top:10px;">Sortie</div><div class="km-mention">' + STOCK_SORTIES[so.type] + ' le ' + new Date(so.date).toLocaleDateString('fr-BE') + ' · ' + fmt(n2(so.montant)) +
+          (so.acheteur && so.acheteur.nom ? ' · ' + so.acheteur.nom : '') + (so.tiers && so.tiers.nom ? ' · via ' + so.tiers.nom : '') + (so.doc ? ' · ' + so.doc.numero : '') + (so.certificat ? ' · certificat ' + so.certificat : '') + '</div>';
+        h += '<div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">Marge</span><span class="v" style="color:' + (t.marge >= 0 ? 'var(--green)' : 'var(--red)') + ';"><strong>' + fmt(t.marge) + '</strong></span></div>';
+        h += '<div style="display:flex; gap:8px;">' + (so.doc ? '<button class="ghost" onclick="stockPdfVente()">📄 Réimprimer ' + (so.doc.type === 'facture' ? 'la facture' : 'le bon') + '</button>' : '') + '<button class="ghost" onclick="stockAnnulerSortie()">Annuler la sortie</button></div>';
+      } else {
+        h += '<button class="primary" style="margin-top:10px;" onclick="stockOuvrirSortie()">Enregistrer la sortie (vente, pièces, démolition…)</button>';
+      }
+    }
+    h += '<button class="ghost" style="margin-top:8px;" onclick="stockDossierPdf()">📁 Dossier PDF complet (pour le comptable)</button>';
+  }
+  box.innerHTML = h;
+}
+async function stockEtape(v){ const d = await stockFiche(); d.etape = v; await stockSauver(d); stockAfficher(); }
+async function stockAjouterFrais(){
+  const lib = (document.getElementById('stockFraisLib').value || '').trim(), mt = n2(document.getElementById('stockFraisMt').value);
+  if(!lib || !(mt > 0)){ showToast('Indique un libellé et un montant'); return; }
+  const d = await stockFiche(); (d.frais = d.frais || []).push({date: new Date().toISOString(), libelle: lib, montant: mt});
+  await stockSauver(d); stockAfficher();
+}
+async function stockRetirerFrais(i){ if(!confirm('Retirer ce frais ?')) return; const d = await stockFiche(); d.frais.splice(i, 1); await stockSauver(d); stockAfficher(); }
+
+// --- Bon d'achat ---
+function stockVue(id){ ['rachatVueListe','rachatVueFiche','stockVueAchat','stockVueSortie'].forEach(v => { const e = document.getElementById(v); if(e) e.style.display = v === id ? 'block' : 'none'; }); }
+async function stockOuvrirAchat(){
+  if(stockRefuserSecours()) return;
+  const d = await stockFiche() || {};
+  document.getElementById('achVendeurNom').value = d.clientNom || '';
+  document.getElementById('achVendeurTel').value = d.clientTel || '';
+  document.getElementById('achVendeurAdresse').value = d.adresse || '';
+  document.getElementById('achVendeurId').value = '';
+  document.getElementById('achPrix').value = d.prixPaye || '';
+  document.getElementById('achKm').value = d.kilometrage || '';
+  document.getElementById('achImmat').value = d.immat || '';
+  document.getElementById('achDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('achVehicule').textContent = stockVehiculeTexte(d) + (d.vin ? ' · VIN ' + d.vin : ' · ⚠️ VIN non renseigné');
+  stockVue('stockVueAchat');
+  setTimeout(() => { initSignatureCanvas('sigAchatVendeur'); initSignatureCanvas('sigAchatJm'); }, 80);
+}
+async function stockSignerAchat(){
+  if(stockRefuserSecours()) return;
+  const v = id => (document.getElementById(id).value || '').trim();
+  const prix = n2(v('achPrix'));
+  if(!v('achVendeurNom')){ showToast('Nom du vendeur obligatoire'); return; }
+  if(!(prix >= 0) || v('achPrix') === ''){ showToast('Prix d\'achat obligatoire'); return; }
+  if(!lireSignatureDataUrl('sigAchatVendeur')){ showToast('Signature du vendeur manquante'); return; }
+  if(!lireSignatureDataUrl('sigAchatJm')){ showToast('Ta signature est manquante'); return; }
+  const d = await stockFiche(); if(d.achat){ showToast('Bon d\'achat déjà établi'); return; }
+  const s1 = await canvasSignatureToRgb('sigAchatVendeur'), s2 = await canvasSignatureToRgb('sigAchatJm');
+  const numero = await stockNumero('achatCounter', 'ACH');
+  d.immat = v('achImmat'); d.kilometrage = v('achKm') || d.kilometrage; d.prixPaye = String(prix);
+  d.achat = {numero, date: new Date(v('achDate') + 'T12:00:00').toISOString(), prix, paiement: v('achPaiement'),
+    vendeur: {nom: v('achVendeurNom'), adresse: v('achVendeurAdresse'), tel: v('achVendeurTel'), identite: v('achVendeurId')},
+    vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat, km: d.kilometrage, carburant: d.carburant || ''},
+    sigVendeur: {width: s1.width, height: s1.height, b64: octetsVersBase64(s1.deflatedRgb)},
+    sigJm: {width: s2.width, height: s2.height, b64: octetsVersBase64(s2.deflatedRgb)}, cree: new Date().toISOString()};
+  d.etape = 'stock'; if(!d.voie) d.voie = '';
+  await stockSauver(d);
+  showToast('Bon d\'achat ' + numero + ' établi');
+  await stockPdfAchat();
+  stockVue('rachatVueFiche'); stockAfficher();
+}
+async function stockAnnulerAchat(){
+  const motif = prompt('Motif de l\'annulation (le bon reste au registre, marqué annulé) :');
+  if(!motif || !motif.trim()) return;
+  const d = await stockFiche(); d.annulation = {date: new Date().toISOString(), motif: motif.trim()};
+  await stockSauver(d); showToast('Achat annulé — le bon ' + d.achat.numero + ' reste au registre'); stockAfficher();
+}
+
+// --- Sortie ---
+async function stockOuvrirSortie(){
+  const d = await stockFiche() || {};
+  document.getElementById('sorDate').value = new Date().toISOString().slice(0, 10);
+  ['sorMontant','sorAcheteurNom','sorAcheteurAdresse','sorAcheteurTva','sorTiersNom','sorTiersCommission','sorCertificat','sorCentre','sorLibelle'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('sorVehicule').textContent = stockVehiculeTexte(d) + (d.vin ? ' · VIN ' + d.vin : '');
+  stockTypeSortie('vendu'); stockVue('stockVueSortie');
+}
+function stockTypeSortie(t){
+  document.querySelectorAll('#sorTypes .toggle').forEach(e => e.classList.toggle('on', e.dataset.t === t));
+  document.getElementById('sorTypes').dataset.t = t;
+  document.getElementById('sorBlocVente').style.display = t === 'vendu' ? 'block' : 'none';
+  document.getElementById('sorBlocDemoli').style.display = t === 'demoli' ? 'block' : 'none';
+  document.getElementById('sorBlocAutre').style.display = t === 'autre' ? 'block' : 'none';
+  document.getElementById('sorMontantLbl').textContent = {vendu:'Prix de vente (€)', pieces:'Montant des pièces vendues (€)', demoli:'Montant reçu du centre (€)', autre:'Montant (€)'}[t];
+}
+async function stockEnregistrerSortie(){
+  const t = document.getElementById('sorTypes').dataset.t, v = id => (document.getElementById(id).value || '').trim();
+  const doc = document.getElementById('sorDoc').value;
+  if(t === 'vendu' && doc !== 'aucun' && stockRefuserSecours()) return;
+  if(t === 'vendu' && !v('sorAcheteurNom')){ showToast('Nom de l\'acheteur obligatoire'); return; }
+  if(t === 'autre' && !v('sorLibelle')){ showToast('Précise la sortie'); return; }
+  const d = await stockFiche();
+  const so = {type: t, date: new Date(v('sorDate') + 'T12:00:00').toISOString(), montant: n2(v('sorMontant')), cree: new Date().toISOString()};
+  if(t === 'vendu'){
+    so.acheteur = {nom: v('sorAcheteurNom'), adresse: v('sorAcheteurAdresse'), tva: v('sorAcheteurTva')};
+    if(v('sorTiersNom')) so.tiers = {nom: v('sorTiersNom'), commission: n2(v('sorTiersCommission'))};
+    if(doc !== 'aucun'){
+      const numero = doc === 'facture' ? await nextInvoiceNumber() : await stockNumero('venteCounter', 'VEN');
+      so.doc = {type: doc, numero, vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat || '', km: d.kilometrage || ''}};
+    }
+  }
+  if(t === 'demoli'){ so.certificat = v('sorCertificat'); so.centre = v('sorCentre'); }
+  if(t === 'autre') so.libelle = v('sorLibelle');
+  d.sortie = so; if(t === 'vendu') { d.prixRevente = String(so.montant); d.voie = d.voie || 'revente'; } else if(t === 'pieces') d.voie = 'pieces'; else if(t === 'demoli') d.voie = 'demolition';
+  await stockSauver(d);
+  showToast('Sortie enregistrée');
+  if(so.doc) await stockPdfVente();
+  await rachatOuvrir(RACHAT_ID); stockAfficher();
+}
+async function stockAnnulerSortie(){
+  const d = await stockFiche(); const so = d.sortie;
+  const msg = so.doc && so.doc.type === 'facture' ? 'La facture ' + so.doc.numero + ' reste émise : pour la corriger en comptabilité, établis une note de crédit.\n\n' : (so.doc ? 'Le bon ' + so.doc.numero + ' reste au registre, marqué annulé.\n\n' : '');
+  const motif = prompt(msg + 'Motif de l\'annulation de la sortie :'); if(!motif || !motif.trim()) return;
+  (d.sortiesAnnulees = d.sortiesAnnulees || []).push({...so, annulee: {date: new Date().toISOString(), motif: motif.trim()}});
+  delete d.sortie; await stockSauver(d); showToast('Sortie annulée — le véhicule revient en stock'); stockAfficher();
+}
+
+// --- Documents PDF (même présentation que tes factures) ---
+function stockEntete(pdf, titre, numero, dateIso){
+  let y = 50;
+  pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16}); pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+  pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+  pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
+  pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
+  pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 13;
+  pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.3}); y += 20;
+  pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 22;
+  pdf.text(50, y, titre, {font:'F2', size:15}); pdf.rect(50, y + 5, 42, 2, {mode:'f', rgb:[242,169,0]});
+  pdf.text(400, y, 'N° ' + numero, {size:10}); pdf.text(400, y + 14, 'Date : ' + new Date(dateIso).toLocaleDateString('fr-BE'), {size:10});
+  return y + 34;
+}
+function stockLigne(pdf, y, lib, val){ pdf.text(56, y, lib, {size:10, gray:0.3}); pdf.text(230, y, String(val || '—'), {size:10}); return y + 15; }
+function stockSection(pdf, y, titre){ pdf.text(50, y, titre, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); return y + 15; }
+function stockPdfAchatBytes(d){
+  const a = d.achat, pdf = MiniPDF(595, 842);
+  let y = stockEntete(pdf, 'BON D\'ACHAT', a.numero, a.date);
+  if(d.annulation){ pdf.rect(50, y - 12, 495, 20, {mode:'f', rgb:[253,226,221]}); pdf.text(56, y + 2, 'ANNULÉ le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — ' + d.annulation.motif, {font:'F2', size:10, rgb:[201,74,50]}); y += 26; }
+  y = stockSection(pdf, y, 'VENDEUR');
+  y = stockLigne(pdf, y, 'Nom', a.vendeur.nom); y = stockLigne(pdf, y, 'Adresse', a.vendeur.adresse); y = stockLigne(pdf, y, 'Téléphone', a.vendeur.tel);
+  if(a.vendeur.identite) y = stockLigne(pdf, y, 'Pièce d\'identité', a.vendeur.identite);
+  y += 8; y = stockSection(pdf, y, 'ACHETEUR'); y = stockLigne(pdf, y, 'Nom', COMPANY.name); y = stockLigne(pdf, y, 'N° d\'entreprise', COMPANY.tva);
+  y += 8; y = stockSection(pdf, y, 'VÉHICULE');
+  y = stockLigne(pdf, y, 'Véhicule', a.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', a.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', a.vehicule.immat);
+  y = stockLigne(pdf, y, 'Kilométrage relevé', a.vehicule.km ? a.vehicule.km + ' km' : ''); if(a.vehicule.carburant) y = stockLigne(pdf, y, 'Carburant', a.vehicule.carburant);
+  y += 10; pdf.rect(50, y - 4, 495, 28, {mode:'f', rgb:[255,248,228]});
+  pdf.text(56, y + 15, 'PRIX D\'ACHAT', {font:'F2', size:13}); pdf.text(440, y + 15, fmt(n2(a.prix)), {font:'F2', size:14, rgb:[196,136,0]}); y += 40;
+  y = stockLigne(pdf, y, 'Mode de paiement', a.paiement); y += 8;
+  ['Le vendeur déclare être le propriétaire du véhicule, que celui-ci est libre de tout gage, saisie ou',
+   'opposition, et le céder en l\'état, sans garantie. L\'acheteur déclare avoir pris connaissance de',
+   'l\'état du véhicule. Achat sans TVA — franchise de la taxe, article 56bis du Code de la TVA.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 11; });
+  y += 18;
+  pdf.text(50, y, 'Signature du vendeur', {size:9.5, gray:0.3}); pdf.text(300, y, 'Pour ' + COMPANY.name, {size:9.5, gray:0.3});
+  pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7}); pdf.rect(300, y + 8, 220, 62, {mode:'S', gray:0.7});
+  pdf.addRgbImage('SigV', a.sigVendeur.width, a.sigVendeur.height, base64VersOctets(a.sigVendeur.b64)); pdf.drawImage('SigV', 52, y + 10, 216, 58);
+  pdf.addRgbImage('SigJ', a.sigJm.width, a.sigJm.height, base64VersOctets(a.sigJm.b64)); pdf.drawImage('SigJ', 302, y + 10, 216, 58);
+  return pdf.build();
+}
+function stockPdfVenteBytes(d){
+  const so = d.sortie, doc = so.doc, pdf = MiniPDF(595, 842);
+  let y = stockEntete(pdf, doc.type === 'facture' ? 'FACTURE' : 'BON DE VENTE', doc.numero, so.date);
+  y = stockSection(pdf, y, 'ACHETEUR'); y = stockLigne(pdf, y, 'Nom', so.acheteur.nom); y = stockLigne(pdf, y, 'Adresse', so.acheteur.adresse);
+  if(so.acheteur.tva) y = stockLigne(pdf, y, 'N° TVA', so.acheteur.tva);
+  y += 8; y = stockSection(pdf, y, 'VÉHICULE VENDU');
+  y = stockLigne(pdf, y, 'Véhicule', doc.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', doc.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', doc.vehicule.immat);
+  y = stockLigne(pdf, y, 'Kilométrage', doc.vehicule.km ? doc.vehicule.km + ' km' : '');
+  y += 10; pdf.rect(50, y - 4, 495, 28, {mode:'f', rgb:[255,248,228]});
+  pdf.text(56, y + 15, 'TOTAL À PAYER', {font:'F2', size:13}); pdf.text(440, y + 15, fmt(n2(so.montant)), {font:'F2', size:14, rgb:[196,136,0]}); y += 44;
+  ['Véhicule d\'occasion vendu en l\'état, sans garantie.', 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 12; });
+  y += 10; pdf.text(50, y, 'Paiement : IBAN ' + COMPANY.ibanDisplay + ' — BIC ' + COMPANY.bic + ' — communication : ' + doc.numero, {size:9, gray:0.3});
+  return pdf.build();
+}
+async function stockPdfAchat(){ const d = await stockFiche(); if(!d || !d.achat) return; await partagerPdf(stockPdfAchatBytes(d), d.achat.numero + '.pdf', 'Bon d\'achat ' + d.achat.numero, 'Bon d\'achat prêt', 'Bon d\'achat téléchargé'); }
+async function stockPdfVente(){ const d = await stockFiche(); if(!d || !d.sortie || !d.sortie.doc) return; const n = d.sortie.doc.numero; await partagerPdf(stockPdfVenteBytes(d), n + '.pdf', n, 'Document de vente prêt', 'Document de vente téléchargé'); }
+
+// --- Dossier complet pour le comptable (photos incluses) ---
+async function stockPhotoRgb(dataUrl, maxCote){
+  const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = dataUrl; });
+  const s = Math.min(1, maxCote / Math.max(img.width, img.height));
+  let cv = document.getElementById('stockTmpCanvas');
+  if(!cv){ cv = document.createElement('canvas'); cv.id = 'stockTmpCanvas'; cv.style.display = 'none'; document.body.appendChild(cv); }
+  cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  const r = await canvasSignatureToRgb('stockTmpCanvas'); return {w: r.width, h: r.height, data: r.deflatedRgb};
+}
+async function stockDossierPdf(){
+  const d = await stockFiche(); if(!d) return;
+  showToast('Préparation du dossier…');
+  const pdf = MiniPDF(595, 842), t = stockTotaux(d);
+  let y = stockEntete(pdf, 'DOSSIER VÉHICULE', d.achat ? d.achat.numero : '—', d.achat ? d.achat.date : d.cree);
+  y = stockSection(pdf, y, 'VÉHICULE');
+  y = stockLigne(pdf, y, 'Véhicule', stockVehiculeTexte(d)); y = stockLigne(pdf, y, 'VIN', d.vin); y = stockLigne(pdf, y, 'Immatriculation', d.immat); y = stockLigne(pdf, y, 'Kilométrage', d.kilometrage ? d.kilometrage + ' km' : '');
+  y = stockLigne(pdf, y, 'Statut', stockLibelleStatut(d));
+  y += 8; y = stockSection(pdf, y, 'ACHAT');
+  if(d.achat){ y = stockLigne(pdf, y, 'Bon d\'achat', d.achat.numero + (d.annulation ? ' (ANNULÉ : ' + d.annulation.motif + ')' : '')); y = stockLigne(pdf, y, 'Date', new Date(d.achat.date).toLocaleDateString('fr-BE')); y = stockLigne(pdf, y, 'Vendeur', d.achat.vendeur.nom); y = stockLigne(pdf, y, 'Prix d\'achat', fmt(t.achat)); }
+  else y = stockLigne(pdf, y, 'Bon d\'achat', 'non établi');
+  y += 8; y = stockSection(pdf, y, 'FRAIS');
+  (d.frais || []).forEach(f => { y = stockLigne(pdf, y, new Date(f.date).toLocaleDateString('fr-BE'), f.libelle + ' — ' + fmt(n2(f.montant))); });
+  if(!(d.frais || []).length) y = stockLigne(pdf, y, 'Frais', 'aucun');
+  if(t.commission) y = stockLigne(pdf, y, 'Commission intermédiaire', fmt(t.commission));
+  y = stockLigne(pdf, y, 'Coût de revient', fmt(t.revient));
+  y += 8; y = stockSection(pdf, y, 'SORTIE');
+  if(d.sortie){ const so = d.sortie;
+    y = stockLigne(pdf, y, 'Type', STOCK_SORTIES[so.type] + (so.libelle ? ' — ' + so.libelle : '')); y = stockLigne(pdf, y, 'Date', new Date(so.date).toLocaleDateString('fr-BE'));
+    y = stockLigne(pdf, y, 'Montant', fmt(n2(so.montant)));
+    if(so.acheteur) y = stockLigne(pdf, y, 'Acheteur', so.acheteur.nom + (so.acheteur.tva ? ' (TVA ' + so.acheteur.tva + ')' : ''));
+    if(so.tiers) y = stockLigne(pdf, y, 'Vendu via', so.tiers.nom + ' — commission ' + fmt(n2(so.tiers.commission)));
+    if(so.doc) y = stockLigne(pdf, y, 'Document de vente', so.doc.numero); if(so.certificat) y = stockLigne(pdf, y, 'Certificat de destruction', so.certificat + (so.centre ? ' — ' + so.centre : ''));
+    y = stockLigne(pdf, y, 'Marge', fmt(t.marge));
+  } else y = stockLigne(pdf, y, 'Sortie', 'véhicule toujours en stock');
+  (d.sortiesAnnulees || []).forEach(s => { y = stockLigne(pdf, y, 'Sortie annulée', STOCK_SORTIES[s.type] + ' ' + (s.doc ? s.doc.numero + ' ' : '') + '— ' + s.annulee.motif); });
+  // Photos : 2 par page
+  const photos = await rachatPhotosLire(RACHAT_ID); let idx = 0;
+  for(const [k, lib] of RACHAT_PHOTOS_SLOTS){
+    if(!photos[k]) continue;
+    try{
+      const im = await stockPhotoRgb(photos[k], 700);
+      if(idx % 2 === 0){ pdf.newPage(); }
+      const top = idx % 2 === 0 ? 60 : 450, maxW = 495, maxH = 340, r = Math.min(maxW / im.w, maxH / im.h);
+      pdf.text(50, top - 10, 'Photo — ' + lib, {font:'F2', size:10});
+      pdf.addRgbImage('Ph' + k, im.w, im.h, im.data); pdf.drawImage('Ph' + k, 50, top, im.w * r, im.h * r);
+      idx++;
+    }catch(e){}
+  }
+  await partagerPdf(pdf.build(), 'Dossier-' + (d.achat ? d.achat.numero : 'vehicule') + '.pdf', 'Dossier véhicule', 'Dossier prêt', 'Dossier téléchargé');
+}
+
+// --- Registre et export pour le comptable ---
+async function stockRegistreDonnees(){
+  let keys = []; try{ keys = (await window.storage.list('rachat:')).keys || []; }catch(e){}
+  const out = [];
+  for(const k of keys){ try{ const d = JSON.parse((await window.storage.get(k)).value); if(d.achat) out.push({key:k, d}); }catch(e){} }
+  const per = document.getElementById('regPeriode').value, st = document.getElementById('regStatut').value, now = new Date();
+  return out.filter(({d}) => {
+    const dt = new Date(d.achat.date), s = stockStatut(d);
+    const okP = per === 'tout' || (per === 'annee' && dt.getFullYear() === now.getFullYear()) || (per === 'mois' && dt.getFullYear() === now.getFullYear() && dt.getMonth() === now.getMonth()) || (per === 'anneePrec' && dt.getFullYear() === now.getFullYear() - 1);
+    const okS = st === 'tous' || (st === 'stock' && STOCK_ETAPES[s]) || (st === 'sorti' && s === 'sorti') || (st === 'annule' && s === 'annule');
+    return okP && okS;
+  }).sort((a, b) => a.d.achat.numero.localeCompare(b.d.achat.numero));
+}
+async function stockRegistreAfficher(){
+  const rows = await stockRegistreDonnees(); const box = document.getElementById('regListe');
+  let tA = 0, tF = 0, tV = 0, tM = 0;
+  box.innerHTML = rows.map(({key, d}) => { const t = stockTotaux(d), s = stockStatut(d);
+    if(s !== 'annule'){ tA += t.achat; tF += t.frais + t.commission; tV += t.recette; if(t.marge !== null) tM += t.marge; }
+    return '<div class="hist-item" style="padding:10px 12px; margin-bottom:6px; cursor:pointer;' + (s === 'annule' ? ' opacity:.55;' : '') + '" onclick="rachatOuvrir(\'' + key + '\')"><div style="font-weight:600; font-size:13.5px;">' + d.achat.numero + ' · ' + stockVehiculeTexte(d) + '</div>' +
+      '<div style="font-size:12px; color:var(--grey);">' + stockLibelleStatut(d) + ' · achat ' + fmt(t.achat) + (t.frais ? ' · frais ' + fmt(t.frais) : '') + (t.marge !== null ? ' · marge ' + fmt(t.marge) : '') + '</div></div>'; }).join('') || '<div class="km-mention">Aucun véhicule sur cette période.</div>';
+  document.getElementById('regTotaux').innerHTML = rows.length ? 'Achats ' + fmt(tA) + ' · frais ' + fmt(tF) + ' · ventes ' + fmt(tV) + ' · <strong>marge ' + fmt(tM) + '</strong> <span style="opacity:.7">(achats annulés exclus)</span>' : '';
+}
+async function stockExportCsv(){
+  const rows = await stockRegistreDonnees();
+  const q = v => '"' + String(v === undefined || v === null ? '' : v).replace(/"/g, '""') + '"', eur = v => (v === null || v === undefined) ? '' : String(v.toFixed(2)).replace('.', ',');
+  const lignes = [['N° achat','Date achat','Véhicule','VIN','Immatriculation','Vendeur','Prix achat','Frais','Commission','Coût de revient','Statut','Type sortie','Date sortie','Acheteur','Document vente','Intermédiaire','Montant sortie','Marge','Motif annulation'].map(q).join(';')];
+  rows.forEach(({d}) => { const t = stockTotaux(d), so = d.sortie;
+    lignes.push([d.achat.numero, new Date(d.achat.date).toLocaleDateString('fr-BE'), stockVehiculeTexte(d), d.vin, d.immat, d.achat.vendeur.nom, eur(t.achat), eur(t.frais), eur(t.commission), eur(t.revient), stockLibelleStatut(d),
+      so ? STOCK_SORTIES[so.type] : '', so ? new Date(so.date).toLocaleDateString('fr-BE') : '', so && so.acheteur ? so.acheteur.nom : '', so && so.doc ? so.doc.numero : '', so && so.tiers ? so.tiers.nom : '', so ? eur(t.recette) : '', t.marge === null ? '' : eur(t.marge), d.annulation ? d.annulation.motif : ''].map(q).join(';')); });
+  const blob = new Blob(['\ufeff' + lignes.join('\r\n')], {type:'text/csv;charset=utf-8'}), nom = 'registre-vehicules-' + new Date().toISOString().slice(0, 10) + '.csv';
+  const f = new File([blob], nom, {type:'text/csv'});
+  try{ if(navigator.canShare && navigator.canShare({files:[f]})){ await navigator.share({files:[f], title:'Registre des véhicules'}); return; } }catch(e){ if(e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove();
+  showToast('Registre exporté (' + rows.length + ' véhicule' + (rows.length > 1 ? 's' : '') + ')');
+}
+
+async function rachatCopierTexte(){
+  try{ await navigator.clipboard.writeText(rachatTexte()); showToast('Texte copié — colle-le dans ChatGPT ou Claude'); }
+  catch(e){ showToast('Copie impossible sur cet appareil'); }
+}
+
+
 function openAvis(){
   document.getElementById('modalAvisBg').classList.add('show');
   const box = document.getElementById('avisQrBox');
@@ -7414,7 +8269,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v243';
+const APP_VERSION = 'jm-express-bon-v246';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -15851,8 +16706,8 @@ window.addEventListener('unhandledrejection', (event) => {
 //    automatiquement sur les champs financiers/statut → choix explicite.
 //  - Désactivée tant qu'aucun appareil n'est associé : comportement v211 strict.
 // ===================================================================
-const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:'];
-const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode'];
+const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:'];
+const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter'];
 const SYNC_CLES_REGLAGES = ['rates', 'baseAddress', 'nightHours', 'revolutLink'];   // principal → secours, lecture seule
 const SYNC_CHAMPS_PROTEGES = ['prixAnnonce', 'total', 'paye', 'paiement', 'statut', 'factures', 'creditNotes', 'bonsCommande', 'remiseValue', 'remiseUnit', 'remiseAmount', 'invoiceNumber', 'invoicedTotal'];
 const SYNC_CHAMPS_AFFICHES = {prixAnnonce:'Prix annoncé', total:'Montant calculé', paye:'Payé', statut:'Statut', invoiceNumber:'Facture', notes:'Notes', telClient:'Téléphone', clientNom:'Client', horaires:'Horaires'};
@@ -16447,6 +17302,83 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+<script id="jm-v246-listes-script">
+(function(){
+  // v246 — habillage visuel des listes à cocher. Ne crée ni ne remplace aucune case :
+  // ajoute seulement des attributs (icône, famille, couleur), des en-têtes de famille,
+  // et range les prestations par famille. Les valeurs, IDs et gestionnaires restent intacts.
+  const FAM = {
+    remorquage:['Remorquage & dépannage','#ff4d4f'], transport:['Transport & transfert','#20c766'],
+    assistance:['Assistance sur place','#168bff'], speciales:['Interventions spéciales','#ff7a1a']
+  };
+  const TYPES = {
+    depannage:['🚨','#ff4d4f','Dépannage / remorquage','remorquage'],
+    transfert:['🚚','#20c766','Transport de véhicule','transport'],
+    transport_materiel:['🏗️','#20c766','Transport de matériel','transport'],
+    moto_remorquage:['🏍️','#a84dff','Deux-roues','transport'],
+    pneu_chg:['🛞','#ffb11a','Pneu / roue','assistance'], pneu_rep:['🛞','#ffb11a','Pneu / roue','assistance'],
+    demarrage:['🔋','#168bff','Batterie / alternateur','assistance'], test_batt:['🔋','#168bff','Batterie / alternateur','assistance'],
+    changement_batterie:['🔋','#168bff','Batterie / alternateur','assistance'], moto_batterie:['🔋','#168bff','Batterie / alternateur','assistance'],
+    diag:['🧰','#a84dff','Diagnostic','assistance'], erreur_carburant:['⛽','#17c7d9','Carburant','assistance'],
+    desembourbement:['🪝','#ff7a1a','Treuillage / sortie','speciales'],
+    deblocage_boite:['🔓','#ff7a1a','Intervention spéciale','speciales'], deblocage_frein:['🔓','#ff7a1a','Intervention spéciale','speciales'],
+    roulettes:['🛒','#ff7a1a','Manutention','speciales']
+  };
+  const ORDRE = ['remorquage','transport','assistance','speciales'];
+  function habiller(label){
+    if(!label || label.dataset.jmIco) return;
+    const cb = label.querySelector('input[type=checkbox]'); if(!cb) return;
+    let m = null;
+    if(cb.classList.contains('extraCheck') || cb.classList.contains('qqExtraCheck')) m = TYPES[cb.value] || ['🔧','#ff9500','Autre prestation','speciales'];
+    else if(cb.classList.contains('manutCheck')) m = ['🪝','#ff7a1a','Manœuvre de treuillage'];
+    else if(cb.classList.contains('chkItem')) m = ['✅','#20c766','Contrôle avant départ'];
+    if(!m) return;
+    label.dataset.jmIco = m[0]; label.dataset.jmSub = m[2]; label.style.setProperty('--svc', m[1]);
+    if(m[3]) label.dataset.jmFam = m[3];
+  }
+  function rangerParFamille(list){
+    if(!list || list.dataset.jmRange) return;
+    const items = [...list.querySelectorAll(':scope > label.extra-item')]; if(!items.length) return;
+    items.forEach(habiller);
+    ORDRE.forEach(f => {
+      const du = items.filter(l => (l.dataset.jmFam || 'speciales') === f); if(!du.length) return;
+      const h = document.createElement('div'); h.className = 'jm-service-group'; h.dataset.jmGroupe = f;
+      h.style.setProperty('--grp', FAM[f][1]); h.textContent = FAM[f][0];
+      list.appendChild(h); du.forEach(l => list.appendChild(l));
+    });
+    list.dataset.jmRange = '1'; list.classList.add('jm-list-scroll');
+    majGroupes(list);
+    new MutationObserver(() => majGroupes(list)).observe(list, {subtree:true, attributes:true, attributeFilter:['style']});
+  }
+  function majGroupes(list){
+    // Un en-tête de famille disparaît si toutes ses prestations sont masquées (ex. le service principal).
+    list.querySelectorAll(':scope > .jm-service-group').forEach(h => {
+      let n = h.nextElementSibling, visible = false;
+      while(n && !n.classList.contains('jm-service-group')){ if(n.style.display !== 'none') visible = true; n = n.nextElementSibling; }
+      const v = visible ? '' : 'none'; if(h.style.display !== v) h.style.display = v;
+    });
+  }
+  function habillerSimple(list){
+    if(!list || list.dataset.jmRange) return;
+    const items = [...list.querySelectorAll('label.extra-item')]; if(!items.length) return;
+    items.forEach(habiller); list.dataset.jmRange = '1'; list.classList.add('jm-list-scroll');
+  }
+  function tout(){
+    rangerParFamille(document.getElementById('extrasList'));
+    rangerParFamille(document.getElementById('qqExtrasList'));
+    const manut = document.querySelector('.manutCheck'); if(manut) habillerSimple(manut.closest('.extras-list') || manut.closest('label').parentElement);
+    habillerSimple(document.getElementById('checklistItems'));
+  }
+  // Les listes du devis rapide et de la checklist sont construites à la demande : on les habille dès qu'elles se remplissent.
+  function surveiller(id){
+    const el = document.getElementById(id); if(!el) return;
+    new MutationObserver(() => { if(el.children.length && !el.dataset.jmRange){ id === 'checklistItems' ? habillerSimple(el) : rangerParFamille(el); } }).observe(el, {childList:true});
+  }
+  function init(){ try{ tout(); surveiller('qqExtrasList'); surveiller('checklistItems'); }catch(e){ console.warn('[v246] habillage des listes', e); } }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
 
 </body>
 </html>
