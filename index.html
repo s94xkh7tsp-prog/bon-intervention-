@@ -1779,7 +1779,8 @@ html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:after{color:#60727c}
 html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:before{background:color-mix(in srgb,var(--svc) 16%,#ffffff)}
 html:not([data-theme="dark"]) label.extra-item[data-jm-ico] > input[type=checkbox]:not(:checked){background-color:#ffffff}
 html:not([data-theme="dark"]) label.extra-item[data-jm-ico]:has(input:checked){background:linear-gradient(100deg,color-mix(in srgb,var(--svc) 22%,#ffffff),#ffffff 66%)!important}
-/* Familles : même en-tête que le sélecteur (.jm-service-group, v240) */
+/* Familles : même en-tête que le sélecteur (.jm-service-group, v240) — v247 : l'en-tête défile avec ses cartes, il ne les recouvre plus */
+.jm-service-list .jm-service-group,.jm-list-scroll .jm-service-group{position:static}
 .jm-list-scroll .jm-service-group{margin:12px 0 4px}
 .jm-list-scroll .jm-service-group:first-child{margin-top:2px}
 html:not([data-theme="dark"]) .jm-list-scroll .jm-service-group{background:rgba(255,255,255,.94);color:#60727c;border-color:#dfe6ea}
@@ -2059,7 +2060,7 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
       <select id="type" onchange="if(this.selectedOptions[0]?.dataset.vehicleType==='vsp' && typeof setVehicleType==='function') setVehicleType('vsp'); updateKmLabel(); avertirSiEnliseChoisi(); rvMajAlerteDoubleRetour(RV_CTX.form)">
         <option value="depannage">Dépannage / remorquage général</option>
         <option value="transfert">Transfert véhicule</option>
-        <option value="transport_materiel">🏗️ Transport de matériel (occasionnel)</option>
+        <option value="transport_materiel">Transport de matériel (occasionnel)</option>
         <option value="depannage" data-vehicle-type="vsp">🚙 Remorquage VSP — voiture sans permis</option>
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
@@ -8269,7 +8270,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v246';
+const APP_VERSION = 'jm-express-bon-v247';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -17308,8 +17309,8 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
   // ajoute seulement des attributs (icône, famille, couleur), des en-têtes de famille,
   // et range les prestations par famille. Les valeurs, IDs et gestionnaires restent intacts.
   const FAM = {
-    remorquage:['Remorquage & dépannage','#ff4d4f'], transport:['Transport & transfert','#20c766'],
-    assistance:['Assistance sur place','#168bff'], speciales:['Interventions spéciales','#ff7a1a']
+    remorquage:['🚨 Remorquage & dépannage','#ff4d4f'], transport:['🚚 Transport & transfert','#20c766'],
+    assistance:['🧰 Assistance sur place','#168bff'], speciales:['🪝 Interventions spéciales','#ff7a1a']
   };
   const TYPES = {
     depannage:['🚨','#ff4d4f','Dépannage / remorquage','remorquage'],
