@@ -1809,6 +1809,64 @@ label.extra-item[data-jm-ico]:after{font-family:inherit;text-transform:none;lett
 label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-height:24px!important;padding:0!important;flex:0 0 24px!important}
 @media(max-width:380px){label.extra-item[data-jm-ico]{min-height:60px;font-size:13.5px!important}}
 </style>
+<style id="jm-v248-terrain-style">
+/* v248 — palier 1 : fiche rapide de mission, préparation, état de synchro */
+.jm-fiche-rapide{margin:10px 0 4px}
+.jm-fr-grid{display:grid;grid-template-columns:1fr;gap:4px}
+.jm-fr-l{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px dashed rgba(148,166,176,.18)}
+.jm-fr-l span{color:#94a6b0;white-space:nowrap}.jm-fr-l strong{text-align:right;color:#f5f7f8;font-weight:800;overflow:hidden;text-overflow:ellipsis}
+.jm-vert{color:#20c766!important}.jm-rouge{color:#ff4d4f!important}
+.jm-prep{margin-top:10px;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,177,26,.45);background:rgba(255,177,26,.08);display:flex;flex-wrap:wrap;gap:6px}
+.jm-prep-t{flex:1 1 100%;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#ffb11a}
+.jm-prep span{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;background:rgba(255,177,26,.14);color:#ffd27a}
+.jm-sync-pill{display:inline-block;margin-bottom:8px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;border:1px solid rgba(94,129,148,.5);color:#b9c8d0}
+.jm-sync-ok{border-color:rgba(32,199,102,.5);color:#20c766}.jm-sync-attente{border-color:rgba(22,139,255,.5);color:#6fb4ff}
+.jm-sync-hors{border-color:rgba(148,166,176,.5);color:#94a6b0}.jm-sync-conflit{border-color:rgba(255,77,79,.55);color:#ff6b6d}
+/* Mission active : la mission prend la priorité, la vitrine s'efface */
+body.sur-accueil.jm-mission-active .jm-brand-hero,body.sur-accueil.jm-mission-active .jm-coverage{display:none!important}
+html:not([data-theme="dark"]) .jm-fr-l strong{color:#172027}html:not([data-theme="dark"]) .jm-prep span{color:#8a5a00}
+html:not([data-theme="dark"]) .jm-vert{color:#12884a!important}html:not([data-theme="dark"]) .jm-rouge{color:#c93a3c!important}
+</style>
+<style id="jm-v248-pub-style">
+/* v248 — palier 2 : statistiques publicité */
+.jm-pub-l{padding:10px 12px;margin:8px 0;border-radius:14px;border:1px solid rgba(94,129,148,.35);border-left:4px solid #ff9500;background:rgba(22,33,41,.55)}
+.jm-pub-off{opacity:.55}
+.jm-pub-t{font-weight:900;font-size:14px}
+.jm-pub-g{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:5px;font-size:12.5px;color:#b9c8d0}
+.jm-pub-s{font-size:11.5px;color:#94a6b0;font-weight:600}
+.jm-pub-ca{color:#20c766;font-weight:900}
+.jm-mini{width:auto!important;padding:6px 12px!important;font-size:12px!important;margin:0!important}
+html:not([data-theme="dark"]) .jm-pub-l{background:#fff;border-color:#cbd5da;border-left-color:#f28c00}
+html:not([data-theme="dark"]) .jm-pub-g{color:#60727c}
+#tgAvisDemande.on{color:#fff!important;border-color:#20c766!important;background:linear-gradient(145deg,rgba(32,199,102,.24),#101a21)!important}
+html:not([data-theme="dark"]) #tgAvisDemande.on{color:#12884a!important;background:rgba(32,199,102,.12)!important}
+</style>
+<style id="jm-v248-couleurs-style">
+/* v248 — palier 3 : la couleur indique la fonction (bleu navigation, vert paiement, violet documents, rouge danger) */
+#bacGpsBtn,.ec-nav-row a,a[href*="waze.com"],a[href*="google.com/maps"],a[href^="maps:"],a[href*="maps.apple.com"]{color:#6fb4ff!important;border-color:rgba(22,139,255,.55)!important}
+.route-bar{border-left:4px solid #168bff!important}
+.bac-state.fin,[onclick^="marquerPaye"],[onclick^="ouvrirQrRevolut"],[onclick*="enregistrerPaiement"]{border-color:rgba(32,199,102,.6)!important}
+.bac-state.fin{color:#fff!important;background:linear-gradient(145deg,rgba(32,199,102,.35),rgba(32,199,102,.12))!important}
+button.ghost[onclick*="openInvoice"],button.ghost[onclick*="genererRecu"],button.ghost[onclick*="Devis"],button.ghost[onclick*="Pdf"],button.ghost[onclick*="Bdc"],button.ghost[onclick*="Facture"],button.ghost[onclick*="Dossier"]{color:#c89bff!important;border-color:rgba(168,77,255,.5)!important}
+button.ghost[onclick*="upprimer"],button.ghost[onclick*="Annuler"],[onclick^="terrainIncident"],[onclick^="terrainAnnulation"]{color:#ff6b6d!important;border-color:rgba(255,77,79,.5)!important}
+html:not([data-theme="dark"]) #bacGpsBtn,html:not([data-theme="dark"]) .ec-nav-row a{color:#0f6fd6!important}
+html:not([data-theme="dark"]) button.ghost[onclick*="openInvoice"],html:not([data-theme="dark"]) button.ghost[onclick*="genererRecu"],html:not([data-theme="dark"]) button.ghost[onclick*="Devis"],html:not([data-theme="dark"]) button.ghost[onclick*="Pdf"],html:not([data-theme="dark"]) button.ghost[onclick*="Facture"]{color:#7b2fd1!important}
+html:not([data-theme="dark"]) button.ghost[onclick*="upprimer"],html:not([data-theme="dark"]) button.ghost[onclick*="Annuler"]{color:#c93a3c!important}
+/* Historique : liseré de la famille de service */
+.hist-item[data-jm-fam]{border-left:4px solid var(--fam,#ff9500)!important}
+/* Zone QR de paiement : grande zone blanche, rien qui gêne la lecture */
+#payQrBox{background:#fff!important;padding:16px!important;border-radius:18px!important;box-shadow:none!important;filter:none!important}
+#payQrBox canvas,#payQrBox img,#payQrBox svg{width:min(70vw,270px)!important;height:auto!important;image-rendering:pixelated;display:block;margin:0 auto}
+#payMontant{font-size:22px!important;font-weight:900!important;text-align:center}
+/* Transitions courtes, qui suivent le réglage d'animations (--anim : 0 = aucune) */
+.modal-bg.show > .modal{animation:jmV248In calc(.2s * var(--anim, 1)) cubic-bezier(.2,.8,.2,1) both}
+@keyframes jmV248In{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:transform calc(.12s * var(--anim, 1)) ease,filter calc(.12s * var(--anim, 1)) ease}
+@media (prefers-reduced-motion: reduce){.modal-bg.show > .modal{animation:none}}
+</style>
+
+
+
 
 
 </head>
@@ -2727,15 +2785,38 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
       <label>Origine du client (facultatif)</label>
       <select id="origineClient" onchange="planifierSauvegardeBrouillon()">
         <option value="">— Non précisé —</option>
-        <option value="google">Google / recherche web</option>
-        <option value="regulier">Client régulier</option>
-        <option value="garage">Garage</option>
-        <option value="assistance">Assistance / assurance</option>
-        <option value="reseaux">Facebook / Snap / réseaux</option>
-        <option value="bouche">Bouche-à-oreille</option>
+        <optgroup label="Publicité et Google">
+          <option value="google_ads">Google Ads</option>
+          <option value="google_naturel">Google — recherche naturelle</option>
+          <option value="google_maps">Google Maps / fiche établissement</option>
+          <option value="meta_ads">Facebook / Meta Ads</option>
+          <option value="instagram">Instagram</option>
+          <option value="snapchat">Snapchat</option>
+          <option value="flyer">Flyer</option>
+        </optgroup>
+        <optgroup label="Professionnels">
+          <option value="garage">Garage</option>
+          <option value="marchand">Marchand</option>
+          <option value="assistance">Assistance / assurance</option>
+        </optgroup>
+        <optgroup label="Réseau">
+          <option value="regulier">Client régulier</option>
+          <option value="parrainage">Parrainage</option>
+          <option value="bouche">Bouche-à-oreille</option>
+        </optgroup>
+        <optgroup label="Anciennes catégories">
+          <option value="google">Google (non précisé)</option>
+          <option value="reseaux">Réseaux sociaux (non précisé)</option>
+        </optgroup>
         <option value="autre">Autre</option>
       </select>
     </div>
+    <div class="field">
+      <label>Campagne (facultatif)</label>
+      <input type="text" id="campagneClient" list="jmCampagnesListe" placeholder="Ex : Google Ads septembre" autocomplete="off" oninput="jmCampagneChoisie(this.value); planifierSauvegardeBrouillon()">
+      <datalist id="jmCampagnesListe"></datalist>
+    </div>
+    <div class="toggles" style="margin:-4px 0 12px;"><div class="toggle" id="tgAvisDemande" onclick="this.classList.toggle('on'); if(typeof invaliderTicketObsolete==='function') invaliderTicketObsolete();">⭐ Avis Google demandé</div></div>
       </div>
     </div>
 
@@ -3301,11 +3382,13 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
   <div class="modal terrain-sheet">
     <h3>💬 Message client</h3>
     <div class="msg-grid">
-      <button class="msg-choice wide" onclick="messageTerrain('route_position')">📍 En route + ma localisation</button>
+      <button class="msg-choice" onclick="messageTerrain('route')">🚚 En route</button>
+          <button class="msg-choice" onclick="messageTerrain('route_position')">📍 En route + localisation</button>
       <button class="msg-choice" onclick="messageTerrain('arrive')">🚚 Je suis arrivé</button>
       <button class="msg-choice" onclick="messageTerrain('retard')">⏱️ Retard imprévu</button>
       <button class="msg-choice wide" onclick="messageTerrain('trafic')">🚧 Ralentissements / embouteillage autoroute</button>
-      <button class="msg-choice" onclick="messageTerrain('deviation')">↪️ Route fermée / déviation</button>
+      <button class="msg-choice" onclick="messageTerrain('accident')">💥 Accident sur la route</button>
+          <button class="msg-choice" onclick="messageTerrain('deviation')">↪️ Route fermée / déviation</button>
       <button class="msg-choice" onclick="messageTerrain('termine')">✅ Intervention terminée</button>
     </div>
     <p class="sheet-note">Le message est préparé pour WhatsApp. Une adaptation de tarif n'est jamais appliquée automatiquement : elle reste à confirmer par toi.</p>
@@ -3321,6 +3404,12 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
       <button class="msg-choice" onclick="terrainIncident()">⚠️ Difficulté / incident</button>
       <button class="msg-choice" onclick="terrainAnnulation()">❌ Annulation / absent</button>
       <button class="msg-choice" onclick="terrainAcompte()">💶 Acompte reçu</button>
+          <button class="msg-choice" onclick="terrainTampon('attente_debut')">⏳ Début attente</button>
+          <button class="msg-choice" onclick="terrainTampon('attente_fin')">⌛ Fin attente</button>
+          <button class="msg-choice" onclick="terrainTampon('depart_dest')">🚚 Départ vers destination</button>
+          <button class="msg-choice" onclick="terrainTampon('depot')">🏁 Arrivée destination</button>
+          <button class="msg-choice" onclick="terrainTampon('dechargement')">📦 Déchargement</button>
+          <button class="msg-choice" onclick="terrainTampon('paiement')">✅ Paiement reçu</button>
       <button class="msg-choice wide" onclick="calculerAvecRetour();fermerPlusTerrain()">🧮 Calculer / actualiser le tarif</button>
     </div>
     <button class="ghost" style="margin-top:12px" onclick="fermerPlusTerrain()">Fermer</button>
@@ -4041,6 +4130,33 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
   </div>
 </div>
 
+<div class="modal-bg" id="modalPubBg">
+  <div class="modal">
+    <div class="eyebrow">Publicité · origine client</div>
+    <h1 class="page-title" style="font-size:22px;">📣 D'où viennent mes clients</h1>
+    <div class="field"><label>Période</label><select id="pubPeriode" onchange="jmPubAfficher()"><option value="mois">Ce mois</option><option value="moisPrec">Mois précédent</option><option value="annee">Cette année</option><option value="tout">Tout</option></select></div>
+    <div id="pubStats"></div>
+    <div class="km-mention" id="pubTotaux" style="margin:8px 0 4px;"></div>
+    <div class="km-mention" style="opacity:.8;">« Contacts » = devis + interventions encodés (les appels sans suite ne sont pas comptés). Les anciennes catégories restent comptées telles quelles.</div>
+    <details class="grp" style="margin-top:12px;"><summary class="grp-title" style="cursor:pointer;">📊 Par campagne</summary><div id="pubCampStats" style="margin-top:8px;"></div></details>
+    <details class="grp" style="margin-top:12px;"><summary class="grp-title" style="cursor:pointer;">💸 Dépenses publicitaires</summary>
+      <div style="display:flex; gap:8px; margin-top:8px;"><div class="field" style="flex:1;"><label>Date</label><input type="date" id="pubDepDate"></div><div class="field" style="flex:1;"><label>Montant (€)</label><input type="number" id="pubDepMontant" inputmode="decimal"></div></div>
+      <div class="field"><label>Source</label><select id="pubDepSource"></select></div>
+      <div class="field"><label>Campagne (facultatif)</label><input type="text" id="pubDepCampagne" list="jmCampagnesListe"></div>
+      <button class="ghost" onclick="jmPubAjouterDepense()">+ Ajouter la dépense</button>
+      <div id="pubDepListe" style="margin-top:10px;"></div>
+    </details>
+    <details class="grp" style="margin-top:12px;"><summary class="grp-title" style="cursor:pointer;">🔗 Campagnes, liens et QR</summary>
+      <div class="km-mention" style="margin:8px 0;">Chaque campagne a sa référence : imprime son QR sur un flyer ou mets son lien dans une annonce. Le client t'écrit sur WhatsApp avec la référence, et tu choisis la campagne dans l'intervention.</div>
+      <div class="field"><label>Nom de la campagne</label><input type="text" id="pubCampNom" placeholder="Ex : Flyer Anderlues"></div>
+      <div class="field"><label>Source</label><select id="pubCampSource"></select></div>
+      <button class="ghost" onclick="jmPubAjouterCampagne()">+ Créer la campagne</button>
+      <div id="pubCampListe" style="margin-top:10px;"></div>
+    </details>
+    <button class="ghost close-modal" onclick="closePub()">Fermer</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalMenuBg">
   <div class="modal">
     <div class="eyebrow">Accès rapide</div>
@@ -4055,6 +4171,11 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6.5 17l1.2-5.2A2 2 0 0 1 9.6 10h4.8a2 2 0 0 1 1.9 1.8L17.5 17"/><circle cx="8" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/><path d="M12 3v4M10 5h4"/></svg></span>
         <span class="menu-lbl">Rachat / épave</span>
         <span class="menu-desc">Fiches véhicules, avis</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openPub();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
+        <span class="menu-lbl">Publicité</span>
+        <span class="menu-desc">Origine clients, campagnes</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openPaiement();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg></span>
@@ -4661,6 +4782,10 @@ label.extra-item[data-jm-ico] > input[type=checkbox]{min-height:0!important;max-
       <div class="qq-hint">Prix indicatif — à confirmer une fois sur place. Même moteur de calcul que l'intervention.</div>
     </div>
 
+    <div class="field-row" style="margin-top:14px;">
+      <div class="field" style="margin-bottom:0;"><label>Origine du client</label><select id="qqOrigine"></select></div>
+      <div class="field" style="margin-bottom:0;"><label>Campagne</label><input type="text" id="qqCampagne" list="jmCampagnesListeQq" autocomplete="off" oninput="jmCampagneChoisie(this.value, 'qqOrigine')"><datalist id="jmCampagnesListeQq"></datalist></div>
+    </div>
     <div class="field" style="margin-top:14px;">
       <label>Nom du client (pour enregistrer le devis)</label>
       <input type="text" id="qqClientNom" placeholder="Ex: M. Dupont">
@@ -8270,7 +8395,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v247';
+const APP_VERSION = 'jm-express-bon-v248';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16708,7 +16833,7 @@ window.addEventListener('unhandledrejection', (event) => {
 //  - Désactivée tant qu'aucun appareil n'est associé : comportement v211 strict.
 // ===================================================================
 const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:'];
-const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter'];
+const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses'];
 const SYNC_CLES_REGLAGES = ['rates', 'baseAddress', 'nightHours', 'revolutLink'];   // principal → secours, lecture seule
 const SYNC_CHAMPS_PROTEGES = ['prixAnnonce', 'total', 'paye', 'paiement', 'statut', 'factures', 'creditNotes', 'bonsCommande', 'remiseValue', 'remiseUnit', 'remiseAmount', 'invoiceNumber', 'invoicedTotal'];
 const SYNC_CHAMPS_AFFICHES = {prixAnnonce:'Prix annoncé', total:'Montant calculé', paye:'Payé', statut:'Statut', invoiceNumber:'Facture', notes:'Notes', telClient:'Téléphone', clientNom:'Client', horaires:'Horaires'};
@@ -17238,6 +17363,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
   function meta(label){
     const t=norm(label);
     if(t.includes('depannage')||t.includes('remorquage general')) return ['🚨','#ff4d4f','Dépannage / remorquage','Remorquage & dépannage',10];
+    if(t.includes('materiel')) return ['🏗️','#5e8194','Transport de matériel','Transport & transfert',23];
     if(t.includes('transfert')||t.includes('transport')) return ['🚚','#20c766','Transport de véhicule','Transport & transfert',20];
     if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP / sans permis','Transport & transfert',21];
     if(t.includes('moto')) return ['🏍️','#a84dff','Deux-roues','Transport & transfert',22];
@@ -17315,7 +17441,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
   const TYPES = {
     depannage:['🚨','#ff4d4f','Dépannage / remorquage','remorquage'],
     transfert:['🚚','#20c766','Transport de véhicule','transport'],
-    transport_materiel:['🏗️','#20c766','Transport de matériel','transport'],
+    transport_materiel:['🏗️','#5e8194','Transport de matériel','transport'],
     moto_remorquage:['🏍️','#a84dff','Deux-roues','transport'],
     pneu_chg:['🛞','#ffb11a','Pneu / roue','assistance'], pneu_rep:['🛞','#ffb11a','Pneu / roue','assistance'],
     demarrage:['🔋','#168bff','Batterie / alternateur','assistance'], test_batt:['🔋','#168bff','Batterie / alternateur','assistance'],
@@ -17379,6 +17505,622 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
+<script id="jm-v248-terrain-script">
+(function(){
+  // ===================================================================
+  //  v248 — PALIER 1 : terrain, messages, chronologie, préparation, fiche rapide.
+  //  Couche au-dessus de l'existant : aucune fonction réécrite, uniquement
+  //  des compléments (enveloppes) et de nouvelles étapes de chronologie.
+  // ===================================================================
+  // 1) Chronologie : nouvelles étapes insérées dans la liste existante (les anciennes clés et libellés ne changent pas).
+  const NOUVELLES = [
+    ['acompte','Acompte reçu','appel'], ['attente_debut','Début attente','arrivee'], ['attente_fin','Fin attente','attente_debut'],
+    ['depart_dest','Départ vers destination','chargement'], ['dechargement','Déchargement','depot'], ['paiement','Paiement reçu','dechargement']
+  ];
+  try{
+    if(typeof ETAPES_HORAIRES !== 'undefined' && Array.isArray(ETAPES_HORAIRES)){
+      NOUVELLES.forEach(([cle, label, apres]) => {
+        if(ETAPES_HORAIRES.some(e => e.cle === cle)) return;
+        const i = ETAPES_HORAIRES.findIndex(e => e.cle === apres);
+        ETAPES_HORAIRES.splice(i < 0 ? ETAPES_HORAIRES.length - 1 : i + 1, 0, {cle, label});
+      });
+      const box = document.getElementById('horairesRows');
+      if(box && box.dataset.pret){ const v = lireHoraires(); delete box.dataset.pret; initHorairesUI(); if(v) ecrireHoraires(v); }
+    }
+  }catch(e){ console.warn('[v248] chronologie', e); }
+
+  // 2) Acompte : l'heure est notée dans la chronologie quand on ouvre l'encaissement terrain.
+  if(typeof terrainAcompte === 'function'){
+    const _acompte = terrainAcompte;
+    terrainAcompte = function(){ const r = _acompte.apply(this, arguments); try{ initHorairesUI(); const el = document.getElementById('hr_acompte'); if(el && !el.value) tamponnerHoraire('acompte'); }catch(e){} return r; };
+  }
+
+  // 3) Messages client : « En route » sans localisation et « Accident / route fermée ».
+  if(typeof messageTerrain === 'function'){
+    const _msg = messageTerrain;
+    messageTerrain = async function(type){
+      const base = 'Bonjour, JM Express Auto Dépannage. ';
+      const extra = {
+        route: base + 'Je suis en route vers vous. Je vous tiens informé de mon arrivée.',
+        accident: base + 'Un accident bloque actuellement la route sur mon trajet. Je prends un autre itinéraire et j\'arrive dès que possible. Je vous tiens informé. Merci pour votre compréhension.'
+      };
+      if(!extra[type]) return _msg.apply(this, arguments);
+      const n = terrainNumeroWhatsApp(); if(!n){ showToast('Indique d’abord le numéro du client'); return; }
+      location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(extra[type]);
+    };
+  }
+
+  // 4) Préparation recommandée : uniquement à partir de ce qui est encodé.
+  const PREP_MOTS = [[/parking\s*souterrain|sous[- ]?sol/i,'Parking souterrain'], [/hauteur|plafond|portique/i,'Hauteur limitée'], [/étroit|etroit|ruelle|accès difficile/i,'Accès étroit'],
+    [/frein (?:à main )?électrique|frein electrique|epb/i,'Frein électrique'], [/boîte auto|boite auto|automatique bloqu/i,'Boîte automatique bloquée'], [/lourd|camping|4\s?x\s?4|pick[- ]?up/i,'Véhicule lourd']];
+  window.jmPreparation = function(d){
+    if(!d) return [];
+    const out = new Set(), ex = (d.extras || []).map(e => (e && e.type) || e);
+    if(ex.includes('roulettes') || ex.includes('deblocage_frein') || ex.includes('deblocage_boite')) out.add('Dolly / roulettes');
+    if(ex.includes('deblocage_frein')) out.add('Roues bloquées');
+    if(ex.includes('deblocage_boite')) out.add('Boîte bloquée');
+    if(d.type === 'desembourbement' || ex.includes('desembourbement') || (d.operationsEnlise || []).length || d.difficulteEnlise) out.add('Treuil / sangles');
+    if(d.vehicleType === 'electrique') out.add('Véhicule électrique — pas de remorquage roues au sol');
+    if(d.vehicleType === 'utilitaire') out.add('Véhicule lourd / utilitaire');
+    if(d.vehicleType === 'suv') out.add('SUV / 4x4 — vérifier le poids');
+    if(d.pasRoues) out.add('Véhicule sans roues — manutention particulière');
+    if(d.manutention || (d.manutSupp > 0)) out.add('Manutention particulière');
+    try{ const note = ACCESS_NOTES[normaliserAdresse(d.from || '')]; if(note && note.type && note.type !== 'camion') out.add('Accès limité (noté sur place)'); }catch(e){}
+    const txt = [d.notes, d.fraisLibelle, d.remarques, d.commentaire].filter(Boolean).join(' ');
+    PREP_MOTS.forEach(([re, lib]) => { if(re.test(txt)) out.add(lib); });
+    return [...out];
+  };
+
+  // 5) Fiche rapide de la mission active + priorité visuelle + état de synchro.
+  function euros(v){ return (typeof fmt === 'function') ? fmt(Number(v) || 0) : (Number(v) || 0).toFixed(2) + ' €'; }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  window.jmEtatSynchro = function(){
+    if(typeof syncActif !== 'function' || !syncActif()) return null;
+    const h = SYNC.derniereSync ? new Date(SYNC.derniereSync).toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'}) : '—';
+    const nbC = Object.keys(SYNC.conflits || {}).length;
+    if(!navigator.onLine) return ['hors', '📴 Hors ligne · enregistré sur ce téléphone'];
+    if(nbC) return ['conflit', '⚠️ ' + nbC + ' conflit(s) à trancher'];
+    if(SYNC.outbox && SYNC.outbox.length) return ['attente', '☁️ ' + SYNC.outbox.length + ' changement(s) en attente de synchro'];
+    return ['ok', '✓ Synchronisé · ' + h];
+  };
+  if(typeof afficherInterventionEnCours === 'function'){
+    const _enc = afficherInterventionEnCours;
+    afficherInterventionEnCours = function(aFaire){
+      const r = _enc.apply(this, arguments);
+      try{
+        const actif = !!(aFaire && aFaire.length);
+        document.body.classList.toggle('jm-mission-active', actif);
+        const carte = document.getElementById('encoursCarte');
+        if(actif && carte){
+          const liste = [...aFaire].sort((a, b) => new Date(a.data.date) - new Date(b.data.date));
+          const it = (typeof DISPATCH_ACTIVE_KEY !== 'undefined' && DISPATCH_ACTIVE_KEY) ? (liste.find(x => x.key === DISPATCH_ACTIVE_KEY) || liste[0]) : liste[0];
+          const d = it.data, p = d.paiement || {}, ac = p.acompte ? Number(p.acompte.montant) || 0 : 0;
+          const paye = (typeof statutPaiement === 'function' ? statutPaiement(d) : (d.paye ? 'paye' : 'attente')) === 'paye';
+          const total = Number(d.total) || 0, reste = paye ? 0 : Math.max(0, Math.round((total - ac) * 100) / 100);
+          const veh = [d.marque, d.modele].filter(Boolean).join(' ') || ({normale:'Voiture', suv:'SUV / 4x4', electrique:'Électrique / hybride', utilitaire:'Utilitaire', vsp:'VSP'}[d.vehicleType] || '');
+          const lignes = [
+            d.plaque ? ['🔖', 'Plaque', esc(d.plaque)] : null, veh ? ['🚗', 'Véhicule', esc(veh)] : null,
+            (d.clientNom || d.telClient) ? ['👤', 'Client', esc([d.clientNom, d.telClient].filter(Boolean).join(' · '))] : null,
+            d.prixAnnonce ? ['🏷️', 'Prix annoncé', euros(d.prixAnnonce)] : null,
+            ac ? ['💶', 'Acompte reçu', '<span class="jm-vert">' + euros(ac) + (p.acompte.moyen ? ' · ' + esc(p.acompte.moyen) : '') + '</span>'] : null,
+            ['🧾', paye ? 'Payé' : 'Reste à payer', paye ? '<span class="jm-vert">✓ ' + euros(total) + '</span>' : '<span class="jm-rouge">' + euros(reste) + '</span>']
+          ].filter(Boolean);
+          const prep = window.jmPreparation(d);
+          const sy = window.jmEtatSynchro();
+          const bloc = document.createElement('div'); bloc.className = 'jm-fiche-rapide';
+          bloc.innerHTML = (sy ? '<div class="jm-sync-pill jm-sync-' + sy[0] + '">' + sy[1] + '</div>' : '') +
+            '<div class="jm-fr-grid">' + lignes.map(l => '<div class="jm-fr-l"><span>' + l[0] + ' ' + l[1] + '</span><strong>' + l[2] + '</strong></div>').join('') + '</div>' +
+            (prep.length ? '<div class="jm-prep"><div class="jm-prep-t">⚠️ Préparation recommandée</div>' + prep.map(x => '<span>' + esc(x) + '</span>').join('') + '</div>' : '');
+          const apres = carte.querySelector('.ec-montant') || carte.querySelector('.ec-type');
+          if(apres) apres.insertAdjacentElement('afterend', bloc); else carte.prepend(bloc);
+        }
+        if(typeof ajusterHauteurAccueil === 'function') setTimeout(ajusterHauteurAccueil, 60);
+      }catch(e){ console.warn('[v248] fiche rapide', e); }
+      return r;
+    };
+  }
+})();
+</script>
+<script id="jm-v248-pub-script">
+(function(){
+  // ===================================================================
+  //  v248 — PALIER 2 : publicité, origine client, campagnes, avis Google.
+  //  Les anciennes valeurs d'origine restent valables et comptées.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const eur = v => (typeof fmt === 'function') ? fmt(Number(v) || 0) : (Number(v) || 0).toFixed(2) + ' €';
+  function libOrigine(v){ const s = $('origineClient'); if(!s) return v || 'Non précisé'; const o = [...s.options].find(x => x.value === (v || '')); return o ? o.textContent : (v || 'Non précisé'); }
+  async function lire(cle, def){ try{ return JSON.parse((await window.storage.get(cle)).value); }catch(e){ return def; } }
+  async function ecrire(cle, v){ await window.storage.set(cle, JSON.stringify(v)); }
+  const secours = () => typeof syncEstSecours === 'function' && syncEstSecours();
+
+  // --- Campagnes (liste partagée A/B) ---
+  let CAMPAGNES = [];
+  async function chargerCampagnes(){ CAMPAGNES = await lire('pubCampagnes', []); const dl = $('jmCampagnesListe'), dq = $('jmCampagnesListeQq');
+    const html = CAMPAGNES.filter(c => c.actif !== false).map(c => '<option value="' + esc(c.nom) + '">').join(''); if(dl) dl.innerHTML = html; if(dq) dq.innerHTML = html; }
+  window.jmCampagneChoisie = function(nom, cible){
+    const c = CAMPAGNES.find(x => x.nom === nom); if(!c) return;
+    const s = $(cible || 'origineClient'); if(s && c.source) s.value = c.source;
+  };
+
+  // --- Intervention : campagne + avis enregistrés avec le calcul ---
+  let AVIS_DATE = null;
+  if(typeof calculer === 'function'){
+    const _calc = calculer;
+    calculer = function(){
+      const r = _calc.apply(this, arguments);
+      try{ if(typeof lastCalc !== 'undefined' && lastCalc){
+        const camp = ($('campagneClient') || {}).value; lastCalc.campagne = camp ? camp.trim() : '';
+        const on = $('tgAvisDemande') && $('tgAvisDemande').classList.contains('on');
+        if(on && !AVIS_DATE) AVIS_DATE = new Date().toISOString(); if(!on) AVIS_DATE = null;
+        lastCalc.avisDemande = on ? AVIS_DATE : null;
+      } }catch(e){}
+      return r;
+    };
+  }
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){
+      let d = null; try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){}
+      if(d){ AVIS_DATE = d.avisDemande || null; if($('campagneClient')) $('campagneClient').value = d.campagne || ''; if($('tgAvisDemande')) $('tgAvisDemande').classList.toggle('on', !!d.avisDemande); }
+      return _ch.apply(this, arguments);
+    };
+  }
+  if(typeof enregistrer === 'function'){
+    const _enr = enregistrer;
+    enregistrer = async function(){
+      const r = await _enr.apply(this, arguments);
+      try{ if($('origineClient') && $('origineClient').value === '' && (typeof editingKey === 'undefined' || !editingKey)){ if($('campagneClient')) $('campagneClient').value = ''; if($('tgAvisDemande')) $('tgAvisDemande').classList.remove('on'); AVIS_DATE = null; } }catch(e){}
+      return r;
+    };
+  }
+  // --- Devis rapide : origine et campagne enregistrées avec le devis, reprises à la conversion ---
+  if(typeof enregistrerDevis === 'function'){
+    const _ed = enregistrerDevis;
+    enregistrerDevis = async function(){
+      const origine = ($('qqOrigine') || {}).value || '', campagne = (($('qqCampagne') || {}).value || '').trim();
+      let avant = []; try{ avant = (await window.storage.list('devis:')).keys || []; }catch(e){}
+      const r = await _ed.apply(this, arguments);
+      try{ if(origine || campagne){ const apres = (await window.storage.list('devis:')).keys || [];
+        for(const k of apres.filter(k => !avant.includes(k))){ const d = await lire(k, null); if(d){ d.origine = origine; d.campagne = campagne; await ecrire(k, d); } } } }catch(e){}
+      return r;
+    };
+  }
+  if(typeof devisVersIntervention === 'function'){
+    const _dv = devisVersIntervention;
+    devisVersIntervention = async function(){
+      const origine = ($('qqOrigine') || {}).value || '', campagne = (($('qqCampagne') || {}).value || '').trim();
+      const r = await _dv.apply(this, arguments);
+      try{ if(origine && $('origineClient')) $('origineClient').value = origine; if(campagne && $('campagneClient')) $('campagneClient').value = campagne; if(origine || campagne) calculer(); }catch(e){}
+      return r;
+    };
+  }
+
+  // --- Statistiques ---
+  function dansPeriode(iso, per){
+    if(!iso) return per === 'tout'; const d = new Date(iso), n = new Date();
+    if(per === 'mois') return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
+    if(per === 'moisPrec'){ const p = new Date(n.getFullYear(), n.getMonth() - 1, 1); return d.getFullYear() === p.getFullYear() && d.getMonth() === p.getMonth(); }
+    if(per === 'annee') return d.getFullYear() === n.getFullYear();
+    return true;
+  }
+  async function toutes(prefixe){ let keys = []; try{ keys = (await window.storage.list(prefixe)).keys || []; }catch(e){} const out = []; for(const k of keys){ const d = await lire(k, null); if(d) out.push(d); } return out; }
+  window.jmPubStats = async function(per){
+    const inter = (await toutes('intervention:')).filter(d => dansPeriode(d.date, per));
+    const devis = (await toutes('devis:')).filter(d => dansPeriode(d.date, per));
+    const dep = (await lire('pubDepenses', [])).filter(x => dansPeriode(x.date, per));
+    const S = {}, C = {};
+    const src = k => (S[k] = S[k] || {source:k, inter:0, devis:0, convertis:0, ca:0, depenses:0, avis:0});
+    const cmp = k => (C[k] = C[k] || {campagne:k, inter:0, devis:0, ca:0, depenses:0});
+    inter.forEach(d => { const s = src(d.origineClient || ''); s.inter++; s.ca += Number(d.total) || 0; if(d.avisDemande) s.avis++; if(d.campagne){ const c = cmp(d.campagne); c.inter++; c.ca += Number(d.total) || 0; } });
+    devis.forEach(d => { const s = src(d.origine || ''); s.devis++; if(d.statut === 'converti') s.convertis++; if(d.campagne) cmp(d.campagne).devis++; });
+    dep.forEach(x => { src(x.source || '').depenses += Number(x.montant) || 0; if(x.campagne) cmp(x.campagne).depenses += Number(x.montant) || 0; });
+    const lignes = Object.values(S).map(s => ({...s, ca: Math.round(s.ca * 100) / 100, contacts: s.inter + s.devis,
+      taux: s.devis ? Math.round(s.convertis / s.devis * 100) : null, coutInter: s.depenses && s.inter ? Math.round(s.depenses / s.inter * 100) / 100 : null,
+      retour: s.depenses ? Math.round(s.ca / s.depenses * 100) / 100 : null})).sort((a, b) => b.ca - a.ca || b.contacts - a.contacts);
+    return {lignes, campagnes: Object.values(C).sort((a, b) => b.ca - a.ca), totaux: {inter: inter.length, devis: devis.length, ca: lignes.reduce((t, l) => t + l.ca, 0), depenses: dep.reduce((t, x) => t + (Number(x.montant) || 0), 0), avis: inter.filter(d => d.avisDemande).length}};
+  };
+  window.jmPubAfficher = async function(){
+    const per = $('pubPeriode').value, st = await jmPubStats(per), box = $('pubStats');
+    box.innerHTML = st.lignes.length ? st.lignes.map(l => '<div class="jm-pub-l"><div class="jm-pub-t">' + esc(libOrigine(l.source)) + '</div>' +
+      '<div class="jm-pub-g"><span>' + l.contacts + ' contact' + (l.contacts > 1 ? 's' : '') + '</span><span>' + l.devis + ' devis</span><span>' + l.inter + ' intervention' + (l.inter > 1 ? 's' : '') + '</span><span class="jm-pub-ca">' + eur(l.ca) + '</span></div>' +
+      '<div class="jm-pub-g jm-pub-s">' + (l.taux !== null ? '<span>Devis → intervention : ' + l.taux + ' %</span>' : '') + (l.depenses ? '<span>Dépensé ' + eur(l.depenses) + '</span>' : '') +
+      (l.coutInter !== null ? '<span>' + eur(l.coutInter) + ' / intervention</span>' : '') + (l.retour !== null ? '<span class="' + (l.retour >= 1 ? 'jm-vert' : 'jm-rouge') + '">Retour ×' + String(l.retour).replace('.', ',') + '</span>' : '') + '</div></div>').join('')
+      : '<div class="km-mention">Aucune donnée sur cette période.</div>';
+    $('pubTotaux').innerHTML = st.totaux.inter + ' interventions · ' + st.totaux.devis + ' devis · CA ' + eur(st.totaux.ca) + (st.totaux.depenses ? ' · dépenses ' + eur(st.totaux.depenses) : '') + ' · ⭐ ' + st.totaux.avis + ' avis demandés';
+    $('pubCampStats').innerHTML = st.campagnes.length ? st.campagnes.map(c => '<div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">' + esc(c.campagne) + '</span><span class="v">' + c.inter + ' int. · ' + c.devis + ' devis · ' + eur(c.ca) + (c.depenses ? ' · coût ' + eur(c.depenses) : '') + '</span></div>').join('') : '<div class="km-mention">Aucune campagne utilisée sur cette période.</div>';
+    await jmPubListes();
+  };
+  // --- Dépenses publicitaires ---
+  window.jmPubAjouterDepense = async function(){
+    if(secours()){ showToast('Dépenses publicitaires : à encoder sur le téléphone principal'); return; }
+    const m = parseFloat(($('pubDepMontant').value || '').replace(',', '.')), s = $('pubDepSource').value;
+    if(!(m > 0) || !s){ showToast('Indique la source et le montant'); return; }
+    const l = await lire('pubDepenses', []); l.push({id: Date.now().toString(36), date: ($('pubDepDate').value || new Date().toISOString().slice(0, 10)) + 'T12:00:00', source: s, campagne: ($('pubDepCampagne').value || '').trim(), montant: Math.round(m * 100) / 100});
+    await ecrire('pubDepenses', l); $('pubDepMontant').value = ''; showToast('Dépense enregistrée'); jmPubAfficher();
+  };
+  window.jmPubRetirerDepense = async function(id){ if(secours()) return; if(!confirm('Retirer cette dépense ?')) return; await ecrire('pubDepenses', (await lire('pubDepenses', [])).filter(x => x.id !== id)); jmPubAfficher(); };
+  // --- Campagnes : lien WhatsApp + QR à imprimer (aucun serveur) ---
+  function numeroWa(){ const t = (typeof COMPANY !== 'undefined' && COMPANY.phone ? COMPANY.phone : '').replace(/\D/g, ''); return t.startsWith('0') ? '32' + t.slice(1) : t; }
+  window.jmLienCampagne = c => 'https://wa.me/' + numeroWa() + '?text=' + encodeURIComponent('Bonjour JM Express, j\'ai besoin d\'une intervention. (réf. ' + c.code + ')');
+  function qrDataUrl(texte){
+    try{ const q = makeQrMatrix(texte), n = q.getModuleCount(), t = 6, m = 4, cv = document.createElement('canvas'); cv.width = cv.height = (n + m * 2) * t;
+      const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.fillStyle = '#000';
+      for(let r = 0; r < n; r++) for(let c = 0; c < n; c++) if(q.isDark(r, c)) g.fillRect((c + m) * t, (r + m) * t, t, t);
+      return cv.toDataURL('image/png'); }catch(e){ return ''; }
+  }
+  window.jmPubAjouterCampagne = async function(){
+    if(secours()){ showToast('Campagnes : à créer sur le téléphone principal'); return; }
+    const nom = ($('pubCampNom').value || '').trim(), s = $('pubCampSource').value; if(!nom){ showToast('Nom de la campagne'); return; }
+    const l = await lire('pubCampagnes', []); if(l.some(c => c.nom.toLowerCase() === nom.toLowerCase())){ showToast('Cette campagne existe déjà'); return; }
+    const code = nom.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+    l.push({id: Date.now().toString(36), nom, source: s, code, actif: true, cree: new Date().toISOString()});
+    await ecrire('pubCampagnes', l); $('pubCampNom').value = ''; await chargerCampagnes(); showToast('Campagne créée'); jmPubAfficher();
+  };
+  window.jmPubArchiverCampagne = async function(id){ if(secours()) return; const l = await lire('pubCampagnes', []); const c = l.find(x => x.id === id); if(!c) return; c.actif = c.actif === false; await ecrire('pubCampagnes', l); await chargerCampagnes(); jmPubAfficher(); };
+  window.jmPubCopierLien = async function(id){ const c = CAMPAGNES.find(x => x.id === id); if(!c) return; try{ await navigator.clipboard.writeText(jmLienCampagne(c)); showToast('Lien copié'); }catch(e){ showToast('Copie impossible'); } };
+  window.jmPubQr = function(id){ const c = CAMPAGNES.find(x => x.id === id); if(!c) return; const box = $('pubQr_' + id); if(!box) return;
+    if(box.innerHTML){ box.innerHTML = ''; return; } box.innerHTML = '<img alt="QR ' + esc(c.nom) + '" src="' + qrDataUrl(jmLienCampagne(c)) + '" style="width:190px; height:190px; display:block; margin:8px auto; border-radius:10px; background:#fff; padding:6px;"><div class="km-mention" style="text-align:center;">Réf. ' + esc(c.code) + ' — le client t\'écrit sur WhatsApp avec cette référence.</div>'; };
+  async function jmPubListes(){
+    await chargerCampagnes();
+    const dep = (await lire('pubDepenses', [])).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+    $('pubDepListe').innerHTML = dep.map(x => '<div class="ticket-row" style="border:0; padding:3px 0;"><span class="l">' + new Date(x.date).toLocaleDateString('fr-BE') + ' · ' + esc(libOrigine(x.source)) + (x.campagne ? ' · ' + esc(x.campagne) : '') + '</span><span class="v">' + eur(x.montant) + ' <span style="cursor:pointer; color:var(--red);" onclick="jmPubRetirerDepense(\'' + x.id + '\')">✕</span></span></div>').join('') || '<div class="km-mention">Aucune dépense encodée.</div>';
+    $('pubCampListe').innerHTML = CAMPAGNES.map(c => '<div class="jm-pub-l' + (c.actif === false ? ' jm-pub-off' : '') + '"><div class="jm-pub-t">' + esc(c.nom) + ' <span class="jm-pub-s">· ' + esc(libOrigine(c.source)) + ' · réf. ' + esc(c.code) + (c.actif === false ? ' · archivée' : '') + '</span></div>' +
+      '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;"><button class="ghost jm-mini" onclick="jmPubQr(\'' + c.id + '\')">QR</button><button class="ghost jm-mini" onclick="jmPubCopierLien(\'' + c.id + '\')">Copier le lien</button><button class="ghost jm-mini" onclick="jmPubArchiverCampagne(\'' + c.id + '\')">' + (c.actif === false ? 'Réactiver' : 'Archiver') + '</button></div><div id="pubQr_' + c.id + '"></div></div>').join('') || '<div class="km-mention">Aucune campagne.</div>';
+  }
+  window.openPub = async function(){
+    ['pubDepSource', 'pubCampSource'].forEach(id => { const s = $(id); if(s && !s.options.length) s.innerHTML = $('origineClient').innerHTML; if(s && s.options[0] && s.options[0].value === '') s.options[0].textContent = '— Source —'; });
+    if($('pubDepDate')) $('pubDepDate').value = new Date().toISOString().slice(0, 10);
+    $('modalPubBg').classList.add('show'); await jmPubAfficher();
+  };
+  window.closePub = () => $('modalPubBg').classList.remove('show');
+  function init(){
+    const q = $('qqOrigine'); if(q && !q.options.length) q.innerHTML = $('origineClient').innerHTML;
+    chargerCampagnes();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="jm-v248-docs-script">
+// ===================================================================
+//  v248 — PALIER 3 : documents. Les originaux construirePdfFacture et genererRecu
+//  restent intacts : ils servent aux documents déjà émis et aux interventions
+//  antérieures. Les versions 2 ne s'appliquent qu'aux nouveaux documents.
+// ===================================================================
+function construirePdfFactureV2(c, meta){
+  {
+    const lang = meta.lang || 'fr';
+    const S = INVOICE_STRINGS[lang];
+    const clientName = meta.clientName, clientAddress = meta.clientAddress, clientCompany = meta.clientCompany, clientVat = meta.clientVat;
+    const attestLeveeSaisie = !!meta.attestLeveeSaisie;
+    const etatLieuxNotesInv = meta.etatLieuxNotes || '';
+    const invoiceNumber = meta.invoiceNumber;
+    const dateStr = meta.dateStr;
+
+    const pdf = MiniPDF(595, 842); // A4
+    let y = 50;
+    pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
+
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 64, 150, 2, {mode:'f', rgb:[242,169,0]});
+    pdf.text(393, 78, 'TOUJOURS PLUS LOIN', {font:'F2', size:8, rgb:[242,169,0], charSpace:1.3});
+
+    pdf.text(50, y, COMPANY.name, {font:'F2', size:17}); y += 20;
+    pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, 'TVA ' + COMPANY.tva + ' — Tél ' + COMPANY.phone, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.3}); y += 20;
+
+    pdf.line(50, y, 545, y, {width:1, gray:0.7}); y += 20;
+
+    pdf.text(50, y, S.facture, {font:'F2', size:15});
+    pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
+    pdf.text(400, y, S.numero + invoiceNumber, {size:10});
+    if(meta.echeanceStr){ y += 13; pdf.text(400, y, 'Échéance : ' + meta.echeanceStr, {size:9, gray:0.35}); }
+    if(meta.corrigeFacture){ y += 13; pdf.text(400, y, 'Remplace la facture ' + meta.corrigeFacture + (meta.suiteNoteCredit ? ' (note de crédit ' + meta.suiteNoteCredit + ')' : ''), {size:8.5, gray:0.4}); }
+    if(c.numero){ y += 13; pdf.text(400, y, 'Intervention : ' + c.numero, {size:9, gray:0.4}); }
+    y += 16;
+    pdf.text(400, y, S.date + dateStr, {size:10});
+    y += 20;
+
+    pdf.text(50, y, S.client, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 14;
+    pdf.text(50, y, clientName, {size:11}); y += 14;
+    if(clientCompany){ pdf.text(50, y, clientCompany, {size:10}); y += 14; }
+    if(clientAddress){ pdf.text(50, y, clientAddress, {size:10, gray:0.3}); y += 14; }
+    if(clientVat){ pdf.text(50, y, S.tvaRef + clientVat, {size:10, gray:0.3}); y += 14; }
+    y += 8;
+
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
+
+    pdf.text(50, y, S.detail, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1}); y += 16;
+    pdf.text(50, y, typeLabelComplet(c, lang), {size:10}); y += 14;
+    if(c.depart){
+      pdf.text(50, y, S.depart + c.depart, {size:9.5, gray:0.3}); y += 13;
+    }
+    pdf.text(50, y, ({fr:'Prise en charge : ', nl:'Ophaling : ', en:'Pick-up: '}[lang] || 'Prise en charge : ') + c.from, {size:9.5, gray:0.3}); y += 13;
+    pdf.text(50, y, S.depose + c.to, {size:9.5, gray:0.3}); y += 13;
+    if(c.donneurOrdre){
+      const LBL = {assurance:'Assurance', assistance:"Societe d'assistance", garage:'Garage / concession',
+                   police:'Police / autorite', leasing:'Societe de leasing', autre:'Autre professionnel'};
+      const parts = [LBL[c.donneurOrdre] || c.donneurOrdre];
+      if(c.donneurNom) parts.push(c.donneurNom);
+      pdf.text(50, y, "Donneur d'ordre : " + parts.join(' - '), {size:9.5, gray:0.3}); y += 13;
+      if(c.refDossier){ pdf.text(50, y, 'Reference dossier : ' + c.refDossier, {size:9.5, gray:0.3}); y += 13; }
+    }
+    if(c.km){
+      const lignesKm = descKmFacturableLignes(c, lang, false);
+      if(lignesKm.length){ lignesKm.forEach(l => { pdf.text(50, y, l, {size:9.5, gray:0.3}); y += 13; }); }
+      else {
+        const kmTxt = c.km + (c.retour ? S.kmAllerRetour : S.kmSimple);
+        pdf.text(50, y, S.km + kmTxt, {size:9.5, gray:0.3}); y += 13;
+      }
+      wrapText(S.kmMention, 105).forEach(ligne => { pdf.text(50, y, ligne, {size:8, gray:0.45}); y += 10; });
+      y += 2;
+    }
+
+    const txtEnliseInv = resumeEnlise(c);
+    if(txtEnliseInv){
+      y += 8;
+      pdf.text(50, y, 'DÉSEMBOURBEMENT', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
+      wrapText(txtEnliseInv, 95).slice(0, 4).forEach(ligne => {
+        pdf.text(50, y, ligne, {size:8.5, gray:0.3}); y += 12;
+      });
+    }
+
+    if(etatLieuxNotesInv){
+      y += 8;
+      pdf.text(50, y, S.etatConstate, {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 13;
+      const toutesLesLignes = wrapText(etatLieuxNotesInv, 95);
+      const lignesEtat = toutesLesLignes.slice(0, 4);
+      lignesEtat.forEach((ligne, i) => {
+        const estTronquee = (i === 3 && toutesLesLignes.length > 4);
+        pdf.text(50, y, ligne + (estTronquee ? '…' : ''), {size:8.5, gray:0.3});
+        y += 12;
+      });
+      if(toutesLesLignes.length > 4){
+        pdf.text(50, y, '(détail complet dans le journal de l\'appli)', {size:7.5, gray:0.5}); y += 11;
+      }
+    }
+    y += 10;
+
+    pdf.line(50, y, 545, y, {width:0.5, gray:0.8}); y += 16;
+
+    let lineIdx = 0;
+    const priceLine = (label, amount) => {
+      if(lineIdx % 2 === 1){
+        pdf.rect(50, y-11, 495, 16, {mode:'f', gray:0.96});
+      }
+      pdf.text(56, y, label, {size:10});
+      pdf.text(480, y, fmt(amount), {size:10});
+      y += 16;
+      lineIdx++;
+    };
+    lignesDocument(c, lang, meta).forEach(l => priceLine(l.label, l.amount));
+    if(meta.avertissement){ y += 4; pdf.text(56, y, meta.avertissement, {size:7.5, gray:0.5}); y += 12; }
+
+    y += 8;
+    const acV2 = (c.paiement && c.paiement.acompte && c.paiement.acompte.montant > 0) ? Number(c.paiement.acompte.montant) : 0;
+    const payeV2 = (typeof statutPaiement === 'function' ? statutPaiement(c) : (c.paye ? 'paye' : 'attente')) === 'paye';
+    const resteV2 = payeV2 ? 0 : Math.max(0, Math.round((c.total - acV2) * 100) / 100);
+    pdf.rect(50, y-4, 495, 30, {mode:'f', rgb:[23,32,39]});
+    pdf.text(58, y+16, S.totalTvac, {font:'F2', size:13, rgb:[255,255,255]});
+    pdf.text(450, y+16, fmt(c.total), {font:'F2', size:15, rgb:[242,140,0]});
+    if(acV2){
+      y += 42;
+      pdf.text(56, y, 'Acompte déjà reçu (' + (c.paiement.acompte.moyen || 'moyen non précisé') + ')', {size:9.5, gray:0.3});
+      pdf.text(455, y, '- ' + fmt(acV2), {size:10});
+    }
+    y += acV2 ? 20 : 42;
+    if(payeV2){
+      pdf.rect(50, y-12, 495, 22, {mode:'f', rgb:[227,245,235]});
+      pdf.text(58, y+3, 'PAYÉ' + (c.paiement && c.paiement.moyen ? ' — ' + c.paiement.moyen : ''), {font:'F2', size:11, rgb:[18,136,74]});
+    } else {
+      pdf.text(58, y+3, 'RESTE À PAYER', {font:'F2', size:11, rgb:[201,58,60]});
+      pdf.text(450, y+3, fmt(resteV2), {font:'F2', size:13, rgb:[201,58,60]});
+    }
+    y += 30;
+
+    pdf.text(50, y, S.franchise, {size:8.5, gray:0.4});
+    y += 20;
+
+    const qrY = y;
+    const qrSizePt = 104;
+    pdf.rect(44, qrY - 6, qrSizePt + 12, qrSizePt + 12, {mode:'S', gray:0.8});
+    if(resteV2 > 0){
+      const epcPayload = buildEpcPayload(resteV2, invoiceNumber);
+      const qr = makeQrMatrix(epcPayload);
+      const n = qr.getModuleCount();
+      pdf.addBitmapImage('QrPay', n, n, (x,y2) => qr.isDark(y2, x));
+      pdf.drawImage('QrPay', 50, qrY, qrSizePt, qrSizePt);
+      pdf.text(50, qrY + qrSizePt + 16, S.scannezPayer + ' : ' + fmt(resteV2), {font:'F2', size:9.5});
+    } else {
+      pdf.text(64, qrY + 56, 'ACQUITTÉE', {font:'F2', size:13, rgb:[18,136,74]});
+    }
+
+    pdf.text(180, qrY + 5, S.paiementVirement, {font:'F2', size:9, rgb:[196,136,0], charSpace:1.1});
+    pdf.text(180, qrY + 24, 'IBAN : ' + COMPANY.ibanDisplay, {size:9.5});
+    pdf.text(180, qrY + 39, 'BIC : ' + COMPANY.bic, {size:9.5});
+    pdf.text(180, qrY + 54, S.communication + invoiceNumber, {size:9.5});
+
+    let attestHeight = 0;
+    if(attestLeveeSaisie){
+      const attestY = qrY + qrSizePt + 34;
+      pdf.line(50, attestY - 10, 545, attestY - 10, {width:0.5, gray:0.85});
+      pdf.text(50, attestY, S.attestationTitre, {font:'F2', size:9, rgb:[196,136,0], charSpace:0.8});
+      pdf.text(50, attestY + 15, S.attestationL1, {size:8.5, gray:0.3});
+      pdf.text(50, attestY + 28, S.attestationL2, {size:8.5, gray:0.3});
+      attestHeight = 60;
+    }
+
+    const sigY = qrY + qrSizePt + 32 + attestHeight;
+    pdf.text(50, sigY, S.signature, {size:9.5, gray:0.3});
+    pdf.rect(50, sigY + 8, 220, 62, {mode:'S', gray:0.7});
+    if(meta.sig){
+      pdf.addRgbImage('Sig', meta.sig.width, meta.sig.height, base64VersOctets(meta.sig.b64));
+      pdf.drawImage('Sig', 52, sigY + 10, 216, 58);
+    }
+    if(meta.sigDepot){
+      const nomRecep = meta.sigDepotNom || '';
+      pdf.text(300, sigY, 'Signature a la reception' + (nomRecep ? ' - ' + nomRecep : ''), {size:9.5, gray:0.3});
+      pdf.rect(300, sigY + 8, 220, 62, {mode:'S', gray:0.7});
+      pdf.addRgbImage('SigDepot', meta.sigDepot.width, meta.sigDepot.height, base64VersOctets(meta.sigDepot.b64));
+      pdf.drawImage('SigDepot', 302, sigY + 10, 216, 58);
+    }
+
+    const reviewY = sigY + 78;
+    pdf.line(50, reviewY, 545, reviewY, {width:0.5, gray:0.85});
+    pdf.text(50, reviewY + 20, S.avisTitre, {font:'F2', size:10});
+    pdf.text(50, reviewY + 35, S.avisTexte, {size:9, gray:0.4});
+    const reviewQr = makeQrMatrix(COMPANY.reviewUrl);
+    const rn = reviewQr.getModuleCount();
+    pdf.addBitmapImage('QrReview', rn, rn, (x,y2) => reviewQr.isDark(y2, x));
+    pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
+    pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
+
+    return pdf.build();
+  }
+}
+
+async function genererRecuV2(){
+  if(!lastCalc){ showToast('Calcule d\'abord une intervention'); return; }
+  showToast('Génération du reçu…');
+  try{
+    const c = lastCalc;
+    const clientName = (document.getElementById('invClientName').value || '').trim() || 'Client';
+    const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+    const pdf = MiniPDF(595, 842);
+    let y = 50;
+    pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
+    pdf.text(393, 44, 'JM EXPRESS', {font:'F2', size:16});
+    pdf.text(393, 58, 'AUTO DÉPANNAGE', {font:'F2', size:10, charSpace:0.6});
+    pdf.rect(393, 66, 150, 2, {mode:'f', rgb:[242,169,0]});
+
+    pdf.text(50, y, COMPANY.name, {font:'F2', size:15}); y += 16;
+    pdf.text(50, y, COMPANY.address, {size:9.5, gray:0.35}); y += 12;
+    pdf.text(50, y, 'Tél ' + COMPANY.phone, {size:9.5, gray:0.35}); y += 12;
+    pdf.text(50, y, COMPANY.email, {size:9.5, gray:0.35}); y += 26;
+
+    pdf.rect(50, y, 495, 1, {mode:'f', gray:0.85}); y += 22;
+    pdf.text(50, y, 'REÇU', {font:'F2', size:22}); 
+    pdf.text(393, y - 2, 'Date : ' + dateStr, {size:10, gray:0.3});
+    y += 8;
+    pdf.rect(50, y, 46, 2, {mode:'f', rgb:[242,169,0]}); y += 26;
+
+    pdf.text(50, y, 'REMIS À', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 14;
+    pdf.text(50, y, clientName, {size:11}); y += 24;
+
+    pdf.text(50, y, 'PRESTATION', {font:'F2', size:8.5, rgb:[196,136,0], charSpace:0.6}); y += 14;
+    pdf.text(50, y, typeLabelComplet(c), {size:11}); y += 14;
+    if(c.from && c.from !== '—'){ pdf.text(50, y, 'Prise en charge : ' + c.from, {size:9.5, gray:0.3}); y += 12; }
+    if(c.to && c.to !== '—'){ pdf.text(50, y, 'Dépose : ' + c.to, {size:9.5, gray:0.3}); y += 12; }
+    if(c.plaque){ pdf.text(50, y, 'Véhicule : ' + c.plaque, {size:9.5, gray:0.3}); y += 12; }
+    if(c.km){
+      const lignesKm = descKmFacturableLignes(c, 'fr', false);
+      if(lignesKm.length){ lignesKm.forEach(l => { pdf.text(50, y, l, {size:9.5, gray:0.3}); y += 12; }); }
+      else { pdf.text(50, y, 'Kilométrage : ' + c.km + (c.retour ? ' km × 2 (aller-retour)' : ' km'), {size:9.5, gray:0.3}); y += 12; }
+      if(c.plancherComplement > 0){ pdf.text(50, y, 'Forfait minimum remorquage : + ' + fmt(c.plancherComplement), {size:9.5, gray:0.3}); y += 12; }
+      wrapText("Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.", 105)
+        .forEach(l => { pdf.text(50, y, l, {size:8, gray:0.45}); y += 10; });
+    }
+    y += 18;
+
+    const recuPaiement = montantRecu(c);
+    const restePaiement = resteADevoir(c);
+    const acomptePdf = c.paiement && c.paiement.acompte;
+    pdf.rect(50, y, 495, acomptePdf ? 76 : 60, {mode:'f', rgb:[246,247,248]}); pdf.rect(50, y, 4, acomptePdf ? 76 : 60, {mode:'f', rgb:[242,140,0]});
+    const payeRV2 = restePaiement <= 0.004;
+    pdf.text(64, y + 20, 'TOTAL INTERVENTION', {font:'F2', size:11});
+    pdf.text(455, y + 20, fmt(c.total), {font:'F2', size:12, rgb:[196,136,0]});
+    if(acomptePdf){
+      pdf.text(64, y + 38, 'ACOMPTE DÉJÀ REÇU', {font:'F2', size:10});
+      pdf.text(455, y + 38, '- ' + fmt(acomptePdf.montant), {font:'F2', size:11});
+      pdf.text(64, y + 55, payeRV2 ? 'PAYÉ' : 'RESTE À PAYER', {font:'F2', size:11, rgb: payeRV2 ? [18,136,74] : [201,58,60]});
+      pdf.text(455, y + 55, fmt(restePaiement), {font:'F2', size:13, rgb: payeRV2 ? [18,136,74] : [201,58,60]});
+      y += 90;
+      pdf.text(50, y, 'Acompte : ' + (acomptePdf.moyen || 'moyen non précisé') + (acomptePdf.date ? ' · ' + new Date(acomptePdf.date).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : ''), {size:8.5, gray:0.4}); y += 14;
+    } else {
+      pdf.text(64, y + 40, payeRV2 ? 'PAYÉ' : (recuPaiement>0 ? 'MONTANT REÇU' : 'RESTE À PAYER'), {font:'F2', size:11, rgb: payeRV2 ? [18,136,74] : (recuPaiement>0 ? [23,32,39] : [201,58,60])});
+      pdf.text(455, y + 40, fmt(recuPaiement>0?recuPaiement:restePaiement), {font:'F2', size:13, rgb: payeRV2 ? [18,136,74] : (recuPaiement>0 ? [23,32,39] : [201,58,60])});
+      y += 74;
+    }
+
+    pdf.text(50, y, 'Ce document est un reçu de paiement. Il ne tient pas lieu de facture', {size:9, gray:0.4}); y += 12;
+    pdf.text(50, y, 'et ne peut pas être présenté à une assurance ou à une comptabilité.', {size:9, gray:0.4}); y += 12;
+    pdf.text(50, y, 'Une facture en bonne et due forme peut être établie sur simple demande.', {size:9, gray:0.4}); y += 30;
+
+    pdf.text(50, y, 'Merci de votre confiance !', {font:'F2', size:12}); y += 16;
+    pdf.text(50, y, 'Votre avis compte beaucoup pour nous —', {size:9.5, gray:0.35}); y += 12;
+    pdf.text(50, y, 'scannez ce code, ça prend 30 secondes.', {size:9.5, gray:0.35});
+
+    try{
+      const avisQr = makeQrMatrix(COMPANY.reviewUrl);
+      const an = avisQr.getModuleCount();
+      pdf.addBitmapImage('QrAvisRecu', an, an, (x, y2) => avisQr.isDark(y2, x));
+      pdf.drawImage('QrAvisRecu', 460, y - 30, 72, 72);
+      pdf.text(460, y + 52, 'Laissez-nous un avis', {size:7.5, gray:0.45});
+    }catch(e){ /* si le QR échoue, le lien texte ci-dessous suffit */ }
+    y += 26;
+    pdf.text(50, y, COMPANY.reviewUrl, {size:8, gray:0.45});
+
+    const pdfBytes = pdf.build();
+    const blob = new Blob([pdfBytes], {type:'application/pdf'});
+    const fileName = 'Recu_JM-Express_' + new Date().toISOString().slice(0,10) + '.pdf';
+    const file = new File([blob], fileName, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Reçu JM Express'});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }
+    showToast('Reçu généré');
+  }catch(e){
+    showToast('Erreur lors de la génération du reçu');
+  }
+}
+
+(function(){
+  if(typeof construirePdfFacture === 'function'){
+    const _v1 = construirePdfFacture;
+    construirePdfFacture = function(c, meta){ return (meta && meta.presentation === 2) ? construirePdfFactureV2(c, meta) : _v1.apply(this, arguments); };
+  }
+  if(typeof lireMetaFactureDepuisFormulaire === 'function'){
+    const _m = lireMetaFactureDepuisFormulaire;
+    lireMetaFactureDepuisFormulaire = async function(){ const meta = await _m.apply(this, arguments); if(meta) meta.presentation = 2; return meta; };
+  }
+  if(typeof genererRecu === 'function'){
+    const _r = genererRecu;
+    genererRecu = function(){ return (typeof lastCalc !== 'undefined' && lastCalc && lastCalc.presentationDocs === 2) ? genererRecuV2.apply(this, arguments) : _r.apply(this, arguments); };
+  }
+  // Présentation des documents : 2 pour toute intervention créée à partir de la v248 ; une intervention plus ancienne garde la sienne.
+  let PRES_DOCS = null;
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){ try{ PRES_DOCS = (JSON.parse((await window.storage.get(key)).value) || {}).presentationDocs || null; }catch(e){ PRES_DOCS = null; } return _ch.apply(this, arguments); };
+  }
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ const edition = (typeof editingKey !== 'undefined' && editingKey); if(edition){ if(PRES_DOCS) lastCalc.presentationDocs = PRES_DOCS; else delete lastCalc.presentationDocs; } else lastCalc.presentationDocs = 2; } }catch(e){} return r; };
+  }
+  // Historique : chaque fiche porte la couleur de sa famille de service.
+  const FAMC = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', moto_remorquage:'#a84dff', moto_batterie:'#168bff', changement_batterie:'#168bff', demarrage:'#168bff', test_batt:'#168bff',
+    pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', diag:'#a84dff', erreur_carburant:'#17c7d9', desembourbement:'#ff7a1a', epave_demolition:'#00b894', levee_saisie:'#a84dff', ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766'};
+  async function colorerHistorique(){
+    const items = document.querySelectorAll('.hist-item[data-key]');
+    for(const el of items){ if(el.dataset.jmFam) continue; try{ const d = JSON.parse((await window.storage.get(el.dataset.key)).value); let col = FAMC[d.type] || '#ff9500'; if(d.type === 'depannage' && d.vehicleType === 'vsp') col = '#17c7d9'; el.style.setProperty('--fam', col); el.dataset.jmFam = d.type || 'autre'; }catch(e){} }
+  }
+  if(typeof loadHistory === 'function'){
+    const _lh = loadHistory;
+    loadHistory = async function(){ const r = await _lh.apply(this, arguments); try{ await colorerHistorique(); }catch(e){} return r; };
+  }
+})();
+</script>
+
+
 
 
 </body>
