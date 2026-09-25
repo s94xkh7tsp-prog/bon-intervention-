@@ -1864,6 +1864,38 @@ html:not([data-theme="dark"]) button.ghost[onclick*="upprimer"],html:not([data-t
 button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:transform calc(.12s * var(--anim, 1)) ease,filter calc(.12s * var(--anim, 1)) ease}
 @media (prefers-reduced-motion: reduce){.modal-bg.show > .modal{animation:none}}
 </style>
+<style id="jm-v249-vitrine-style">
+/* v249 — vitrine plus premium et moins chargée : fond uniforme, couleur sur la bordure, l'icône et un léger halo */
+#servicesModal .service-card{--c:#ff9500;position:relative;cursor:pointer;background:#121c23!important;border:1px solid color-mix(in srgb,var(--c) 55%,#2a3d48)!important;box-shadow:none!important;
+  padding:10px 30px 10px 10px!important;transition:transform calc(.12s * var(--anim,1)) ease,border-color .15s ease,box-shadow .15s ease}
+#servicesModal .service-card:after{content:'›';position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:22px;font-weight:900;color:var(--c)}
+#servicesModal .service-card:active{transform:scale(.97);box-shadow:0 0 16px color-mix(in srgb,var(--c) 28%,transparent)!important}
+#servicesModal .service-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:0 0 34px;color:var(--c);
+  background:color-mix(in srgb,var(--c) 14%,#0d151a);border:1px solid color-mix(in srgb,var(--c) 45%,#27404c);box-shadow:0 0 12px color-mix(in srgb,var(--c) 14%,transparent)}
+#servicesModal .service-ico svg{width:19px;height:19px}
+#servicesModal .service-name{color:#f5f7f8!important}
+#servicesModal .service-desc{color:#a9b9c2!important}
+#servicesModal .services-foot{background:#121c23!important;border-color:rgba(255,149,0,.35)!important}
+#servicesModal .services-hero{box-shadow:none!important;border-color:rgba(255,149,0,.4)!important}
+/* Catégorie ouverte */
+#svcVueCat{--c:#ff9500}
+.svc-nav{display:flex;gap:8px;margin:2px 0 10px}
+.svc-nav button{flex:1;min-height:42px;border-radius:12px;border:1px solid #35505e;background:#121c23;color:#f5f7f8;font-weight:800;font-size:13px}
+.svc-cat-head{padding:12px 14px;border-radius:16px;background:#121c23;border:1px solid color-mix(in srgb,var(--c) 50%,#2a3d48);border-left:4px solid var(--c);margin-bottom:10px}
+.svc-cat-head h3{margin:0;font-size:17px;font-weight:950;color:#fff;text-transform:uppercase;letter-spacing:.3px}
+.svc-cat-head p{margin:3px 0 0;font-size:12px;color:#a9b9c2}
+.svc-row{padding:11px 12px;margin-bottom:9px;border-radius:16px;background:#121c23;border:1px solid color-mix(in srgb,var(--c) 45%,#2a3d48)}
+.svc-row-top{display:flex;align-items:center;gap:11px}
+.svc-row-ico{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:color-mix(in srgb,var(--c) 14%,#0d151a);border:1px solid color-mix(in srgb,var(--c) 50%,#27404c);box-shadow:0 0 12px color-mix(in srgb,var(--c) 14%,transparent)}
+.svc-row-txt{min-width:0}.svc-row-txt strong{display:block;font-size:14.5px;line-height:1.2;color:#f5f7f8}.svc-row-txt span{display:block;font-size:11.5px;color:#a9b9c2;margin-top:2px}
+.svc-row-act{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.svc-row-act button{min-height:44px;border-radius:12px;font-weight:900;font-size:12.5px;letter-spacing:.1px}
+.svc-btn-int{background:linear-gradient(180deg,#ffa21e,#ff9500);border:1px solid #d97706;color:#fff}
+.svc-btn-dev{background:#121c23;border:1px solid rgba(168,77,255,.6);color:#d2adff}
+.svc-row-act button:active,.svc-nav button:active{transform:scale(.97)}
+@media(max-width:360px){.svc-row-act{grid-template-columns:1fr}}
+</style>
+
 
 
 
@@ -1900,15 +1932,16 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
       <img src="services-hero.png" alt="Dépanneuse JM Express à cabine bleue">
       <div class="services-hero-copy"><div class="services-kicker">Assistance • Remorquage • Transport • 24/7</div><h2 class="services-title">Toujours plus loin <em>pour vous.</em></h2></div>
     </div>
-    <div class="services-grid">
-      <div class="service-card"><div class="service-head"><div class="service-ico">🚨</div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne • accident • véhicule immobilisé</p></div>
-      <div class="service-card"><div class="service-head"><div class="service-ico">🚘</div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Garage • domicile • CT • VSP</p></div>
-      <div class="service-card"><div class="service-head"><div class="service-ico">🔋</div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Diagnostic • batterie • alternateur</p></div>
-      <div class="service-card"><div class="service-head"><div class="service-ico">🛞</div><div class="service-name">Pneus</div></div><p class="service-desc">Changement roue • réparation pneu</p></div>
-      <div class="service-card"><div class="service-head"><div class="service-ico">⚙️</div><div class="service-name">Véhicule bloqué</div></div><p class="service-desc">Boîte auto • frein à main • point mort</p></div>
-      <div class="service-card"><div class="service-head"><div class="service-ico">🪝</div><div class="service-name">Interventions spéciales</div></div><p class="service-desc">Treuillage • erreur carburant • levée de saisie</p></div>
+    <div id="svcVueCats"><div class="services-grid">
+      <div class="service-card" role="button" tabindex="0" style="--c:#ff4d4f" onclick="jmSvcCategorie('depannage')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h12l3-5h3v5h-2"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M8 11l4-6"/></svg></div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne · accident · véhicule immobilisé</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Garage · domicile · CT · VSP · matériel</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#168bff" onclick="jmSvcCategorie('assistance')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M8 13h3M16 11v4M14 13h4"/></svg></div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Batterie · diagnostic · carburant</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#ffb11a" onclick="jmSvcCategorie('pneus')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/></svg></div><div class="service-name">Pneus</div></div><p class="service-desc">Changement de roue · réparation</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#ff7a1a" onclick="jmSvcCategorie('bloque')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg></div><div class="service-name">Véhicule bloqué</div></div><p class="service-desc">Boîte auto · frein à main · point mort</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#a84dff" onclick="jmSvcCategorie('speciales')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v7"/><path d="M12 10a4 4 0 1 1-4 4"/><path d="M5 21h14"/></svg></div><div class="service-name">Interventions spéciales</div></div><p class="service-desc">Treuillage · levée de saisie · épave</p></div>
     </div>
-    <div class="services-foot"><strong>🇧🇪 Belgique 24/7</strong><span>🇫🇷 🇳🇱 🇩🇪 🇱🇺 International sur demande</span></div>
+    <div class="services-foot"><strong>🇧🇪 Belgique 24/7</strong><span>🇫🇷 🇳🇱 🇩🇪 🇱🇺 International sur demande</span></div></div>
+<div id="svcVueCat" style="display:none;"><div class="svc-nav"><button type="button" onclick="jmSvcCategories()">← Toutes les catégories</button><button type="button" onclick="jmSvcAccueil()">⌂ Accueil</button></div><div class="svc-cat-head"><h3 id="svcCatTitre"></h3><p id="svcCatDesc"></p></div><div id="svcCatListe"></div></div>
     <div class="services-actions"><button class="call" onclick="window.location.href='tel:+32496391121'">📞 APPELER · 0496 39 11 21</button><button class="quote" onclick="fermerPresentationServices();openQuickQuote()">📝 DEMANDER UN DEVIS</button></div>
     <p class="services-note">JM Express Auto Dépannage • Service rapide, sécurisé et transparent</p>
   </div>
@@ -8395,7 +8428,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v248';
+const APP_VERSION = 'jm-express-bon-v249';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18086,7 +18119,19 @@ async function genererRecuV2(){
 (function(){
   if(typeof construirePdfFacture === 'function'){
     const _v1 = construirePdfFacture;
-    construirePdfFacture = function(c, meta){ return (meta && meta.presentation === 2) ? construirePdfFactureV2(c, meta) : _v1.apply(this, arguments); };
+    // v249 — factures émises avant la v225 (22/09/2026) : libellé d'adresse d'origine rétabli ;
+    // émises à partir du 22/09 avec l'ancienne présentation : rendu tel qu'envoyé ; nouvelles : présentation 2.
+    const ORIGINE_ADRESSE = {fr:'Prise en charge : ', nl:'Ophaling : ', en:'Pick-up: '};
+    construirePdfFacture = function(c, meta){
+      if(meta && meta.presentation === 2) return construirePdfFactureV2(c, meta);
+      const dateEmission = String((meta && (meta.dateIso || meta.date)) || (c && c.invoicedDate) || '');
+      const lang = (meta && meta.lang) || 'fr', S = (typeof INVOICE_STRINGS !== 'undefined') ? INVOICE_STRINGS[lang] : null;
+      if(S && dateEmission && dateEmission < '2026-09-22' && ORIGINE_ADRESSE[lang]){
+        const avant = S.priseEnCharge; S.priseEnCharge = ORIGINE_ADRESSE[lang];
+        try{ return _v1.apply(this, arguments); } finally { S.priseEnCharge = avant; }
+      }
+      return _v1.apply(this, arguments);
+    };
   }
   if(typeof lireMetaFactureDepuisFormulaire === 'function'){
     const _m = lireMetaFactureDepuisFormulaire;
@@ -18119,6 +18164,73 @@ async function genererRecuV2(){
   }
 })();
 </script>
+<script id="jm-v249-vitrine-script">
+(function(){
+  // ===================================================================
+  //  v249 — Vitrine « Présenter mes services » interactive.
+  //  Couche de navigation uniquement : on choisit les vraies options des
+  //  sélecteurs existants (#type, #qqType) et les vraies cases de prestations.
+  // ===================================================================
+  const CATS = {
+    depannage:{t:'Dépannage & remorquage', d:'Panne · accident · véhicule immobilisé', c:'#ff4d4f', s:[{v:'depannage'}]},
+    transport:{t:'Transport véhicule', d:'Garage · domicile · contrôle technique · VSP', c:'#20c766', s:[{v:'transfert'},{v:'depannage', vsp:1},{v:'moto_remorquage'},{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'},{v:'transport_materiel'}]},
+    assistance:{t:'Assistance sur place', d:'Batterie · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'diag'},{v:'erreur_carburant'}]},
+    pneus:{t:'Pneus', d:'Changement de roue · réparation', c:'#ffb11a', s:[{v:'pneu_chg'},{v:'pneu_rep'}]},
+    bloque:{t:'Véhicule bloqué', d:'Boîte auto · frein à main · point mort', c:'#ff7a1a', s:[{v:'depannage', x:'deblocage_boite'},{v:'depannage', x:'deblocage_frein'},{v:'depannage', x:'roulettes'}]},
+    speciales:{t:'Interventions spéciales', d:'Treuillage · levée de saisie · épave', c:'#a84dff', s:[{v:'desembourbement'},{v:'levee_saisie'},{v:'epave_demolition'}]}
+  };
+  const ICO = {depannage:'🚨', transfert:'🚚', transport_materiel:'🏗️', vsp:'🚙', moto_remorquage:'🏍️', demarrage:'🔋', test_batt:'🔋', changement_batterie:'🔋', moto_batterie:'🔋',
+    diag:'🧰', erreur_carburant:'⛽', pneu_chg:'🛞', pneu_rep:'🛞', desembourbement:'🪝', levee_saisie:'🚓', epave_demolition:'♻️', ct_passage:'📋', ct_repassage:'📋', ct_accidente:'📋',
+    deblocage_boite:'⚙️', deblocage_frein:'⚙️', roulettes:'🛒'};
+  const COUL = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', vsp:'#17c7d9', moto_remorquage:'#a84dff', demarrage:'#168bff', test_batt:'#168bff', changement_batterie:'#168bff',
+    moto_batterie:'#168bff', diag:'#a84dff', erreur_carburant:'#17c7d9', pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', desembourbement:'#ff7a1a', levee_saisie:'#a84dff', epave_demolition:'#00b894',
+    ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766', deblocage_boite:'#ff7a1a', deblocage_frein:'#ff7a1a', roulettes:'#ff7a1a'};
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const propre = t => String(t || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
+  function option(sel, s){ return sel ? [...sel.options].find(o => o.value === s.v && (s.vsp ? o.dataset.vehicleType === 'vsp' : !o.dataset.vehicleType)) : null; }
+  function libelle(s){
+    if(s.x){ const cb = document.querySelector('.extraCheck[value="' + s.x + '"]'); const l = cb && cb.closest('label'); return propre(l ? l.textContent : s.x); }
+    const o = option($('type'), s); return propre(o ? o.textContent : s.v);
+  }
+  window.jmSvcCategorie = function(cat){
+    const C = CATS[cat]; if(!C) return;
+    $('svcVueCats').style.display = 'none'; $('svcVueCat').style.display = 'block';
+    $('svcCatTitre').textContent = C.t; $('svcCatDesc').textContent = C.d; $('svcVueCat').style.setProperty('--c', C.c);
+    $('svcCatListe').innerHTML = C.s.map((s, i) => {
+      const k = s.x || (s.vsp ? 'vsp' : s.v), sous = s.x ? 'Dépannage avec ' + (s.x === 'roulettes' ? 'roulettes de manutention' : 'déblocage') : C.t;
+      return '<div class="svc-row" style="--c:' + (COUL[k] || C.c) + '"><div class="svc-row-top"><div class="svc-row-ico">' + (ICO[k] || '🔧') + '</div><div class="svc-row-txt"><strong>' + esc(libelle(s)) + '</strong><span>' + esc(sous) + '</span></div></div>' +
+        '<div class="svc-row-act"><button type="button" class="svc-btn-int" onclick="jmSvcNouvelle(\'' + cat + '\',' + i + ')">Nouvelle intervention</button><button type="button" class="svc-btn-dev" onclick="jmSvcDevis(\'' + cat + '\',' + i + ')">Demander un devis</button></div></div>';
+    }).join('');
+    const m = $('servicesModal'); if(m) m.scrollTo({top:0, behavior:'smooth'});
+  };
+  window.jmSvcCategories = function(){ $('svcVueCat').style.display = 'none'; $('svcVueCats').style.display = 'block'; };
+  window.jmSvcAccueil = function(){ jmSvcCategories(); fermerPresentationServices(); showTab('tabAccueil'); };
+  function choisir(sel, s){ const o = option(sel, s); if(!sel || !o) return false; sel.selectedIndex = [...sel.options].indexOf(o); sel.dispatchEvent(new Event('change', {bubbles:true})); return true; }
+  window.jmSvcNouvelle = function(cat, i){
+    const s = CATS[cat].s[i];
+    if(typeof editingKey !== 'undefined' && editingKey){ if(!confirm('Une intervention est en cours de modification.\nL\'abandonner pour préparer une nouvelle intervention ?')) return; annulerEdition(); }
+    jmSvcCategories(); fermerPresentationServices(); showTab('tabNouveau');
+    choisir($('type'), s);
+    if(typeof updateKmLabel === 'function') updateKmLabel();
+    if(s.x){ const cb = document.querySelector('.extraCheck[value="' + s.x + '"]'); if(cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); } if(typeof updateExtrasSummary === 'function') updateExtrasSummary(); }
+    showToast('Nouvelle intervention : ' + libelle(s));
+  };
+  window.jmSvcDevis = function(cat, i){
+    const s = CATS[cat].s[i];
+    jmSvcCategories(); fermerPresentationServices(); openQuickQuote();
+    choisir($('qqType'), s);
+    if(typeof qqSurTypeChange === 'function') qqSurTypeChange();
+    if(s.x){ if(typeof qqRemplirExtras === 'function') qqRemplirExtras(); const cb = document.querySelector('.qqExtraCheck[value="' + s.x + '"]'); if(cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); } if(typeof qqMajResumePrecisions === 'function') qqMajResumePrecisions(); }
+    showToast('Devis : ' + libelle(s) + ' — indique la distance');
+  };
+  if(typeof ouvrirPresentationServices === 'function'){
+    const _o = ouvrirPresentationServices;
+    ouvrirPresentationServices = function(){ jmSvcCategories(); return _o.apply(this, arguments); };
+  }
+})();
+</script>
+
 
 
 
