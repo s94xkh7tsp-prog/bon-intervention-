@@ -1895,6 +1895,12 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
 .svc-row-act button:active,.svc-nav button:active{transform:scale(.97)}
 @media(max-width:360px){.svc-row-act{grid-template-columns:1fr}}
 </style>
+<style id="jm-v250-ouverture-style">
+/* v250 — le supplément keyless n'apparaît que pour une ouverture de véhicule */
+label.extra-item[data-type="ouverture_keyless"]{display:none!important}
+#qqOuvInfos{display:none}#modalQuickQuoteBg.jm-ouv-qq #qqOuvInfos{display:block}
+body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#modalQuickQuoteBg.jm-ouv-qq label.extra-item[data-type="ouverture_keyless"]{display:flex!important}
+</style>
 
 
 
@@ -1935,7 +1941,7 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
     <div id="svcVueCats"><div class="services-grid">
       <div class="service-card" role="button" tabindex="0" style="--c:#ff4d4f" onclick="jmSvcCategorie('depannage')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h12l3-5h3v5h-2"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M8 11l4-6"/></svg></div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne · accident · véhicule immobilisé</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Garage · domicile · CT · VSP · matériel</p></div>
-      <div class="service-card" role="button" tabindex="0" style="--c:#168bff" onclick="jmSvcCategorie('assistance')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M8 13h3M16 11v4M14 13h4"/></svg></div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Batterie · diagnostic · carburant</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#168bff" onclick="jmSvcCategorie('assistance')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M8 13h3M16 11v4M14 13h4"/></svg></div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Batterie · ouverture · diagnostic · carburant</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#ffb11a" onclick="jmSvcCategorie('pneus')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/></svg></div><div class="service-name">Pneus</div></div><p class="service-desc">Changement de roue · réparation</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#ff7a1a" onclick="jmSvcCategorie('bloque')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg></div><div class="service-name">Véhicule bloqué</div></div><p class="service-desc">Boîte auto · frein à main · point mort</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#a84dff" onclick="jmSvcCategorie('speciales')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v7"/><path d="M12 10a4 4 0 1 1-4 4"/><path d="M5 21h14"/></svg></div><div class="service-name">Interventions spéciales</div></div><p class="service-desc">Treuillage · levée de saisie · épave</p></div>
@@ -2155,6 +2161,7 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
         <option value="depannage" data-vehicle-type="vsp">🚙 Remorquage VSP — voiture sans permis</option>
         <option value="pneu_chg">Changement de pneu</option>
         <option value="pneu_rep">Réparation de pneu</option>
+        <option value="ouverture_vehicule">Ouverture de véhicule (clés enfermées / perdues)</option>
         <option value="demarrage">Démarrage batterie</option>
         <option value="test_batt">Test batterie / alternateur</option>
         <option value="diag">Diagnostic électronique (valise OBD)</option>
@@ -2183,6 +2190,28 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
           <input type="number" id="materielLongueur" placeholder="Longueur max (m)" min="0" step="0.1" inputmode="decimal" oninput="majAlerteLongueur(); invaliderTicketObsolete()">
         </div>
         <div class="km-mention" id="materielAlerte" style="display:none; border-left-color:var(--orange); margin-top:8px;"></div>
+      </div>
+      <div class="field" id="blocOuverture" style="display:none;">
+        <label>Ouverture du véhicule</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+          <button type="button" class="ghost" style="margin:0;" onclick="jmOuvDemanderInfos('whatsapp')">💬 Demander les infos (WhatsApp)</button>
+          <button type="button" class="ghost" style="margin:0;" onclick="jmOuvDemanderInfos('sms')">✉️ Par SMS</button>
+        </div>
+        <input type="text" id="ouvModele" placeholder="Marque et modèle (facultatif) — ex. Peugeot 308" autocomplete="off" oninput="if(typeof invaliderTicketObsolete==='function') invaliderTicketObsolete()">
+        <div class="km-mention" style="margin:10px 0 6px;">Type de verrouillage</div>
+        <div class="toggles" id="ouvVerrouillage" style="margin:0; font-size:13px;">
+          <div class="toggle" data-v="centralise" onclick="jmOuvVerrouillage('centralise')">Centralisé</div>
+          <div class="toggle" data-v="mecanique" onclick="jmOuvVerrouillage('mecanique')">Clé mécanique</div>
+          <div class="toggle" data-v="keyless" onclick="jmOuvVerrouillage('keyless')">Keyless (+ supplément)</div>
+          <div class="toggle" data-v="inconnu" onclick="jmOuvVerrouillage('inconnu')">Je ne sais pas</div>
+        </div>
+        <div class="km-mention" style="margin:10px 0 6px;">Situation</div>
+        <div class="toggles" id="ouvSituation" style="margin:0;">
+          <div class="toggle on" data-v="enfermees" onclick="jmOuvSituation('enfermees')">Clés enfermées dans le véhicule</div>
+          <div class="toggle" data-v="perdues" onclick="jmOuvSituation('perdues')">Clés perdues</div>
+        </div>
+        <div class="km-mention" id="ouvNotePerdues" style="display:none; margin-top:8px; border-left-color:var(--orange);">Clés perdues : ouverture du véhicule uniquement, sans fourniture de clé de remplacement ni démarrage. Mention reprise sur le bon.</div>
+        <label class="check-row" style="margin-top:10px;"><input type="checkbox" id="ouvProprio" onchange="if(typeof invaliderTicketObsolete==='function') invaliderTicketObsolete()"><span>Propriétaire vérifié (papiers du véhicule et pièce d'identité au même nom)</span></label>
       </div>
 
     <div class="field">
@@ -2213,6 +2242,7 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
         <label class="extra-item" data-type="test_batt"><input type="checkbox" class="extraCheck" value="test_batt" onchange="updateExtrasSummary()"> Test batterie / alternateur</label>
         <label class="extra-item" data-type="diag"><input type="checkbox" class="extraCheck" value="diag" onchange="updateExtrasSummary()"> Diagnostic électronique (valise OBD)</label>
         <label class="extra-item" data-type="erreur_carburant"><input type="checkbox" class="extraCheck" value="erreur_carburant" onchange="updateExtrasSummary()"> Erreur de carburant (vidange sur place)</label>
+          <label class="extra-item" data-type="ouverture_keyless"><input type="checkbox" class="extraCheck" value="ouverture_keyless" onchange="updateExtrasSummary()"> Supplément ouverture keyless / haut de gamme</label>
         <label class="extra-item" data-type="desembourbement"><input type="checkbox" class="extraCheck" value="desembourbement" onchange="updateExtrasSummary()"> Désembourbement / treuillage</label>
         <label class="extra-item" data-type="transfert"><input type="checkbox" class="extraCheck" value="transfert" onchange="updateExtrasSummary()"> Transfert véhicule</label>
         <label class="extra-item" data-type="depannage"><input type="checkbox" class="extraCheck" value="depannage" onchange="updateExtrasSummary()"> Dépannage / remorquage général</label>
@@ -3415,7 +3445,8 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
   <div class="modal terrain-sheet">
     <h3>💬 Message client</h3>
     <div class="msg-grid">
-      <button class="msg-choice" onclick="messageTerrain('route')">🚚 En route</button>
+      <button class="msg-choice" onclick="messageTerrain('ouverture_infos')">🔑 Infos ouverture</button>
+          <button class="msg-choice" onclick="messageTerrain('route')">🚚 En route</button>
           <button class="msg-choice" onclick="messageTerrain('route_position')">📍 En route + localisation</button>
       <button class="msg-choice" onclick="messageTerrain('arrive')">🚚 Je suis arrivé</button>
       <button class="msg-choice" onclick="messageTerrain('retard')">⏱️ Retard imprévu</button>
@@ -3467,6 +3498,8 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
           <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
           <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
+          <div class="rate-row"><label>Ouverture de véhicule (forfait, hors déplacement)</label><input type="number" id="r_ouverture_vehicule"></div>
+          <div class="rate-row"><label>Supplément ouverture keyless / haut de gamme</label><input type="number" id="r_ouverture_keyless"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
           <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
           <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
@@ -4819,6 +4852,7 @@ button,.toggle,.bac-btn,.gros-bouton,.hist-item,label.extra-item{transition:tran
       <div class="field" style="margin-bottom:0;"><label>Origine du client</label><select id="qqOrigine"></select></div>
       <div class="field" style="margin-bottom:0;"><label>Campagne</label><input type="text" id="qqCampagne" list="jmCampagnesListeQq" autocomplete="off" oninput="jmCampagneChoisie(this.value, 'qqOrigine')"><datalist id="jmCampagnesListeQq"></datalist></div>
     </div>
+    <div id="qqOuvInfos" style="margin-top:12px;"><button type="button" class="ghost" style="margin:0;" onclick="jmOuvDemanderInfos('whatsapp','devis')">🔑 Demander les infos d'ouverture au client (WhatsApp)</button></div>
     <div class="field" style="margin-top:14px;">
       <label>Nom du client (pour enregistrer le devis)</label>
       <input type="text" id="qqClientNom" placeholder="Ex: M. Dupont">
@@ -6084,6 +6118,7 @@ function getIdatBytes(pngBytes){
 
 <script>
 const TYPE_LABELS = {
+  ouverture_vehicule:"Ouverture de véhicule (clés enfermées / perdues)", ouverture_keyless:"Supplément ouverture keyless / haut de gamme",
   transport_materiel:"Transport de matériel",
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
   test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", desembourbement:"Désembourbement / treuillage", ct_passage:"Contrôle technique — passage", ct_repassage:"Contrôle technique — repassage / revisite", ct_accidente:"Contrôle technique — véhicule accidenté (transport)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
@@ -6113,7 +6148,8 @@ const DEFAULT_RATES = {
   plancherRemorquage:140, plancherVsp:120,
   km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30,
   km_formuleA:1.95, arrondiRemorquage:5, seuilAlerteDiesel:2.80, comparaisonV224:0,
-  transport_materiel:40, plancherMateriel:90, longueurPlateau:5
+  transport_materiel:40, plancherMateriel:90, longueurPlateau:5,
+  ouverture_vehicule:80, ouverture_keyless:30
 };
 
 // ===================================================================
@@ -8428,7 +8464,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v249';
+const APP_VERSION = 'jm-express-bon-v251';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -9581,6 +9617,7 @@ async function loadRates(){
 }
 
 const TYPE_LABELS_NL = {
+  ouverture_vehicule:"Openen voertuig (sleutels opgesloten / verloren)", ouverture_keyless:"Toeslag openen keyless / premium",
   transport_materiel:"Transport van materiaal",
   pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
   test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", desembourbement:"Losmaken / takelen uit modder", ct_passage:"Technische keuring — aanbieding", ct_repassage:"Technische keuring — herkeuring", ct_accidente:"Technische keuring — beschadigd voertuig (transport)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
@@ -9592,6 +9629,7 @@ const TYPE_LABELS_NL = {
   roulettes:"Verplaatsingswieltjes (bak/rem geblokkeerd)"
 };
 const TYPE_LABELS_EN = {
+  ouverture_vehicule:"Vehicle opening (keys locked in / lost)", ouverture_keyless:"Keyless / premium opening supplement",
   transport_materiel:"Material transport",
   pneu_chg:"Tire change", pneu_rep:"Tire repair", demarrage:"Battery jump-start",
   test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", desembourbement:"Winching out / bogged vehicle recovery", ct_passage:"Roadworthiness test — presentation", ct_repassage:"Roadworthiness test — re-test", ct_accidente:"Roadworthiness test — damaged vehicle (transport)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
@@ -17404,6 +17442,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
     if(t.includes('pneu')||t.includes('roue')) return ['🛞','#ffb11a','Pneu / roue','Assistance sur place',31];
     if(t.includes('diagnostic')||t.includes('obd')) return ['🧰','#a84dff','Diagnostic','Assistance sur place',32];
     if(t.includes('carburant')) return ['⛽','#17c7d9','Carburant','Assistance sur place',33];
+    if(t.includes('ouverture')) return ['🔑','#168bff','Ouverture véhicule','Assistance sur place',34];
     if(t.includes('treuillage')||t.includes('desembourb')) return ['🪝','#ff7a1a','Treuillage / sortie','Interventions spéciales',40];
     if(t.includes('epave')||t.includes('demolition')) return ['♻️','#00b894','Épave / enlèvement','Interventions spéciales',41];
     if(t.includes('saisie')) return ['🚓','#a84dff','Levée / saisie','Interventions spéciales',42];
@@ -17480,6 +17519,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
     demarrage:['🔋','#168bff','Batterie / alternateur','assistance'], test_batt:['🔋','#168bff','Batterie / alternateur','assistance'],
     changement_batterie:['🔋','#168bff','Batterie / alternateur','assistance'], moto_batterie:['🔋','#168bff','Batterie / alternateur','assistance'],
     diag:['🧰','#a84dff','Diagnostic','assistance'], erreur_carburant:['⛽','#17c7d9','Carburant','assistance'],
+    ouverture_keyless:['🔑','#168bff','Ouverture de véhicule','assistance'],
     desembourbement:['🪝','#ff7a1a','Treuillage / sortie','speciales'],
     deblocage_boite:['🔓','#ff7a1a','Intervention spéciale','speciales'], deblocage_frein:['🔓','#ff7a1a','Intervention spéciale','speciales'],
     roulettes:['🛒','#ff7a1a','Manutention','speciales']
@@ -18153,7 +18193,7 @@ async function genererRecuV2(){
   }
   // Historique : chaque fiche porte la couleur de sa famille de service.
   const FAMC = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', moto_remorquage:'#a84dff', moto_batterie:'#168bff', changement_batterie:'#168bff', demarrage:'#168bff', test_batt:'#168bff',
-    pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', diag:'#a84dff', erreur_carburant:'#17c7d9', desembourbement:'#ff7a1a', epave_demolition:'#00b894', levee_saisie:'#a84dff', ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766'};
+    pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', diag:'#a84dff', erreur_carburant:'#17c7d9', ouverture_vehicule:'#168bff', desembourbement:'#ff7a1a', epave_demolition:'#00b894', levee_saisie:'#a84dff', ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766'};
   async function colorerHistorique(){
     const items = document.querySelectorAll('.hist-item[data-key]');
     for(const el of items){ if(el.dataset.jmFam) continue; try{ const d = JSON.parse((await window.storage.get(el.dataset.key)).value); let col = FAMC[d.type] || '#ff9500'; if(d.type === 'depannage' && d.vehicleType === 'vsp') col = '#17c7d9'; el.style.setProperty('--fam', col); el.dataset.jmFam = d.type || 'autre'; }catch(e){} }
@@ -18174,16 +18214,16 @@ async function genererRecuV2(){
   const CATS = {
     depannage:{t:'Dépannage & remorquage', d:'Panne · accident · véhicule immobilisé', c:'#ff4d4f', s:[{v:'depannage'}]},
     transport:{t:'Transport véhicule', d:'Garage · domicile · contrôle technique · VSP', c:'#20c766', s:[{v:'transfert'},{v:'depannage', vsp:1},{v:'moto_remorquage'},{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'},{v:'transport_materiel'}]},
-    assistance:{t:'Assistance sur place', d:'Batterie · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'diag'},{v:'erreur_carburant'}]},
+    assistance:{t:'Assistance sur place', d:'Batterie · ouverture · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'ouverture_vehicule'},{v:'diag'},{v:'erreur_carburant'}]},
     pneus:{t:'Pneus', d:'Changement de roue · réparation', c:'#ffb11a', s:[{v:'pneu_chg'},{v:'pneu_rep'}]},
     bloque:{t:'Véhicule bloqué', d:'Boîte auto · frein à main · point mort', c:'#ff7a1a', s:[{v:'depannage', x:'deblocage_boite'},{v:'depannage', x:'deblocage_frein'},{v:'depannage', x:'roulettes'}]},
     speciales:{t:'Interventions spéciales', d:'Treuillage · levée de saisie · épave', c:'#a84dff', s:[{v:'desembourbement'},{v:'levee_saisie'},{v:'epave_demolition'}]}
   };
   const ICO = {depannage:'🚨', transfert:'🚚', transport_materiel:'🏗️', vsp:'🚙', moto_remorquage:'🏍️', demarrage:'🔋', test_batt:'🔋', changement_batterie:'🔋', moto_batterie:'🔋',
-    diag:'🧰', erreur_carburant:'⛽', pneu_chg:'🛞', pneu_rep:'🛞', desembourbement:'🪝', levee_saisie:'🚓', epave_demolition:'♻️', ct_passage:'📋', ct_repassage:'📋', ct_accidente:'📋',
+    diag:'🧰', erreur_carburant:'⛽', ouverture_vehicule:'🔑', pneu_chg:'🛞', pneu_rep:'🛞', desembourbement:'🪝', levee_saisie:'🚓', epave_demolition:'♻️', ct_passage:'📋', ct_repassage:'📋', ct_accidente:'📋',
     deblocage_boite:'⚙️', deblocage_frein:'⚙️', roulettes:'🛒'};
   const COUL = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', vsp:'#17c7d9', moto_remorquage:'#a84dff', demarrage:'#168bff', test_batt:'#168bff', changement_batterie:'#168bff',
-    moto_batterie:'#168bff', diag:'#a84dff', erreur_carburant:'#17c7d9', pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', desembourbement:'#ff7a1a', levee_saisie:'#a84dff', epave_demolition:'#00b894',
+    moto_batterie:'#168bff', ouverture_vehicule:'#168bff', diag:'#a84dff', erreur_carburant:'#17c7d9', pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', desembourbement:'#ff7a1a', levee_saisie:'#a84dff', epave_demolition:'#00b894',
     ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766', deblocage_boite:'#ff7a1a', deblocage_frein:'#ff7a1a', roulettes:'#ff7a1a'};
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -18230,6 +18270,111 @@ async function genererRecuV2(){
   }
 })();
 </script>
+<script id="jm-v250-ouverture-script">
+(function(){
+  // ===================================================================
+  //  v250 — Ouverture de véhicule (clés enfermées / perdues).
+  //  Tarifs : forfait « ouverture_vehicule » + déplacement habituel ;
+  //  supplément keyless = prestation en plus « ouverture_keyless ».
+  //  Aucune modification du moteur tarifaire.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  let OUV = {verrouillage:'', situation:'enfermees'};
+  function majClasses(){
+    document.body.classList.toggle('jm-ouv-actif', ($('type') || {}).value === 'ouverture_vehicule');
+    const q = $('modalQuickQuoteBg'); if(q) q.classList.toggle('jm-ouv-qq', ($('qqType') || {}).value === 'ouverture_vehicule');
+    const bloc = $('blocOuverture'); if(bloc) bloc.style.display = ($('type') || {}).value === 'ouverture_vehicule' ? 'block' : 'none';
+  }
+  function cocherKeyless(sel, on){ const cb = document.querySelector(sel); if(cb && cb.checked !== on){ cb.checked = on; cb.dispatchEvent(new Event('change', {bubbles:true})); } }
+  window.jmOuvVerrouillage = function(v){
+    OUV.verrouillage = OUV.verrouillage === v ? '' : v;
+    document.querySelectorAll('#ouvVerrouillage .toggle').forEach(t => t.classList.toggle('on', t.dataset.v === OUV.verrouillage));
+    cocherKeyless('.extraCheck[value="ouverture_keyless"]', OUV.verrouillage === 'keyless');
+    if(typeof updateExtrasSummary === 'function') updateExtrasSummary();
+    if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  };
+  window.jmOuvSituation = function(v){
+    OUV.situation = v;
+    document.querySelectorAll('#ouvSituation .toggle').forEach(t => t.classList.toggle('on', t.dataset.v === v));
+    const n = $('ouvNotePerdues'); if(n) n.style.display = v === 'perdues' ? 'block' : 'none';
+    if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+  };
+  function lire(){ return {modele: (($('ouvModele') || {}).value || '').trim(), verrouillage: OUV.verrouillage, situation: OUV.situation, proprietaireVerifie: !!(($('ouvProprio') || {}).checked)}; }
+  function ecrire(o){
+    o = o || {}; OUV = {verrouillage: o.verrouillage || '', situation: o.situation || 'enfermees'};
+    if($('ouvModele')) $('ouvModele').value = o.modele || ''; if($('ouvProprio')) $('ouvProprio').checked = !!o.proprietaireVerifie;
+    document.querySelectorAll('#ouvVerrouillage .toggle').forEach(t => t.classList.toggle('on', t.dataset.v === OUV.verrouillage));
+    // Affichage seulement : ne jamais invalider le calcul en cours (rechargement, remise à zéro).
+    document.querySelectorAll('#ouvSituation .toggle').forEach(t => t.classList.toggle('on', t.dataset.v === OUV.situation));
+    const n = $('ouvNotePerdues'); if(n) n.style.display = OUV.situation === 'perdues' ? 'block' : 'none';
+  }
+  const LIB_V = {centralise:'verrouillage centralisé', mecanique:'clé mécanique', keyless:'sans clé / keyless', inconnu:'verrouillage non précisé'};
+  window.jmOuvDescription = function(o){
+    if(!o) return '';
+    const p = [o.modele, LIB_V[o.verrouillage], o.situation === 'perdues' ? 'clés perdues' : 'clés enfermées', o.proprietaireVerifie ? 'propriétaire vérifié' : ''].filter(Boolean);
+    return p.join(' · ') + (o.situation === 'perdues' ? ' — ouverture seule, sans clé de remplacement ni démarrage' : '');
+  };
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ lastCalc.ouverture = lastCalc.type === 'ouverture_vehicule' ? lire() : null; } }catch(e){} return r; };
+  }
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){ const r = await _ch.apply(this, arguments); try{ const d = JSON.parse((await window.storage.get(key)).value); ecrire(d.type === 'ouverture_vehicule' ? d.ouverture : null); majClasses(); }catch(e){} return r; };
+  }
+  if(typeof typeLabelComplet === 'function'){
+    const _t = typeLabelComplet;
+    typeLabelComplet = function(c){ let l = _t.apply(this, arguments); try{ if(c && c.type === 'ouverture_vehicule' && c.ouverture){ const d = jmOuvDescription(c.ouverture); if(d) l += ' — ' + d; } }catch(e){} return l; };
+  }
+  if(typeof enregistrer === 'function'){
+    const _e = enregistrer;
+    enregistrer = async function(){
+      if(($('type') || {}).value === 'ouverture_vehicule' && $('ouvProprio') && !$('ouvProprio').checked){
+        if(!confirm('Le propriétaire du véhicule n\'est pas marqué comme vérifié (papiers / pièce d\'identité).\n\nEnregistrer quand même ?')) return;
+      }
+      const r = await _e.apply(this, arguments);
+      try{ if(typeof editingKey === 'undefined' || !editingKey){ if(($('type') || {}).value !== 'ouverture_vehicule') ecrire(null); } }catch(e){}
+      return r;
+    };
+  }
+
+  // v251 — message prêt à envoyer pour obtenir les infos avant une ouverture.
+  window.JM_MSG_OUVERTURE = 'Bonjour, JM Express Auto Dépannage.\n\nPour préparer l\'ouverture de votre véhicule, pouvez-vous me préciser :\n' +
+    '1. La marque, le modèle et l\'année du véhicule ;\n' +
+    '2. Le type de clé : clé classique, télécommande (verrouillage centralisé) ou démarrage sans clé (keyless / carte) ;\n' +
+    '3. Où sont les clés : dans l\'habitacle, dans le coffre, ou perdues ;\n' +
+    '4. L\'adresse exacte du véhicule (ou votre localisation).\n\n' +
+    'Une photo du véhicule nous aide aussi. Merci de prévoir votre carte d\'identité et les papiers du véhicule : ils vous seront demandés avant l\'ouverture.';
+  function numeroClient(contexte){
+    let n = contexte === 'devis' ? (($('qqClientTel') || {}).value || '') : ((typeof numeroClientPropre === 'function' ? numeroClientPropre() : (($('telClient') || {}).value || '')));
+    n = String(n).replace(/[^0-9]/g, ''); if(n.startsWith('00')) n = n.slice(2); else if(n.startsWith('0')) n = '32' + n.slice(1);
+    return n;
+  }
+  window.jmOuvDemanderInfos = function(canal, contexte){
+    const n = numeroClient(contexte), msg = window.JM_MSG_OUVERTURE;
+    if(!n){ try{ navigator.clipboard.writeText(msg); showToast('Pas de numéro client : message copié'); }catch(e){ showToast('Indique d\'abord le numéro du client'); } return; }
+    location.href = canal === 'sms' ? 'sms:+' + n + '&body=' + encodeURIComponent(msg) : 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  };
+  if(typeof messageTerrain === 'function'){
+    const _m = messageTerrain;
+    messageTerrain = async function(type){ if(type === 'ouverture_infos'){ jmOuvDemanderInfos('whatsapp'); return; } return _m.apply(this, arguments); };
+  }
+  if(typeof updateKmLabel === 'function'){
+    const _u = updateKmLabel;
+    updateKmLabel = function(){ const r = _u.apply(this, arguments); try{ majClasses(); }catch(e){} return r; };
+  }
+  if(typeof qqSurTypeChange === 'function'){
+    const _q = qqSurTypeChange;
+    qqSurTypeChange = function(){ const r = _q.apply(this, arguments); try{ majClasses(); }catch(e){} return r; };
+  }
+  function init(){
+    ['type', 'qqType'].forEach(id => { const s = $(id); if(s) s.addEventListener('change', majClasses); });
+    ecrire(null); majClasses();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
 
 
 
