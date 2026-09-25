@@ -1901,6 +1901,12 @@ label.extra-item[data-type="ouverture_keyless"]{display:none!important}
 #qqOuvInfos{display:none}#modalQuickQuoteBg.jm-ouv-qq #qqOuvInfos{display:block}
 body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#modalQuickQuoteBg.jm-ouv-qq label.extra-item[data-type="ouverture_keyless"]{display:flex!important}
 </style>
+<style id="jm-v254-annuler-style">
+/* v254 — bouton Annuler : rouge, contour seulement, plus étroit que Reprendre / Terminer */
+.bac-state.annul{flex:0 0 27%!important;background:transparent!important;border:1.5px solid rgba(255,77,79,.75)!important;color:#ff6b6d!important;box-shadow:none!important}
+.bac-state.annul:active{background:rgba(255,77,79,.18)!important}
+html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-color:rgba(201,58,60,.7)!important}
+</style>
 
 
 
@@ -3450,6 +3456,7 @@ body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#m
 <div class="barre-actions-contextuelle" id="barreActionsContextuelle">
   <div class="bac-etat">
     <button type="button" class="bac-state depart" id="bacDepartBtn" onclick="actionTerrainDepart()">▶ Départ</button>
+      <button type="button" class="bac-state annul" id="bacAnnulerBtn" onclick="jmTerrainAnnuler()">✕ Annuler</button>
     <button type="button" class="bac-state fin" id="bacTerminerBtn" onclick="actionTerrainTerminer()">✓ Terminer</button>
   </div>
   <div class="bac-actions">
@@ -8485,7 +8492,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v253';
+const APP_VERSION = 'jm-express-bon-v254';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18571,6 +18578,23 @@ async function genererRecuV2(){
     annulerEdition = function(){ const r = _a.apply(this, arguments); try{ viderFournisseur(); if(typeof jmOuvReset === 'function') jmOuvReset(); }catch(e){} return r; };
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', afficher); else afficher();
+})();
+</script>
+<script id="jm-v254-annuler-script">
+(function(){
+  // v254 — « ✕ Annuler » dans la barre terrain : même action que ⋯ Plus → Annulation (déplacement inutile), avec confirmation.
+  const $ = id => document.getElementById(id);
+  function majBouton(){ const b = $('bacAnnulerBtn'), tg = $('tgAnnulation'); if(b) b.textContent = (tg && tg.classList.contains('on')) ? '✕ Annulée' : '✕ Annuler'; }
+  window.jmTerrainAnnuler = function(){
+    const tg = $('tgAnnulation');
+    if(tg && tg.classList.contains('on')){ const box = $('annulationBox'); if(box) box.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    if(!confirm('Le client annule l\'intervention ?\n\nElle passera en « déplacement inutile ». Tu indiques ensuite le montant à facturer (0 € si tu ne factures rien).')) return;
+    terrainAnnulation(); majBouton();
+    showToast('Annulation : indique le montant du déplacement');
+  };
+  document.addEventListener('click', e => { if(e.target && e.target.closest && e.target.closest('#tgAnnulation')) setTimeout(majBouton, 0); });
+  if(typeof majBarreActionsContextuelle === 'function'){ const _m = majBarreActionsContextuelle; majBarreActionsContextuelle = function(){ const r = _m.apply(this, arguments); try{ majBouton(); }catch(e){} return r; }; }
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); try{ majBouton(); }catch(e){} return r; }; }
 })();
 </script>
 
