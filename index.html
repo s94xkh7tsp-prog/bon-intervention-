@@ -2302,7 +2302,27 @@ body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#m
           </div>
           <button type="button" class="ghost" style="margin-top:8px; padding:11px;" onclick="toggleAccesVehicule('addrFrom')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="7" y="2.5" width="10" height="16" rx="3"/><path d="M12 21v1"/><circle cx="12" cy="6.5" r="1.3"/><circle cx="12" cy="10.5" r="1.3"/><circle cx="12" cy="14.5" r="1.3"/></svg> Noter l'accès véhicule</button>
         </div>
-        <div class="field" style="margin-bottom:0;">
+        <div class="toggles" id="deposeMode" style="display:none; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0 10px;">
+          <div class="toggle on" data-m="surplace" onclick="jmDeposeMode('surplace')">📍 Sur place — pas de dépose</div>
+          <div class="toggle" data-m="depose" onclick="jmDeposeMode('depose')">🚚 Repartir avec le véhicule</div>
+        </div>
+        <div class="km-mention" id="deposeConseil" style="display:none; margin-bottom:10px; border-left-color:var(--orange);">Si tu remorques finalement le véhicule, passe le service en dépannage pour appliquer le tarif remorquage.
+          <button type="button" class="ghost" style="margin:8px 0 0;" onclick="jmPasserEnDepannage()">Passer en Dépannage / remorquage</button></div>
+        <div id="fournBloc" style="display:none; margin-bottom:12px;">
+          <div class="toggles" style="margin:0;"><div class="toggle" id="tgFourn" onclick="jmFournBasculer()">🛞 Aller-retour chez un fournisseur (pneu, pièce)</div></div>
+          <div id="fournPanneau" style="display:none; margin-top:10px;">
+            <div class="field"><label>Adresse du fournisseur</label><input type="text" id="fournAdresse" placeholder="Marchand de pneus, ville" autocomplete="off" oninput="jmFournMaj()"></div>
+            <button type="button" class="ghost" style="margin:0 0 10px;" onclick="jmFournCalculer()">📏 Calculer client → fournisseur → client</button>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+              <div class="field" style="margin:0;"><label>Km aller-retour</label><input type="number" id="fournKm" inputmode="decimal" oninput="jmFournMaj()"></div>
+              <div class="field" style="margin:0;"><label>Temps sur place (min)</label><input type="number" id="fournMinutes" inputmode="numeric" oninput="jmFournMaj()"></div>
+              <div class="field" style="margin:0;"><label>Prix d'achat (€)</label><input type="number" id="fournPrix" inputmode="decimal" oninput="jmFournMaj()"></div>
+            </div>
+            <div class="km-mention" id="fournResume" style="margin-top:8px;"></div>
+            <div class="km-mention" style="margin-top:6px; opacity:.8;">Laisse le prix vide si le client paie la pièce directement au fournisseur. La majoration de nuit ne s'applique ni à la pièce ni au temps chez le fournisseur.</div>
+          </div>
+        </div>
+        <div class="field" id="blocDepose" style="margin-bottom:0;">
           <label>Adresse de dépose (garage / lieu)</label>
           <div class="input-with-btn">
             <textarea rows="1" id="addrTo" class="addr-input" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true" oninput="suggererAdresses('addrTo'); checkAccesVehicule('addrTo'); invaliderTicketObsolete()" onchange="checkAccesVehicule('addrTo')" readonly onclick="ouvrirSaisieAdresse('addrTo')"></textarea>
@@ -3500,6 +3520,7 @@ body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#m
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
           <div class="rate-row"><label>Ouverture de véhicule (forfait, hors déplacement)</label><input type="number" id="r_ouverture_vehicule"></div>
           <div class="rate-row"><label>Supplément ouverture keyless / haut de gamme</label><input type="number" id="r_ouverture_keyless"></div>
+          <div class="rate-row"><label>Marge sur pièce / pneu fourni (%)</label><input type="number" id="r_margePieceFournie"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
           <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
           <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
@@ -6149,7 +6170,7 @@ const DEFAULT_RATES = {
   km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30,
   km_formuleA:1.95, arrondiRemorquage:5, seuilAlerteDiesel:2.80, comparaisonV224:0,
   transport_materiel:40, plancherMateriel:90, longueurPlateau:5,
-  ouverture_vehicule:80, ouverture_keyless:30
+  ouverture_vehicule:80, ouverture_keyless:30, margePieceFournie:20
 };
 
 // ===================================================================
@@ -8464,7 +8485,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v251';
+const APP_VERSION = 'jm-express-bon-v253';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18308,6 +18329,7 @@ async function genererRecuV2(){
     document.querySelectorAll('#ouvSituation .toggle').forEach(t => t.classList.toggle('on', t.dataset.v === OUV.situation));
     const n = $('ouvNotePerdues'); if(n) n.style.display = OUV.situation === 'perdues' ? 'block' : 'none';
   }
+  window.jmOuvReset = () => ecrire(null);
   const LIB_V = {centralise:'verrouillage centralisé', mecanique:'clé mécanique', keyless:'sans clé / keyless', inconnu:'verrouillage non précisé'};
   window.jmOuvDescription = function(o){
     if(!o) return '';
@@ -18374,6 +18396,185 @@ async function genererRecuV2(){
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
+<script id="jm-v252-surplace-script">
+(function(){
+  // ===================================================================
+  //  v252 — (1) Départ / Terminer : l'horodatage fonctionne même si la section
+  //  Horaires n'a jamais été ouverte. (2) Services sur place : pas de dépose
+  //  par défaut, avec possibilité de repartir avec le véhicule.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  if(typeof tamponnerHoraire === 'function'){
+    const _t = tamponnerHoraire;
+    tamponnerHoraire = function(cle){ if(!$('hr_' + cle) && typeof initHorairesUI === 'function'){ try{ initHorairesUI(); }catch(e){} } if(!$('hr_' + cle)) return; return _t.apply(this, arguments); };
+  }
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  let MODE = 'surplace', DEPOSE_MEMO = '';
+  const typeActuel = () => ($('type') || {}).value || '';
+  const estSurPlace = () => SUR_PLACE.includes(typeActuel()) && MODE === 'surplace';
+  function appliquer(){
+    const surPlaceType = SUR_PLACE.includes(typeActuel());
+    const bloc = $('deposeMode'), dep = $('blocDepose'), cons = $('deposeConseil');
+    if(bloc) bloc.style.display = surPlaceType ? 'grid' : 'none';
+    document.querySelectorAll('#deposeMode .toggle').forEach(t => t.classList.toggle('on', t.dataset.m === MODE));
+    const cacher = surPlaceType && MODE === 'surplace';
+    if(dep) dep.style.display = cacher ? 'none' : '';
+    if(cons) cons.style.display = surPlaceType && MODE === 'depose' ? 'block' : 'none';
+    const to = $('addrTo');
+    if(to){ if(cacher && to.value){ DEPOSE_MEMO = to.value; to.value = ''; } else if(!cacher && !to.value && DEPOSE_MEMO){ to.value = DEPOSE_MEMO; DEPOSE_MEMO = ''; } }
+  }
+  window.jmDeposeMode = function(m){ MODE = m === 'depose' ? 'depose' : 'surplace'; appliquer(); if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete(); if(typeof majBarreActionsContextuelle === 'function') majBarreActionsContextuelle(); };
+  window.jmPasserEnDepannage = function(){
+    const s = $('type'); const o = s && [...s.options].find(x => x.value === 'depannage' && !x.dataset.vehicleType); if(!o) return;
+    s.selectedIndex = [...s.options].indexOf(o); s.dispatchEvent(new Event('change', {bubbles:true})); if(typeof updateKmLabel === 'function') updateKmLabel();
+    showToast('Service passé en Dépannage / remorquage');
+  };
+  if(typeof updateKmLabel === 'function'){
+    const _u = updateKmLabel; let dernierType = null;
+    updateKmLabel = function(){ const r = _u.apply(this, arguments); try{ const t = typeActuel(); if(t !== dernierType){ if(SUR_PLACE.includes(t) && !SUR_PLACE.includes(dernierType || '')) MODE = 'surplace'; dernierType = t; } appliquer(); }catch(e){} return r; };
+  }
+  if(typeof calculerDistance === 'function'){
+    const _d = calculerDistance;
+    calculerDistance = async function(){
+      if(!estSurPlace()) return _d.apply(this, arguments);
+      const depart = (($('addrDepart') || {}).value || '').trim() || (typeof BASE_ADDRESS !== 'undefined' ? BASE_ADDRESS : '');
+      const lieu = (($('addrFrom') || {}).value || '').trim();
+      if(!lieu){ showToast('Renseigne l\'adresse d\'intervention'); return; }
+      if(!navigator.onLine){ showToast('Hors ligne : entre le km manuellement'); return; }
+      showToast('Calcul de la distance…');
+      try{
+        const km = await mesurerDistanceRoutiere('', depart, lieu);
+        $('km').value = km.toFixed(1); const h = $('kmHint'); if(h) h.style.display = 'block';
+        if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+        showToast('Distance aller (départ → intervention) : ' + km.toFixed(1) + ' km');
+      }catch(e){ showToast(e && e.message && e.message.startsWith('Adresse introuvable') ? e.message + ' — ajoute la ville' : 'Distance introuvable — entre le km à la main'); }
+    };
+  }
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc) lastCalc.surPlace = estSurPlace(); }catch(e){} return r; };
+  }
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){
+      let d = null; try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){}
+      const r = await _ch.apply(this, arguments);
+      try{ if(d && SUR_PLACE.includes(d.type)){ const to = String(d.to || '').trim(); MODE = (d.surPlace === false || (to && to !== '—')) ? 'depose' : 'surplace'; DEPOSE_MEMO = ''; appliquer(); } }catch(e){}
+      return r;
+    };
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', appliquer); else appliquer();
+})();
+</script>
+<script id="jm-v253-fournisseur-script">
+(function(){
+  // ===================================================================
+  //  v253 — Aller-retour chez un fournisseur pendant une intervention sur place.
+  //  Km du détour → kilométrage (tarif et majorations habituels).
+  //  Pièce (prix d'achat + marge) et temps chez le fournisseur → frais,
+  //  hors majoration nuit / week-end. Moteur tarifaire inchangé.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  const num = id => { const v = parseFloat(String(($(id) || {}).value || '').replace(',', '.')); return Number.isFinite(v) && v > 0 ? v : 0; };
+  const r2 = x => Math.round(x * 100) / 100;
+  function surPlaceActif(){ const t = ($('type') || {}).value; const on = document.querySelector('#deposeMode .toggle.on'); return SUR_PLACE.includes(t) && (!on || on.dataset.m === 'surplace'); }
+  function actif(){ return surPlaceActif() && $('tgFourn') && $('tgFourn').classList.contains('on'); }
+  function lire(){
+    const marge = Number(RATES.margePieceFournie) >= 0 ? Number(RATES.margePieceFournie) : 20;
+    const prix = num('fournPrix'), min = Math.round(num('fournMinutes')), km = num('fournKm');
+    const piece = r2(prix * (1 + marge / 100)), temps = min ? Math.ceil(min / 15) * (Number(RATES.attente15minFee) || 0) : 0;
+    const pneu = ['pneu_chg','pneu_rep'].includes(($('type') || {}).value);
+    return {adresse: (($('fournAdresse') || {}).value || '').trim(), km: r2(km), minutes: min, prixAchat: prix, marge, piece, temps, total: r2(piece + temps), libellePiece: pneu ? 'Pneu fourni' : 'Pièce fournie'};
+  }
+  function resume(){
+    const b = $('fournResume'); if(!b) return; const f = lire();
+    b.textContent = (f.km ? f.km.toString().replace('.', ',') + ' km ajoutés au déplacement' : 'Distance à calculer') +
+      (f.minutes ? ' · ' + f.minutes + ' min = ' + fmt(f.temps) : '') + (f.prixAchat ? ' · ' + f.libellePiece.toLowerCase() + ' ' + fmt(f.prixAchat) + ' + ' + f.marge + ' % = ' + fmt(f.piece) : '');
+  }
+  window.jmFournMaj = function(){ resume(); if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete(); };
+  window.jmFournBasculer = function(){ const t = $('tgFourn'); t.classList.toggle('on'); $('fournPanneau').style.display = t.classList.contains('on') ? 'block' : 'none'; jmFournMaj(); };
+  function afficher(){ const b = $('fournBloc'); if(b) b.style.display = surPlaceActif() ? 'block' : 'none'; }
+  window.jmFournCalculer = async function(){
+    const lieu = (($('addrFrom') || {}).value || '').trim(), f = (($('fournAdresse') || {}).value || '').trim();
+    if(!lieu || !f){ showToast('Renseigne l\'adresse d\'intervention et celle du fournisseur'); return; }
+    if(!navigator.onLine){ showToast('Hors ligne : entre les km à la main'); return; }
+    showToast('Calcul client → fournisseur → client…');
+    try{ const km = await mesurerDistanceRoutiere(lieu, f, lieu); $('fournKm').value = km.toFixed(1); jmFournMaj(); showToast('Aller-retour fournisseur : ' + km.toFixed(1) + ' km'); }
+    catch(e){ showToast('Distance introuvable — entre les km à la main'); }
+  };
+  // Calcul : on présente au moteur existant km + détour et frais + fournisseur, puis on rétablit les champs.
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){
+      if(!actif()) { const r = _c.apply(this, arguments); try{ if(lastCalc){ delete lastCalc.fournisseur; } }catch(e){} return r; }
+      const f = lire(), kmEl = $('km'), fmEl = $('fraisMontant'), flEl = $('fraisLibelle');
+      const kmBase = kmEl.value, fmBase = fmEl.value, flBase = flEl.value, fraisUser = parseFloat(fmBase) || 0;
+      try{
+        if(f.km) kmEl.value = r2((parseFloat(kmBase) || 0) + f.km);
+        if(f.total){ fmEl.value = r2(fraisUser + f.total); flEl.value = flBase.trim() ? flBase.trim() + ' + fournisseur' : 'Fournisseur'; }
+        const r = _c.apply(this, arguments);
+        if(lastCalc) lastCalc.fournisseur = {...f, fraisUtilisateur: fraisUser, libelleUtilisateur: flBase.trim()};
+        return r;
+      } finally { kmEl.value = kmBase; fmEl.value = fmBase; flEl.value = flBase; }
+    };
+  }
+  // Documents : la ligne de frais est détaillée (pièce, temps, frais éventuels) — même total.
+  if(typeof lignesDocument === 'function'){
+    const _l = lignesDocument;
+    lignesDocument = function(c){
+      const f = c && c.fournisseur; if(!f || !f.total) return _l.apply(this, arguments);
+      const c2 = {...c, fraisMontant: f.fraisUtilisateur || 0, fraisLibelle: f.libelleUtilisateur || '', total: r2((c.total || 0) - f.total)};
+      const args = [...arguments]; args[0] = c2; const L = _l.apply(this, args);
+      const ajout = [];
+      if(f.piece) ajout.push({label: f.libellePiece + ' (prix d\'achat ' + fmt(f.prixAchat) + ' + ' + f.marge + ' %)', amount: f.piece, type: 'ligne'});
+      if(f.temps) ajout.push({label: 'Temps chez le fournisseur (' + f.minutes + ' min)', amount: f.temps, type: 'ligne'});
+      const i = L.findIndex(l => l.type === 'remise' || l.type === 'arrondi');
+      if(i < 0) L.push(...ajout); else L.splice(i, 0, ...ajout);
+      return L;
+    };
+  }
+  if(typeof typeLabelComplet === 'function'){
+    const _t = typeLabelComplet;
+    typeLabelComplet = function(c){ let l = _t.apply(this, arguments); try{ const f = c && c.fournisseur; if(f && (f.km || f.total)) l += ' — aller-retour chez le fournisseur' + (f.km ? ' ' + String(f.km).replace('.', ',') + ' km' : '') + (f.adresse ? ' (' + f.adresse + ')' : ''); }catch(e){} return l; };
+  }
+  // Réouverture : on retire le détour et la part fournisseur des champs, puis on recalcule.
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){
+      let d = null; try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){}
+      const r = await _ch.apply(this, arguments);
+      try{
+        const f = d && d.fournisseur, t = $('tgFourn');
+        if(t) t.classList.toggle('on', !!f); if($('fournPanneau')) $('fournPanneau').style.display = f ? 'block' : 'none';
+        ['fournAdresse','fournKm','fournMinutes','fournPrix'].forEach(id => { if($(id)) $(id).value = ''; });
+        if(f){
+          $('fournAdresse').value = f.adresse || ''; if(f.km) $('fournKm').value = f.km; if(f.minutes) $('fournMinutes').value = f.minutes; if(f.prixAchat) $('fournPrix').value = f.prixAchat;
+          $('km').value = r2((parseFloat(d.km) || 0) - (f.km || 0)); $('fraisMontant').value = f.fraisUtilisateur || ''; $('fraisLibelle').value = f.libelleUtilisateur || '';
+          calculer();
+        }
+        afficher(); resume();
+      }catch(e){ console.warn('[v253] réouverture fournisseur', e); }
+      return r;
+    };
+  }
+  if(typeof updateKmLabel === 'function'){ const _u = updateKmLabel; updateKmLabel = function(){ const r = _u.apply(this, arguments); try{ afficher(); }catch(e){} return r; }; }
+  if(typeof jmDeposeMode === 'function'){ const _m = jmDeposeMode; window.jmDeposeMode = function(){ const r = _m.apply(this, arguments); try{ afficher(); }catch(e){} return r; }; }
+  if(typeof enregistrer === 'function'){
+    const _e = enregistrer;
+    enregistrer = async function(){ const r = await _e.apply(this, arguments); try{ if(typeof editingKey === 'undefined' || !editingKey){ if($('tgFourn')) $('tgFourn').classList.remove('on'); if($('fournPanneau')) $('fournPanneau').style.display = 'none'; ['fournAdresse','fournKm','fournMinutes','fournPrix'].forEach(id => { if($(id)) $(id).value = ''; }); resume(); } }catch(e){} return r; };
+  }
+  // Annuler une modification : plus aucune trace du fournisseur ni de l'ouverture dans le formulaire suivant.
+  function viderFournisseur(){ if($('tgFourn')) $('tgFourn').classList.remove('on'); if($('fournPanneau')) $('fournPanneau').style.display = 'none'; ['fournAdresse','fournKm','fournMinutes','fournPrix'].forEach(id => { if($(id)) $(id).value = ''; }); resume(); }
+  if(typeof annulerEdition === 'function'){
+    const _a = annulerEdition;
+    annulerEdition = function(){ const r = _a.apply(this, arguments); try{ viderFournisseur(); if(typeof jmOuvReset === 'function') jmOuvReset(); }catch(e){} return r; };
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', afficher); else afficher();
+})();
+</script>
+
+
 
 
 
