@@ -1995,6 +1995,13 @@ html.jm-soleil .bac-state.fin{background:#0b6b36!important;color:#fff!important}
 html.jm-soleil label.extra-item[data-jm-ico],html.jm-soleil .jm-service-choice,html.jm-soleil .hist-item,html.jm-soleil .jm-plafond,html.jm-soleil .ticket{background:#fff!important;color:#000!important;border:2px solid #1b1b1b!important;box-shadow:none!important}
 html.jm-soleil *{text-shadow:none!important}
 </style>
+<style id="jm-v262-style">
+/* v262 — mentions « estimation interne » */
+.jm-renta-avert{margin-top:8px;padding:6px 9px;border-radius:9px;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.35);color:#ffb347;font-size:11.5px;font-weight:700}
+.jm-plaf-interne{margin-top:5px;font-size:10.5px;color:#94a6b0;font-style:italic}
+html:not([data-theme="dark"]) .jm-renta-avert{color:#9a5200;background:#fff4e5}
+html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!important;background:#fff!important;border-color:#000!important}
+</style>
 
 
 
@@ -4386,6 +4393,7 @@ html.jm-soleil *{text-shadow:none!important}
     <div class="km-mention" id="recTotaux" style="margin-bottom:10px;"></div>
     <button class="primary" onclick="jmRecettesExporter()">📤 Exporter pour le comptable (Excel)</button>
     <div id="recListe" style="margin-top:12px;"></div>
+    <div class="km-mention" style="margin-top:10px; border-left-color:var(--orange);">Indicateur de suivi interne. Pour les obligations fiscales/comptables officielles, se référer au logiciel comptable et au comptable.</div>
     <div class="km-mention" style="margin-top:10px; opacity:.8;">Liste les encaissements enregistrés dans l'appli : acomptes, paiements (y compris répartis), ventes de véhicules et gardiennages restitués. Le plafond compte le chiffre d'affaires de l'année : interventions, moins notes de crédit, plus ventes de véhicules et gardiennages.</div>
     <button class="ghost close-modal" onclick="closeRecettes()">Fermer</button>
   </div>
@@ -4495,6 +4503,26 @@ html.jm-soleil *{text-shadow:none!important}
       <div class="km-mention" style="margin-top:8px; border-left-color:var(--red);">Garde ton <strong>code d'initialisation</strong> en lieu sûr (hors du téléphone) : sans lui, impossible de remplacer le principal si ce téléphone est perdu.</div>
     </div>
     <button class="ghost close-modal" onclick="document.getElementById('modalTelBg').classList.remove('show')">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalRemplBg">
+  <div class="modal terrain-sheet">
+    <div id="remplEtape1">
+      <h3>⚠️ Remplacer le téléphone principal</h3>
+      <div class="km-mention" style="margin-bottom:12px; border-left-color:var(--orange);">Cette opération remplacera le téléphone principal actuel.<br>L'ancien téléphone principal sera révoqué et ne pourra plus agir comme téléphone A.<br>Le téléphone de secours B restera associé.<br>Les données et compteurs seront conservés.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button type="button" class="ghost" style="margin:0;" onclick="jmRemplFermer()">Annuler</button>
+        <button type="button" class="primary" style="margin:0;" onclick="jmRemplEtape2()">Continuer</button>
+      </div>
+    </div>
+    <div id="remplEtape2" style="display:none;">
+      <h3>Confirmation du remplacement</h3>
+      <div class="field"><label>Pour confirmer, tape exactement : REMPLACER</label><input type="text" id="remplMot" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" oninput="jmRemplVerifier()" placeholder="REMPLACER"></div>
+      <div class="km-mention" style="margin-bottom:12px; border-left-color:var(--red);">À utiliser uniquement lorsqu'un nouveau téléphone principal doit réellement remplacer l'ancien.</div>
+      <button type="button" class="primary" id="remplConfirmer" disabled onclick="jmRemplConfirmer()">Confirmer le remplacement</button>
+      <button type="button" class="ghost close-modal" onclick="jmRemplFermer()">Annuler</button>
+    </div>
   </div>
 </div>
 
@@ -8763,7 +8791,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v261';
+const APP_VERSION = 'jm-express-bon-v262';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18937,7 +18965,8 @@ async function genererRecuV2(){
     const alerte = ca.total >= plafond ? '⚠️ Plafond dépassé : contacte ton comptable.' : (pct >= 90 ? '⚠️ Plafond presque atteint : parle-en à ton comptable.' : (pct >= 80 ? 'Attention : 80 % du plafond atteint.' : (projection > plafond ? 'À ce rythme, le plafond serait dépassé avant la fin de l\'année.' : '')));
     box.innerHTML = '<div class="jm-plaf-t"><span>Plafond franchise ' + ca.annee + '</span><strong>' + eur(ca.total) + ' / ' + eur(plafond) + '</strong></div>' +
       '<div class="jm-plaf-barre"><div class="jm-plaf-rempli jm-plaf-' + niveau + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-      '<div class="jm-plaf-s">' + Math.round(pct) + ' % · à ce rythme ≈ ' + eur(projection) + ' fin d\'année' + (alerte ? '<br><span class="jm-plaf-a jm-plaf-' + niveau + 't">' + alerte + '</span>' : '') + '</div>';
+      '<div class="jm-plaf-s">' + Math.round(pct) + ' % · à ce rythme ≈ ' + eur(projection) + ' fin d\'année' + (alerte ? '<br><span class="jm-plaf-a jm-plaf-' + niveau + 't">' + alerte + '</span>' : '') + '</div>' +
+      '<div class="jm-plaf-interne">Indicateur de suivi interne — estimation, pas une validation comptable.</div>';
   };
 
   // ---------- 2) Livre des recettes ----------
@@ -19341,14 +19370,14 @@ async function genererRecuV2(){
     if(!r || getComputedStyle(t).display === 'none'){ box.style.display = 'none'; return; }
     box.style.display = '';
     const hh = m => Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0');
-    box.innerHTML = '<summary><span>💡 Rentabilité estimée <em>(visible par toi seul)</em></span><strong class="' + (r.marge >= 0 ? 'jm-vert' : 'jm-rouge') + '">' + fmt(r.marge) + ' · ' + r.pct + ' %</strong></summary>' +
+    box.innerHTML = '<summary><span>💡 Rentabilité estimée <em>(visible par toi seul · estimation interne)</em></span><strong class="' + (r.marge >= 0 ? 'jm-vert' : 'jm-rouge') + '">' + fmt(r.marge) + ' · ' + r.pct + ' %</strong></summary>' +
       '<div class="jm-renta-l"><span>Prix facturé</span><span>' + fmt(c.total) + '</span></div>' +
       '<div class="jm-renta-l"><span>Gasoil : ' + String(r.kmParcourus).replace('.', ',') + ' km parcourus × ' + (Number(RATES.conso) || 15) + ' L/100 × ' + fmt(r.prixL) + '</span><span>− ' + fmt(r.carburant) + '</span></div>' +
       (r.usure ? '<div class="jm-renta-l"><span>Usure du camion</span><span>− ' + fmt(r.usure) + '</span></div>' : '') +
       '<div class="jm-renta-l"><span>Ton temps : ' + hh(r.minutes) + (r.estime ? ' (estimé)' : ' (horaires)') + ' × ' + fmt(Number(RATES.valeurHeure) || 0) + '/h</span><span>− ' + fmt(r.temps) + '</span></div>' +
       (r.pieces ? '<div class="jm-renta-l"><span>Pièces achetées (pneu, batterie)</span><span>− ' + fmt(r.pieces) + '</span></div>' : '') +
       '<div class="jm-renta-l jm-renta-tot"><span>Marge brute</span><span>' + fmt(r.marge) + '</span></div>' +
-      '<div class="jm-renta-n">Estimation hors assurance, entretien et charges fixes. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km.</div>';
+      '<div class="jm-renta-avert">Estimation interne de gestion — ne remplace pas la comptabilité officielle.</div>' + '<div class="jm-renta-n">Estimation hors assurance, entretien et charges fixes. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km.</div>';
   }
   if(typeof calculer === 'function'){ const _c = calculer; calculer = function(){ const r = _c.apply(this, arguments); try{ afficherRentabilite(); majProgression(); }catch(e){} return r; }; }
   if(typeof invaliderTicketObsolete === 'function'){ const _i = invaliderTicketObsolete; invaliderTicketObsolete = function(){ const r = _i.apply(this, arguments); try{ const b = $('jmRenta'); if(b && (typeof lastCalc === 'undefined' || !lastCalc)) b.style.display = 'none'; }catch(e){} return r; }; }
@@ -19518,10 +19547,20 @@ async function genererRecuV2(){
     restaurerSauvegarde = async function(){ const res = await _r.apply(this, arguments); try{ const f = await jmRecalerCompteurs(); if(f.length) showToast('Numérotation recalée : ' + f.join(', ')); }catch(e){} return res; };
   }
   // ---------- 2) Remplacer le téléphone principal ----------
-  window.jmSyncRemplacerPrincipal = async function(){
+  // v262 — confirmation en deux étapes (avertissement, puis saisie de REMPLACER) ; logique v261 inchangée.
+  window.jmSyncRemplacerPrincipal = function(){
     const url = (($('syncUrl') || {}).value || '').trim(), code = (($('syncSetupCode') || {}).value || '').trim();
     if(!url || !code){ showToast('Adresse du serveur et code d\'initialisation requis'); return; }
-    if(!confirm('Remplacer le téléphone principal par celui-ci ?\n\nL\'ancien téléphone principal sera déconnecté (ses données restent sur lui). Ce téléphone récupère tout depuis le serveur : interventions, factures, tarifs, clients.')) return;
+    $('remplEtape1').style.display = 'block'; $('remplEtape2').style.display = 'none'; $('remplMot').value = ''; $('remplConfirmer').disabled = true;
+    $('modalRemplBg').classList.add('show');
+  };
+  window.jmRemplFermer = () => { $('modalRemplBg').classList.remove('show'); $('remplMot').value = ''; $('remplConfirmer').disabled = true; };
+  window.jmRemplEtape2 = () => { $('remplEtape1').style.display = 'none'; $('remplEtape2').style.display = 'block'; setTimeout(() => $('remplMot').focus(), 100); };
+  window.jmRemplVerifier = () => { $('remplConfirmer').disabled = $('remplMot').value.trim() !== 'REMPLACER'; };
+  window.jmRemplConfirmer = async function(){ if($('remplMot').value.trim() !== 'REMPLACER') return; jmRemplFermer(); await jmSyncRemplacerPrincipalExecuter(); };
+  window.jmSyncRemplacerPrincipalExecuter = async function(){
+    const url = (($('syncUrl') || {}).value || '').trim(), code = (($('syncSetupCode') || {}).value || '').trim();
+    if(!url || !code){ showToast('Adresse du serveur et code d\'initialisation requis'); return; }
     try{
       showToast('Connexion au serveur…');
       const res = await fetch(url.replace(/\/$/, '') + '/setup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({setupCode: code, deviceNom: 'Téléphone principal', remplacer: true})});
