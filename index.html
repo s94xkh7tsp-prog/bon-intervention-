@@ -1907,6 +1907,22 @@ body.jm-ouv-actif #extrasList label.extra-item[data-type="ouverture_keyless"],#m
 .bac-state.annul:active{background:rgba(255,77,79,.18)!important}
 html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-color:rgba(201,58,60,.7)!important}
 </style>
+<style id="jm-v255-compact-style">
+/* v255 — compactage (~18 %) : mêmes cartes, couleurs, familles et icônes ; sous-titres redondants retirés */
+.jm-service-choice{min-height:56px!important;margin:6px 0!important;padding-top:7px!important;padding-bottom:7px!important}
+.jm-svc-icon{width:38px!important;height:38px!important;flex:0 0 38px!important;font-size:20px!important;border-radius:11px!important}
+.jm-svc-sub{display:none!important}
+.jm-service-list .jm-service-group,.jm-list-scroll .jm-service-group{margin:9px 0 3px!important;padding-top:6px!important;padding-bottom:6px!important}
+label.extra-item[data-jm-ico]{min-height:56px!important;margin:6px 0!important;padding:9px 46px 9px 60px!important;align-items:center!important}
+label.extra-item[data-jm-ico]:before{width:38px!important;height:38px!important;font-size:19px!important;border-radius:11px!important;left:11px!important}
+label.extra-item[data-jm-ico]:after{content:none!important}
+#servicesModal .service-card{padding-top:8px!important;padding-bottom:8px!important;margin-bottom:0!important}
+#servicesModal .service-desc{margin-top:3px!important}
+.svc-row{padding:9px 11px!important;margin-bottom:7px!important}
+.svc-row-ico{width:38px!important;height:38px!important;flex:0 0 38px!important;font-size:19px!important}
+.svc-row-act{margin-top:8px!important}
+.svc-row-act button{min-height:42px!important}
+</style>
 
 
 
@@ -1946,7 +1962,9 @@ html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-co
     </div>
     <div id="svcVueCats"><div class="services-grid">
       <div class="service-card" role="button" tabindex="0" style="--c:#ff4d4f" onclick="jmSvcCategorie('depannage')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h12l3-5h3v5h-2"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M8 11l4-6"/></svg></div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne · accident · véhicule immobilisé</p></div>
-      <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Garage · domicile · CT · VSP · matériel</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Transfert · VSP · moto</p></div>
+<div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('ct')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 12l2 2 4-4"/></svg></div><div class="service-name">Contrôle technique</div></div><p class="service-desc">Passage · repassage · véhicule accidenté</p></div>
+<div class="service-card" role="button" tabindex="0" style="--c:#5e8194" onclick="jmSvcCategorie('materiel')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20V9l6-5 6 5v11"/><path d="M4 12h16"/></svg></div><div class="service-name">Transport matériel</div></div><p class="service-desc">Longerons · toiture légère · autre matériel</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#168bff" onclick="jmSvcCategorie('assistance')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M8 13h3M16 11v4M14 13h4"/></svg></div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Batterie · ouverture · diagnostic · carburant</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#ffb11a" onclick="jmSvcCategorie('pneus')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/></svg></div><div class="service-name">Pneus</div></div><p class="service-desc">Changement de roue · réparation</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#ff7a1a" onclick="jmSvcCategorie('bloque')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg></div><div class="service-name">Véhicule bloqué</div></div><p class="service-desc">Boîte auto · frein à main · point mort</p></div>
@@ -2315,7 +2333,7 @@ html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-co
         <div class="km-mention" id="deposeConseil" style="display:none; margin-bottom:10px; border-left-color:var(--orange);">Si tu remorques finalement le véhicule, passe le service en dépannage pour appliquer le tarif remorquage.
           <button type="button" class="ghost" style="margin:8px 0 0;" onclick="jmPasserEnDepannage()">Passer en Dépannage / remorquage</button></div>
         <div id="fournBloc" style="display:none; margin-bottom:12px;">
-          <div class="toggles" style="margin:0;"><div class="toggle" id="tgFourn" onclick="jmFournBasculer()">🛞 Aller-retour chez un fournisseur (pneu, pièce)</div></div>
+          <div class="toggles" style="margin:0;"><div class="toggle" id="tgFourn" onclick="jmFournBasculer()">🛞 Aller-retour fournisseur / marchand de pneus</div></div>
           <div id="fournPanneau" style="display:none; margin-top:10px;">
             <div class="field"><label>Adresse du fournisseur</label><input type="text" id="fournAdresse" placeholder="Marchand de pneus, ville" autocomplete="off" oninput="jmFournMaj()"></div>
             <button type="button" class="ghost" style="margin:0 0 10px;" onclick="jmFournCalculer()">📏 Calculer client → fournisseur → client</button>
@@ -2325,7 +2343,7 @@ html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-co
               <div class="field" style="margin:0;"><label>Prix d'achat (€)</label><input type="number" id="fournPrix" inputmode="decimal" oninput="jmFournMaj()"></div>
             </div>
             <div class="km-mention" id="fournResume" style="margin-top:8px;"></div>
-            <div class="km-mention" style="margin-top:6px; opacity:.8;">Laisse le prix vide si le client paie la pièce directement au fournisseur. La majoration de nuit ne s'applique ni à la pièce ni au temps chez le fournisseur.</div>
+            <div class="km-mention" style="margin-top:6px; opacity:.8;">Trajet client → fournisseur → client, ajouté au déplacement (rien à voir avec le retour à la base ou le retour à vide). Laisse le prix vide si le client paie la pièce directement au fournisseur. La majoration de nuit ne s'applique ni à la pièce ni au temps chez le fournisseur.</div>
           </div>
         </div>
         <div class="field" id="blocDepose" style="margin-bottom:0;">
@@ -3528,6 +3546,9 @@ html:not([data-theme="dark"]) .bac-state.annul{color:#c93a3c!important;border-co
           <div class="rate-row"><label>Ouverture de véhicule (forfait, hors déplacement)</label><input type="number" id="r_ouverture_vehicule"></div>
           <div class="rate-row"><label>Supplément ouverture keyless / haut de gamme</label><input type="number" id="r_ouverture_keyless"></div>
           <div class="rate-row"><label>Marge sur pièce / pneu fourni (%)</label><input type="number" id="r_margePieceFournie"></div>
+          <div class="rate-row"><label>Marge minimum sur pièce / pneu fourni (€)</label><input type="number" id="r_margePieceMinimum"></div>
+          <div class="rate-row"><label>Minimum facturé — changement de roue / pneu (€)</label><input type="number" id="r_minPneuChangement"></div>
+          <div class="rate-row"><label>Minimum facturé — réparation de pneu (€)</label><input type="number" id="r_minPneuReparation"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
           <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
           <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
@@ -6177,7 +6198,8 @@ const DEFAULT_RATES = {
   km_retour_longue_distance:1.20, retourLongueDistanceSeuil:30,
   km_formuleA:1.95, arrondiRemorquage:5, seuilAlerteDiesel:2.80, comparaisonV224:0,
   transport_materiel:40, plancherMateriel:90, longueurPlateau:5,
-  ouverture_vehicule:80, ouverture_keyless:30, margePieceFournie:20
+  ouverture_vehicule:80, ouverture_keyless:30, margePieceFournie:20,
+  minPneuChangement:100, minPneuReparation:110, margePieceMinimum:15
 };
 
 // ===================================================================
@@ -8492,7 +8514,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v254';
+const APP_VERSION = 'jm-express-bon-v255';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -9675,7 +9697,7 @@ const INVOICE_STRINGS = {
     detail:'DÉTAIL DE L\'INTERVENTION', depart:'Départ : ', priseEnCharge:'Prise en charge : ', depose:'Dépose : ',
     km:'Kilométrage : ', kmAllerRetour:' km × 2 (aller-retour)', kmSimple:' km',
     kmMention:"Kilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.",
-    forfaitBase:'Forfait de base', priseEnCharge:'Prise en charge', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage', forfaitMinimumTransport:'Forfait minimum transport',
+    forfaitBase:'Forfait de base', priseEnCharge:'Prise en charge', kilometrage:'Kilométrage', forfaitMinimum:'Forfait minimum remorquage', forfaitMinimumTransport:'Forfait minimum transport', forfaitMinimumPneu:'Forfait minimum intervention pneu',
     ctPrestataire:'Présentation au contrôle technique par prestataire', ctRetour:'Transport retour après contrôle', ctOfficiels:'Frais officiels du contrôle (avancés)',
     fraisDivers:'Frais divers', manutention:'Manutention / désembourbement (supplément)', annulation:'Déplacement inutile / annulation', retourLD:'dont retour à vide longue distance', arrondi:'Arrondi à l\'euro', arrondiGrille:'Arrondi au 5 € supérieur',
     majorationNuit:'Majoration nuit (', majorationWe:'Majoration week-end (+', majorationAuto:'Majoration autoroute',
@@ -9697,7 +9719,7 @@ const INVOICE_STRINGS = {
     detail:'DETAIL VAN DE INTERVENTIE', depart:'Vertrek : ', priseEnCharge:'Ophaling : ', depose:'Aflevering : ',
     km:'Kilometers : ', kmAllerRetour:' km × 2 (heen-terug)', kmSimple:' km',
     kmMention:'Interventiekilometers: werkelijk door het takelvoertuig afgelegde afstand, inclusief de lege terugrit indien nodig.',
-    forfaitBase:'Basisforfait', priseEnCharge:'Tussenkomst', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen', forfaitMinimumTransport:'Minimumtarief transport',
+    forfaitBase:'Basisforfait', priseEnCharge:'Tussenkomst', kilometrage:'Kilometers', forfaitMinimum:'Minimumtarief takelen', forfaitMinimumTransport:'Minimumtarief transport', forfaitMinimumPneu:'Minimumtarief bandeninterventie',
     ctPrestataire:'Aanbieding bij de keuring door dienstverlener', ctRetour:'Terugtransport na keuring', ctOfficiels:'Officiële keuringskosten (voorgeschoten)',
     fraisDivers:'Diverse kosten', manutention:'Handling / losmaken (toeslag)', annulation:'Nutteloze verplaatsing / annulering', retourLD:'waarvan lege terugrit lange afstand', arrondi:'Afronding op de euro', arrondiGrille:'Afronding naar boven op 5 €',
     majorationNuit:'Nachttoeslag (', majorationWe:'Weekendtoeslag (+', majorationAuto:'Snelwegtoeslag',
@@ -9719,7 +9741,7 @@ const INVOICE_STRINGS = {
     detail:'SERVICE DETAILS', depart:'Departure: ', priseEnCharge:'Pick-up: ', depose:'Drop-off: ',
     km:'Mileage: ', kmAllerRetour:' km × 2 (round trip)', kmSimple:' km',
     kmMention:'Intervention mileage: distance actually driven by the tow truck, including the empty return trip when required.',
-    forfaitBase:'Base rate', priseEnCharge:'Call-out charge', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge', forfaitMinimumTransport:'Minimum transport charge',
+    forfaitBase:'Base rate', priseEnCharge:'Call-out charge', kilometrage:'Mileage', forfaitMinimum:'Minimum towing charge', forfaitMinimumTransport:'Minimum transport charge', forfaitMinimumPneu:'Minimum tyre service charge',
     ctPrestataire:'MOT presentation by service provider', ctRetour:'Return transport after MOT', ctOfficiels:'Official MOT fees (advanced)',
     fraisDivers:'Miscellaneous costs', manutention:'Handling / recovery (surcharge)', annulation:'Wasted trip / cancellation', retourLD:'incl. long-distance empty return', arrondi:'Rounding to the euro', arrondiGrille:'Rounded up to €5',
     majorationNuit:'Night surcharge (', majorationWe:'Weekend surcharge (+', majorationAuto:'Highway surcharge',
@@ -10901,7 +10923,7 @@ async function recalculerAvecTarifActuel(){
 function majLignesFormuleA(c, depuisCalcul){
   if(!c) return;
   const lbl = document.getElementById('tkBaseLbl');
-  const lp = document.querySelector('#rowPlancher .l'); if(lp) lp.textContent = c.type === 'transport_materiel' ? 'Forfait minimum transport' : 'Forfait minimum remorquage';
+  const lp = document.querySelector('#rowPlancher .l'); if(lp) lp.textContent = c.type === 'transport_materiel' ? 'Forfait minimum transport' : (['pneu_chg','pneu_rep'].includes(c.type) ? 'Forfait minimum intervention pneu' : 'Forfait minimum remorquage');
   if(lbl) lbl.textContent = c.formuleA ? 'Prise en charge' : 'Forfait de base';
   const row = document.getElementById('rowArrondi');
   if(row){
@@ -11471,7 +11493,7 @@ function lignesDocument(c, lang, meta){
   } else {
     add(c.formuleA ? (S.priseEnCharge || S.forfaitBase) : S.forfaitBase, c.base, 'forfait');
     add(S.kilometrage + (c.retourLongueDistance && c.retourLDCost > 0 ? ' (' + S.retourLD + ' ' + fmt(c.retourLDCost) + ')' : ''), c.kmCost, 'km');
-    add(c.type === 'transport_materiel' ? (S.forfaitMinimumTransport || S.forfaitMinimum) : S.forfaitMinimum, c.plancherComplement > 0 ? c.plancherComplement : 0);
+    add(c.type === 'transport_materiel' ? (S.forfaitMinimumTransport || S.forfaitMinimum) : (['pneu_chg','pneu_rep'].includes(c.type) ? (S.forfaitMinimumPneu || S.forfaitMinimum) : S.forfaitMinimum), c.plancherComplement > 0 ? c.plancherComplement : 0);
     (c.extras || []).forEach(e => add('+ ' + (extraLabels[e.type] || e.label), e.cost, 'extra'));
     if(c.nuit) add(S.majorationNuit + formatHourShort(meta.nightStart) + '-' + formatHourShort(meta.nightEnd) + ', +' + meta.nuitPct + '%)', c.nuitCost, 'majoration');
     if(c.we) add(S.majorationWe + meta.wePct + '%)', c.weCost, 'majoration');
@@ -16838,7 +16860,8 @@ async function chargerStatsMoteur(){
     const resultat = original.apply(this, arguments);   // le calcul réel, inchangé
     try{
       if(!lastCalc) return resultat;
-      if(lastCalc.formuleA || lastCalc.moteurVersion === 'v224') return resultat;   // v225 : couverts par les tests dédiés
+      if(lastCalc.formuleA || lastCalc.moteurVersion === 'v224') return resultat;
+      if(['pneu_chg','pneu_rep'].includes(lastCalc.type) && lastCalc.plancherComplement > 0) return resultat;   // v255 : minimum pneu voulu   // v225 : couverts par les tests dédiés
       const CTX = {TYPES_REMORQUAGE, TYPES_CT: (typeof TYPES_CT !== 'undefined') ? TYPES_CT : [], TYPE_LABELS};
       const obtenu = calculerTarif(lireFormulairePourMoteur(), RATES, CTX);
       const divergents = [];
@@ -18241,7 +18264,9 @@ async function genererRecuV2(){
   // ===================================================================
   const CATS = {
     depannage:{t:'Dépannage & remorquage', d:'Panne · accident · véhicule immobilisé', c:'#ff4d4f', s:[{v:'depannage'}]},
-    transport:{t:'Transport véhicule', d:'Garage · domicile · contrôle technique · VSP', c:'#20c766', s:[{v:'transfert'},{v:'depannage', vsp:1},{v:'moto_remorquage'},{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'},{v:'transport_materiel'}]},
+    transport:{t:'Transport véhicule', d:'Transfert · VSP · moto', c:'#20c766', s:[{v:'transfert'},{v:'depannage', vsp:1},{v:'moto_remorquage'}]},
+    ct:{t:'Contrôle technique', d:'Passage · repassage · véhicule accidenté', c:'#20c766', s:[{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'}]},
+    materiel:{t:'Transport matériel', d:'Longerons · toiture légère · autre matériel', c:'#5e8194', s:[{v:'transport_materiel', mat:'longerons', lib:'Longerons / fers'},{v:'transport_materiel', mat:'toiture', lib:'Toiture légère (PVC, tôles)'},{v:'transport_materiel', mat:'autre', lib:'Autre matériel'}]},
     assistance:{t:'Assistance sur place', d:'Batterie · ouverture · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'ouverture_vehicule'},{v:'diag'},{v:'erreur_carburant'}]},
     pneus:{t:'Pneus', d:'Changement de roue · réparation', c:'#ffb11a', s:[{v:'pneu_chg'},{v:'pneu_rep'}]},
     bloque:{t:'Véhicule bloqué', d:'Boîte auto · frein à main · point mort', c:'#ff7a1a', s:[{v:'depannage', x:'deblocage_boite'},{v:'depannage', x:'deblocage_frein'},{v:'depannage', x:'roulettes'}]},
@@ -18258,6 +18283,7 @@ async function genererRecuV2(){
   const propre = t => String(t || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
   function option(sel, s){ return sel ? [...sel.options].find(o => o.value === s.v && (s.vsp ? o.dataset.vehicleType === 'vsp' : !o.dataset.vehicleType)) : null; }
   function libelle(s){
+    if(s.lib) return s.lib;
     if(s.x){ const cb = document.querySelector('.extraCheck[value="' + s.x + '"]'); const l = cb && cb.closest('label'); return propre(l ? l.textContent : s.x); }
     const o = option($('type'), s); return propre(o ? o.textContent : s.v);
   }
@@ -18266,8 +18292,8 @@ async function genererRecuV2(){
     $('svcVueCats').style.display = 'none'; $('svcVueCat').style.display = 'block';
     $('svcCatTitre').textContent = C.t; $('svcCatDesc').textContent = C.d; $('svcVueCat').style.setProperty('--c', C.c);
     $('svcCatListe').innerHTML = C.s.map((s, i) => {
-      const k = s.x || (s.vsp ? 'vsp' : s.v), sous = s.x ? 'Dépannage avec ' + (s.x === 'roulettes' ? 'roulettes de manutention' : 'déblocage') : C.t;
-      return '<div class="svc-row" style="--c:' + (COUL[k] || C.c) + '"><div class="svc-row-top"><div class="svc-row-ico">' + (ICO[k] || '🔧') + '</div><div class="svc-row-txt"><strong>' + esc(libelle(s)) + '</strong><span>' + esc(sous) + '</span></div></div>' +
+      const k = s.x || (s.vsp ? 'vsp' : s.v), sous = s.x ? 'Dépannage avec ' + (s.x === 'roulettes' ? 'roulettes de manutention' : 'déblocage') : '';
+      return '<div class="svc-row" style="--c:' + (COUL[k] || C.c) + '"><div class="svc-row-top"><div class="svc-row-ico">' + (ICO[k] || '🔧') + '</div><div class="svc-row-txt"><strong>' + esc(libelle(s)) + '</strong>' + (sous ? '<span>' + esc(sous) + '</span>' : '') + '</div></div>' +
         '<div class="svc-row-act"><button type="button" class="svc-btn-int" onclick="jmSvcNouvelle(\'' + cat + '\',' + i + ')">Nouvelle intervention</button><button type="button" class="svc-btn-dev" onclick="jmSvcDevis(\'' + cat + '\',' + i + ')">Demander un devis</button></div></div>';
     }).join('');
     const m = $('servicesModal'); if(m) m.scrollTo({top:0, behavior:'smooth'});
@@ -18281,6 +18307,7 @@ async function genererRecuV2(){
     jmSvcCategories(); fermerPresentationServices(); showTab('tabNouveau');
     choisir($('type'), s);
     if(typeof updateKmLabel === 'function') updateKmLabel();
+    if(s.mat && typeof setMateriel === 'function') setMateriel(s.mat);
     if(s.x){ const cb = document.querySelector('.extraCheck[value="' + s.x + '"]'); if(cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); } if(typeof updateExtrasSummary === 'function') updateExtrasSummary(); }
     showToast('Nouvelle intervention : ' + libelle(s));
   };
@@ -18490,14 +18517,16 @@ async function genererRecuV2(){
   function lire(){
     const marge = Number(RATES.margePieceFournie) >= 0 ? Number(RATES.margePieceFournie) : 20;
     const prix = num('fournPrix'), min = Math.round(num('fournMinutes')), km = num('fournKm');
-    const piece = r2(prix * (1 + marge / 100)), temps = min ? Math.ceil(min / 15) * (Number(RATES.attente15minFee) || 0) : 0;
+    const margeMin = Number(RATES.margePieceMinimum) >= 0 ? Number(RATES.margePieceMinimum) : 15;
+    const margeEur = prix > 0 ? r2(Math.max(prix * marge / 100, margeMin)) : 0;
+    const piece = r2(prix + margeEur), temps = min ? Math.ceil(min / 15) * (Number(RATES.attente15minFee) || 0) : 0;
     const pneu = ['pneu_chg','pneu_rep'].includes(($('type') || {}).value);
-    return {adresse: (($('fournAdresse') || {}).value || '').trim(), km: r2(km), minutes: min, prixAchat: prix, marge, piece, temps, total: r2(piece + temps), libellePiece: pneu ? 'Pneu fourni' : 'Pièce fournie'};
+    return {adresse: (($('fournAdresse') || {}).value || '').trim(), km: r2(km), minutes: min, prixAchat: prix, marge, margeEur, margeMinimum: margeMin, piece, temps, total: r2(piece + temps), libellePiece: pneu ? 'Pneu fourni' : 'Pièce fournie'};
   }
   function resume(){
     const b = $('fournResume'); if(!b) return; const f = lire();
     b.textContent = (f.km ? f.km.toString().replace('.', ',') + ' km ajoutés au déplacement' : 'Distance à calculer') +
-      (f.minutes ? ' · ' + f.minutes + ' min = ' + fmt(f.temps) : '') + (f.prixAchat ? ' · ' + f.libellePiece.toLowerCase() + ' ' + fmt(f.prixAchat) + ' + ' + f.marge + ' % = ' + fmt(f.piece) : '');
+      (f.minutes ? ' · ' + f.minutes + ' min = ' + fmt(f.temps) : '') + (f.prixAchat ? ' · ' + f.libellePiece.toLowerCase() + ' ' + fmt(f.prixAchat) + ' + marge ' + fmt(f.margeEur) + (f.margeEur > r2(f.prixAchat * f.marge / 100) ? ' (minimum)' : ' (' + f.marge + ' %)') + ' = ' + fmt(f.piece) : '');
   }
   window.jmFournMaj = function(){ resume(); if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete(); };
   window.jmFournBasculer = function(){ const t = $('tgFourn'); t.classList.toggle('on'); $('fournPanneau').style.display = t.classList.contains('on') ? 'block' : 'none'; jmFournMaj(); };
@@ -18534,7 +18563,7 @@ async function genererRecuV2(){
       const c2 = {...c, fraisMontant: f.fraisUtilisateur || 0, fraisLibelle: f.libelleUtilisateur || '', total: r2((c.total || 0) - f.total)};
       const args = [...arguments]; args[0] = c2; const L = _l.apply(this, args);
       const ajout = [];
-      if(f.piece) ajout.push({label: f.libellePiece + ' (prix d\'achat ' + fmt(f.prixAchat) + ' + ' + f.marge + ' %)', amount: f.piece, type: 'ligne'});
+      if(f.piece) ajout.push({label: f.libellePiece + ' (prix d\'achat ' + fmt(f.prixAchat) + (f.margeEur !== undefined ? ' + marge ' + fmt(f.margeEur) : ' + ' + f.marge + ' %') + ')', amount: f.piece, type: 'ligne'});
       if(f.temps) ajout.push({label: 'Temps chez le fournisseur (' + f.minutes + ' min)', amount: f.temps, type: 'ligne'});
       const i = L.findIndex(l => l.type === 'remise' || l.type === 'arrondi');
       if(i < 0) L.push(...ajout); else L.splice(i, 0, ...ajout);
@@ -18595,6 +18624,34 @@ async function genererRecuV2(){
   document.addEventListener('click', e => { if(e.target && e.target.closest && e.target.closest('#tgAnnulation')) setTimeout(majBouton, 0); });
   if(typeof majBarreActionsContextuelle === 'function'){ const _m = majBarreActionsContextuelle; majBarreActionsContextuelle = function(){ const r = _m.apply(this, arguments); try{ majBouton(); }catch(e){} return r; }; }
   if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); try{ majBouton(); }catch(e){} return r; }; }
+})();
+</script>
+<script id="jm-v255-pneus-script">
+(function(){
+  // v255 — minimum facturé pour les interventions pneu, appliqué par le mécanisme de forfait
+  // minimum existant du moteur (sur forfait + déplacement, avant majorations nuit / week-end).
+  // Les interventions calculées avec le moteur v224 (anciennes) ne sont pas concernées.
+  const MINS = {pneu_chg:'minPneuChangement', pneu_rep:'minPneuReparation'};
+  if(typeof MOTEUR_calculerTarif === 'function'){
+    const _m = MOTEUR_calculerTarif;
+    MOTEUR_calculerTarif = function(d, tarifs, config){
+      if(d && d.moteurVersion !== 'v224' && MINS[d.type] && tarifs && !d.annulation){
+        const min = Number(tarifs[MINS[d.type]]);
+        if(min > 0){
+          // Total calculé avant majorations (et avant remise) : s'il atteint le minimum, rien ne change.
+          const sansMaj = _m.call(this, {...d, nuit:false, we:false, ferie:false, remiseValue:0}, tarifs, config);
+          const r0 = _m.apply(this, arguments);
+          if(!(sansMaj && sansMaj.total < min)) return r0;
+          // Sinon : complément au forfait minimum du moteur, soumis ensuite aux majorations.
+          const cible = (Number(r0.base) || 0) + (Number(r0.kmCost) || 0) + (min - sansMaj.total);
+          const t2 = {...tarifs, plancherRemorquage: cible, plancherVsp: cible};
+          const c2 = {...(config || {}), typesPlancher: [...(((config || {}).typesPlancher) || TYPES_PLANCHER), d.type]};
+          const r = _m.call(this, d, t2, c2); r.minimumPneu = min; return r;
+        }
+      }
+      return _m.apply(this, arguments);
+    };
+  }
 })();
 </script>
 
