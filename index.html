@@ -1923,6 +1923,80 @@ label.extra-item[data-jm-ico]:after{content:none!important}
 .svc-row-act{margin-top:8px!important}
 .svc-row-act button{min-height:42px!important}
 </style>
+<style id="jm-v256-style">
+/* v256 — plafond, disponibilité, mode gants */
+.jm-acc-plus{margin:10px 0 12px}
+.jm-dispo-row{display:flex;gap:8px;margin-bottom:8px}
+.jm-dispo,.jm-dispo-msg{flex:1;min-height:42px;border-radius:13px;font-weight:900;font-size:13px;border:1.5px solid rgba(32,199,102,.6);background:rgba(32,199,102,.1);color:#20c766}
+.jm-dispo.jm-indispo{border-color:rgba(255,77,79,.65);background:rgba(255,77,79,.1);color:#ff6b6d}
+.jm-dispo-msg{border-color:rgba(255,149,0,.6);background:rgba(255,149,0,.1);color:#ffa31a}
+.jm-plafond{padding:10px 12px;border-radius:14px;border:1px solid rgba(94,129,148,.4);background:rgba(18,28,35,.6);cursor:pointer}
+.jm-plaf-t{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#b9c8d0;font-weight:700}.jm-plaf-t strong{color:#f5f7f8;font-size:13px}
+.jm-plaf-barre{height:9px;border-radius:99px;background:rgba(148,166,176,.2);margin:7px 0 5px;overflow:hidden}
+.jm-plaf-rempli{height:100%;border-radius:99px}.jm-plaf-vert{background:#20c766}.jm-plaf-orange{background:#ff9500}.jm-plaf-rouge{background:#ff4d4f}
+.jm-plaf-s{font-size:11.5px;color:#94a6b0}.jm-plaf-a{font-weight:800}.jm-plaf-orranget,.jm-plaf-oranget{color:#ffa31a}.jm-plaf-rouget{color:#ff6b6d}.jm-plaf-vertt{color:#94a6b0}
+html:not([data-theme="dark"]) .jm-plafond{background:#fff;border-color:#cbd5da}html:not([data-theme="dark"]) .jm-plaf-t strong{color:#172027}
+/* Mode gants : cibles plus grandes, plus espacées, texte plus gros */
+.jm-gants-badge{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 70px);z-index:9000;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:#ff9500;color:#fff;font-weight:900;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+body.jm-gants .bac-state{min-height:62px!important;font-size:17px!important;border-radius:16px!important}
+body.jm-gants .bac-etat{gap:10px!important}
+body.jm-gants .bac-btn{min-height:76px!important;font-size:14px!important}
+body.jm-gants .msg-choice{min-height:64px!important;font-size:16.5px!important}
+body.jm-gants .msg-grid{gap:12px!important}
+body.jm-gants button.primary,body.jm-gants #btnEnregistrer{min-height:64px!important;font-size:19px!important}
+body.jm-gants button.ghost{min-height:56px!important;font-size:16px!important}
+body.jm-gants .toggle{min-height:54px!important;font-size:15.5px!important}
+body.jm-gants input,body.jm-gants select,body.jm-gants textarea{font-size:18px!important;min-height:54px!important}
+body.jm-gants label.extra-item[data-jm-ico]{min-height:66px!important;font-size:16px!important}
+body.jm-gants .jm-service-choice{min-height:66px!important}
+body.jm-gants #sigCanvas{height:220px!important}
+body.jm-gants .tabbar a,body.jm-gants .tabbar button{min-height:60px!important}
+</style>
+<style id="jm-v257-style">
+.jm-depot-acc{margin-top:8px;padding:9px 12px;border-radius:13px;border:1px solid rgba(22,139,255,.5);background:rgba(22,139,255,.09);color:#6fb4ff;font-weight:800;font-size:13px;cursor:pointer}
+html:not([data-theme="dark"]) .jm-depot-acc{color:#0f6fd6;background:#eef6ff}
+</style>
+<style id="jm-v258-style">
+.qa-q{margin:10px 0}.qa-t{font-size:12px;font-weight:900;letter-spacing:.4px;color:#b9c8d0;margin-bottom:6px}
+.qa-o{display:flex;flex-wrap:wrap;gap:6px}
+.qa-c{min-height:40px;padding:0 12px;border-radius:12px;border:1px solid #35505e;background:#121c23;color:#e6edf0;font-weight:800;font-size:13px}
+.qa-c.on{border-color:#ff9500;background:rgba(255,149,0,.16);color:#ffb347}
+html:not([data-theme="dark"]) .qa-c{background:#fff;color:#172027;border-color:#cbd5da}html:not([data-theme="dark"]) .qa-c.on{background:#fff4e5;color:#b35f00;border-color:#ff9500}
+html:not([data-theme="dark"]) .qa-t{color:#60727c}
+body.jm-gants .qa-c{min-height:54px;font-size:15.5px;padding:0 16px}
+</style>
+<style id="jm-v259-style">
+/* v259 — rentabilité (privée) */
+.jm-renta{margin:10px 0 4px;padding:10px 12px;border-radius:14px;border:1px dashed rgba(148,166,176,.45);background:rgba(18,28,35,.45)}
+.jm-renta summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;font-size:13px;font-weight:800;list-style:none}
+.jm-renta summary::-webkit-details-marker{display:none}
+.jm-renta summary em{font-style:normal;font-weight:600;color:#94a6b0;font-size:11px}
+.jm-renta-l{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;border-bottom:1px dotted rgba(148,166,176,.2);color:#b9c8d0}
+.jm-renta-tot{font-weight:900;color:#f5f7f8;border-bottom:0}
+.jm-renta-n{font-size:11px;color:#94a6b0;margin-top:6px}
+html:not([data-theme="dark"]) .jm-renta{background:#f7f9fa}html:not([data-theme="dark"]) .jm-renta-l{color:#46555e}html:not([data-theme="dark"]) .jm-renta-tot{color:#172027}
+/* Barre de progression */
+.jm-prog{position:sticky;top:var(--jmHeaderH,70px);z-index:40;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 0;margin:-4px 0 8px;background:var(--ink,#0d1114)}
+html:not([data-theme="dark"]) .jm-prog{background:#f2f4f5}
+.jm-prog-e{min-height:38px;border-radius:11px;border:1px solid #35505e;background:#121c23;color:#b9c8d0;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px}
+.jm-prog-n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;background:#35505e;color:#fff}
+.jm-prog-e.fait{border-color:rgba(32,199,102,.6);color:#20c766}.jm-prog-e.fait .jm-prog-n{background:#20c766}
+.jm-prog-e.fait .jm-prog-n{font-size:0}.jm-prog-e.fait .jm-prog-n:after{content:'✓';font-size:11px}
+html:not([data-theme="dark"]) .jm-prog-e{background:#fff;color:#46555e;border-color:#cbd5da}
+body.jm-gants .jm-prog-e{min-height:50px;font-size:14px}
+/* Mode plein soleil : contraste maximal en extérieur */
+html.jm-soleil body{background:#ffffff!important;color:#000!important}
+html.jm-soleil .grp,html.jm-soleil .field input,html.jm-soleil .field select,html.jm-soleil .field textarea,html.jm-soleil input,html.jm-soleil select,html.jm-soleil textarea{background:#fff!important;color:#000!important;border:2px solid #1b1b1b!important}
+html.jm-soleil label,html.jm-soleil .km-mention,html.jm-soleil .grp-title,html.jm-soleil .eyebrow,html.jm-soleil .stat-lbl,html.jm-soleil .jm-renta-l{color:#111!important;opacity:1!important}
+html.jm-soleil .toggle,html.jm-soleil button.ghost,html.jm-soleil .qa-c,html.jm-soleil .jm-prog-e,html.jm-soleil .msg-choice{background:#fff!important;color:#000!important;border:2px solid #1b1b1b!important;box-shadow:none!important}
+html.jm-soleil .toggle.on,html.jm-soleil .qa-c.on{background:#000!important;color:#fff!important}
+html.jm-soleil button.primary,html.jm-soleil .bac-state.depart{background:#c25e00!important;color:#fff!important;border:2px solid #000!important;font-weight:900!important}
+html.jm-soleil .bac-state.fin{background:#0b6b36!important;color:#fff!important}
+html.jm-soleil label.extra-item[data-jm-ico],html.jm-soleil .jm-service-choice,html.jm-soleil .hist-item,html.jm-soleil .jm-plafond,html.jm-soleil .ticket{background:#fff!important;color:#000!important;border:2px solid #1b1b1b!important;box-shadow:none!important}
+html.jm-soleil *{text-shadow:none!important}
+</style>
+
+
 
 
 
@@ -3508,6 +3582,12 @@ label.extra-item[data-jm-ico]:after{content:none!important}
   <div class="modal terrain-sheet">
     <h3>⋯ Actions terrain</h3>
     <div class="msg-grid">
+      <button class="msg-choice" id="jmGantsBtn" onclick="jmGants()">🧤 Mode gants</button>
+      <button class="msg-choice" id="jmSoleilBtn" onclick="jmSoleil()">☀️ Plein soleil</button>
+      <button class="msg-choice" onclick="fermerPlusTerrain(); jmQaOuvrir(false)">📋 Questions d'appel</button>
+      <button class="msg-choice" onclick="fermerPlusTerrain(); jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
+      <button class="msg-choice" onclick="jmDepotDepuisIntervention()">🅿️ Mettre au dépôt</button>
+      <button class="msg-choice" onclick="jmCessionDepuisIntervention()">📄 Cession d'épave</button>
       <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
       <button class="msg-choice" onclick="terrainAttente()">⏳ Attente client</button>
       <button class="msg-choice" onclick="terrainIncident()">⚠️ Difficulté / incident</button>
@@ -3549,6 +3629,13 @@ label.extra-item[data-jm-ico]:after{content:none!important}
           <div class="rate-row"><label>Marge minimum sur pièce / pneu fourni (€)</label><input type="number" id="r_margePieceMinimum"></div>
           <div class="rate-row"><label>Minimum facturé — changement de roue / pneu (€)</label><input type="number" id="r_minPneuChangement"></div>
           <div class="rate-row"><label>Minimum facturé — réparation de pneu (€)</label><input type="number" id="r_minPneuReparation"></div>
+          <div class="rate-row"><label>Plafond de la franchise TVA (€ / an)</label><input type="number" id="r_plafondFranchise" step="100"></div>
+          <div class="rate-row"><label>Rentabilité : valeur de ton heure (€)</label><input type="number" id="r_valeurHeure" step="1"></div>
+          <div class="rate-row"><label>Rentabilité : usure du camion (€ / km, facultatif)</label><input type="number" id="r_usureKm" step="0.01"></div>
+          <div class="rate-row"><label>Charges fixes : assurance du camion (€ / an)</label><input type="number" id="r_chargesAssurance" step="1"></div>
+          <div class="rate-row"><label>Charges fixes : publicité (€ / an)</label><input type="number" id="r_chargesPub" step="1"></div>
+          <div class="rate-row"><label>Charges fixes : comptable (€ / an)</label><input type="number" id="r_chargesComptable" step="1"></div>
+          <div class="rate-row"><label>Charges fixes : autres (taxe de circulation, téléphone… € / an)</label><input type="number" id="r_chargesAutres" step="1"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
           <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
           <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
@@ -3677,6 +3764,7 @@ label.extra-item[data-jm-ico]:after{content:none!important}
           <div class="field"><label>Adresse du serveur de synchronisation</label><input type="text" id="syncUrl" placeholder="https://jm-sync.xxxx.workers.dev" autocapitalize="off" autocorrect="off"></div>
           <div class="field"><label>Ce téléphone est le principal — code d'initialisation</label><input type="text" id="syncSetupCode" placeholder="Code fourni à l'installation du serveur" autocapitalize="off"></div>
           <button type="button" class="primary" onclick="syncInitialiserPrincipal()">Initialiser comme téléphone principal</button>
+      <button type="button" class="ghost" style="margin-top:8px;" onclick="jmSyncRemplacerPrincipal()">📲 Remplacer le téléphone principal (nouveau téléphone)</button>
           <div class="field" style="margin-top:16px;"><label>Ce téléphone est le secours — code d'association</label><input type="text" id="syncCodeSaisi" placeholder="Code affiché sur le principal" autocapitalize="characters"></div>
           <button type="button" class="ghost" onclick="syncAssocierSecours()">Associer comme téléphone de secours</button>
         </div>
@@ -4096,6 +4184,12 @@ label.extra-item[data-jm-ico]:after{content:none!important}
             <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('papiers', this)">
             <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('papiers')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
           </label>
+          <label id="rachatPh_identite" style="position:relative; display:block; cursor:pointer;">
+            <div class="rph-img" style="aspect-ratio:1; border:1px dashed var(--line); border-radius:12px; background:var(--panel-2) center/cover no-repeat; display:flex; align-items:center; justify-content:center;"><span class="rph-plus" style="font-size:20px; color:var(--grey);">+</span></div>
+            <div style="font-size:10.5px; color:var(--grey); text-align:center; margin-top:3px; line-height:1.2;">Pièce d'identité</div>
+            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="rachatAjouterPhoto('identite', this)">
+            <span class="rph-x" onclick="event.preventDefault(); event.stopPropagation(); rachatRetirerPhoto('identite')" style="display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; font-size:13px; align-items:center; justify-content:center;">✕</span>
+          </label>
         </div>
       </div>
 
@@ -4190,6 +4284,14 @@ label.extra-item[data-jm-ico]:after{content:none!important}
           <div class="field" style="flex:1;"><label>Date</label><input type="date" id="achDate"></div>
         </div>
         <div class="field"><label>Paiement</label><select id="achPaiement"><option>Espèces</option><option>Virement</option><option>Payconiq</option><option>Autre</option></select></div>
+        <label class="check-row" style="margin-top:6px;"><input type="checkbox" id="achCession" onchange="jmCessionBascule()"><span>Cession gratuite pour destruction (épave)</span></label>
+        <div id="achDocsCession" style="display:none; margin-top:6px;">
+          <div class="km-mention" style="margin-bottom:6px;">Documents remis par le propriétaire :</div>
+          <label class="check-row"><input type="checkbox" id="achDocImmat"><span>Certificat d'immatriculation</span></label>
+          <label class="check-row"><input type="checkbox" id="achDocConformite"><span>Certificat de conformité</span></label>
+          <label class="check-row"><input type="checkbox" id="achDocCles"><span>Clés</span></label>
+          <div class="km-mention" style="margin-top:6px; opacity:.8;">Photographie les papiers et la pièce d'identité dans la fiche : ces photos restent sur ce téléphone. Le véhicule doit finir dans un centre agréé ; note le n° du certificat de destruction à la sortie « Démoli ».</div>
+        </div>
       </div>
       <div class="grp">
         <div class="grp-title">Signature du vendeur</div>
@@ -4202,7 +4304,7 @@ label.extra-item[data-jm-ico]:after{content:none!important}
         <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigAchatJm')">Effacer</button>
       </div>
       <div class="km-mention" style="margin-bottom:10px;">Une fois signé, le bon reçoit son numéro et ne peut plus être supprimé : seulement annulé, avec un motif.</div>
-      <button class="primary" onclick="stockSignerAchat()">Signer et établir le bon d'achat</button>
+      <button class="primary" id="achSignerBtn" onclick="stockSignerAchat()">Signer et établir le bon d'achat</button>
       <button class="ghost close-modal" onclick="stockVue('rachatVueFiche')">Retour à la fiche</button>
     </div>
 
@@ -4272,6 +4374,130 @@ label.extra-item[data-jm-ico]:after{content:none!important}
   </div>
 </div>
 
+<div class="modal-bg" id="modalRecettesBg">
+  <div class="modal">
+    <div class="eyebrow">Comptabilité</div>
+    <h1 class="page-title" style="font-size:22px;">📒 Recettes et plafond</h1>
+    <div id="recPlafond" class="jm-plafond" style="margin-bottom:12px;"></div>
+    <div style="display:flex; gap:8px;">
+      <div class="field" style="flex:1;"><label>Période</label><select id="recPeriode" onchange="jmRecettesAfficher()"><option value="mois">Ce mois</option><option value="trimestre">Ce trimestre</option><option value="annee">Cette année</option><option value="anneePrec">Année précédente</option><option value="tout">Tout</option></select></div>
+      <div class="field" style="flex:1;"><label>Paiement</label><select id="recMoyen" onchange="jmRecettesAfficher()"><option value="tous">Tous</option><option value="especes">Espèces</option><option value="autres">Hors espèces</option></select></div>
+    </div>
+    <div class="km-mention" id="recTotaux" style="margin-bottom:10px;"></div>
+    <button class="primary" onclick="jmRecettesExporter()">📤 Exporter pour le comptable (Excel)</button>
+    <div id="recListe" style="margin-top:12px;"></div>
+    <div class="km-mention" style="margin-top:10px; opacity:.8;">Liste les encaissements enregistrés dans l'appli : acomptes, paiements (y compris répartis), ventes de véhicules et gardiennages restitués. Le plafond compte le chiffre d'affaires de l'année : interventions, moins notes de crédit, plus ventes de véhicules et gardiennages.</div>
+    <button class="ghost close-modal" onclick="closeRecettes()">Fermer</button>
+  </div>
+</div>
+<div class="modal-bg" id="modalDispoBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal terrain-sheet">
+    <h3>🔴 Message « indisponible »</h3>
+    <div class="km-mention" style="margin-bottom:10px;" id="dispoApercu"></div>
+    <div class="field"><label>Numéro du client</label><input type="tel" id="dispoTel" inputmode="tel" placeholder="04xx xx xx xx"></div>
+    <div class="msg-grid">
+      <button class="msg-choice" onclick="jmEnvoyerIndispo('whatsapp')">💬 WhatsApp</button>
+      <button class="msg-choice" onclick="jmEnvoyerIndispo('sms')">✉️ SMS</button>
+      <button class="msg-choice wide" onclick="jmEnvoyerIndispo('copier')">📋 Copier le message</button>
+    </div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalDispoBg').classList.remove('show')">Fermer</button>
+  </div>
+</div>
+<div id="jmGantsBadge" class="jm-gants-badge" onclick="jmGants(false)" style="display:none;">🧤 Gants · toucher pour couper</div>
+
+<div class="modal-bg" id="modalDepotBg">
+  <div class="modal">
+    <div id="depVueListe">
+      <div class="eyebrow">Gardiennage</div>
+      <h1 class="page-title" style="font-size:22px;">🅿️ Véhicules au dépôt</h1>
+      <button class="primary" onclick="jmDepotNouveau()">+ Entrée au dépôt</button>
+      <div class="km-mention" id="depTotal" style="margin:10px 0;"></div>
+      <div id="depListe"></div>
+      <button class="ghost close-modal" onclick="closeDepot()">Fermer</button>
+    </div>
+    <div id="depVueFiche" style="display:none;">
+      <div class="eyebrow" style="cursor:pointer;" onclick="jmDepotListe(); document.getElementById('depVueFiche').style.display='none'; document.getElementById('depVueListe').style.display='block';">← Dépôt</div>
+      <h1 class="page-title" style="font-size:21px;" id="depTitre">Entrée au dépôt</h1>
+      <div class="km-mention" id="depAvert" style="display:none; border-left-color:var(--orange); margin-bottom:10px;">L'intervention liée facture déjà des jours de gardiennage : ne les facture pas deux fois.</div>
+      <div class="km-mention" id="depResume" style="display:none; margin-bottom:10px;"></div>
+      <div class="grp">
+        <div style="display:flex; gap:8px;"><div class="field" style="flex:1;"><label>Immatriculation</label><input type="text" id="depPlaque" autocapitalize="characters"></div><div class="field" style="flex:1;"><label>Tarif / jour (€)</label><input type="number" id="depTarif" inputmode="decimal" oninput="jmDepotMajResume()"></div></div>
+        <div class="field"><label>Véhicule</label><input type="text" id="depVehicule" placeholder="Marque, modèle, couleur"></div>
+        <div style="display:flex; gap:8px;"><div class="field" style="flex:1;"><label>Client</label><input type="text" id="depClient"></div><div class="field" style="flex:1;"><label>Téléphone</label><input type="tel" id="depTel"></div></div>
+        <div class="field"><label>Entrée au dépôt</label><input type="datetime-local" id="depEntree"></div>
+        <div class="field"><label>Notes (état, emplacement, clés…)</label><textarea id="depNotes" rows="2"></textarea></div>
+        <input type="hidden" id="depLien">
+        <button class="ghost" onclick="jmDepotEnregistrer()">Enregistrer</button>
+      </div>
+      <div class="grp" id="depRestitution" style="display:none;">
+        <div class="grp-title">Restitution</div>
+        <div style="display:flex; gap:8px;"><div class="field" style="flex:1;"><label>Date et heure de sortie</label><input type="datetime-local" id="depSortie" onchange="jmDepotMajResume()"></div>
+          <div class="field" style="flex:1;"><label>Paiement</label><select id="depMoyen"><option>Espèces</option><option>Payconiq</option><option>Virement</option><option>Tap to Pay</option><option>Lien Revolut</option><option value="">Non payé</option></select></div></div>
+        <div class="grp-title" style="margin-top:6px;">Signature du client</div>
+        <div class="sig-wrap"><canvas id="sigDepot" style="width:100%; height:150px; display:block; touch-action:none;"></canvas></div>
+        <button class="ghost" style="margin-top:8px;" onclick="clearSignature('sigDepot')">Effacer</button>
+        <button class="primary" style="margin-top:10px;" onclick="jmDepotRestituer()">Restituer et établir le bon</button>
+      </div>
+      <button class="ghost" id="depBtnPdf" style="display:none; margin-top:8px;" onclick="jmDepotPdf()">📄 Réimprimer le bon de restitution</button>
+      <button class="ghost close-modal" onclick="closeDepot()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalQaBg" onclick="if(event.target===this)jmQaFermer()">
+  <div class="modal">
+    <div class="eyebrow">Avant de partir</div>
+    <h1 class="page-title" style="font-size:21px;" id="qaTitre">📋 Questions à poser au client</h1>
+    <div id="qaPasse" style="display:none;">
+      <div class="field-row"><div class="field" style="flex:1;"><label>Date</label><input type="date" id="qaDate"></div><div class="field" style="flex:1;"><label>Heure</label><input type="time" id="qaHeure"></div></div>
+      <div class="field"><label>Déjà payé ?</label><select id="qaPaye"><option value="">Non, à encaisser</option><option>Espèces</option><option>Payconiq</option><option>Virement</option><option>Tap to Pay</option><option>Lien Revolut</option></select></div>
+    </div>
+    <div id="qaListe"></div>
+    <button class="primary" onclick="jmQaAppliquer()">Appliquer au formulaire</button>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+      <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('whatsapp')">💬 Questions au client</button>
+      <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('sms')">✉️ Par SMS</button>
+    </div>
+    <button class="ghost" style="margin-top:8px;" onclick="jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
+    <label class="check-row" style="margin-top:10px;"><input type="checkbox" id="qaAuto" onchange="jmQaAutoMaj()"><span>Afficher ces questions à chaque nouvelle intervention</span></label>
+    <button class="ghost close-modal" onclick="jmQaFermer()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalChargesBg">
+  <div class="modal terrain-sheet">
+    <h3>📅 Mets à jour tes charges fixes</h3>
+    <div class="km-mention" style="margin-bottom:10px;">Elles ont été encodées le <strong id="chargesRappelDate"></strong>, il y a plus d'un an. Vérifie qu'elles sont toujours justes : elles servent au calcul de ta rentabilité.</div>
+    <div class="km-mention" id="chargesRappelListe" style="margin-bottom:12px;"></div>
+    <button class="primary" onclick="jmChargesOuvrirReglages()">Mettre à jour</button>
+    <button class="ghost" style="margin-top:8px;" onclick="jmChargesConfirmer()">Toujours justes</button>
+    <button class="ghost close-modal" onclick="jmChargesPlusTard()">Me le rappeler dans 30 jours</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalTelBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="eyebrow">Nouveau téléphone</div>
+    <h1 class="page-title" style="font-size:22px;">📲 Je change de téléphone</h1>
+    <div class="grp">
+      <div class="grp-title">Sur l'ancien téléphone (celui-ci)</div>
+      <div class="km-mention" style="margin-bottom:8px;">1. Tout envoyer au serveur — état : <strong id="telSync"></strong></div>
+      <button class="ghost" style="margin:0 0 10px;" onclick="jmTelSynchroniser()">🔄 Synchroniser maintenant</button>
+      <div class="km-mention" style="margin-bottom:8px;">2. Sauvegarde de sécurité par mail (tout le contenu de l'appli)</div>
+      <button class="ghost" style="margin:0 0 10px;" onclick="exporterSauvegardeParMail()">✉️ Envoyer la sauvegarde par mail</button>
+      <div class="km-mention" style="margin-bottom:6px;">3. Photos du module Rachat (elles restent sur ce téléphone) : un dossier PDF par véhicule</div>
+      <div id="telRachats"></div>
+      <div class="km-mention" style="margin-top:10px; border-left-color:var(--orange);">Ensuite, n'établis plus de facture sur ce téléphone.</div>
+    </div>
+    <div class="grp">
+      <div class="grp-title">Sur le nouveau téléphone</div>
+      <div class="km-mention">1. Dans Safari : <strong id="telUrl"></strong> → Partager → « Sur l'écran d'accueil ».<br>2. Ouvre l'appli → Réglages → Synchronisation → adresse du serveur + <strong>code d'initialisation</strong> → <strong>« Remplacer le téléphone principal »</strong>. Tout redescend du serveur, l'ancien est déconnecté, la numérotation continue.<br>3. Sans synchro : Réglages → Sauvegarde → « Restaurer » avec le fichier reçu par mail.</div>
+      <div class="km-mention" style="margin-top:8px; border-left-color:var(--red);">Garde ton <strong>code d'initialisation</strong> en lieu sûr (hors du téléphone) : sans lui, impossible de remplacer le principal si ce téléphone est perdu.</div>
+    </div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalTelBg').classList.remove('show')">Fermer</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalMenuBg">
   <div class="modal">
     <div class="eyebrow">Accès rapide</div>
@@ -4291,6 +4517,26 @@ label.extra-item[data-jm-ico]:after{content:none!important}
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
         <span class="menu-lbl">Publicité</span>
         <span class="menu-desc">Origine clients, campagnes</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openRecettes();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5M8 8h4"/></svg></span>
+        <span class="menu-lbl">Recettes</span>
+        <span class="menu-desc">Livre de caisse, plafond 25 000 €</span>
+      </div>
+      <div class="menu-item" onclick="jmChangerTelephone()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+        <span class="menu-lbl">Changer de téléphone</span>
+        <span class="menu-desc">Transfert sans rien perdre</span>
+      </div>
+      <div class="menu-item" onclick="jmEncoderPasse()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span>
+        <span class="menu-lbl">Intervention passée</span>
+        <span class="menu-desc">Encoder après coup</span>
+      </div>
+      <div class="menu-item" onclick="closeMenu(); openDepot();">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg></span>
+        <span class="menu-lbl">Dépôt</span>
+        <span class="menu-desc">Gardiennage, restitution</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openPaiement();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg></span>
@@ -6199,7 +6445,8 @@ const DEFAULT_RATES = {
   km_formuleA:1.95, arrondiRemorquage:5, seuilAlerteDiesel:2.80, comparaisonV224:0,
   transport_materiel:40, plancherMateriel:90, longueurPlateau:5,
   ouverture_vehicule:80, ouverture_keyless:30, margePieceFournie:20,
-  minPneuChangement:100, minPneuReparation:110, margePieceMinimum:15
+  minPneuChangement:100, minPneuReparation:110, margePieceMinimum:15, plafondFranchise:25000, valeurHeure:20, usureKm:0,
+  chargesAssurance:1992, chargesPub:1200, chargesComptable:500, chargesAutres:0
 };
 
 // ===================================================================
@@ -6764,7 +7011,7 @@ function closeMenu(){ document.getElementById('modalMenuBg').classList.remove('s
 //  (synchronisées A/B). Photos : IndexedDB (gros volumes, jamais synchronisées).
 // ===================================================================
 const RACHAT_REPERES_DEFAUT = {tauxMecano:40, tauxGarage:75, remisePieces:25, ferrailleTonne:150, fraisRemiseVente:150, margeRevente:30, margePieces:40};
-const RACHAT_PHOTOS_SLOTS = [['avant','Avant'],['arriere','Arrière'],['profil','Profil'],['interieur','Intérieur'],['compteur','Compteur'],['degats','Dégâts'],['chassis','Plaque châssis'],['papiers','Papiers']];
+const RACHAT_PHOTOS_SLOTS = [['avant','Avant'],['arriere','Arrière'],['profil','Profil'],['interieur','Intérieur'],['compteur','Compteur'],['degats','Dégâts'],['chassis','Plaque châssis'],['papiers','Papiers'],['identite','Pièce d\'identité']];
 const RACHAT_VOIES = {'':'— pas encore décidé —', revente:'Réparer et revendre', pieces:'Pièces', demolition:'Démolition', non:'Pas acheté'};
 let RACHAT_ID = null, RACHAT_PHOTOS = {}, RACHAT_REPERES = {...RACHAT_REPERES_DEFAUT};
 
@@ -7036,7 +7283,7 @@ async function stockAfficher(){
     h += '<button class="primary" onclick="stockOuvrirAchat()">✍️ Établir le bon d\'achat</button>';
   } else {
     const a = d.achat;
-    h += '<div class="km-mention">Bon d\'achat <strong>' + a.numero + '</strong> · ' + fmt(n2(a.prix)) + ' · ' + new Date(a.date).toLocaleDateString('fr-BE') + ' · vendeur ' + (a.vendeur.nom || '') + '</div>';
+    h += '<div class="km-mention">' + (a.cession ? 'Convention de cession' : 'Bon d\'achat') + ' <strong>' + a.numero + '</strong> · ' + (a.cession ? 'gratuite, pour destruction' : fmt(n2(a.prix))) + ' · ' + new Date(a.date).toLocaleDateString('fr-BE') + ' · vendeur ' + (a.vendeur.nom || '') + '</div>';
     h += '<div style="display:flex; gap:8px; margin:8px 0;"><button class="ghost" onclick="stockPdfAchat()">📄 Réimprimer</button>' + (s !== 'annule' && s !== 'sorti' ? '<button class="ghost" onclick="stockAnnulerAchat()">Annuler l\'achat</button>' : '') + '</div>';
     if(d.annulation) h += '<div class="km-mention" style="border-left-color:var(--red);">Achat annulé le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — motif : ' + d.annulation.motif + '</div>';
     if(s !== 'annule'){
@@ -7099,7 +7346,9 @@ async function stockSignerAchat(){
   const s1 = await canvasSignatureToRgb('sigAchatVendeur'), s2 = await canvasSignatureToRgb('sigAchatJm');
   const numero = await stockNumero('achatCounter', 'ACH');
   d.immat = v('achImmat'); d.kilometrage = v('achKm') || d.kilometrage; d.prixPaye = String(prix);
-  d.achat = {numero, date: new Date(v('achDate') + 'T12:00:00').toISOString(), prix, paiement: v('achPaiement'),
+  const cessionV257 = !!(document.getElementById('achCession') || {}).checked;
+  d.achat = {numero, date: new Date(v('achDate') + 'T12:00:00').toISOString(), prix: cessionV257 ? 0 : prix, paiement: cessionV257 ? '' : v('achPaiement'),
+    cession: cessionV257 || undefined, docsRemis: cessionV257 ? {immat: !!document.getElementById('achDocImmat').checked, conformite: !!document.getElementById('achDocConformite').checked, cles: !!document.getElementById('achDocCles').checked} : undefined,
     vendeur: {nom: v('achVendeurNom'), adresse: v('achVendeurAdresse'), tel: v('achVendeurTel'), identite: v('achVendeurId')},
     vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat, km: d.kilometrage, carburant: d.carburant || ''},
     sigVendeur: {width: s1.width, height: s1.height, b64: octetsVersBase64(s1.deflatedRgb)},
@@ -7219,7 +7468,7 @@ function stockPdfVenteBytes(d){
   y += 10; pdf.text(50, y, 'Paiement : IBAN ' + COMPANY.ibanDisplay + ' — BIC ' + COMPANY.bic + ' — communication : ' + doc.numero, {size:9, gray:0.3});
   return pdf.build();
 }
-async function stockPdfAchat(){ const d = await stockFiche(); if(!d || !d.achat) return; await partagerPdf(stockPdfAchatBytes(d), d.achat.numero + '.pdf', 'Bon d\'achat ' + d.achat.numero, 'Bon d\'achat prêt', 'Bon d\'achat téléchargé'); }
+async function stockPdfAchat(){ const d = await stockFiche(); if(!d || !d.achat) return; if(d.achat.cession && typeof jmCessionPdfBytes === 'function'){ await partagerPdf(jmCessionPdfBytes(d), d.achat.numero + '-cession.pdf', 'Convention de cession ' + d.achat.numero, 'Convention prête', 'Convention téléchargée'); return; } await partagerPdf(stockPdfAchatBytes(d), d.achat.numero + '.pdf', 'Bon d\'achat ' + d.achat.numero, 'Bon d\'achat prêt', 'Bon d\'achat téléchargé'); }
 async function stockPdfVente(){ const d = await stockFiche(); if(!d || !d.sortie || !d.sortie.doc) return; const n = d.sortie.doc.numero; await partagerPdf(stockPdfVenteBytes(d), n + '.pdf', n, 'Document de vente prêt', 'Document de vente téléchargé'); }
 
 // --- Dossier complet pour le comptable (photos incluses) ---
@@ -8514,7 +8763,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v255';
+const APP_VERSION = 'jm-express-bon-v261';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16954,8 +17203,8 @@ window.addEventListener('unhandledrejection', (event) => {
 //    automatiquement sur les champs financiers/statut → choix explicite.
 //  - Désactivée tant qu'aucun appareil n'est associé : comportement v211 strict.
 // ===================================================================
-const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:'];
-const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses'];
+const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:', 'depot:'];
+const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses', 'dispoStatut', 'gardiennageCounter', 'chargesFixesMaj'];
 const SYNC_CLES_REGLAGES = ['rates', 'baseAddress', 'nightHours', 'revolutLink'];   // principal → secours, lecture seule
 const SYNC_CHAMPS_PROTEGES = ['prixAnnonce', 'total', 'paye', 'paiement', 'statut', 'factures', 'creditNotes', 'bonsCommande', 'remiseValue', 'remiseUnit', 'remiseAmount', 'invoiceNumber', 'invoicedTotal'];
 const SYNC_CHAMPS_AFFICHES = {prixAnnonce:'Prix annoncé', total:'Montant calculé', paye:'Payé', statut:'Statut', invoiceNumber:'Facture', notes:'Notes', telClient:'Téléphone', clientNom:'Client', horaires:'Horaires'};
@@ -17942,6 +18191,7 @@ function construirePdfFactureV2(c, meta){
     pdf.rect(50, y+5, 42, 2, {mode:'f', rgb:[242,169,0]});
     pdf.text(400, y, S.numero + invoiceNumber, {size:10});
     if(meta.echeanceStr){ y += 13; pdf.text(400, y, 'Échéance : ' + meta.echeanceStr, {size:9, gray:0.35}); }
+    if(meta.datePrestationV258 && c.date && new Date(c.date).toDateString() !== new Date(meta.dateIso || Date.now()).toDateString()){ y += 13; pdf.text(400, y, 'Prestation : ' + new Date(c.date).toLocaleString('fr-BE', {dateStyle:'short', timeStyle:'short'}), {size:9, gray:0.35}); }
     if(meta.corrigeFacture){ y += 13; pdf.text(400, y, 'Remplace la facture ' + meta.corrigeFacture + (meta.suiteNoteCredit ? ' (note de crédit ' + meta.suiteNoteCredit + ')' : ''), {size:8.5, gray:0.4}); }
     if(c.numero){ y += 13; pdf.text(400, y, 'Intervention : ' + c.numero, {size:9, gray:0.4}); }
     y += 16;
@@ -18226,7 +18476,7 @@ async function genererRecuV2(){
   }
   if(typeof lireMetaFactureDepuisFormulaire === 'function'){
     const _m = lireMetaFactureDepuisFormulaire;
-    lireMetaFactureDepuisFormulaire = async function(){ const meta = await _m.apply(this, arguments); if(meta) meta.presentation = 2; return meta; };
+    lireMetaFactureDepuisFormulaire = async function(){ const meta = await _m.apply(this, arguments); if(meta){ meta.presentation = 2; meta.datePrestationV258 = true; } return meta; };
   }
   if(typeof genererRecu === 'function'){
     const _r = genererRecu;
@@ -18654,6 +18904,671 @@ async function genererRecuV2(){
   }
 })();
 </script>
+<script id="jm-v256-script">
+(function(){
+  // ===================================================================
+  //  v256 — Plafond de franchise, livre des recettes, disponibilité, mode gants.
+  //  Lecture seule des données existantes : aucun calcul, aucune facture modifiée.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const eur = v => fmt(Number(v) || 0);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const r2 = x => Math.round((Number(x) || 0) * 100) / 100;
+  async function tout(prefixe){ let k = []; try{ k = (await window.storage.list(prefixe)).keys || []; }catch(e){} const out = []; for(const x of k){ try{ out.push({key:x, d:JSON.parse((await window.storage.get(x)).value)}); }catch(e){} } return out; }
+  const annee = iso => iso ? new Date(iso).getFullYear() : null;
+
+  // ---------- 1) Chiffre d'affaires de l'année et plafond de franchise ----------
+  window.jmCaAnnee = async function(an){
+    an = an || new Date().getFullYear();
+    let inter = 0, nc = 0, rachat = 0, nb = 0;
+    (await tout('intervention:')).forEach(({d}) => {
+      if(annee(d.date) === an){ inter += Number(d.total) || 0; nb++; }
+      (d.creditNotes || []).forEach(n => { if(annee(n.date) === an) nc += Number(n.amount) || 0; });
+    });
+    (await tout('rachat:')).forEach(({d}) => { const s = d.sortie; if(s && !s.annulee && annee(s.date) === an) rachat += Number(s.montant) || 0; });
+    let depot = 0; (await tout('depot:')).forEach(({d}) => { const s = d.sortie; if(s && annee(s.date) === an) depot += Number(s.montant) || 0; });
+    return {annee: an, interventions: r2(inter), notesCredit: r2(nc), rachat: r2(rachat), depot: r2(depot), total: r2(inter - nc + rachat + depot), nb};
+  };
+  window.jmAfficherPlafond = async function(){
+    const box = $('jmPlafond'); if(!box) return;
+    const plafond = Number(RATES.plafondFranchise) || 25000, ca = await jmCaAnnee(), pct = Math.min(100, ca.total / plafond * 100);
+    const now = new Date(), debut = new Date(now.getFullYear(), 0, 1), jours = Math.max(1, (now - debut) / 864e5), projection = r2(ca.total / jours * 365);
+    const niveau = ca.total >= plafond ? 'rouge' : (pct >= 90 ? 'rouge' : (pct >= 80 ? 'orange' : 'vert'));
+    const alerte = ca.total >= plafond ? '⚠️ Plafond dépassé : contacte ton comptable.' : (pct >= 90 ? '⚠️ Plafond presque atteint : parle-en à ton comptable.' : (pct >= 80 ? 'Attention : 80 % du plafond atteint.' : (projection > plafond ? 'À ce rythme, le plafond serait dépassé avant la fin de l\'année.' : '')));
+    box.innerHTML = '<div class="jm-plaf-t"><span>Plafond franchise ' + ca.annee + '</span><strong>' + eur(ca.total) + ' / ' + eur(plafond) + '</strong></div>' +
+      '<div class="jm-plaf-barre"><div class="jm-plaf-rempli jm-plaf-' + niveau + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+      '<div class="jm-plaf-s">' + Math.round(pct) + ' % · à ce rythme ≈ ' + eur(projection) + ' fin d\'année' + (alerte ? '<br><span class="jm-plaf-a jm-plaf-' + niveau + 't">' + alerte + '</span>' : '') + '</div>';
+  };
+
+  // ---------- 2) Livre des recettes ----------
+  function ajouter(L, date, piece, client, libelle, moyen, montant){ if(r2(montant) > 0) L.push({date: date || '', piece: piece || '', client: client || '', libelle, moyen: moyen || 'Non précisé', montant: r2(montant)}); }
+  window.jmRecettes = async function(){
+    const L = [];
+    (await tout('intervention:')).forEach(({d}) => {
+      const piece = d.invoiceNumber || d.numero || '', client = d.clientNom || d.invoiceClientName || d.telClient || '', lib = (typeof typeLabelComplet === 'function' ? typeLabelComplet(d, 'fr') : d.type).split(' — ')[0];
+      const p = d.paiement, total = Number(d.total) || 0;
+      if(!p){ if(d.paye) ajouter(L, d.date, piece, client, lib, 'Non précisé', total); return; }
+      const ac = p.acompte && Number(p.acompte.montant) > 0 ? Number(p.acompte.montant) : 0;
+      const rep = Array.isArray(p.repartition) ? p.repartition : null, sRep = rep ? rep.reduce((s, x) => s + (Number(x.montant) || 0), 0) : 0;
+      const encaisse = (p.statut === 'paye' || p.statut === 'partiel') ? Number(p.recu) || 0 : 0;
+      if(ac && (!rep || Math.abs(sRep + ac - total) < 0.01 || !encaisse)) ajouter(L, p.acompte.date || d.date, piece, client, 'Acompte — ' + lib, p.acompte.moyen, ac);
+      if(!encaisse) return;
+      if(rep){ rep.forEach(x => ajouter(L, p.date || d.date, piece, client, lib, x.moyen, x.montant)); return; }
+      ajouter(L, p.date || d.date, piece, client, ac ? 'Solde — ' + lib : lib, p.moyen, encaisse - ac);
+    });
+    (await tout('rachat:')).forEach(({d}) => { const s = d.sortie; if(s && !s.annulee && s.montant) ajouter(L, s.date, s.doc ? s.doc.numero : (d.achat ? d.achat.numero : ''), s.acheteur ? s.acheteur.nom : '', 'Vente véhicule — ' + [d.marque, d.modele].filter(Boolean).join(' '), 'Non précisé', s.montant); });
+    (await tout('depot:')).forEach(({d}) => { const s = d.sortie; if(s && s.moyen && s.montant) ajouter(L, s.date, s.numero, d.clientNom, 'Gardiennage ' + s.jours + ' j — ' + (d.plaque || ''), s.moyen, s.montant); });
+    return L.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  };
+  function dansPeriode(iso, per){
+    if(per === 'tout') return true; if(!iso) return false; const d = new Date(iso), n = new Date();
+    if(per === 'mois') return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
+    if(per === 'trimestre') return d.getFullYear() === n.getFullYear() && Math.floor(d.getMonth() / 3) === Math.floor(n.getMonth() / 3);
+    if(per === 'annee') return d.getFullYear() === n.getFullYear();
+    if(per === 'anneePrec') return d.getFullYear() === n.getFullYear() - 1;
+    return true;
+  }
+  const estEspeces = m => /esp[eè]ce|cash|liquide/i.test(m || '');
+  async function lignesFiltrees(){ const per = $('recPeriode').value, moy = $('recMoyen').value; return (await jmRecettes()).filter(x => dansPeriode(x.date, per) && (moy === 'tous' || (moy === 'especes' ? estEspeces(x.moyen) : !estEspeces(x.moyen)))); }
+  window.jmRecettesAfficher = async function(){
+    const L = await lignesFiltrees(), parMoyen = {};
+    L.forEach(x => { parMoyen[x.moyen] = (parMoyen[x.moyen] || 0) + x.montant; });
+    const total = L.reduce((s, x) => s + x.montant, 0);
+    $('recTotaux').innerHTML = '<strong>' + L.length + ' encaissement' + (L.length > 1 ? 's' : '') + ' · ' + eur(total) + '</strong>' + Object.entries(parMoyen).sort((a, b) => b[1] - a[1]).map(([m, v]) => '<br>' + esc(m) + ' : ' + eur(v)).join('');
+    $('recListe').innerHTML = L.slice().reverse().slice(0, 200).map(x => '<div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">' + (x.date ? new Date(x.date).toLocaleDateString('fr-BE') : '—') + ' · ' + esc(x.piece) + ' · ' + esc(x.moyen) + '<br><span style="opacity:.7; font-size:11.5px;">' + esc(x.libelle) + (x.client ? ' · ' + esc(x.client) : '') + '</span></span><span class="v">' + eur(x.montant) + '</span></div>').join('') || '<div class="km-mention">Aucun encaissement sur cette période.</div>';
+    await jmAfficherPlafond(); const c = $('recPlafond'); if(c && $('jmPlafond')) c.innerHTML = $('jmPlafond').innerHTML;
+  };
+  window.jmRecettesExporter = async function(){
+    const L = await lignesFiltrees(), q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lignes = [['Date','Pièce','Client','Libellé','Moyen de paiement','Montant (€)'].map(q).join(';')].concat(L.map(x => [x.date ? new Date(x.date).toLocaleDateString('fr-BE') : '', x.piece, x.client, x.libelle, x.moyen, x.montant.toFixed(2).replace('.', ',')].map(q).join(';')));
+    const blob = new Blob(['\ufeff' + lignes.join('\r\n')], {type:'text/csv;charset=utf-8'}), nom = 'livre-des-recettes-' + $('recPeriode').value + '-' + new Date().toISOString().slice(0, 10) + '.csv', f = new File([blob], nom, {type:'text/csv'});
+    try{ if(navigator.canShare && navigator.canShare({files:[f]})){ await navigator.share({files:[f], title:'Livre des recettes'}); return; } }catch(e){ if(e && e.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); showToast('Livre des recettes exporté (' + L.length + ' lignes)');
+  };
+  window.openRecettes = async function(){ $('modalRecettesBg').classList.add('show'); await jmRecettesAfficher(); };
+  window.closeRecettes = () => $('modalRecettesBg').classList.remove('show');
+
+  // ---------- 3) Disponible / Indisponible ----------
+  window.JM_MSG_INDISPO = 'Bonjour, JM Express Auto Dépannage. Je suis actuellement indisponible. Merci de m\'envoyer par SMS : la marque et le modèle du véhicule, l\'adresse de départ et d\'arrivée, et le type de panne. Je vous recontacte dès que possible.';
+  let DISPO = true;
+  function majDispo(){ const t = $('jmDispoBtn'), m = $('jmDispoMsgBtn'); if(t){ t.textContent = DISPO ? '🟢 Disponible' : '🔴 Indisponible'; t.classList.toggle('jm-indispo', !DISPO); } if(m) m.style.display = DISPO ? 'none' : ''; }
+  window.jmBasculerDispo = async function(){ DISPO = !DISPO; majDispo(); try{ await window.storage.set('dispoStatut', JSON.stringify({dispo: DISPO, depuis: new Date().toISOString()})); }catch(e){} showToast(DISPO ? 'Tu es disponible' : 'Indisponible : message prêt pour les clients'); };
+  window.jmOuvrirMsgIndispo = function(){ $('modalDispoBg').classList.add('show'); setTimeout(() => { const i = $('dispoTel'); if(i) i.focus(); }, 150); };
+  window.jmEnvoyerIndispo = function(canal){
+    let n = String(($('dispoTel') || {}).value || '').replace(/[^0-9]/g, ''); if(n.startsWith('00')) n = n.slice(2); else if(n.startsWith('0')) n = '32' + n.slice(1);
+    if(canal === 'copier' || !n){ try{ navigator.clipboard.writeText(JM_MSG_INDISPO); showToast(n ? 'Message copié' : 'Pas de numéro : message copié'); }catch(e){ showToast('Copie impossible'); } return; }
+    location.href = canal === 'sms' ? 'sms:+' + n + '&body=' + encodeURIComponent(JM_MSG_INDISPO) : 'https://wa.me/' + n + '?text=' + encodeURIComponent(JM_MSG_INDISPO);
+  };
+
+  // ---------- 4) Mode gants ----------
+  const GANTS_DELAI = 45 * 60 * 1000;
+  function lireGants(){ try{ return JSON.parse(localStorage.getItem('jm_gants') || 'null'); }catch(e){ return null; } }
+  function ecrireGants(o){ try{ o ? localStorage.setItem('jm_gants', JSON.stringify(o)) : localStorage.removeItem('jm_gants'); }catch(e){} }
+  function appliquerGants(on){ document.body.classList.toggle('jm-gants', on); const b = $('jmGantsBadge'); if(b) b.style.display = on ? 'flex' : 'none'; const t = $('jmGantsBtn'); if(t) t.textContent = on ? '🧤 Mode gants : ON' : '🧤 Mode gants'; }
+  window.jmGants = function(forcer){ const on = typeof forcer === 'boolean' ? forcer : !document.body.classList.contains('jm-gants'); appliquerGants(on); ecrireGants(on ? {on:true, activite:Date.now()} : null); if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain(); showToast(on ? '🧤 Mode gants activé' : 'Mode gants désactivé'); };
+  function verifierInactivite(){ const g = lireGants(); if(g && g.on && Date.now() - (g.activite || 0) > GANTS_DELAI){ appliquerGants(false); ecrireGants(null); showToast('Mode gants désactivé (45 min sans utilisation)'); } }
+  ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { const g = lireGants(); if(g && g.on){ g.activite = Date.now(); ecrireGants(g); } }, {passive:true, capture:true}));
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) verifierInactivite(); });
+  setInterval(verifierInactivite, 60000);
+  if(typeof actionTerrainTerminer === 'function'){ const _t = actionTerrainTerminer; actionTerrainTerminer = function(){ const r = _t.apply(this, arguments); try{ if(document.body.classList.contains('jm-gants')){ appliquerGants(false); ecrireGants(null); showToast('Intervention terminée : mode gants désactivé'); } }catch(e){} return r; }; }
+
+  // ---------- Branchements ----------
+  function placerAccueil(){
+    const st = $('accueilStats'); if(!st || $('jmAccueilPlus')) return;
+    const bloc = document.createElement('div'); bloc.id = 'jmAccueilPlus'; bloc.className = 'jm-acc-plus';
+    bloc.innerHTML = '<div class="jm-dispo-row"><button type="button" id="jmDispoBtn" class="jm-dispo" onclick="jmBasculerDispo()">🟢 Disponible</button><button type="button" id="jmDispoMsgBtn" class="jm-dispo-msg" onclick="jmOuvrirMsgIndispo()" style="display:none;">💬 Message indisponible</button></div>' +
+      '<div id="jmPlafond" class="jm-plafond" onclick="openRecettes()" role="button" tabindex="0"></div>';
+    st.insertAdjacentElement('afterend', bloc);
+  }
+  if(typeof majResumeAccueil === 'function'){ const _r = majResumeAccueil; majResumeAccueil = function(){ const r = _r.apply(this, arguments); try{ placerAccueil(); majDispo(); jmAfficherPlafond(); }catch(e){} return r; }; }
+  async function init(){
+    placerAccueil();
+    try{ DISPO = JSON.parse((await window.storage.get('dispoStatut')).value).dispo !== false; }catch(e){ DISPO = true; }
+    majDispo(); jmAfficherPlafond();
+    const g = lireGants(); if(g && g.on){ if(Date.now() - (g.activite || 0) > GANTS_DELAI) ecrireGants(null); else appliquerGants(true); }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="jm-v257-script">
+(function(){
+  // ===================================================================
+  //  v257 — Véhicules au dépôt (gardiennage) + convention de cession pour destruction.
+  //  Documents d'achat existants inchangés ; nouveaux documents à part.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const r2 = x => Math.round((Number(x) || 0) * 100) / 100;
+  const v = id => (($(id) || {}).value || '').trim();
+  async function lire(k){ try{ return JSON.parse((await window.storage.get(k)).value); }catch(e){ return null; } }
+  async function tout(prefixe){ let k = []; try{ k = (await window.storage.list(prefixe)).keys || []; }catch(e){} const out = []; for(const x of k){ const d = await lire(x); if(d) out.push({key:x, d}); } return out; }
+  const dateHeure = iso => { const d = new Date(iso); return d.toLocaleDateString('fr-BE') + ' ' + d.toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'}); };
+  const versLocal = iso => { const d = new Date(iso), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+
+  // ---------------- DÉPÔT / GARDIENNAGE ----------------
+  window.jmDepotJours = (entree, sortie) => Math.max(1, Math.ceil(((sortie ? new Date(sortie) : new Date()) - new Date(entree)) / 864e5));
+  window.jmDepotDu = d => r2(jmDepotJours(d.entree, d.sortie ? d.sortie.date : null) * (Number(d.tarifJour) || 0));
+  let DEPOT_ID = null;
+  function vue(id){ ['depVueListe','depVueFiche'].forEach(x => { const e = $(x); if(e) e.style.display = x === id ? 'block' : 'none'; }); }
+  window.openDepot = async function(){ $('modalDepotBg').classList.add('show'); vue('depVueListe'); await jmDepotListe(); };
+  window.closeDepot = () => $('modalDepotBg').classList.remove('show');
+  window.jmDepotListe = async function(){
+    const L = (await tout('depot:')).sort((a, b) => String(b.d.entree).localeCompare(String(a.d.entree)));
+    const au = L.filter(x => !x.d.sortie), rend = L.filter(x => x.d.sortie).slice(0, 20);
+    const carte = ({key, d}) => { const j = jmDepotJours(d.entree, d.sortie && d.sortie.date), m = d.sortie ? d.sortie.montant : jmDepotDu(d);
+      return '<div class="hist-item" style="padding:11px 13px; margin-bottom:8px; cursor:pointer; border-left:4px solid ' + (d.sortie ? '#20c766' : '#168bff') + ';" onclick="jmDepotOuvrir(\'' + key + '\')"><div style="font-weight:800;">🅿️ ' + esc(d.plaque || 'Sans plaque') + ' · ' + esc(d.vehicule || '') + '</div>' +
+        '<div style="font-size:12.5px; color:var(--grey); margin-top:3px;">' + (d.sortie ? 'Restitué le ' + dateHeure(d.sortie.date) + ' · ' + (d.sortie.numero || '') : 'Entré le ' + dateHeure(d.entree)) + ' · ' + j + ' jour' + (j > 1 ? 's' : '') + ' · <strong>' + fmt(m) + '</strong>' + (d.clientNom ? ' · ' + esc(d.clientNom) : '') + '</div></div>'; };
+    $('depListe').innerHTML = (au.length ? au.map(carte).join('') : '<div class="km-mention">Aucun véhicule au dépôt.</div>') + (rend.length ? '<div class="grp-title" style="margin-top:14px;">Restitués récemment</div>' + rend.map(carte).join('') : '');
+    $('depTotal').textContent = au.length ? au.length + ' véhicule' + (au.length > 1 ? 's' : '') + ' au dépôt · ' + fmt(au.reduce((s, x) => s + jmDepotDu(x.d), 0)) + ' à encaisser aujourd\'hui' : '';
+  };
+  function remplir(d){
+    d = d || {};
+    $('depPlaque').value = d.plaque || ''; $('depVehicule').value = d.vehicule || ''; $('depClient').value = d.clientNom || ''; $('depTel').value = d.clientTel || '';
+    $('depTarif').value = d.tarifJour != null ? d.tarifJour : (Number(RATES.gardiennageJour) || 0); $('depNotes').value = d.notes || '';
+    $('depEntree').value = versLocal(d.entree || new Date().toISOString());
+  }
+  window.jmDepotNouveau = function(pre){ DEPOT_ID = null; remplir(pre || {}); $('depTitre').textContent = 'Entrée au dépôt'; $('depRestitution').style.display = 'none'; $('depResume').style.display = 'none'; $('depAvert').style.display = pre && pre.gardiennageIntervention ? 'block' : 'none'; $('depLien').value = (pre && pre.intervention) || ''; vue('depVueFiche'); };
+  window.jmDepotOuvrir = async function(key){
+    const d = await lire(key); if(!d) return; DEPOT_ID = key; remplir(d); $('depLien').value = d.intervention || '';
+    $('depTitre').textContent = (d.plaque || 'Véhicule') + (d.sortie ? ' — restitué' : ' — au dépôt'); $('depAvert').style.display = d.gardiennageIntervention ? 'block' : 'none';
+    majResume(d); vue('depVueFiche');
+    const rest = $('depRestitution'); rest.style.display = d.sortie ? 'none' : 'block';
+    if(!d.sortie){ $('depSortie').value = versLocal(new Date().toISOString()); setTimeout(() => { try{ initSignatureCanvas('sigDepot'); }catch(e){} }, 80); }
+    $('depBtnPdf').style.display = d.sortie ? 'block' : 'none';
+  };
+  function majResume(d){
+    const j = jmDepotJours(d.entree, d.sortie ? d.sortie.date : (v('depSortie') ? new Date(v('depSortie')).toISOString() : null)), t = Number(v('depTarif')) || Number(d.tarifJour) || 0;
+    $('depResume').style.display = 'block';
+    $('depResume').innerHTML = 'Entrée : ' + dateHeure(d.entree) + '<br>' + j + ' jour' + (j > 1 ? 's' : '') + ' entamé' + (j > 1 ? 's' : '') + ' × ' + fmt(t) + ' = <strong>' + fmt(d.sortie ? d.sortie.montant : r2(j * t)) + '</strong>' + (d.sortie ? '<br>Restitué le ' + dateHeure(d.sortie.date) + ' · ' + esc(d.sortie.moyen || '') : '');
+  }
+  window.jmDepotMajResume = async function(){ if(DEPOT_ID){ const d = await lire(DEPOT_ID); if(d) majResume(d); } };
+  window.jmDepotEnregistrer = async function(){
+    if(!v('depPlaque') && !v('depVehicule')){ showToast('Indique au moins la plaque ou le véhicule'); return; }
+    const key = DEPOT_ID || ('depot:' + Date.now() + '-' + Math.random().toString(36).slice(2, 6));
+    const d = (DEPOT_ID && await lire(DEPOT_ID)) || {cree: new Date().toISOString()};
+    Object.assign(d, {plaque: v('depPlaque').toUpperCase(), vehicule: v('depVehicule'), clientNom: v('depClient'), clientTel: v('depTel'), tarifJour: r2(v('depTarif')), notes: v('depNotes'),
+      entree: v('depEntree') ? new Date(v('depEntree')).toISOString() : (d.entree || new Date().toISOString()), intervention: v('depLien') || d.intervention || '', maj: new Date().toISOString()});
+    if(d.gardiennageIntervention === undefined && $('depAvert').style.display === 'block') d.gardiennageIntervention = true;
+    await window.storage.set(key, JSON.stringify(d)); DEPOT_ID = key; showToast('Véhicule enregistré au dépôt'); await jmDepotOuvrir(key);
+  };
+  async function numero(){ const an = new Date().getFullYear(); let c = {}; try{ c = JSON.parse((await window.storage.get('gardiennageCounter')).value); }catch(e){} const n = (c.annee === an ? c.n : 0) + 1; await window.storage.set('gardiennageCounter', JSON.stringify({annee: an, n})); return 'GAR-' + an + '-' + String(n).padStart(3, '0'); }
+  window.jmDepotRestituer = async function(){
+    if(typeof syncEstSecours === 'function' && syncEstSecours()){ showToast('Bon de restitution : à établir sur le téléphone principal'); return; }
+    const d = await lire(DEPOT_ID); if(!d || d.sortie) return;
+    const sortie = v('depSortie') ? new Date(v('depSortie')).toISOString() : new Date().toISOString();
+    if(new Date(sortie) < new Date(d.entree)){ showToast('La sortie ne peut pas précéder l\'entrée'); return; }
+    const jours = jmDepotJours(d.entree, sortie), montant = r2(jours * (Number(v('depTarif')) || Number(d.tarifJour) || 0));
+    if(!confirm('Restituer le véhicule ' + (d.plaque || '') + ' ?\n\n' + jours + ' jour' + (jours > 1 ? 's' : '') + ' — ' + fmt(montant) + ' (' + (v('depMoyen') || 'moyen non précisé') + ')')) return;
+    let sig = null; if(lireSignatureDataUrl('sigDepot')){ const s = await canvasSignatureToRgb('sigDepot'); sig = {width: s.width, height: s.height, b64: octetsVersBase64(s.deflatedRgb)}; }
+    d.tarifJour = r2(v('depTarif')) || d.tarifJour;
+    d.sortie = {date: sortie, jours, montant, moyen: v('depMoyen'), numero: await numero(), signature: sig, cree: new Date().toISOString()};
+    await window.storage.set(DEPOT_ID, JSON.stringify(d)); showToast('Véhicule restitué — ' + d.sortie.numero);
+    await jmDepotPdf(); await jmDepotOuvrir(DEPOT_ID);
+  };
+  window.jmDepotPdfBytes = function(d){
+    const s = d.sortie, pdf = MiniPDF(595, 842);
+    pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
+    let y = stockEntete(pdf, 'BON DE RESTITUTION', s.numero, s.date);
+    y = stockSection(pdf, y, 'VÉHICULE'); y = stockLigne(pdf, y, 'Immatriculation', d.plaque); y = stockLigne(pdf, y, 'Véhicule', d.vehicule);
+    y += 6; y = stockSection(pdf, y, 'CLIENT'); y = stockLigne(pdf, y, 'Nom', d.clientNom); y = stockLigne(pdf, y, 'Téléphone', d.clientTel);
+    y += 6; y = stockSection(pdf, y, 'GARDIENNAGE'); y = stockLigne(pdf, y, 'Entrée au dépôt', dateHeure(d.entree)); y = stockLigne(pdf, y, 'Restitution', dateHeure(s.date));
+    y = stockLigne(pdf, y, 'Durée', s.jours + ' jour' + (s.jours > 1 ? 's' : '') + ' entamé' + (s.jours > 1 ? 's' : '') + ' × ' + fmt(d.tarifJour));
+    y += 10; pdf.rect(50, y - 4, 495, 30, {mode:'f', rgb:[23,32,39]}); pdf.text(58, y + 16, 'TOTAL GARDIENNAGE', {font:'F2', size:13, rgb:[255,255,255]}); pdf.text(450, y + 16, fmt(s.montant), {font:'F2', size:15, rgb:[242,140,0]}); y += 44;
+    pdf.text(58, y, (s.moyen ? 'PAYÉ — ' + s.moyen : 'Moyen de paiement non précisé'), {font:'F2', size:11, rgb: s.moyen ? [18,136,74] : [23,32,39]}); y += 22;
+    ['Le client reconnaît avoir récupéré le véhicule et en avoir constaté l\'état.', 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 12; });
+    y += 14; pdf.text(50, y, 'Signature du client', {size:9.5, gray:0.3}); pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7});
+    if(s.signature){ pdf.addRgbImage('SigD', s.signature.width, s.signature.height, base64VersOctets(s.signature.b64)); pdf.drawImage('SigD', 52, y + 10, 216, 58); }
+    return pdf.build();
+  };
+  window.jmDepotPdf = async function(){ const d = await lire(DEPOT_ID); if(!d || !d.sortie) return; await partagerPdf(jmDepotPdfBytes(d), d.sortie.numero + '.pdf', 'Bon de restitution ' + d.sortie.numero, 'Bon de restitution prêt', 'Bon de restitution téléchargé'); };
+  window.jmDepotDepuisIntervention = function(){
+    if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+    const g = Number(v('joursGardiennage')) || 0;
+    openDepot().then(() => jmDepotNouveau({plaque: v('plaqueImmat'), vehicule: v('ouvModele'), clientTel: v('telClient'), intervention: (typeof editingKey !== 'undefined' && editingKey) || '', gardiennageIntervention: g > 0}));
+  };
+  window.jmDepotAccueil = async function(){
+    const box = $('jmDepotAccueil'); if(!box) return; const au = (await tout('depot:')).filter(x => !x.d.sortie);
+    box.style.display = au.length ? 'block' : 'none';
+    box.innerHTML = au.length ? '🅿️ ' + au.length + ' véhicule' + (au.length > 1 ? 's' : '') + ' au dépôt · ' + fmt(au.reduce((s, x) => s + jmDepotDu(x.d), 0)) + ' à encaisser' : '';
+  };
+
+  // ---------------- CESSION POUR DESTRUCTION (module Rachat) ----------------
+  window.jmCessionBascule = function(){
+    const on = !!($('achCession') || {}).checked;
+    $('achDocsCession').style.display = on ? 'block' : 'none';
+    const prix = $('achPrix'); if(prix){ if(on){ prix.value = 0; prix.setAttribute('readonly', 'readonly'); } else prix.removeAttribute('readonly'); }
+    const t = document.querySelector('#stockVueAchat .page-title'); if(t) t.textContent = on ? 'Convention de cession' : 'Bon d\'achat';
+    const b = $('achSignerBtn'); if(b) b.textContent = on ? 'Signer la convention de cession' : 'Signer et établir le bon d\'achat';
+  };
+  window.jmCessionPdfBytes = function(d){
+    const a = d.achat, pdf = MiniPDF(595, 842), dr = a.docsRemis || {};
+    let y = stockEntete(pdf, 'CONVENTION DE CESSION', a.numero, a.date);
+    pdf.text(50, y - 12, 'Cession à titre gratuit en vue de la destruction du véhicule', {size:9.5, gray:0.35}); y += 6;
+    if(d.annulation){ pdf.rect(50, y - 12, 495, 20, {mode:'f', rgb:[253,226,221]}); pdf.text(56, y + 2, 'ANNULÉE le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — ' + d.annulation.motif, {font:'F2', size:10, rgb:[201,74,50]}); y += 26; }
+    y = stockSection(pdf, y, 'CÉDANT (PROPRIÉTAIRE)'); y = stockLigne(pdf, y, 'Nom', a.vendeur.nom); y = stockLigne(pdf, y, 'Adresse', a.vendeur.adresse); y = stockLigne(pdf, y, 'Téléphone', a.vendeur.tel);
+    if(a.vendeur.identite) y = stockLigne(pdf, y, 'Pièce d\'identité', a.vendeur.identite);
+    y += 6; y = stockSection(pdf, y, 'REPRENEUR'); y = stockLigne(pdf, y, 'Nom', COMPANY.name); y = stockLigne(pdf, y, 'N° d\'entreprise', COMPANY.tva);
+    y += 6; y = stockSection(pdf, y, 'VÉHICULE'); y = stockLigne(pdf, y, 'Véhicule', a.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', a.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', a.vehicule.immat); y = stockLigne(pdf, y, 'Kilométrage relevé', a.vehicule.km ? a.vehicule.km + ' km' : '');
+    y += 6; y = stockSection(pdf, y, 'DOCUMENTS REMIS'); const oui = x => x ? 'remis' : 'non remis';
+    y = stockLigne(pdf, y, 'Certificat d\'immatriculation', oui(dr.immat)); y = stockLigne(pdf, y, 'Certificat de conformité', oui(dr.conformite)); y = stockLigne(pdf, y, 'Clés', oui(dr.cles));
+    y += 8;
+    ['Le cédant déclare être le propriétaire du véhicule, que celui-ci est libre de tout gage, saisie ou opposition,',
+     'et le cède à titre gratuit au repreneur en vue de sa destruction. Le véhicule sera remis à un centre de traitement',
+     'agréé ; le certificat de destruction sera conservé au dossier. La plaque d\'immatriculation reste au titulaire,',
+     'à qui il appartient d\'en demander la radiation. Aucun montant n\'est dû par l\'une ou l\'autre partie.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 11; });
+    y += 18; pdf.text(50, y, 'Signature du cédant', {size:9.5, gray:0.3}); pdf.text(300, y, 'Pour ' + COMPANY.name, {size:9.5, gray:0.3});
+    pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7}); pdf.rect(300, y + 8, 220, 62, {mode:'S', gray:0.7});
+    pdf.addRgbImage('SigV', a.sigVendeur.width, a.sigVendeur.height, base64VersOctets(a.sigVendeur.b64)); pdf.drawImage('SigV', 52, y + 10, 216, 58);
+    pdf.addRgbImage('SigJ', a.sigJm.width, a.sigJm.height, base64VersOctets(a.sigJm.b64)); pdf.drawImage('SigJ', 302, y + 10, 216, 58);
+    return pdf.build();
+  };
+  window.jmCessionDepuisIntervention = async function(){
+    if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+    const pre = {plaque: v('plaqueImmat'), tel: v('telClient'), adresse: v('addrFrom')};
+    await openRachat(); await rachatNouvelle();
+    $('rachatImmat').value = pre.plaque; $('rachatClientTel').value = pre.tel; $('rachatAdresse').value = pre.adresse; const e = $('rachatEtat'); if(e) e.value = 'Épave';
+    await rachatEnregistrer(); await stockOuvrirAchat();
+    const c = $('achCession'); if(c){ c.checked = true; jmCessionBascule(); }
+    showToast('Convention de cession : complète le cédant et fais signer');
+  };
+
+  // ---------------- Branchements ----------------
+  if(typeof stockOuvrirAchat === 'function'){ const _o = stockOuvrirAchat; stockOuvrirAchat = async function(){ const r = await _o.apply(this, arguments); try{ const c = $('achCession'); if(c){ c.checked = false; ['achDocImmat','achDocConformite','achDocCles'].forEach(i => { if($(i)) $(i).checked = false; }); jmCessionBascule(); } }catch(e){} return r; }; }
+  if(typeof majResumeAccueil === 'function'){ const _r = majResumeAccueil; majResumeAccueil = function(){ const r = _r.apply(this, arguments); try{ const p = $('jmAccueilPlus'); if(p && !$('jmDepotAccueil')){ const x = document.createElement('div'); x.id = 'jmDepotAccueil'; x.className = 'jm-depot-acc'; x.setAttribute('role', 'button'); x.onclick = () => openDepot(); p.appendChild(x); } jmDepotAccueil(); }catch(e){} return r; }; }
+})();
+</script>
+<script id="jm-v258-questions-script">
+(function(){
+  // ===================================================================
+  //  v258 — Questions d'appel (à ne pas oublier), application au formulaire,
+  //  message client, récapitulatif partenaire, encodage d'une intervention passée.
+  //  Utilise les champs existants du formulaire : aucun calcul modifié.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const Q = [
+    {k:'lieu', t:'Où se trouve le véhicule ?', o:[['rue','Rue / parking'],['autoroute','Autoroute'],['soussol','Parking souterrain'],['difficile','Accès difficile / étroit']]},
+    {k:'etat', t:'Le véhicule roule-t-il ?', o:[['roule','Roule'],['roulepas','Ne roule pas'],['accidente','Accidenté']]},
+    {k:'roues', t:'Est-il sur ses 4 roues ?', o:[['ok','Oui, 4 roues'],['manque','Roue manquante / jante'],['bloquee','Roue(s) bloquée(s)']]},
+    {k:'boite', t:'Type de boîte ?', o:[['manuelle','Manuelle'],['auto','Automatique'],['autobloquee','Auto bloquée en P']]},
+    {k:'frein', t:'Frein à main ?', o:[['normal','Classique / desserré'],['electrique','Électrique serré']]},
+    {k:'vehicule', t:'Type de véhicule ?', o:[['normale','Voiture'],['suv','SUV / 4x4'],['utilitaire','Utilitaire'],['electrique','Électrique / hybride'],['vsp','Sans permis']]},
+    {k:'cles', t:'Les clés sont-elles là ?', o:[['oui','Avec les clés'],['non','Sans les clés']]}
+  ];
+  const LIB = {}; Q.forEach(q => q.o.forEach(([v, l]) => LIB[q.k + ':' + v] = l));
+  let REP = {}, MODE_PASSE = false;
+  function rendu(){
+    $('qaListe').innerHTML = Q.map(q => '<div class="qa-q"><div class="qa-t">' + q.t + '</div><div class="qa-o">' + q.o.map(([v, l]) =>
+      '<button type="button" class="qa-c' + (REP[q.k] === v ? ' on' : '') + '" onclick="jmQaChoix(\'' + q.k + '\',\'' + v + '\')">' + l + '</button>').join('') + '</div></div>').join('');
+    $('qaPasse').style.display = MODE_PASSE ? 'block' : 'none';
+    $('qaTitre').textContent = MODE_PASSE ? '📅 Intervention passée' : '📋 Questions à poser au client';
+  }
+  window.jmQaChoix = (k, v) => { REP[k] = REP[k] === v ? undefined : v; rendu(); };
+  window.jmQaOuvrir = function(passe){
+    MODE_PASSE = !!passe;
+    const q = (typeof lastCalc !== 'undefined' && lastCalc && lastCalc.questionnaire) || {};
+    REP = {...q};
+    if(MODE_PASSE){ const d = new Date(Date.now() - 3600e3), p = n => String(n).padStart(2, '0'); $('qaDate').value = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); $('qaHeure').value = p(d.getHours()) + ':' + p(d.getMinutes()); $('qaPaye').value = ''; }
+    $('qaAuto').checked = localStorage.getItem('jm_questAuto') !== 'non';
+    rendu(); $('modalQaBg').classList.add('show');
+  };
+  window.jmQaFermer = () => $('modalQaBg').classList.remove('show');
+  window.jmQaAutoMaj = () => { try{ localStorage.setItem('jm_questAuto', $('qaAuto').checked ? 'oui' : 'non'); }catch(e){} };
+  function cocherExtra(val, on){ const cb = document.querySelector('.extraCheck[value="' + val + '"]'); if(cb && cb.checked !== on){ cb.checked = on; cb.dispatchEvent(new Event('change', {bubbles:true})); } }
+  function toggleOn(id, on){ const t = $(id); if(t && getComputedStyle(t).display !== 'none') t.classList.toggle('on', on); return !!(t && getComputedStyle(t).display !== 'none'); }
+  window.jmQaAppliquer = function(){
+    const r = REP;
+    if(MODE_PASSE && $('qaDate').value){
+      $('interventionDate').value = $('qaDate').value; $('interventionTime').value = $('qaHeure').value || '12:00';
+      try{ majorationsForceesManuellement = {nuit:false, we:false}; }catch(e){}   // la date encodée décide ; modifiable ensuite à la main
+      if(typeof autoMajorations === 'function') autoMajorations();
+    }
+    if(r.vehicule && typeof setVehicleType === 'function') setVehicleType(r.vehicule);
+    toggleOn('tgSousSol', r.lieu === 'soussol');
+    const pasRoues = toggleOn('tgPasRoues', r.roues === 'manque');   // épave uniquement
+    cocherExtra('roulettes', r.roues === 'bloquee' || (r.roues === 'manque' && !pasRoues));   // roue manquante : dolly / roulettes
+    cocherExtra('deblocage_boite', r.boite === 'autobloquee');
+    cocherExtra('deblocage_frein', r.frein === 'electrique');
+    if(typeof updateExtrasSummary === 'function') updateExtrasSummary();
+    if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+    QA_DERNIER = {...r}; PAYE_PASSE = MODE_PASSE ? ($('qaPaye').value || '') : '';
+    jmQaFermer();
+    const manquant = Q.filter(q => !r[q.k]).map(q => q.t.replace(' ?', '').toLowerCase());
+    showToast(manquant.length ? 'Appliqué — pas encore demandé : ' + manquant.slice(0, 2).join(', ') + (manquant.length > 2 ? '…' : '') : 'Réponses appliquées au formulaire' + (r.roues === 'manque' && !pasRoues ? ' — roue manquante : roulettes / dolly ajoutées' : ''));
+  };
+  let QA_DERNIER = null, PAYE_PASSE = '';
+  window.jmQaResume = function(r){ r = r || {}; return Q.filter(q => r[q.k]).map(q => LIB[q.k + ':' + r[q.k]]).join(' · '); };
+  // Enregistrement : réponses gardées avec l'intervention ; paiement déjà reçu pour une intervention passée.
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){ const res = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc && QA_DERNIER) lastCalc.questionnaire = {...QA_DERNIER}; }catch(e){} return res; };
+  }
+  if(typeof enregistrer === 'function'){
+    const _e = enregistrer;
+    enregistrer = async function(){
+      const paye = PAYE_PASSE; let avant = []; try{ avant = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+      const res = await _e.apply(this, arguments);
+      try{
+        let apres = []; try{ apres = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+        const nouveaux = apres.filter(k => !avant.includes(k));
+        if(nouveaux.length === 1 && paye){
+          const k = nouveaux[0], d = JSON.parse((await window.storage.get(k)).value);
+          if(!d.paiement || d.paiement.statut !== 'paye'){ d.paiement = {...(d.paiement || {}), statut:'paye', recu: Number(d.total) || 0, moyen: paye, date: d.date, saisieDifferee: true}; d.paye = true; d.saisieDifferee = true; await window.storage.set(k, JSON.stringify(d)); }
+        } else if(nouveaux.length === 1 && MODE_PASSE){ const k = nouveaux[0], d = JSON.parse((await window.storage.get(k)).value); d.saisieDifferee = true; await window.storage.set(k, JSON.stringify(d)); }
+        if(nouveaux.length){ QA_DERNIER = null; PAYE_PASSE = ''; MODE_PASSE = false; }
+      }catch(e){ console.warn('[v258] paiement intervention passée', e); }
+      return res;
+    };
+  }
+  if(typeof chargerInterventionDepuisJournal === 'function'){
+    const _ch = chargerInterventionDepuisJournal;
+    chargerInterventionDepuisJournal = async function(key){ try{ const d = JSON.parse((await window.storage.get(key)).value); QA_DERNIER = d.questionnaire ? {...d.questionnaire} : null; }catch(e){ QA_DERNIER = null; } PAYE_PASSE = ''; MODE_PASSE = false; return _ch.apply(this, arguments); };
+  }
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); QA_DERNIER = null; PAYE_PASSE = ''; MODE_PASSE = false; return r; }; }
+  // Messages
+  window.JM_MSG_QUESTIONS = 'Bonjour, JM Express Auto Dépannage.\n\nPour venir avec le bon matériel, pouvez-vous me préciser :\n' +
+    '1. La marque et le modèle du véhicule, boîte manuelle ou automatique ;\n2. Le véhicule est-il sur ses 4 roues ? Une roue manque-t-elle ou est-elle bloquée ?\n' +
+    '3. Le frein à main est-il électrique ?\n4. Le véhicule roule-t-il ? Est-il accidenté ?\n5. Où se trouve-t-il exactement (rue, parking souterrain, autoroute…) et où faut-il le déposer ?\n\nUne ou deux photos du véhicule nous aident beaucoup. Merci !';
+  function numero(){ let n = (typeof numeroClientPropre === 'function' ? numeroClientPropre() : (($('telClient') || {}).value || '')).replace(/[^0-9]/g, ''); if(n.startsWith('00')) n = n.slice(2); else if(n.startsWith('0')) n = '32' + n.slice(1); return n; }
+  window.jmQaEnvoyerClient = function(canal){
+    const n = numero(), msg = JM_MSG_QUESTIONS;
+    if(!n){ try{ navigator.clipboard.writeText(msg); showToast('Pas de numéro client : questions copiées'); }catch(e){} return; }
+    location.href = canal === 'sms' ? 'sms:+' + n + '&body=' + encodeURIComponent(msg) : 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  };
+  window.jmRecapPartenaire = function(){
+    const v = id => (($(id) || {}).value || '').trim(), sel = $('type'), service = sel ? (sel.options[sel.selectedIndex] || {}).text || '' : '';
+    const r = REP && Object.keys(REP).length ? REP : (QA_DERNIER || {});
+    const lignes = ['Intervention transmise par JM Express Auto Dépannage', '', '🔧 ' + service.replace(/^[^\p{L}]+/u, ''),
+      v('addrFrom') ? '📍 Prise en charge : ' + v('addrFrom') : '', v('addrTo') ? '🏁 Destination : ' + v('addrTo') : '',
+      v('plaqueImmat') ? '🔖 Plaque : ' + v('plaqueImmat') : '', jmQaResume(r) ? '🚗 État : ' + jmQaResume(r) : '⚠️ État du véhicule non vérifié (roues, boîte, frein) : à confirmer avec le client',
+      v('telClient') ? '📞 Client : ' + v('telClient') : '', (v('interventionDate') ? '🕒 ' + new Date(v('interventionDate') + 'T' + (v('interventionTime') || '00:00')).toLocaleString('fr-BE', {dateStyle:'short', timeStyle:'short'}) : '')].filter(Boolean);
+    const msg = lignes.join('\n');
+    try{ navigator.clipboard.writeText(msg); }catch(e){}
+    if(navigator.share){ navigator.share({text: msg}).catch(() => {}); } else showToast('Récapitulatif copié : colle-le dans la conversation du partenaire');
+    return msg;
+  };
+  // Ouverture automatique à chaque nouvelle intervention (formulaire vide)
+  function formulaireVide(){ return !(typeof editingKey !== 'undefined' && editingKey) && !(($('addrFrom') || {}).value || '').trim() && !(($('km') || {}).value || '').trim() && !(($('telClient') || {}).value || '').trim(); }
+  if(typeof showTab === 'function'){
+    const _s = showTab;
+    showTab = function(tab){ const r = _s.apply(this, arguments); try{ if(tab === 'tabNouveau' && formulaireVide() && !QA_DERNIER && localStorage.getItem('jm_questAuto') !== 'non' && !document.querySelector('.modal-bg.show')) setTimeout(() => { if(formulaireVide()) jmQaOuvrir(false); }, 250); }catch(e){} return r; };
+  }
+  window.jmEncoderPasse = function(){ if(typeof closeMenu === 'function') closeMenu(); try{ localStorage.setItem('jm_questAuto_tmp', '1'); }catch(e){} const auto = localStorage.getItem('jm_questAuto'); localStorage.setItem('jm_questAuto', 'non'); showTab('tabNouveau'); if(auto === null) localStorage.removeItem('jm_questAuto'); else localStorage.setItem('jm_questAuto', auto); setTimeout(() => jmQaOuvrir(true), 200); };
+  // Préparation recommandée (fiche rapide v248) : tient compte des réponses
+  if(typeof window.jmPreparation === 'function'){
+    const _p = window.jmPreparation;
+    window.jmPreparation = function(d){ const out = new Set(_p.apply(this, arguments)); const r = (d && d.questionnaire) || {};
+      if(r.roues === 'manque') out.add('Roue manquante — prévoir dolly / chariot'); if(r.roues === 'bloquee') out.add('Dolly / roulettes');
+      if(r.boite === 'autobloquee') out.add('Boîte automatique bloquée'); if(r.frein === 'electrique') out.add('Frein électrique');
+      if(r.lieu === 'autoroute') out.add('Autoroute — sécurité / balisage'); if(r.lieu === 'soussol') out.add('Parking souterrain — hauteur'); if(r.lieu === 'difficile') out.add('Accès difficile');
+      if(r.etat === 'accidente') out.add('Véhicule accidenté'); if(r.cles === 'non') out.add('Sans les clés');
+      return [...out]; };
+  }
+})();
+</script>
+<script id="jm-v259-script">
+(function(){
+  // ===================================================================
+  //  v259 — Rentabilité estimée par course (privée), mode plein soleil,
+  //  barre de progression de l'intervention. Aucun calcul de prix modifié.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const r2 = x => Math.round((Number(x) || 0) * 100) / 100;
+
+  // ---------- 1) Rentabilité estimée ----------
+  window.jmRentabilite = function(c){
+    if(!c || !(Number(c.total) > 0)) return null;
+    const remorquage = typeof TYPES_REMORQUAGE !== 'undefined' && TYPES_REMORQUAGE.includes(c.type);
+    const kmFactures = Number(c.km) || 0;
+    const kmParcourus = remorquage ? kmFactures + (c.retour ? Number(c.kmRetourVide) || 0 : 0) : kmFactures * 2;   // sur place : aller + retour
+    const prixL = c.auto ? (Number(RATES.dieselAutoroute) || Number(RATES.diesel) || 0) : (Number(RATES.diesel) || 0);
+    const carburant = r2(kmParcourus * (Number(RATES.conso) || 15) / 100 * prixL);
+    const usure = r2(kmParcourus * (Number(RATES.usureKm) || 0));
+    let minutes = null; const h = c.horaires || {};
+    const hm = s => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+    if(hm(h.depart) != null && hm(h.fin) != null){ minutes = hm(h.fin) - hm(h.depart); if(minutes < 0) minutes += 1440; }
+    const estime = minutes == null;
+    if(estime) minutes = Math.round(kmParcourus / 50 * 60 + 20 + (Number(c.minutesAttente) || 0));
+    const temps = r2(minutes / 60 * (Number(RATES.valeurHeure) || 0));
+    const pieces = r2((c.fournisseur ? Number(c.fournisseur.prixAchat) || 0 : 0) + (Number(c.battPrice) || 0));
+    const couts = r2(carburant + usure + temps + pieces), marge = r2(c.total - couts);
+    return {kmParcourus: r2(kmParcourus), prixL, carburant, usure, minutes, estime, temps, pieces, couts, marge, pct: Math.round(marge / c.total * 100)};
+  };
+  function afficherRentabilite(){
+    const t = $('ticket'); if(!t) return;
+    let box = $('jmRenta');
+    if(!box){ box = document.createElement('details'); box.id = 'jmRenta'; box.className = 'jm-renta'; t.insertAdjacentElement('afterend', box); }
+    const c = (typeof lastCalc !== 'undefined') ? lastCalc : null, r = jmRentabilite(c);
+    if(!r || getComputedStyle(t).display === 'none'){ box.style.display = 'none'; return; }
+    box.style.display = '';
+    const hh = m => Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0');
+    box.innerHTML = '<summary><span>💡 Rentabilité estimée <em>(visible par toi seul)</em></span><strong class="' + (r.marge >= 0 ? 'jm-vert' : 'jm-rouge') + '">' + fmt(r.marge) + ' · ' + r.pct + ' %</strong></summary>' +
+      '<div class="jm-renta-l"><span>Prix facturé</span><span>' + fmt(c.total) + '</span></div>' +
+      '<div class="jm-renta-l"><span>Gasoil : ' + String(r.kmParcourus).replace('.', ',') + ' km parcourus × ' + (Number(RATES.conso) || 15) + ' L/100 × ' + fmt(r.prixL) + '</span><span>− ' + fmt(r.carburant) + '</span></div>' +
+      (r.usure ? '<div class="jm-renta-l"><span>Usure du camion</span><span>− ' + fmt(r.usure) + '</span></div>' : '') +
+      '<div class="jm-renta-l"><span>Ton temps : ' + hh(r.minutes) + (r.estime ? ' (estimé)' : ' (horaires)') + ' × ' + fmt(Number(RATES.valeurHeure) || 0) + '/h</span><span>− ' + fmt(r.temps) + '</span></div>' +
+      (r.pieces ? '<div class="jm-renta-l"><span>Pièces achetées (pneu, batterie)</span><span>− ' + fmt(r.pieces) + '</span></div>' : '') +
+      '<div class="jm-renta-l jm-renta-tot"><span>Marge brute</span><span>' + fmt(r.marge) + '</span></div>' +
+      '<div class="jm-renta-n">Estimation hors assurance, entretien et charges fixes. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km.</div>';
+  }
+  if(typeof calculer === 'function'){ const _c = calculer; calculer = function(){ const r = _c.apply(this, arguments); try{ afficherRentabilite(); majProgression(); }catch(e){} return r; }; }
+  if(typeof invaliderTicketObsolete === 'function'){ const _i = invaliderTicketObsolete; invaliderTicketObsolete = function(){ const r = _i.apply(this, arguments); try{ const b = $('jmRenta'); if(b && (typeof lastCalc === 'undefined' || !lastCalc)) b.style.display = 'none'; }catch(e){} return r; }; }
+
+  // ---------- 2) Mode plein soleil ----------
+  function appliquerSoleil(on){
+    document.documentElement.classList.toggle('jm-soleil', on);
+    const b = $('jmSoleilBtn'); if(b) b.textContent = on ? '☀️ Plein soleil : ON' : '☀️ Plein soleil';
+  }
+  window.jmSoleil = function(){
+    const on = !document.documentElement.classList.contains('jm-soleil');
+    try{
+      if(on){ localStorage.setItem('jm_soleil_avant', (typeof THEME_MODE !== 'undefined' ? THEME_MODE : 'auto')); if(typeof setThemeMode === 'function') setThemeMode('light'); localStorage.setItem('jm_soleil', '1'); }
+      else { const avant = localStorage.getItem('jm_soleil_avant') || 'auto'; localStorage.removeItem('jm_soleil'); if(typeof setThemeMode === 'function') setThemeMode(avant); }
+    }catch(e){}
+    appliquerSoleil(on); if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+    showToast(on ? '☀️ Mode plein soleil : contraste maximal' : 'Mode plein soleil désactivé');
+  };
+
+  // ---------- 3) Barre de progression ----------
+  const ETAPES = [['client','Client'],['photos','Photos'],['prix','Prix'],['paiement','Paiement']];
+  function cible(k){
+    if(k === 'client') return ($('type') && ($('type')._jmPickerBtn || $('type')).closest('.field')) || $('blocPriseEnCharge');
+    if(k === 'photos') return $('etatLieuxField') || $('etatLieuxPhotos');
+    if(k === 'prix') return ($('ticket') && getComputedStyle($('ticket')).display !== 'none') ? $('ticket') : ($('km') ? $('km').closest('.field') : null);
+    if(k === 'paiement') return ($('tgAcompte') && $('tgAcompte').closest('.field, .toggles, .grp')) || $('btnEnregistrer');
+  }
+  function ouvrirSection(el){
+    const liste = el && el.closest('.extras-list');
+    if(liste && getComputedStyle(liste).display === 'none'){ let h = liste.previousElementSibling; while(h && !h.classList.contains('extras-header')) h = h.previousElementSibling; if(h) h.click(); }
+  }
+  window.jmAllerEtape = function(k){
+    const el = cible(k); if(!el){ showToast('Section introuvable'); return; }
+    ouvrirSection(el);
+    setTimeout(() => { const barre = $('jmProgression'), hd = document.querySelector('header'); const dec = (hd ? hd.getBoundingClientRect().bottom : 70) + (barre ? barre.offsetHeight : 44) + 8;
+      window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - dec, behavior: 'smooth'}); }, 60);
+  };
+  function fait(k){
+    const v = id => (($(id) || {}).value || '').trim();
+    if(k === 'client') return !!(v('addrFrom') && (v('telClient') || v('plaqueImmat')));
+    if(k === 'photos') return ['etatLieuxField','etatLieuxPhotos','dechargPhotos'].some(id => $(id) && $(id).querySelectorAll && $(id).querySelectorAll('img').length > 0);
+    if(k === 'prix') return !!(typeof lastCalc !== 'undefined' && lastCalc && lastCalc.total > 0 && $('ticket') && getComputedStyle($('ticket')).display !== 'none');
+    if(k === 'paiement') return !!($('tgAcompte') && $('tgAcompte').classList.contains('on'));
+  }
+  function majProgression(){
+    const b = $('jmProgression'); if(!b) return;
+    b.querySelectorAll('.jm-prog-e').forEach(e => e.classList.toggle('fait', fait(e.dataset.k)));
+  }
+  let tProg = null;
+  function planifier(){ clearTimeout(tProg); tProg = setTimeout(majProgression, 250); }
+  function placerBarre(){
+    const tab = $('tabNouveau'); if(!tab || $('jmProgression')) return;
+    const b = document.createElement('div'); b.id = 'jmProgression'; b.className = 'jm-prog';
+    b.innerHTML = ETAPES.map(([k, l], i) => '<button type="button" class="jm-prog-e" data-k="' + k + '" onclick="jmAllerEtape(\'' + k + '\')"><span class="jm-prog-n">' + (i + 1) + '</span>' + l + '</button>').join('');
+    tab.insertBefore(b, tab.firstChild);
+    const hd = document.querySelector('header'); if(hd) document.documentElement.style.setProperty('--jmHeaderH', hd.offsetHeight + 'px');
+    tab.addEventListener('input', planifier, true); tab.addEventListener('click', planifier, true);
+    majProgression();
+  }
+  function init(){
+    placerBarre();
+    try{ if(localStorage.getItem('jm_soleil') === '1') appliquerSoleil(true); }catch(e){}
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="jm-v260-charges-script">
+(function(){
+  // ===================================================================
+  //  v260 — Part des charges fixes dans la rentabilité + rappel annuel de mise à jour.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const CLES = ['chargesAssurance','chargesPub','chargesComptable','chargesAutres'];
+  window.jmChargesAnnuelles = () => CLES.reduce((s, k) => s + (Number(RATES[k]) || 0), 0);
+  let N_AN = null, BASE_N = '';
+  window.jmMajNbInterventions = async function(){
+    let keys = []; try{ keys = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+    const maintenant = Date.now(), an = 365 * 864e5; let n = 0, premiere = maintenant;
+    for(const k of keys){ try{ const d = JSON.parse((await window.storage.get(k)).value); const t = new Date(d.date).getTime(); if(!isNaN(t) && maintenant - t <= an){ n++; if(t < premiere) premiere = t; } }catch(e){} }
+    const jours = Math.max(30, (maintenant - premiere) / 864e5);   // moins d'un an d'historique : ramené sur 12 mois (au moins 30 jours pris en compte)
+    N_AN = n ? Math.round(jours >= 365 ? n : n * 365 / jours) : 0;
+    BASE_N = jours >= 365 ? n + ' interventions sur 12 mois' : n + ' interventions en ' + Math.round(jours) + ' jours, soit ~' + N_AN + ' par an';
+    return N_AN;
+  };
+  window.jmPartCharges = function(){ const tot = jmChargesAnnuelles(); if(!tot || !N_AN) return {part: 0, tot, n: N_AN || 0, base: BASE_N}; return {part: Math.round(tot / N_AN * 100) / 100, tot, n: N_AN, base: BASE_N}; };
+  // Rentabilité : on ajoute la part des charges fixes
+  if(typeof window.jmRentabilite === 'function'){
+    const _r = window.jmRentabilite;
+    window.jmRentabilite = function(c){ const r = _r.apply(this, arguments); if(!r) return r; const p = jmPartCharges(); r.chargesFixes = p.part; r.chargesInfo = p; r.couts = Math.round((r.couts + p.part) * 100) / 100; r.marge = Math.round((c.total - r.couts) * 100) / 100; r.pct = Math.round(r.marge / c.total * 100); return r; };
+  }
+  // Affichage : ligne insérée avant la marge brute
+  if(typeof calculer === 'function'){
+    const _c = calculer;
+    calculer = function(){ const res = _c.apply(this, arguments); try{
+      const box = $('jmRenta'); if(!box || typeof lastCalc === 'undefined' || !lastCalc) return res;
+      const r = jmRentabilite(lastCalc); if(!r) return res;
+      const tot = box.querySelector('.jm-renta-tot'); const sum = box.querySelector('summary strong');
+      if(tot && !box.querySelector('.jm-renta-cf')){
+        const l = document.createElement('div'); l.className = 'jm-renta-l jm-renta-cf';
+        l.innerHTML = r.chargesInfo.tot ? '<span>Part des charges fixes : ' + fmt(r.chargesInfo.tot) + '/an ÷ ' + (r.chargesInfo.n || '—') + ' interventions' + (r.chargesInfo.base ? '<br><em style="font-style:normal; opacity:.75; font-size:11px;">' + r.chargesInfo.base + '</em>' : '') + '</span><span>− ' + fmt(r.chargesFixes) + '</span>' : '<span>Charges fixes non renseignées (Réglages → Tarifs)</span><span>—</span>';
+        tot.parentNode.insertBefore(l, tot);
+      }
+      if(tot) tot.lastElementChild.textContent = fmt(r.marge);
+      if(sum){ sum.textContent = fmt(r.marge) + ' · ' + r.pct + ' %'; sum.className = r.marge >= 0 ? 'jm-vert' : 'jm-rouge'; }
+      const n = box.querySelector('.jm-renta-n'); if(n) n.textContent = 'Estimation hors amortissement du camion. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km, charges fixes annuelles.';
+    }catch(e){ console.warn('[v260] charges fixes', e); } return res; };
+  }
+  if(typeof enregistrer === 'function'){ const _e = enregistrer; enregistrer = async function(){ const r = await _e.apply(this, arguments); try{ await jmMajNbInterventions(); }catch(e){} return r; }; }
+  // Rappel au bout de 12 mois
+  const UN_AN = 365 * 864e5;
+  async function lireMaj(){ try{ return JSON.parse((await window.storage.get('chargesFixesMaj')).value); }catch(e){ return null; } }
+  async function ecrireMaj(o){ try{ await window.storage.set('chargesFixesMaj', JSON.stringify(o)); }catch(e){} }
+  function signature(){ return CLES.map(k => Number(RATES[k]) || 0).join('|'); }
+  if(typeof saveSettings === 'function'){
+    const _s = saveSettings;
+    saveSettings = async function(){ const avant = signature(); const r = await _s.apply(this, arguments); try{ const m = await lireMaj(); if(!m || signature() !== avant || (m.sig && m.sig !== signature())) await ecrireMaj({date: new Date().toISOString(), sig: signature()}); }catch(e){} return r; };
+  }
+  window.jmChargesRappel = async function(){
+    const m = await lireMaj();
+    if(!m){ await ecrireMaj({date: new Date().toISOString(), sig: signature()}); return false; }
+    const ref = new Date(m.report || m.date).getTime() + (m.report ? 0 : UN_AN);
+    if(Date.now() < ref) return false;
+    $('chargesRappelDate').textContent = new Date(m.date).toLocaleDateString('fr-BE');
+    $('chargesRappelListe').innerHTML = [['Assurance du camion','chargesAssurance'],['Publicité','chargesPub'],['Comptable','chargesComptable'],['Autres','chargesAutres']].map(([l, k]) => l + ' : ' + fmt(Number(RATES[k]) || 0) + '/an').join('<br>');
+    $('modalChargesBg').classList.add('show'); return true;
+  };
+  window.jmChargesOuvrirReglages = async function(){ $('modalChargesBg').classList.remove('show'); if(typeof openSettings === 'function') openSettings(); setTimeout(() => { const e = $('r_chargesAssurance'); if(e){ const cat = e.closest('.extras-list'); if(cat && getComputedStyle(cat).display === 'none'){ let h = cat.previousElementSibling; while(h && !h.classList.contains('extras-header')) h = h.previousElementSibling; if(h) h.click(); } e.scrollIntoView({block:'center'}); e.focus(); } }, 350); };
+  window.jmChargesConfirmer = async function(){ await ecrireMaj({date: new Date().toISOString(), sig: signature()}); $('modalChargesBg').classList.remove('show'); showToast('Charges fixes confirmées pour un an'); };
+  window.jmChargesPlusTard = async function(){ const m = await lireMaj() || {date: new Date().toISOString(), sig: signature()}; m.report = new Date(Date.now() + 30 * 864e5).toISOString(); await ecrireMaj(m); $('modalChargesBg').classList.remove('show'); showToast('Rappel dans 30 jours'); };
+  async function init(){ await jmMajNbInterventions(); setTimeout(() => { jmChargesRappel(); }, 2500); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="jm-v261-telephone-script">
+(function(){
+  // ===================================================================
+  //  v261 — Changement de téléphone : recalage de la numérotation,
+  //  remplacement du téléphone principal, assistant sur l'ancien téléphone.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const PAR_AN = {INT:'interventionCounter', BDC:'bdcCounter', DEV:'devisCounter', ACH:'achatCounter', VEN:'venteCounter', GAR:'gardiennageCounter'};
+  const COMPTEURS = ['invoiceCounter','creditNoteCounter', ...Object.values(PAR_AN)];
+  // ---------- 1) Recalage : jamais de numéro en double ----------
+  window.jmRecalerCompteurs = async function(){
+    let keys = []; try{ keys = (await window.storage.list()).keys || []; }catch(e){}
+    let fact = 0, nc = 0; const an = {}, Y = new Date().getFullYear();
+    for(const k of keys){
+      if(COMPTEURS.includes(k)) continue;
+      let t = ''; try{ t = (await window.storage.get(k)).value || ''; }catch(e){ continue; }
+      if(t.indexOf('-') < 0) continue;
+      for(const m of t.matchAll(/FACT-\d{4}-\d{2}-\d{2}-(\d{4,})/g)) fact = Math.max(fact, +m[1]);
+      for(const m of t.matchAll(/\bNC-\d{4}-\d{2}-\d{2}-(\d{4,})/g)) nc = Math.max(nc, +m[1]);
+      for(const m of t.matchAll(/\b(INT|BDC|DEV|ACH|VEN|GAR)-(\d{4})-(\d{3,})\b/g)){ if(+m[2] === Y){ an[m[1]] = Math.max(an[m[1]] || 0, +m[3]); } }
+    }
+    const faits = [];
+    async function simple(cle, max, lib){ let cur = 0; try{ cur = parseInt((await window.storage.get(cle)).value, 10) || 0; }catch(e){} if(max > cur){ await window.storage.set(cle, String(max)); faits.push(lib + ' ' + cur + ' → ' + max); } }
+    await simple('invoiceCounter', fact, 'factures'); await simple('creditNoteCounter', nc, 'notes de crédit');
+    for(const [p, cle] of Object.entries(PAR_AN)){
+      const max = an[p] || 0; if(!max) continue; let cur = {}; try{ cur = JSON.parse((await window.storage.get(cle)).value) || {}; }catch(e){}
+      const n = cur.annee === Y ? (Number(cur.n) || 0) : 0;
+      if(max > n){ await window.storage.set(cle, JSON.stringify({annee: Y, n: max})); faits.push(p + ' ' + n + ' → ' + max); }
+    }
+    return faits;
+  };
+  if(typeof restaurerSauvegarde === 'function'){
+    const _r = restaurerSauvegarde;
+    restaurerSauvegarde = async function(){ const res = await _r.apply(this, arguments); try{ const f = await jmRecalerCompteurs(); if(f.length) showToast('Numérotation recalée : ' + f.join(', ')); }catch(e){} return res; };
+  }
+  // ---------- 2) Remplacer le téléphone principal ----------
+  window.jmSyncRemplacerPrincipal = async function(){
+    const url = (($('syncUrl') || {}).value || '').trim(), code = (($('syncSetupCode') || {}).value || '').trim();
+    if(!url || !code){ showToast('Adresse du serveur et code d\'initialisation requis'); return; }
+    if(!confirm('Remplacer le téléphone principal par celui-ci ?\n\nL\'ancien téléphone principal sera déconnecté (ses données restent sur lui). Ce téléphone récupère tout depuis le serveur : interventions, factures, tarifs, clients.')) return;
+    try{
+      showToast('Connexion au serveur…');
+      const res = await fetch(url.replace(/\/$/, '') + '/setup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({setupCode: code, deviceNom: 'Téléphone principal', remplacer: true})});
+      if(!res.ok){ showToast(res.status === 403 ? 'Code d\'initialisation refusé' : 'Serveur injoignable (' + res.status + ')'); return; }
+      const j = await res.json();
+      Object.assign(SYNC, {url, jeton: j.token, deviceId: j.deviceId, deviceNom: 'Téléphone principal', role: 'principal', curseur: 0});
+      syncSauverEtat();
+      let revoques = 0;
+      try{ const dv = await syncApi('/devices'); for(const d of (dv.devices || [])){ if(d.role === 'principal' && !d.revoked && d.id !== SYNC.deviceId){ try{ await syncApi('/devices/revoke', {deviceId: d.id}); revoques++; }catch(e){} } } }catch(e){}
+      // Récupération seule (aucun envoi de réglages locaux, qui seraient ceux par défaut)
+      showToast('Récupération des données…');
+      // Pendant la récupération, ce téléphone accepte une fois les réglages du serveur (tarifs, adresse de base, heures de nuit),
+      // comme le ferait un téléphone de secours ; il redevient ensuite l'autorité sur les réglages.
+      SYNC.role = 'secours'; syncSauverEtat();
+      try{ for(let i = 0; i < 30; i++){ const avant = SYNC.curseur; await synchroniser(false); if(SYNC.curseur === avant) break; } }
+      finally{ SYNC.role = 'principal'; syncSauverEtat(); }
+      try{ if(typeof loadRates === 'function') await loadRates(); }catch(e){}
+      const f = await jmRecalerCompteurs();
+      let n = 0; try{ n = ((await window.storage.list('intervention:')).keys || []).length; }catch(e){}
+      if(typeof syncChargerAppareils === 'function') await syncChargerAppareils();
+      if(typeof syncMajEcranReglages === 'function') syncMajEcranReglages();
+      if(typeof majResumeAccueil === 'function') majResumeAccueil();
+      alert('✓ Ce téléphone est maintenant le principal.\n\n' + n + ' interventions récupérées.\n' + (revoques ? 'Ancien téléphone principal déconnecté.\n' : '') + (f.length ? 'Numérotation recalée : ' + f.join(', ') + '.' : 'Numérotation à jour.'));
+    }catch(e){ showToast('Remplacement impossible : ' + (e.message || 'erreur réseau')); }
+  };
+  // ---------- 3) Assistant sur l'ancien téléphone ----------
+  window.jmChangerTelephone = async function(){
+    if(typeof closeMenu === 'function') closeMenu();
+    const s = (typeof jmEtatSynchro === 'function') ? jmEtatSynchro() : null;
+    $('telSync').textContent = s ? s[1] : 'Synchronisation non configurée sur ce téléphone';
+    let fiches = []; try{ for(const k of ((await window.storage.list('rachat:')).keys || [])){ const d = JSON.parse((await window.storage.get(k)).value); if(d.nbPhotos > 0) fiches.push({k, d}); } }catch(e){}
+    $('telRachats').innerHTML = fiches.length ? fiches.map(({k, d}) => '<button class="ghost" style="margin:4px 0;" onclick="jmTelDossier(\'' + k + '\')">📁 ' + ([d.marque, d.modele].filter(Boolean).join(' ') || 'Véhicule') + ' (' + d.nbPhotos + ' photo' + (d.nbPhotos > 1 ? 's' : '') + ')</button>').join('') : '<div class="km-mention">Aucune photo de rachat à exporter.</div>';
+    $('telUrl').textContent = location.origin + location.pathname;
+    $('modalTelBg').classList.add('show');
+  };
+  window.jmTelSynchroniser = async function(){ try{ await synchroniser(true); }catch(e){} const s = (typeof jmEtatSynchro === 'function') ? jmEtatSynchro() : null; $('telSync').textContent = s ? s[1] : 'Synchronisation non configurée'; };
+  window.jmTelDossier = async function(k){ await rachatOuvrir(k); await stockDossierPdf(); };
+  async function init(){ try{ const f = await jmRecalerCompteurs(); if(f.length) console.info('[v261] numérotation recalée', f); }catch(e){} }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 2000)); else setTimeout(init, 2000);
+})();
+</script>
+
+
+
+
+
+
 
 
 
