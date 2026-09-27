@@ -2078,6 +2078,20 @@ html:not([data-theme="dark"]) #modalMenuBg .jm-menu-groupe > .menu-item + .menu-
 html.jm-soleil #modalMenuBg .jm-menu-groupe{border:2px solid #1b1b1b}
 body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!important}
 </style>
+<style id="jm-v269-style">
+/* v269 — fiche « Intervention passée » complète */
+.jm-qa-etape{margin:14px 0 6px;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--jm-action)}
+.jm-qa-service{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:52px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:inherit;font-weight:800;font-size:15px;text-align:left}
+.jm-qa-service em{font-style:normal;color:var(--jm-action);font-size:13px;white-space:nowrap}
+.jm-qa-km{display:flex;gap:8px;align-items:flex-end;margin-bottom:6px}.jm-qa-km button{width:auto!important;margin:0!important;padding:0 14px;color:var(--jm-gps)!important}
+.jm-qa-prix{margin:10px 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
+.jm-qa-prix-l{font-size:12.5px;color:var(--grey);margin:2px 0}.jm-qa-prix-t{display:flex;justify-content:space-between;align-items:baseline;margin:6px 0}.jm-qa-prix-t strong{font-size:24px;color:var(--jm-action)}
+.jm-qa-valider{background:linear-gradient(180deg,#27d273,#18a957)!important;border-color:#138a47!important}
+.jm-qa-doc{color:var(--jm-docs)!important;border-color:color-mix(in srgb,var(--jm-docs) 55%,transparent)!important}
+.jm-bandeau-passe{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--jm-action);background:rgba(255,149,0,.1);font-size:13px}
+.jm-bandeau-passe span{color:var(--grey);font-size:12px}
+.jm-bandeau-passe button{flex:0 0 auto;min-height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--jm-action);background:transparent;color:var(--jm-action);font-weight:800}
+</style>
 
 
 
@@ -4562,20 +4576,50 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
 <div class="modal-bg" id="modalQaBg" onclick="if(event.target===this)jmQaFermer()">
   <div class="modal">
-    <div class="eyebrow">Avant de partir</div>
+    <div class="eyebrow" id="qaEyebrow">Avant de partir</div>
     <h1 class="page-title" style="font-size:21px;" id="qaTitre">📋 Questions à poser au client</h1>
     <div id="qaPasse" style="display:none;">
+      <div class="jm-qa-etape">1 · Quand</div>
       <div class="field-row"><div class="field" style="flex:1;"><label>Date</label><input type="date" id="qaDate"></div><div class="field" style="flex:1;"><label>Heure</label><input type="time" id="qaHeure"></div></div>
-      <div class="field"><label>Déjà payé ?</label><select id="qaPaye"><option value="">Non, à encaisser</option><option>Espèces</option><option>Payconiq</option><option>Virement</option><option>Tap to Pay</option><option>Lien Revolut</option></select></div>
+      <div class="jm-qa-etape">2 · Service</div>
+      <button type="button" class="jm-qa-service" onclick="jmPasseChoisirService()"><span id="qaServiceLib">—</span><em>Changer ›</em></button>
+      <div class="jm-qa-etape">3 · Adresses et kilomètres</div>
+      <div class="field"><label>Prise en charge</label><div class="jm-adr-wrap"><input type="text" id="qaAdrFrom" list="adressesBelgique" placeholder="Rue, n°, ville" autocomplete="off"><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmEffacerAdresse('qaAdrFrom')" onclick="jmEffacerAdresse('qaAdrFrom')" title="Effacer">✕</button><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('qaAdrFrom')" onclick="dicterAdresse('qaAdrFrom')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('qaAdrFrom')" onclick="useMyLocation('qaAdrFrom')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button></div></div>
+      <div class="field" id="qaDeposeField"><label>Dépose</label><div class="jm-adr-wrap"><input type="text" id="qaAdrTo" list="adressesBelgique" placeholder="Garage, domicile…" autocomplete="off"><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmEffacerAdresse('qaAdrTo')" onclick="jmEffacerAdresse('qaAdrTo')" title="Effacer">✕</button><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('qaAdrTo')" onclick="dicterAdresse('qaAdrTo')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button><button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('qaAdrTo')" onclick="useMyLocation('qaAdrTo')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button></div></div>
+      <div class="km-mention" id="qaSurPlaceNote" style="display:none; margin-bottom:10px;">Service sur place : pas de dépose, distance aller depuis ta base.</div>
+      <div class="jm-qa-km"><div class="field" style="flex:1; margin:0;"><label>Km facturés</label><input type="number" id="qaKm" inputmode="decimal" placeholder="0"></div><button type="button" class="ghost" onclick="avecChargement(this, 'Calcul…', () => jmPasseDistance())">📏 Calculer</button></div>
+      <div class="jm-qa-etape">4 · Client</div>
+      <div class="field"><label>Nom (facultatif)</label><input type="text" id="qaClientNom" autocomplete="off"></div>
+      <div class="field-row"><div class="field" style="flex:1;"><label>Téléphone</label><input type="tel" id="qaTel" inputmode="tel"></div><div class="field" style="flex:1;"><label>Plaque</label><input type="text" id="qaPlaque" autocapitalize="characters"></div></div>
+      <div class="jm-qa-etape">5 · Véhicule</div>
     </div>
     <div id="qaListe"></div>
-    <button class="primary" onclick="jmQaAppliquer()">Appliquer au formulaire</button>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
-      <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('whatsapp')">💬 Questions au client</button>
-      <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('sms')">✉️ Par SMS</button>
+    <div id="qaPasseFin" style="display:none;">
+      <div class="jm-qa-etape">6 · Paiement</div>
+      <div class="field"><label>Déjà payé ?</label><select id="qaPaye"><option value="">Non, à encaisser</option><option>Espèces</option><option>Payconiq</option><option>Virement</option><option>Tap to Pay</option><option>Lien Revolut</option></select></div>
+      <div id="qaActionsPrix">
+        <button type="button" class="primary" onclick="jmPasseCalculer()">💶 Calculer le prix</button>
+        <div id="qaPrix" class="jm-qa-prix" style="display:none;"></div>
+        <button type="button" class="primary jm-qa-valider" id="qaEnregistrer" style="display:none;" onclick="avecChargement(this, 'Enregistrement…', () => jmPasseEnregistrer())">✅ Enregistrer l'intervention</button>
+      </div>
+      <div id="qaDocs" style="display:none;">
+        <div class="km-mention" style="margin:10px 0; border-left-color:var(--jm-paiement);">✓ Intervention enregistrée : <strong id="qaDocsNum"></strong></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button type="button" class="ghost jm-qa-doc" style="margin:0;" onclick="jmPasseBon()">📄 Bon d'intervention</button>
+          <button type="button" class="ghost jm-qa-doc" style="margin:0;" onclick="jmPasseFacture()">🧾 Facture</button>
+        </div>
+      </div>
+      <button type="button" class="ghost" style="margin-top:10px;" onclick="jmPasseFormulaireComplet()">Ouvrir le formulaire complet (options avancées)</button>
     </div>
-    <button class="ghost" style="margin-top:8px;" onclick="jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
-    <label class="check-row" style="margin-top:10px;"><input type="checkbox" id="qaAuto" onchange="jmQaAutoMaj()"><span>Afficher ces questions à chaque nouvelle intervention</span></label>
+    <div id="qaAppel">
+      <button class="primary" onclick="jmQaAppliquer()">Appliquer au formulaire</button>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+        <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('whatsapp')">💬 Questions au client</button>
+        <button class="ghost" style="margin:0;" onclick="jmQaEnvoyerClient('sms')">✉️ Par SMS</button>
+      </div>
+      <button class="ghost" style="margin-top:8px;" onclick="jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
+      <label class="check-row" style="margin-top:10px;"><input type="checkbox" id="qaAuto" onchange="jmQaAutoMaj()"><span>Afficher ces questions à chaque nouvelle intervention</span></label>
+    </div>
     <button class="ghost close-modal" onclick="jmQaFermer()">Fermer</button>
   </div>
 </div>
@@ -8975,7 +9019,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v268';
+const APP_VERSION = 'jm-express-bon-v269';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18576,6 +18620,8 @@ async function genererRecuV2(){
     const c = lastCalc;
     const clientName = (document.getElementById('invClientName').value || '').trim() || 'Client';
     const dateStr = new Date().toLocaleDateString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric'});
+  // v269 — bons version 3 : la date inscrite est celle de l'intervention (versions 1 et 2 : date d'impression, inchangé)
+  const dateInterV3 = (typeof lastCalc !== 'undefined' && lastCalc && lastCalc.presentationDocs >= 3 && lastCalc.date) ? new Date(lastCalc.date) : null;
 
     const pdf = MiniPDF(595, 842);
     let y = 50;
@@ -18591,7 +18637,7 @@ async function genererRecuV2(){
 
     pdf.rect(50, y, 495, 1, {mode:'f', gray:0.85}); y += 22;
     pdf.text(50, y, 'REÇU', {font:'F2', size:22}); 
-    pdf.text(393, y - 2, 'Date : ' + dateStr, {size:10, gray:0.3});
+    pdf.text(dateInterV3 ? 330 : 393, y - 2, dateInterV3 ? 'Intervention : ' + dateInterV3.toLocaleString('fr-BE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Date : ' + dateStr, {size:10, gray:0.3});
     y += 8;
     pdf.rect(50, y, 46, 2, {mode:'f', rgb:[242,169,0]}); y += 26;
 
@@ -20022,6 +20068,142 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   }
 })();
 </script>
+<script id="jm-v269-passe-script">
+(function(){
+  // ===================================================================
+  //  v269 — « Intervention passée » : fiche courte complète jusqu'au bon ou à la facture,
+  //  et bandeau clair quand on passe par le formulaire complet.
+  //  Réutilise le formulaire, le moteur et l'enregistrement existants (rien de recalculé à part).
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const v = id => (($(id) || {}).value || '').trim();
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  let CLE = null, GARDER = false;
+  const propre = t => String(t || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
+  function libService(){ const s = $('type'); return s ? propre((s.options[s.selectedIndex] || {}).textContent) : '—'; }
+  function majService(){
+    if($('qaServiceLib')) $('qaServiceLib').textContent = libService();
+    const surPlace = SUR_PLACE.includes(($('type') || {}).value);
+    if($('qaDeposeField')) $('qaDeposeField').style.display = surPlace ? 'none' : '';
+    if($('qaSurPlaceNote')) $('qaSurPlaceNote').style.display = surPlace ? 'block' : 'none';
+    invalider();
+  }
+  function invalider(){ ['qaPrix','qaEnregistrer'].forEach(id => { if($(id)) $(id).style.display = 'none'; }); }
+  function modePasse(on){
+    ['qaPasse','qaPasseFin'].forEach(id => { if($(id)) $(id).style.display = on ? 'block' : 'none'; });
+    if($('qaAppel')) $('qaAppel').style.display = on ? 'none' : 'block';
+    if($('qaEyebrow')) $('qaEyebrow').textContent = on ? 'Encoder après coup' : 'Avant de partir';
+  }
+  // Ouverture de la fiche
+  if(typeof jmQaOuvrir === 'function'){
+    const _o = jmQaOuvrir;
+    window.jmQaOuvrir = function(passe){
+      const r = _o.apply(this, arguments);
+      modePasse(!!passe);
+      if(passe && !GARDER){
+        CLE = null; ['qaAdrFrom','qaAdrTo','qaKm','qaClientNom','qaTel','qaPlaque'].forEach(id => { if($(id)) $(id).value = ''; });
+        if($('qaDocs')) $('qaDocs').style.display = 'none'; if($('qaActionsPrix')) $('qaActionsPrix').style.display = '';
+        majService(); invalider();
+      }
+      GARDER = false;
+      return r;
+    };
+  }
+  document.addEventListener('change', e => { if(e.target && e.target.id === 'type') majService(); });
+  ['qaAdrFrom','qaAdrTo','qaKm','qaDate','qaHeure'].forEach(id => document.addEventListener('input', e => { if(e.target && e.target.id === id) invalider(); }));
+  window.jmPasseChoisirService = function(){ const b = $('type') && $('type')._jmPickerBtn; if(b) b.click(); };
+  // Appliquer (date, réponses, paiement) sans fermer la fiche ni afficher de message
+  function appliquer(){
+    const t = window.showToast; window.showToast = () => {};
+    try{ jmQaAppliquer(); } finally { window.showToast = t; }
+    const surPlace = SUR_PLACE.includes(($('type') || {}).value);
+    $('addrFrom').value = v('qaAdrFrom'); if(!surPlace) $('addrTo').value = v('qaAdrTo');
+    if(v('qaKm')) $('km').value = v('qaKm');
+    if(v('qaTel')) $('telClient').value = v('qaTel'); if(v('qaPlaque')) $('plaqueImmat').value = v('qaPlaque').toUpperCase();
+    if(typeof updateKmLabel === 'function') updateKmLabel();
+  }
+  window.jmPasseDistance = async function(){
+    if(!v('qaAdrFrom')){ showToast('Indique l\'adresse de prise en charge'); return; }
+    appliquer(); $('modalQaBg').classList.add('show');
+    try{ await calculerDistance(); }catch(e){}
+    if(v('km')){ $('qaKm').value = v('km'); invalider(); }
+  };
+  window.jmPasseCalculer = function(){
+    if(!v('qaDate')){ showToast('Indique la date de l\'intervention'); return; }
+    if(!v('qaKm') && !v('qaAdrFrom')){ showToast('Indique l\'adresse ou les kilomètres'); return; }
+    appliquer(); $('modalQaBg').classList.add('show');
+    calculer();
+    const c = (typeof lastCalc !== 'undefined') ? lastCalc : null;
+    if(!c || !(c.total >= 0)){ showToast('Prix impossible à calculer : vérifie le service et les km'); return; }
+    const maj = [($('tgNuit') || {}).classList && $('tgNuit').classList.contains('on') ? 'nuit' : '', ($('tgWe') || {}).classList && $('tgWe').classList.contains('on') ? 'week-end' : ''].filter(Boolean);
+    $('qaPrix').innerHTML = '<div class="jm-qa-prix-l"><span>' + libService() + (v('qaKm') ? ' · ' + v('qaKm') + ' km' : '') + (maj.length ? ' · majoration ' + maj.join(' + ') : '') + '</span></div>' +
+      '<div class="jm-qa-prix-t"><span>Total</span><strong>' + fmt(c.total) + '</strong></div>' + (v('qaPaye') ? '<div class="jm-qa-prix-l"><span>Payé : ' + v('qaPaye') + '</span></div>' : '<div class="jm-qa-prix-l"><span>À encaisser</span></div>');
+    $('qaPrix').style.display = 'block'; $('qaEnregistrer').style.display = 'block';
+  };
+  window.jmPasseEnregistrer = async function(){
+    let avant = []; try{ avant = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+    window.JM_PASSE_EN_COURS = {client: v('qaClientNom')};
+    $('btnEnregistrer').click();
+    for(let i = 0; i < 40 && !CLE; i++){
+      await new Promise(r => setTimeout(r, 200));
+      let apres = []; try{ apres = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+      const n = apres.filter(k => !avant.includes(k)); if(n.length === 1) CLE = n[0];
+    }
+    if(!CLE){ showToast('Enregistrement non confirmé : vérifie le formulaire'); return; }
+    await new Promise(r => setTimeout(r, 600));
+    let d = {}; try{ d = JSON.parse((await window.storage.get(CLE)).value); }catch(e){}
+    $('modalQaBg').classList.add('show');
+    $('qaDocsNum').textContent = (d.numero || '') + ' · ' + fmt(d.total || 0) + (d.paiement && d.paiement.statut === 'paye' ? ' · payé (' + d.paiement.moyen + ')' : ' · à encaisser');
+    $('qaEnregistrer').style.display = 'none'; $('qaActionsPrix').style.display = 'none'; $('qaDocs').style.display = 'block';
+    const b = $('jmBandeauPasse'); if(b) b.remove();
+  };
+  // Après l'enregistrement : terminée, nom du client, date réelle (v258) et paiement déjà gérés
+  if(typeof enregistrer === 'function'){
+    const _e = enregistrer;
+    enregistrer = async function(){
+      const ctx = window.JM_PASSE_EN_COURS; let avant = [];
+      if(ctx){ try{ avant = (await window.storage.list('intervention:')).keys || []; }catch(e){} }
+      const r = await _e.apply(this, arguments);
+      if(ctx){
+        try{ const apres = (await window.storage.list('intervention:')).keys || []; const n = apres.filter(k => !avant.includes(k));
+          if(n.length === 1){ const d = JSON.parse((await window.storage.get(n[0])).value); d.statut = 'fait'; d.saisieDifferee = true; if(ctx.client) d.clientNom = ctx.client; await window.storage.set(n[0], JSON.stringify(d)); }
+        }catch(e){}
+        window.JM_PASSE_EN_COURS = null;
+        try{ if(typeof loadHistory === 'function') loadHistory(); if(typeof majResumeAccueil === 'function') majResumeAccueil(); }catch(e){}
+      }
+      return r;
+    };
+  }
+  window.jmPasseBon = async function(){
+    if(!CLE) return; const client = v('qaClientNom');
+    $('modalQaBg').classList.remove('show');
+    await chargerInterventionDepuisJournal(CLE); await new Promise(r => setTimeout(r, 900));
+    if($('invClientName') && client) $('invClientName').value = client;
+    try{ await genererRecu(); } finally { try{ annulerEdition(); }catch(e){} $('modalQaBg').classList.add('show'); modePasse(true); }
+  };
+  window.jmPasseFacture = async function(){
+    if(!CLE) return; const client = v('qaClientNom');
+    $('modalQaBg').classList.remove('show');
+    await genererFactureDepuisJournal(CLE);
+    setTimeout(() => { const f = $('invClientName'); if(f && client) f.value = client; }, 300);
+  };
+  // Formulaire complet : bandeau clair en haut
+  window.jmPasseFormulaireComplet = function(){
+    appliquer(); $('modalQaBg').classList.remove('show');
+    if(typeof showTab === 'function') showTab('tabNouveau', true);
+    let b = $('jmBandeauPasse');
+    if(!b){ b = document.createElement('div'); b.id = 'jmBandeauPasse'; b.className = 'jm-bandeau-passe'; const t = $('tabNouveau'), prog = $('jmProgression'); if(prog) prog.insertAdjacentElement('afterend', b); else t.insertBefore(b, t.firstChild); }
+    const d = v('qaDate') ? new Date(v('qaDate') + 'T' + (v('qaHeure') || '12:00')) : null;
+    b.innerHTML = '<div><strong>📅 Intervention passée</strong>' + (d ? ' du ' + d.toLocaleDateString('fr-BE') + ' à ' + v('qaHeure').replace(':', ' h ') : '') + (v('qaPaye') ? ' · payée (' + v('qaPaye') + ')' : ' · à encaisser') +
+      '<br><span>Complète le formulaire puis appuie sur « Enregistrer » en bas.</span></div><button type="button" onclick="jmPasseRetourFiche()">↩ Fiche courte</button>';
+    window.JM_PASSE_EN_COURS = {client: v('qaClientNom')};
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  };
+  window.jmPasseRetourFiche = function(){ $('modalQaBg').classList.add('show'); modePasse(true); };
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); if(!window.JM_PASSE_EN_COURS){ const b = $('jmBandeauPasse'); if(b) b.remove(); } return r; }; }
+})();
+</script>
+
 
 
 
