@@ -2250,6 +2250,10 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
         <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg></span>
         <span class="gb-txt">Clients</span>
       </div>
+      <div class="gros-bouton" onclick="jmEncoderPasse()">
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span>
+        <span class="gb-txt">Passée</span>
+      </div>
     </div>
   </section>
 
@@ -3485,6 +3489,7 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
   <p class="page-sub">Toutes tes interventions enregistrées.</p>
 
   <div class="field" style="margin-bottom:10px;">
+    <button type="button" class="ghost" style="margin:0 0 10px;" onclick="jmEncoderPasse()">📅 Encoder une intervention passée</button>
     <div class="extras-header" onclick="toggleFiltresDates()">
       <label style="margin:0; cursor:pointer;">+ Filtrer par période</label>
       <span class="extras-summary" id="filtresDatesSummary">Tout</span>
@@ -8828,7 +8833,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v263';
+const APP_VERSION = 'jm-express-bon-v264';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
