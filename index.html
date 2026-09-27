@@ -2003,9 +2003,64 @@ html:not([data-theme="dark"]) .jm-renta-avert{color:#9a5200;background:#fff4e5}
 html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!important;background:#fff!important;border-color:#000!important}
 </style>
 <style id="jm-v263-style">
-.jm-renta-reg{margin-top:8px;width:auto;min-height:34px;padding:0 12px;border-radius:10px;border:1px solid #35505e;background:transparent;color:#b9c8d0;font-weight:800;font-size:12px}
+.jm-renta-reg{margin-top:8px;width:auto;min-height:42px;padding:0 12px;border-radius:10px;border:1px solid #35505e;background:transparent;color:#b9c8d0;font-weight:800;font-size:12px}
 html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
 </style>
+<style id="jm-v265-style">
+/* v265 — sections des menus, Annulation isolée, jauge compacte, badge B */
+.jm-menu-sec,.jm-sheet-sec{grid-column:1/-1;margin:10px 2px 2px;font-size:10.5px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;color:#94a6b0}
+.jm-menu-sec:first-child,.jm-sheet-sec:first-child{margin-top:0}
+.jm-sheet-sep{grid-column:1/-1;height:1px;background:rgba(148,166,176,.25);margin:10px 0 4px}
+.msg-choice.jm-danger{color:#ff6b6d!important;border:1.5px solid rgba(255,77,79,.7)!important;background:rgba(255,77,79,.08)!important}
+html:not([data-theme="dark"]) .msg-choice.jm-danger{color:#c93a3c!important;background:#fff4f4!important}
+.jm-plaf-c{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:#b9c8d0}.jm-plaf-c strong{color:#f5f7f8}
+.jm-plaf-c-f{color:#94a6b0;font-size:11.5px;white-space:nowrap}
+.jm-plaf-barre-fine{height:5px;margin:6px 0 0}
+#jmPlafond{padding:8px 12px}
+html:not([data-theme="dark"]) .jm-plaf-c{color:#46555e}html:not([data-theme="dark"]) .jm-plaf-c strong{color:#172027}
+.jm-badge-b{display:inline-block;margin-top:3px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:900;letter-spacing:.3px;border:1px solid rgba(94,129,148,.6);color:#b9c8d0;cursor:pointer}
+.jm-badge-ok{border-color:rgba(32,199,102,.55);color:#20c766}.jm-badge-attente{border-color:rgba(22,139,255,.55);color:#6fb4ff}.jm-badge-hors{color:#94a6b0}.jm-badge-conflit{border-color:rgba(255,77,79,.6);color:#ff6b6d}
+</style>
+<style id="jm-v266-uniformite-style">
+/* ===================================================================
+   v266 — Lot 3 : uniformité visuelle.
+   Palette de fonction (une couleur = une signification), 3 tailles de boutons,
+   un seul style de choix, couleurs de famille en accent seulement (option A).
+   =================================================================== */
+:root{--jm-action:#ff9500;--jm-gps:#168bff;--jm-paiement:#20c766;--jm-docs:#a84dff;--jm-danger:#ff4d4f;--jm-attention:#ffb11a}
+html:not([data-theme="dark"]){--jm-action:#e07d00;--jm-gps:#0f6fd6;--jm-paiement:#12884a;--jm-docs:#7b2fd1;--jm-danger:#c93a3c;--jm-attention:#9a6400}
+/* 3 tailles : principale 56 · secondaire 48 · choix 44 (jamais sous 42) */
+#tabNouveau button.primary,#modalQuickQuoteBg button.primary,.modal button.primary{min-height:56px}
+#tabNouveau button.ghost,#modalQuickQuoteBg button.ghost,.modal button.ghost,.msg-choice{min-height:48px}
+.toggle,.qa-c,.jm-prog-e,.bac-state{min-height:44px}
+.loc-btn{min-height:42px}
+/* Un seul style de choix : les puces des questions d'appel prennent le style des autres choix */
+.qa-c{flex:1 1 auto;min-width:92px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)!important;background:var(--panel)!important;color:var(--grey)!important;font-size:14px;font-weight:600}
+.qa-c.on{background:var(--orange-soft)!important;border-color:var(--orange)!important;color:var(--orange)!important;font-weight:700;box-shadow:0 2px 8px rgba(232,115,12,.14)}
+/* Option A — types de véhicule : couleur du véhicule en pastille (accent), sélection orange comme tous les choix */
+#vtNormale,#vtVsp,#vtSuv,#vtElectrique,#vtUtilitaire,#qqVtNormale,#qqVtVsp,#qqVtSuv,#qqVtElectrique,#qqVtUtilitaire{border-color:var(--line)!important}
+#vtNormale:before,#vtVsp:before,#vtSuv:before,#vtElectrique:before,#vtUtilitaire:before,#qqVtNormale:before,#qqVtVsp:before,#qqVtSuv:before,#qqVtElectrique:before,#qqVtUtilitaire:before{opacity:1;width:4px}
+#vtNormale.on,#vtVsp.on,#vtSuv.on,#vtElectrique.on,#vtUtilitaire.on,#qqVtNormale.on,#qqVtVsp.on,#qqVtSuv.on,#qqVtElectrique.on,#qqVtUtilitaire.on{background:var(--orange-soft)!important;border-color:var(--orange)!important;color:var(--orange)!important;box-shadow:0 2px 8px rgba(232,115,12,.14)!important}
+#vtNormale.on svg,#vtSuv.on svg,#vtElectrique.on svg,#vtUtilitaire.on svg,#qqVtNormale.on svg,#qqVtSuv.on svg,#qqVtElectrique.on svg,#qqVtUtilitaire.on svg{stroke:currentColor!important;filter:none!important}
+/* Adresses : même composant partout (grand champ, ✕ 🎤 📍 dessous) */
+.jm-adr-wrap{display:flex;flex-wrap:wrap;row-gap:8px;gap:8px}
+.jm-adr-wrap > input{flex:1 1 100%;font-size:17px!important;min-height:52px;padding:10px 14px}
+.jm-adr-wrap > .loc-btn{width:50px;height:42px}
+.jm-adr-wrap > .loc-btn:first-of-type{margin-left:auto}
+button.ghost[onclick*="mesurerDistanceDevis"],button.ghost[onclick*="calculerDistance"]{color:var(--jm-gps)!important;border-color:color-mix(in srgb,var(--jm-gps) 55%,transparent)!important}
+/* Mode gants : garde la priorité (plus grand) */
+body.jm-gants .toggle,body.jm-gants .qa-c{min-height:54px}
+</style>
+<style id="jm-v267-style">
+.jm-gestion-grille{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.jm-gestion-carte{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:96px;padding:12px;border-radius:16px;border:1px solid #35505e;background:#121c23;color:#f5f7f8;text-align:left}
+.jm-gestion-carte span{font-size:22px}.jm-gestion-carte strong{font-size:14.5px}.jm-gestion-carte em{font-style:normal;font-size:11.5px;color:#94a6b0}
+html:not([data-theme="dark"]) .jm-gestion-carte{background:#fff;color:#172027;border-color:#cbd5da}
+.jm-retour-gestion{display:inline-flex;align-items:center;min-height:42px;padding:0 14px;margin:0 0 8px;border-radius:12px;border:1px solid #35505e;background:transparent;color:#b9c8d0;font-weight:800;font-size:13px}
+html:not([data-theme="dark"]) .jm-retour-gestion{color:#46555e;border-color:#cbd5da}
+</style>
+
+
 
 
 
@@ -2030,7 +2085,7 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
 <div class="modal-bg" id="modalSortieBg">
   <div class="modal" style="padding-bottom:calc(22px + env(safe-area-inset-bottom));">
     <div class="eyebrow">Attention</div>
-    <h1 class="page-title" style="font-size:22px;">Course non enregistrée</h1>
+    <h1 class="page-title" style="font-size:22px;">Intervention non enregistrée</h1>
     <p class="page-sub">Le montant est calculé mais l'intervention n'est pas encore dans le journal. Tes saisies restent en brouillon, mais aucune fiche ne sera créée.</p>
     <button class="primary" onclick="confirmerSortie(false)">Rester et enregistrer</button>
     <button class="ghost close-modal" onclick="confirmerSortie(true)">Quitter quand même</button>
@@ -2046,8 +2101,8 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
       <div class="services-hero-copy"><div class="services-kicker">Assistance • Remorquage • Transport • 24/7</div><h2 class="services-title">Toujours plus loin <em>pour vous.</em></h2></div>
     </div>
     <div id="svcVueCats"><div class="services-grid">
-      <div class="service-card" role="button" tabindex="0" style="--c:#ff4d4f" onclick="jmSvcCategorie('depannage')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h12l3-5h3v5h-2"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M8 11l4-6"/></svg></div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne · accident · véhicule immobilisé</p></div>
-      <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Transfert · VSP · moto</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#ff4d4f" onclick="jmSvcCategorie('depannage')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h12l3-5h3v5h-2"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M8 11l4-6"/></svg></div><div class="service-name">Dépannage & remorquage</div></div><p class="service-desc">Panne · accident · VSP · véhicule immobilisé</p></div>
+      <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('transport')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h14V8H2zM16 11h3l3 3v1h-6"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="18" cy="17.5" r="1.8"/></svg></div><div class="service-name">Transport véhicule</div></div><p class="service-desc">Transfert · moto</p></div>
 <div class="service-card" role="button" tabindex="0" style="--c:#20c766" onclick="jmSvcCategorie('ct')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 12l2 2 4-4"/></svg></div><div class="service-name">Contrôle technique</div></div><p class="service-desc">Passage · repassage · véhicule accidenté</p></div>
 <div class="service-card" role="button" tabindex="0" style="--c:#5e8194" onclick="jmSvcCategorie('materiel')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20V9l6-5 6 5v11"/><path d="M4 12h16"/></svg></div><div class="service-name">Transport matériel</div></div><p class="service-desc">Longerons · toiture légère · autre matériel</p></div>
       <div class="service-card" role="button" tabindex="0" style="--c:#168bff" onclick="jmSvcCategorie('assistance')"><div class="service-head"><div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M8 13h3M16 11v4M14 13h4"/></svg></div><div class="service-name">Assistance sur place</div></div><p class="service-desc">Batterie · ouverture · diagnostic · carburant</p></div>
@@ -2229,14 +2284,6 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
         <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z"/></svg></span>
         <span class="gb-txt">Nouvelle intervention</span>
       </div>
-      <div class="gros-bouton" onclick="openQuickQuote()">
-        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></span>
-        <span class="gb-txt">Devis</span>
-      </div>
-      <div class="gros-bouton" onclick="showTab('tabHistorique')">
-        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
-        <span class="gb-txt">Historique</span>
-      </div>
       <div class="gros-bouton" onclick="ouvrirImpayes()">
         <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5M9 12h4"/></svg></span>
         <span class="gb-txt">Impayés</span>
@@ -2259,7 +2306,7 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
 
   <section class="tab-section" id="tabNouveau" style="display:none;">
   <div class="eyebrow">Bon d'intervention</div>
-  <h1 class="page-title">Nouvelle course</h1>
+  <h1 class="page-title">Nouvelle intervention</h1>
   <p class="page-sub">Encode l'intervention, calcule le prix, puis enregistre-la dans le journal.</p>
   <div class="card">
 
@@ -3199,8 +3246,8 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
           <div class="toggle on" id="vtNormale" onclick="setVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
           <div class="toggle" id="vtVsp" onclick="setVehicleType('vsp')">🚙 VSP / Sans permis</div>
           <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
-          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
-          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
+          <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique / hybride</div>
+          <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire / camionnette</div>
         </div>
         <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
           ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
@@ -3474,8 +3521,8 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
       <span class="amt" id="tkTotal">0 €</span>
     </div>
     <div class="km-mention" id="tkCompV224" style="display:none; margin-top:6px;"></div>
-    <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer dans le journal</button>
-    <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer l'intervention</button>
+    <button class="primary" id="btnEnregistrer" style="margin-top:16px;" onclick="avecChargement(this, 'Enregistrement…', () => enregistrer())">Enregistrer</button>
+    <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Générer la facture (PDF + signature)</button>
     <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Reçu simple (sans mentions comptables)</button>
@@ -4568,6 +4615,21 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
   </div>
 </div>
 
+<div class="modal-bg" id="modalGestionBg" onclick="if(event.target===this)closeGestion()">
+  <div class="modal">
+    <div class="eyebrow">Suivi de l'activité</div>
+    <h1 class="page-title" style="font-size:24px;">📊 Gestion</h1>
+    <div class="jm-gestion-grille">
+      <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('dashboard')"><span>📈</span><strong>Tableau de bord</strong><em>Chiffres, statistiques</em></button>
+      <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('resume')"><span>🗓️</span><strong>Résumé mensuel</strong><em>Le mois en un coup d'œil</em></button>
+      <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('recettes')"><span>📒</span><strong>Recettes</strong><em>Livre de caisse, plafond</em></button>
+      <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('pub')"><span>📣</span><strong>Publicité</strong><em>Origine clients, campagnes</em></button>
+    </div>
+    <div class="km-mention" style="margin-top:10px;">Indicateurs de suivi interne. Frais pro et pleins de gasoil : menu ⋯ → Gestion.</div>
+    <button class="ghost close-modal" onclick="closeGestion()">Fermer</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalMenuBg">
   <div class="modal">
     <div class="eyebrow">Accès rapide</div>
@@ -4576,7 +4638,7 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
       <div class="menu-item" onclick="closeMenu(); openRdv();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Rendez-vous</span>
-        <span class="menu-desc">Programmer une course</span>
+        <span class="menu-desc">Programmer une intervention</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openRachat();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6.5 17l1.2-5.2A2 2 0 0 1 9.6 10h4.8a2 2 0 0 1 1.9 1.8L17.5 17"/><circle cx="8" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/><path d="M12 3v4M10 5h4"/></svg></span>
@@ -4602,6 +4664,11 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span>
         <span class="menu-lbl">Intervention passée</span>
         <span class="menu-desc">Encoder après coup</span>
+      </div>
+      <div class="menu-item" onclick="openGestion()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <span class="menu-lbl">Gestion</span>
+        <span class="menu-desc">Tableau de bord, résumé, recettes, publicité</span>
       </div>
       <div class="menu-item" onclick="closeMenu(); openDepot();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg></span>
@@ -5133,11 +5200,19 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
     </div>
     <div class="field" style="margin-bottom:8px;">
       <label>Prise en charge (optionnel)</label>
-      <input type="text" id="qqFrom" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+      <div class="jm-adr-wrap"><input type="text" id="qqFrom" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmEffacerAdresse('qqFrom')" onclick="jmEffacerAdresse('qqFrom')" title="Effacer">✕</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('qqFrom')" onclick="dicterAdresse('qqFrom')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('qqFrom')" onclick="useMyLocation('qqFrom')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
+      </div>
     </div>
     <div class="field" style="margin-bottom:6px;">
       <label>Dépose (optionnel)</label>
-      <input type="text" id="qqTo" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+      <div class="jm-adr-wrap"><input type="text" id="qqTo" placeholder="Rue, ville" autocorrect="on" oninput="qqEtatDistanceReset()">
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmEffacerAdresse('qqTo')" onclick="jmEffacerAdresse('qqTo')" title="Effacer">✕</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('qqTo')" onclick="dicterAdresse('qqTo')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('qqTo')" onclick="useMyLocation('qqTo')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
+      </div>
     </div>
     <button type="button" class="ghost" style="margin-bottom:6px;" onclick="avecChargement(this, 'Mesure…', () => mesurerDistanceDevis())">📍 Mesurer par itinéraire (base → prise en charge → dépose)</button>
     <div class="km-mention" id="qqEtatDistance" style="margin-bottom:14px;">Sans adresses, la distance saisie à la main est utilisée telle quelle.</div>
@@ -5147,8 +5222,8 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
       <div class="toggle on" id="qqVtNormale" onclick="setQqVehicleType('normale')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 16V11l2-4h10l2 4v5"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> Normale</div>
           <div class="toggle" id="qqVtVsp" onclick="setQqVehicleType('vsp')">🚙 VSP / Sans permis</div>
       <div class="toggle" id="qqVtSuv" onclick="setQqVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
-      <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique/Hybride</div>
-      <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire/Camionnette</div>
+      <div class="toggle" id="qqVtElectrique" onclick="setQqVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique / hybride</div>
+      <div class="toggle" id="qqVtUtilitaire" onclick="setQqVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire / camionnette</div>
     </div>
     <div id="qqCapaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
       ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
@@ -5493,7 +5568,11 @@ html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
 
     <div class="field">
       <label>Adresse du rendez-vous</label>
-      <input type="text" id="rdvAdresse" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
+      <div class="jm-adr-wrap"><input type="text" id="rdvAdresse" list="adressesBelgique" placeholder="Rue, n°, ville" autocorrect="on" spellcheck="true">
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmEffacerAdresse('rdvAdresse')" onclick="jmEffacerAdresse('rdvAdresse')" title="Effacer">✕</button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); dicterAdresse('rdvAdresse')" onclick="dicterAdresse('rdvAdresse')" title="Dicter l'adresse"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+        <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('rdvAdresse')" onclick="useMyLocation('rdvAdresse')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
+      </div>
     </div>
 
     <div class="field-row">
@@ -7418,7 +7497,7 @@ async function stockSignerAchat(){
   d.immat = v('achImmat'); d.kilometrage = v('achKm') || d.kilometrage; d.prixPaye = String(prix);
   const cessionV257 = !!(document.getElementById('achCession') || {}).checked;
   d.achat = {numero, date: new Date(v('achDate') + 'T12:00:00').toISOString(), prix: cessionV257 ? 0 : prix, paiement: cessionV257 ? '' : v('achPaiement'),
-    cession: cessionV257 || undefined, docsRemis: cessionV257 ? {immat: !!document.getElementById('achDocImmat').checked, conformite: !!document.getElementById('achDocConformite').checked, cles: !!document.getElementById('achDocCles').checked} : undefined,
+    cession: cessionV257 || undefined, presentation: 2, docsRemis: cessionV257 ? {immat: !!document.getElementById('achDocImmat').checked, conformite: !!document.getElementById('achDocConformite').checked, cles: !!document.getElementById('achDocCles').checked} : undefined,
     vendeur: {nom: v('achVendeurNom'), adresse: v('achVendeurAdresse'), tel: v('achVendeurTel'), identite: v('achVendeurId')},
     vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat, km: d.kilometrage, carburant: d.carburant || ''},
     sigVendeur: {width: s1.width, height: s1.height, b64: octetsVersBase64(s1.deflatedRgb)},
@@ -7465,7 +7544,7 @@ async function stockEnregistrerSortie(){
     if(v('sorTiersNom')) so.tiers = {nom: v('sorTiersNom'), commission: n2(v('sorTiersCommission'))};
     if(doc !== 'aucun'){
       const numero = doc === 'facture' ? await nextInvoiceNumber() : await stockNumero('venteCounter', 'VEN');
-      so.doc = {type: doc, numero, vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat || '', km: d.kilometrage || ''}};
+      so.doc = {type: doc, numero, presentation: 2, vehicule: {texte: stockVehiculeTexte(d), vin: d.vin || '', immat: d.immat || '', km: d.kilometrage || ''}};
     }
   }
   if(t === 'demoli'){ so.certificat = v('sorCertificat'); so.centre = v('sorCentre'); }
@@ -7524,6 +7603,33 @@ function stockPdfAchatBytes(d){
   pdf.addRgbImage('SigJ', a.sigJm.width, a.sigJm.height, base64VersOctets(a.sigJm.b64)); pdf.drawImage('SigJ', 302, y + 10, 216, 58);
   return pdf.build();
 }
+
+// v267 — version 2 (charte commune) : documents établis à partir de la v267 ; la version 1 reste pour réimprimer les anciens.
+function stockPdfAchatBytesV2(d){
+  const a = d.achat, pdf = MiniPDF(595, 842);
+  pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
+  let y = stockEntete(pdf, 'BON D\'ACHAT', a.numero, a.date);
+  if(d.annulation){ pdf.rect(50, y - 12, 495, 20, {mode:'f', rgb:[253,226,221]}); pdf.text(56, y + 2, 'ANNULÉ le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — ' + d.annulation.motif, {font:'F2', size:10, rgb:[201,74,50]}); y += 26; }
+  y = stockSection(pdf, y, 'VENDEUR');
+  y = stockLigne(pdf, y, 'Nom', a.vendeur.nom); y = stockLigne(pdf, y, 'Adresse', a.vendeur.adresse); y = stockLigne(pdf, y, 'Téléphone', a.vendeur.tel);
+  if(a.vendeur.identite) y = stockLigne(pdf, y, 'Pièce d\'identité', a.vendeur.identite);
+  y += 8; y = stockSection(pdf, y, 'ACHETEUR'); y = stockLigne(pdf, y, 'Nom', COMPANY.name); y = stockLigne(pdf, y, 'N° d\'entreprise', COMPANY.tva);
+  y += 8; y = stockSection(pdf, y, 'VÉHICULE');
+  y = stockLigne(pdf, y, 'Véhicule', a.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', a.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', a.vehicule.immat);
+  y = stockLigne(pdf, y, 'Kilométrage relevé', a.vehicule.km ? a.vehicule.km + ' km' : ''); if(a.vehicule.carburant) y = stockLigne(pdf, y, 'Carburant', a.vehicule.carburant);
+  y += 10; pdf.rect(50, y - 4, 495, 30, {mode:'f', rgb:[23,32,39]});
+  pdf.text(58, y + 16, 'PRIX D\'ACHAT', {font:'F2', size:13, rgb:[255,255,255]}); pdf.text(440, y + 16, fmt(n2(a.prix)), {font:'F2', size:15, rgb:[242,140,0]}); y += 42;
+  y = stockLigne(pdf, y, 'Mode de paiement', a.paiement); y += 8;
+  ['Le vendeur déclare être le propriétaire du véhicule, que celui-ci est libre de tout gage, saisie ou',
+   'opposition, et le céder en l\'état, sans garantie. L\'acheteur déclare avoir pris connaissance de',
+   'l\'état du véhicule. Achat sans TVA — franchise de la taxe, article 56bis du Code de la TVA.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 11; });
+  y += 18;
+  pdf.text(50, y, 'Signature du vendeur', {size:9.5, gray:0.3}); pdf.text(300, y, 'Pour ' + COMPANY.name, {size:9.5, gray:0.3});
+  pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7}); pdf.rect(300, y + 8, 220, 62, {mode:'S', gray:0.7});
+  pdf.addRgbImage('SigV', a.sigVendeur.width, a.sigVendeur.height, base64VersOctets(a.sigVendeur.b64)); pdf.drawImage('SigV', 52, y + 10, 216, 58);
+  pdf.addRgbImage('SigJ', a.sigJm.width, a.sigJm.height, base64VersOctets(a.sigJm.b64)); pdf.drawImage('SigJ', 302, y + 10, 216, 58);
+  return pdf.build();
+}
 function stockPdfVenteBytes(d){
   const so = d.sortie, doc = so.doc, pdf = MiniPDF(595, 842);
   let y = stockEntete(pdf, doc.type === 'facture' ? 'FACTURE' : 'BON DE VENTE', doc.numero, so.date);
@@ -7538,8 +7644,25 @@ function stockPdfVenteBytes(d){
   y += 10; pdf.text(50, y, 'Paiement : IBAN ' + COMPANY.ibanDisplay + ' — BIC ' + COMPANY.bic + ' — communication : ' + doc.numero, {size:9, gray:0.3});
   return pdf.build();
 }
-async function stockPdfAchat(){ const d = await stockFiche(); if(!d || !d.achat) return; if(d.achat.cession && typeof jmCessionPdfBytes === 'function'){ await partagerPdf(jmCessionPdfBytes(d), d.achat.numero + '-cession.pdf', 'Convention de cession ' + d.achat.numero, 'Convention prête', 'Convention téléchargée'); return; } await partagerPdf(stockPdfAchatBytes(d), d.achat.numero + '.pdf', 'Bon d\'achat ' + d.achat.numero, 'Bon d\'achat prêt', 'Bon d\'achat téléchargé'); }
-async function stockPdfVente(){ const d = await stockFiche(); if(!d || !d.sortie || !d.sortie.doc) return; const n = d.sortie.doc.numero; await partagerPdf(stockPdfVenteBytes(d), n + '.pdf', n, 'Document de vente prêt', 'Document de vente téléchargé'); }
+
+// v267 — version 2 (charte commune) : documents établis à partir de la v267 ; la version 1 reste pour réimprimer les anciens.
+function stockPdfVenteBytesV2(d){
+  const so = d.sortie, doc = so.doc, pdf = MiniPDF(595, 842);
+  pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
+  let y = stockEntete(pdf, doc.type === 'facture' ? 'FACTURE' : 'BON DE VENTE', doc.numero, so.date);
+  y = stockSection(pdf, y, 'ACHETEUR'); y = stockLigne(pdf, y, 'Nom', so.acheteur.nom); y = stockLigne(pdf, y, 'Adresse', so.acheteur.adresse);
+  if(so.acheteur.tva) y = stockLigne(pdf, y, 'N° TVA', so.acheteur.tva);
+  y += 8; y = stockSection(pdf, y, 'VÉHICULE VENDU');
+  y = stockLigne(pdf, y, 'Véhicule', doc.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', doc.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', doc.vehicule.immat);
+  y = stockLigne(pdf, y, 'Kilométrage', doc.vehicule.km ? doc.vehicule.km + ' km' : '');
+  y += 10; pdf.rect(50, y - 4, 495, 30, {mode:'f', rgb:[23,32,39]});
+  pdf.text(58, y + 16, 'TOTAL À PAYER', {font:'F2', size:13, rgb:[255,255,255]}); pdf.text(440, y + 16, fmt(n2(so.montant)), {font:'F2', size:15, rgb:[242,140,0]}); y += 46;
+  ['Véhicule d\'occasion vendu en l\'état, sans garantie.', 'Franchise de la taxe. TVA non applicable, article 56bis du Code de la TVA.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 12; });
+  y += 10; pdf.text(50, y, 'Paiement : IBAN ' + COMPANY.ibanDisplay + ' — BIC ' + COMPANY.bic + ' — communication : ' + doc.numero, {size:9, gray:0.3});
+  return pdf.build();
+}
+async function stockPdfAchat(){ const d = await stockFiche(); if(!d || !d.achat) return; if(d.achat.cession && typeof jmCessionPdfBytes === 'function'){ await partagerPdf((d.achat.presentation >= 2 ? jmCessionPdfBytesV2 : jmCessionPdfBytes)(d), d.achat.numero + '-cession.pdf', 'Convention de cession ' + d.achat.numero, 'Convention prête', 'Convention téléchargée'); return; } await partagerPdf((d.achat.presentation >= 2 ? stockPdfAchatBytesV2 : stockPdfAchatBytes)(d), d.achat.numero + '.pdf', 'Bon d\'achat ' + d.achat.numero, 'Bon d\'achat prêt', 'Bon d\'achat téléchargé'); }
+async function stockPdfVente(){ const d = await stockFiche(); if(!d || !d.sortie || !d.sortie.doc) return; const n = d.sortie.doc.numero; await partagerPdf((d.sortie && d.sortie.doc && d.sortie.doc.presentation >= 2 ? stockPdfVenteBytesV2 : stockPdfVenteBytes)(d), n + '.pdf', n, 'Document de vente prêt', 'Document de vente téléchargé'); }
 
 // --- Dossier complet pour le comptable (photos incluses) ---
 async function stockPhotoRgb(dataUrl, maxCote){
@@ -8650,7 +8773,7 @@ function demanderChoixRetourLD(entree, calcNormal){
   document.getElementById('ldPrixNormal').textContent = fmt(calcNormal.total);
   document.getElementById('ldPrixLD').textContent = fmt(calcLD.total);
   document.getElementById('ldDetailNormal').innerHTML =
-    'Dégressif sur toute la mission : ' + fmtKm(calcNormal.kmFacturable) + ' km (retour compris).';
+    'Dégressif sur toute l\'intervention : ' + fmtKm(calcNormal.kmFacturable) + ' km (retour compris).';
   document.getElementById('ldDetailLD').innerHTML =
     'Trajet principal au barème normal (' + fmtKm(calcLD.kmDegressif) + ' km) + retour à vide '
     + fmtKm(calcLD.kmRetourFacture) + ' km × ' + fmtTaux(calcLD.tarifRetourLD) + ' = ' + fmt(calcLD.retourLDCost) + '.';
@@ -8833,7 +8956,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v264';
+const APP_VERSION = 'jm-express-bon-v267';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -15317,13 +15440,14 @@ async function majResumeAccueil(){
 }
 
 function renderProgressionStepper(d){
-  const etapes = [
+  let etapes = [
     {cle:'depart',     label:'Départ',    icon:'🚗'},
     {cle:'arrivee',    label:'Sur place', icon:'📍'},
     {cle:'chargement', label:'Chargé',    icon:'📦'},
     {cle:'depot',      label:'Déposé',    icon:'🏁'},
     {cle:'fin',        label:'Terminé',   icon:'✅'}
   ];
+  if(typeof jmEstSurPlace === 'function' && jmEstSurPlace(d)){ for(let i = etapes.length - 1; i >= 0; i--) if(etapes[i].cle === 'chargement' || etapes[i].cle === 'depot') etapes.splice(i, 1); }
   const h = d.horaires || {};
   let dernierIndexAtteint = -1;
   etapes.forEach((e,i) => { if(h[e.cle]) dernierIndexAtteint = i; });
@@ -15358,7 +15482,7 @@ function afficherInterventionEnCours(aFaire){
   carte.innerHTML = `
     <div class="ec-num">${d.numero ? d.numero + ' · ' : ''}${dt} à ${heure}</div>
     <div class="ec-type">${typeLabelComplet(d)}</div>
-    <div class="ec-adr">${ico(ICO.pin,13)} ${d.from}${(d.to && d.to !== '—') ? '<br>' + ico(ICO.drapeau,13) + ' ' + d.to : ''}</div>
+    <div class="ec-adr">${ico(ICO.pin,13)} ${d.from || '—'}${(d.to && d.to !== '—') ? '<br>' + ico(ICO.drapeau,13) + ' ' + d.to : (typeof jmEstSurPlace === 'function' && jmEstSurPlace(d) ? ' · sur place' : '')}</div>
     <div class="ec-montant">${fmt(d.total || 0)}</div>
     ${renderProgressionStepper(d)}
     <div class="ec-nav-label">${ico(ICO.pin,12)} Étape 1 — aller chercher le véhicule</div>
@@ -15376,7 +15500,7 @@ function afficherInterventionEnCours(aFaire){
     </div>` : ''}
     <div class="ec-actions">
       <div class="ec-btn clair" onclick="reprendreEnCours('${it.key}')">${ico(ICO.crayon)} Reprendre</div>
-      <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">${ico(ICO.check)} Faite</div>
+      <div class="ec-btn clair" onclick="toggleStatut('${it.key}')">${ico(ICO.check)} Terminer</div>
     </div>
     ${liste.length > 1 ? `<div class="ec-plus" onclick="showTab('tabRoute')">+ ${liste.length - 1} autre${liste.length > 2 ? 's' : ''} à faire — voir la feuille de route</div>` : ''}
   `;
@@ -16086,7 +16210,7 @@ async function loadHistory(){
         ${etatLieuxThumb}
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
-          <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${d.from} → ${d.to} · ${typeof d.kmFacturable === 'number' ? fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '') : d.km + ' km' + (d.retour ? ' (A/R)' : '')}</div>
+          <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
           <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
@@ -16687,7 +16811,7 @@ async function imprimerTourneePDF(){
 function ouvrirPartageTournee(){
   const old=document.getElementById('modalPartageTournee'); if(old)old.remove();
   const bg=document.createElement('div'); bg.id='modalPartageTournee'; bg.className='modal-bg show';
-  bg.innerHTML='<div class="modal" style="max-width:460px"><h3>📤 Transmettre ma tournée</h3><p class="route-hint">Envoie les missions sur un autre téléphone en cas de batterie à plat. Les prix annoncés, paiements, adresses et horaires renseignés sont repris.</p><button class="primary" style="width:100%;margin:6px 0" onclick="partagerTournee(false)">⚡ Partager les missions restantes</button><button class="primary" style="width:100%;margin:6px 0" onclick="partagerTournee(true)">📋 Partager la feuille complète</button><button class="ghost" style="width:100%;margin:6px 0" onclick="copierTournee()">📄 Copier le texte complet</button><button class="ghost" style="width:100%;margin:6px 0" onclick="imprimerTourneePDF()">🧾 Imprimer / enregistrer en PDF</button><button class="ghost close-modal" style="width:100%;margin-top:10px" onclick="document.getElementById(\'modalPartageTournee\').remove()">Fermer</button></div>';
+  bg.innerHTML='<div class="modal" style="max-width:460px"><h3>📤 Transmettre ma tournée</h3><p class="route-hint">Envoie les missions sur un autre téléphone en cas de batterie à plat. Les prix annoncés, paiements, adresses et horaires renseignés sont repris.</p><button class="primary" style="width:100%;margin:6px 0" onclick="partagerTournee(false)">⚡ Partager les interventions restantes</button><button class="primary" style="width:100%;margin:6px 0" onclick="partagerTournee(true)">📋 Partager la feuille complète</button><button class="ghost" style="width:100%;margin:6px 0" onclick="copierTournee()">📄 Copier le texte complet</button><button class="ghost" style="width:100%;margin:6px 0" onclick="imprimerTourneePDF()">🧾 Imprimer / enregistrer en PDF</button><button class="ghost close-modal" style="width:100%;margin-top:10px" onclick="document.getElementById(\'modalPartageTournee\').remove()">Fermer</button></div>';
   document.body.appendChild(bg);
 }
 
@@ -17806,7 +17930,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
     if(t.includes('depannage')||t.includes('remorquage general')) return ['🚨','#ff4d4f','Dépannage / remorquage','Remorquage & dépannage',10];
     if(t.includes('materiel')) return ['🏗️','#5e8194','Transport de matériel','Transport & transfert',23];
     if(t.includes('transfert')||t.includes('transport')) return ['🚚','#20c766','Transport de véhicule','Transport & transfert',20];
-    if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP / sans permis','Transport & transfert',21];
+    if(t.includes('vsp')||t.includes('sans permis')) return ['🚙','#17c7d9','VSP / sans permis','Remorquage & dépannage',21];
     if(t.includes('moto')) return ['🏍️','#a84dff','Deux-roues','Transport & transfert',22];
     if(t.includes('batterie')||t.includes('alternateur')) return ['🔋','#168bff','Batterie / électricité','Assistance sur place',30];
     if(t.includes('pneu')||t.includes('roue')) return ['🛞','#ffb11a','Pneu / roue','Assistance sur place',31];
@@ -18346,7 +18470,7 @@ function construirePdfFactureV2(c, meta){
     y += 8;
     const acV2 = (c.paiement && c.paiement.acompte && c.paiement.acompte.montant > 0) ? Number(c.paiement.acompte.montant) : 0;
     const payeV2 = (typeof statutPaiement === 'function' ? statutPaiement(c) : (c.paye ? 'paye' : 'attente')) === 'paye';
-    const resteV2 = payeV2 ? 0 : Math.max(0, Math.round((c.total - acV2) * 100) / 100);
+    const resteV2 = payeV2 ? 0 : ((meta && meta.presentation >= 3 && typeof jmResteDu === 'function') ? jmResteDu(c) : Math.max(0, Math.round((c.total - acV2) * 100) / 100));
     pdf.rect(50, y-4, 495, 30, {mode:'f', rgb:[23,32,39]});
     pdf.text(58, y+16, S.totalTvac, {font:'F2', size:13, rgb:[255,255,255]});
     pdf.text(450, y+16, fmt(c.total), {font:'F2', size:15, rgb:[242,140,0]});
@@ -18534,7 +18658,7 @@ async function genererRecuV2(){
     // émises à partir du 22/09 avec l'ancienne présentation : rendu tel qu'envoyé ; nouvelles : présentation 2.
     const ORIGINE_ADRESSE = {fr:'Prise en charge : ', nl:'Ophaling : ', en:'Pick-up: '};
     construirePdfFacture = function(c, meta){
-      if(meta && meta.presentation === 2) return construirePdfFactureV2(c, meta);
+      if(meta && meta.presentation >= 2) return construirePdfFactureV2(c, meta);
       const dateEmission = String((meta && (meta.dateIso || meta.date)) || (c && c.invoicedDate) || '');
       const lang = (meta && meta.lang) || 'fr', S = (typeof INVOICE_STRINGS !== 'undefined') ? INVOICE_STRINGS[lang] : null;
       if(S && dateEmission && dateEmission < '2026-09-22' && ORIGINE_ADRESSE[lang]){
@@ -18550,7 +18674,7 @@ async function genererRecuV2(){
   }
   if(typeof genererRecu === 'function'){
     const _r = genererRecu;
-    genererRecu = function(){ return (typeof lastCalc !== 'undefined' && lastCalc && lastCalc.presentationDocs === 2) ? genererRecuV2.apply(this, arguments) : _r.apply(this, arguments); };
+    genererRecu = function(){ return (typeof lastCalc !== 'undefined' && lastCalc && lastCalc.presentationDocs >= 2) ? genererRecuV2.apply(this, arguments) : _r.apply(this, arguments); };
   }
   // Présentation des documents : 2 pour toute intervention créée à partir de la v248 ; une intervention plus ancienne garde la sienne.
   let PRES_DOCS = null;
@@ -18560,7 +18684,7 @@ async function genererRecuV2(){
   }
   if(typeof calculer === 'function'){
     const _c = calculer;
-    calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ const edition = (typeof editingKey !== 'undefined' && editingKey); if(edition){ if(PRES_DOCS) lastCalc.presentationDocs = PRES_DOCS; else delete lastCalc.presentationDocs; } else lastCalc.presentationDocs = 2; } }catch(e){} return r; };
+    calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ const edition = (typeof editingKey !== 'undefined' && editingKey); if(edition){ if(PRES_DOCS) lastCalc.presentationDocs = PRES_DOCS; else delete lastCalc.presentationDocs; } else lastCalc.presentationDocs = 3; } }catch(e){} return r; };
   }
   // Historique : chaque fiche porte la couleur de sa famille de service.
   const FAMC = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', moto_remorquage:'#a84dff', moto_batterie:'#168bff', changement_batterie:'#168bff', demarrage:'#168bff', test_batt:'#168bff',
@@ -18583,8 +18707,8 @@ async function genererRecuV2(){
   //  sélecteurs existants (#type, #qqType) et les vraies cases de prestations.
   // ===================================================================
   const CATS = {
-    depannage:{t:'Dépannage & remorquage', d:'Panne · accident · véhicule immobilisé', c:'#ff4d4f', s:[{v:'depannage'}]},
-    transport:{t:'Transport véhicule', d:'Transfert · VSP · moto', c:'#20c766', s:[{v:'transfert'},{v:'depannage', vsp:1},{v:'moto_remorquage'}]},
+    depannage:{t:'Dépannage & remorquage', d:'Panne · accident · VSP · véhicule immobilisé', c:'#ff4d4f', s:[{v:'depannage'},{v:'depannage', vsp:1}]},
+    transport:{t:'Transport véhicule', d:'Transfert · moto', c:'#20c766', s:[{v:'transfert'},{v:'moto_remorquage'}]},
     ct:{t:'Contrôle technique', d:'Passage · repassage · véhicule accidenté', c:'#20c766', s:[{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'}]},
     materiel:{t:'Transport matériel', d:'Longerons · toiture légère · autre matériel', c:'#5e8194', s:[{v:'transport_materiel', mat:'longerons', lib:'Longerons / fers'},{v:'transport_materiel', mat:'toiture', lib:'Toiture légère (PVC, tôles)'},{v:'transport_materiel', mat:'autre', lib:'Autre matériel'}]},
     assistance:{t:'Assistance sur place', d:'Batterie · ouverture · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'ouverture_vehicule'},{v:'diag'},{v:'erreur_carburant'}]},
@@ -19005,10 +19129,14 @@ async function genererRecuV2(){
     const now = new Date(), debut = new Date(now.getFullYear(), 0, 1), jours = Math.max(1, (now - debut) / 864e5), projection = r2(ca.total / jours * 365);
     const niveau = ca.total >= plafond ? 'rouge' : (pct >= 90 ? 'rouge' : (pct >= 80 ? 'orange' : 'vert'));
     const alerte = ca.total >= plafond ? '⚠️ Plafond dépassé : contacte ton comptable.' : (pct >= 90 ? '⚠️ Plafond presque atteint : parle-en à ton comptable.' : (pct >= 80 ? 'Attention : 80 % du plafond atteint.' : (projection > plafond ? 'À ce rythme, le plafond serait dépassé avant la fin de l\'année.' : '')));
-    box.innerHTML = '<div class="jm-plaf-t"><span>Plafond franchise ' + ca.annee + '</span><strong>' + eur(ca.total) + ' / ' + eur(plafond) + '</strong></div>' +
+    const complet = '<div class="jm-plaf-t"><span>Plafond franchise ' + ca.annee + '</span><strong>' + eur(ca.total) + ' / ' + eur(plafond) + '</strong></div>' +
       '<div class="jm-plaf-barre"><div class="jm-plaf-rempli jm-plaf-' + niveau + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
       '<div class="jm-plaf-s">' + Math.round(pct) + ' % · à ce rythme ≈ ' + eur(projection) + ' fin d\'année' + (alerte ? '<br><span class="jm-plaf-a jm-plaf-' + niveau + 't">' + alerte + '</span>' : '') + '</div>' +
       '<div class="jm-plaf-interne">Indicateur de suivi interne — estimation, pas une validation comptable.</div>';
+    window.JM_PLAFOND_COMPLET = complet;
+    const rc = document.getElementById('recPlafond'); if(rc) rc.innerHTML = complet;
+    box.innerHTML = '<div class="jm-plaf-c"><span>🧾 Plafond ' + ca.annee + ' · <strong>' + Math.round(pct) + ' %</strong> · ' + eur(ca.total) + '</span><span class="jm-plaf-c-f">' + (niveau !== 'vert' ? '<span class="jm-plaf-' + niveau + 't">⚠️ </span>' : '') + 'suivi interne ▸</span></div>' +
+      '<div class="jm-plaf-barre jm-plaf-barre-fine"><div class="jm-plaf-rempli jm-plaf-' + niveau + '" style="width:' + pct.toFixed(1) + '%"></div></div>';
   };
 
   // ---------- 2) Livre des recettes ----------
@@ -19047,7 +19175,7 @@ async function genererRecuV2(){
     const total = L.reduce((s, x) => s + x.montant, 0);
     $('recTotaux').innerHTML = '<strong>' + L.length + ' encaissement' + (L.length > 1 ? 's' : '') + ' · ' + eur(total) + '</strong>' + Object.entries(parMoyen).sort((a, b) => b[1] - a[1]).map(([m, v]) => '<br>' + esc(m) + ' : ' + eur(v)).join('');
     $('recListe').innerHTML = L.slice().reverse().slice(0, 200).map(x => '<div class="ticket-row" style="border:0; padding:4px 0;"><span class="l">' + (x.date ? new Date(x.date).toLocaleDateString('fr-BE') : '—') + ' · ' + esc(x.piece) + ' · ' + esc(x.moyen) + '<br><span style="opacity:.7; font-size:11.5px;">' + esc(x.libelle) + (x.client ? ' · ' + esc(x.client) : '') + '</span></span><span class="v">' + eur(x.montant) + '</span></div>').join('') || '<div class="km-mention">Aucun encaissement sur cette période.</div>';
-    await jmAfficherPlafond(); const c = $('recPlafond'); if(c && $('jmPlafond')) c.innerHTML = $('jmPlafond').innerHTML;
+    await jmAfficherPlafond(); const c = $('recPlafond'); if(c && window.JM_PLAFOND_COMPLET) c.innerHTML = window.JM_PLAFOND_COMPLET;
   };
   window.jmRecettesExporter = async function(){
     const L = await lignesFiltrees(), q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
@@ -19213,6 +19341,30 @@ async function genererRecuV2(){
   };
   window.jmCessionPdfBytes = function(d){
     const a = d.achat, pdf = MiniPDF(595, 842), dr = a.docsRemis || {};
+    let y = stockEntete(pdf, 'CONVENTION DE CESSION', a.numero, a.date);
+    pdf.text(50, y - 12, 'Cession à titre gratuit en vue de la destruction du véhicule', {size:9.5, gray:0.35}); y += 6;
+    if(d.annulation){ pdf.rect(50, y - 12, 495, 20, {mode:'f', rgb:[253,226,221]}); pdf.text(56, y + 2, 'ANNULÉE le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — ' + d.annulation.motif, {font:'F2', size:10, rgb:[201,74,50]}); y += 26; }
+    y = stockSection(pdf, y, 'CÉDANT (PROPRIÉTAIRE)'); y = stockLigne(pdf, y, 'Nom', a.vendeur.nom); y = stockLigne(pdf, y, 'Adresse', a.vendeur.adresse); y = stockLigne(pdf, y, 'Téléphone', a.vendeur.tel);
+    if(a.vendeur.identite) y = stockLigne(pdf, y, 'Pièce d\'identité', a.vendeur.identite);
+    y += 6; y = stockSection(pdf, y, 'REPRENEUR'); y = stockLigne(pdf, y, 'Nom', COMPANY.name); y = stockLigne(pdf, y, 'N° d\'entreprise', COMPANY.tva);
+    y += 6; y = stockSection(pdf, y, 'VÉHICULE'); y = stockLigne(pdf, y, 'Véhicule', a.vehicule.texte); y = stockLigne(pdf, y, 'N° de châssis (VIN)', a.vehicule.vin); y = stockLigne(pdf, y, 'Immatriculation', a.vehicule.immat); y = stockLigne(pdf, y, 'Kilométrage relevé', a.vehicule.km ? a.vehicule.km + ' km' : '');
+    y += 6; y = stockSection(pdf, y, 'DOCUMENTS REMIS'); const oui = x => x ? 'remis' : 'non remis';
+    y = stockLigne(pdf, y, 'Certificat d\'immatriculation', oui(dr.immat)); y = stockLigne(pdf, y, 'Certificat de conformité', oui(dr.conformite)); y = stockLigne(pdf, y, 'Clés', oui(dr.cles));
+    y += 8;
+    ['Le cédant déclare être le propriétaire du véhicule, que celui-ci est libre de tout gage, saisie ou opposition,',
+     'et le cède à titre gratuit au repreneur en vue de sa destruction. Le véhicule sera remis à un centre de traitement',
+     'agréé ; le certificat de destruction sera conservé au dossier. La plaque d\'immatriculation reste au titulaire,',
+     'à qui il appartient d\'en demander la radiation. Aucun montant n\'est dû par l\'une ou l\'autre partie.'].forEach(l => { pdf.text(50, y, l, {size:8.5, gray:0.35}); y += 11; });
+    y += 18; pdf.text(50, y, 'Signature du cédant', {size:9.5, gray:0.3}); pdf.text(300, y, 'Pour ' + COMPANY.name, {size:9.5, gray:0.3});
+    pdf.rect(50, y + 8, 220, 62, {mode:'S', gray:0.7}); pdf.rect(300, y + 8, 220, 62, {mode:'S', gray:0.7});
+    pdf.addRgbImage('SigV', a.sigVendeur.width, a.sigVendeur.height, base64VersOctets(a.sigVendeur.b64)); pdf.drawImage('SigV', 52, y + 10, 216, 58);
+    pdf.addRgbImage('SigJ', a.sigJm.width, a.sigJm.height, base64VersOctets(a.sigJm.b64)); pdf.drawImage('SigJ', 302, y + 10, 216, 58);
+    return pdf.build();
+  }
+  // v267 — version 2 (charte commune)
+  window.jmCessionPdfBytesV2 = function(d){
+    const a = d.achat, pdf = MiniPDF(595, 842), dr = a.docsRemis || {};
+    pdf.rect(0, 0, 595, 10, {mode:'f', rgb:[23,32,39]}); pdf.rect(0, 10, 595, 3, {mode:'f', rgb:[242,140,0]});
     let y = stockEntete(pdf, 'CONVENTION DE CESSION', a.numero, a.date);
     pdf.text(50, y - 12, 'Cession à titre gratuit en vue de la destruction du véhicule', {size:9.5, gray:0.35}); y += 6;
     if(d.annulation){ pdf.rect(50, y - 12, 495, 20, {mode:'f', rgb:[253,226,221]}); pdf.text(56, y + 2, 'ANNULÉE le ' + new Date(d.annulation.date).toLocaleDateString('fr-BE') + ' — ' + d.annulation.motif, {font:'F2', size:10, rgb:[201,74,50]}); y += 26; }
@@ -19670,6 +19822,188 @@ async function genererRecuV2(){
   window.jmChargesOuvrirReglages = function(){ const b = $('modalChargesBg'); if(b) b.classList.remove('show'); jmOuvrirReglages('catRentabilite', 'r_chargesAssurance'); };
 })();
 </script>
+<script id="jm-v265-coherence-script">
+(function(){
+  // ===================================================================
+  //  v265 — Lots 1 + 2 de l'audit : corrections d'affichage, règle unique du reste dû,
+  //  vocabulaire, menus en sections, ⋯ Plus en sections, jauge compacte, badge du téléphone B.
+  //  Aucun calcul de prix ni document modifié.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  window.jmEstSurPlace = d => !!d && (d.surPlace === true || (SUR_PLACE.includes(d.type) && !(d.to && d.to !== '—')));
+  window.jmTrajetTexte = function(d){
+    const aDep = d.to && d.to !== '—';
+    let t = esc(d.from || '—') + (aDep ? ' → ' + esc(d.to) : (jmEstSurPlace(d) ? ' · sur place' : ''));
+    if(typeof d.kmFacturable === 'number') t += ' · ' + fmtKm(d.kmFacturable) + ' km' + (d.retour && d.kmRetourFacture > 0 ? ' (retour compris)' : '');
+    else if(Number(d.km) > 0) t += ' · ' + d.km + ' km' + (d.retour ? ' (A/R)' : '');
+    return t;
+  };
+
+  // ---------- Règle unique du reste dû : total − acompte − paiements partiels ----------
+  const RESTE_HISTORIQUE = resteADevoir;   // conservé pour les reçus (réimpression à l'identique)
+  window.jmResteDu = function(d){
+    if(!d) return 0;
+    const total = Number(d.total) || 0, p = d.paiement || {};
+    if(p.statut === 'paye' || (d.paye && !p.statut)) return 0;
+    const ac = p.acompte && Number(p.acompte.montant) > 0 ? Number(p.acompte.montant) : 0;
+    const paiements = montantRecu(d);   // cumul des paiements enregistrés (acompte inclus s'il y en a)
+    return Math.max(0, Math.round((total - Math.max(paiements, ac)) * 100) / 100);
+  };
+  resteADevoir = jmResteDu;
+  if(typeof genererRecu === 'function'){
+    const _g = genererRecu;
+    genererRecu = async function(){ const nouveau = typeof lastCalc !== 'undefined' && lastCalc && lastCalc.presentationDocs >= 3; if(nouveau) return _g.apply(this, arguments); resteADevoir = RESTE_HISTORIQUE; try{ return await _g.apply(this, arguments); } finally { resteADevoir = jmResteDu; } };
+  }
+
+  // ---------- ⋯ Plus terrain : 3 sections + Annulation isolée ----------
+  window.jmAttente = function(){
+    try{ initHorairesUI(); }catch(e){}
+    const deb = $('hr_attente_debut'), fin = $('hr_attente_fin');
+    if(deb && !deb.value){ tamponnerHoraire('attente_debut'); terrainAttente(); showToast('⏳ Attente commencée à ' + deb.value); return; }
+    if(fin && !fin.value){
+      tamponnerHoraire('attente_fin'); if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+      const m = s => { const x = /^(\d{1,2}):(\d{2})$/.exec(s || ''); return x ? (+x[1]) * 60 + (+x[2]) : null; };
+      let min = m(fin.value) - m(deb.value); if(min < 0) min += 1440;
+      const champ = $('minutesAttente');
+      if(champ && !champ.value && min > 0){ champ.value = min; champ.dispatchEvent(new Event('input', {bubbles:true})); showToast('⌛ Attente terminée : ' + min + ' min, reportées dans le temps d\'attente (modifiable)'); }
+      else showToast('⌛ Attente terminée à ' + fin.value);
+      return;
+    }
+    terrainAttente(); showToast('Attente déjà notée : ' + deb.value + ' → ' + fin.value);
+  };
+  function rangerPlus(){
+    const grille = document.querySelector('#terrainPlusBg .msg-grid'); if(!grille || grille.dataset.jmRange) return;
+    const par = (sel) => [...grille.querySelectorAll('button.msg-choice')].find(b => (b.getAttribute('onclick') || '').includes(sel));
+    const nouveau = (txt, fn) => { const b = document.createElement('button'); b.className = 'msg-choice'; b.setAttribute('onclick', fn); b.textContent = txt; return b; };
+    const attente = nouveau('⏳ Attente (début / fin)', 'jmAttente()');
+    const renommer = (b, t) => { if(b) b.textContent = t; return b; };
+    const sections = [
+      ['Étapes', [renommer(par("'arrivee'"), '📌 Arrivé sur place'), attente, renommer(par("'depart_dest'"), '➡️ Départ vers destination'), par("'depot'"), par("'dechargement'"), renommer(par("'paiement'"), '🕒 Heure du paiement')]],
+      ['Client & paiement', [par('terrainAcompte'), par('jmQaOuvrir'), par('jmRecapPartenaire'), par('terrainIncident')]],
+      ['Outils', [par('calculerAvecRetour'), par('jmDepotDepuisIntervention'), par('jmCessionDepuisIntervention'), par('jmGants'), par('jmSoleil')]]
+    ];
+    const annul = par('terrainAnnulation');
+    [par('terrainAttente()'), par("'attente_debut'"), par("'attente_fin'")].forEach(b => { if(b) b.style.display = 'none'; });
+    const frag = document.createDocumentFragment();
+    sections.forEach(([t, bs]) => { const h = document.createElement('div'); h.className = 'jm-sheet-sec'; h.textContent = t; frag.appendChild(h); bs.filter(Boolean).forEach(b => { b.classList.remove('wide'); frag.appendChild(b); }); });
+    if(annul){ const sep = document.createElement('div'); sep.className = 'jm-sheet-sep'; frag.appendChild(sep); annul.classList.add('wide', 'jm-danger'); annul.textContent = '❌ Annulation / client absent'; frag.appendChild(annul); }
+    [...grille.querySelectorAll('button.msg-choice')].filter(b => b.style.display === 'none').forEach(b => frag.appendChild(b));
+    grille.appendChild(frag); grille.dataset.jmRange = '1';
+  }
+  // ---------- Messages : une icône par signification ----------
+  function iconesMessages(){ document.querySelectorAll('#terrainMsgBg .msg-choice').forEach(b => { if(/Je suis arrivé/.test(b.textContent)) b.textContent = b.textContent.replace(/^\S+/, '📌'); }); }
+
+  // ---------- Menu ⋯ : 5 sections ----------
+  const MENU = [
+    ['Activité', ['Rendez-vous','Intervention passée','Recherche','Clients','Trajets fréquents','Demandes WhatsApp']],
+    ['Paiement & documents', ['QR de paiement','Bons de commande','Demander un avis']],
+    ['Gestion', ['Gestion','Frais pro (PDF)','Plein de gasoil']],
+    ['Véhicules', ['Rachat / épave','Dépôt']],
+    ['Appareil', ['Changer de téléphone','Réglages']]
+  ];
+  function rangerMenu(){
+    const g = document.querySelector('#modalMenuBg .menu-grid'); if(!g || g.dataset.jmRange) return;
+    const items = [...g.querySelectorAll(':scope > .menu-item')], lib = it => (it.querySelector('.menu-lbl') || {}).textContent || '';
+    const pris = new Set(), frag = document.createDocumentFragment();
+    MENU.forEach(([t, noms]) => {
+      const du = noms.map(n => items.find(it => lib(it).trim() === n)).filter(Boolean); if(!du.length) return;
+      const h = document.createElement('div'); h.className = 'jm-menu-sec'; h.textContent = t; frag.appendChild(h);
+      du.forEach(it => { pris.add(it); frag.appendChild(it); });
+    });
+    const DANS_GESTION = ['Tableau de bord','Résumé mensuel','Recettes','Publicité'];   // v267 : accessibles depuis 📊 Gestion
+    items.forEach(it => { if(DANS_GESTION.includes(lib(it).trim())){ it.style.display = 'none'; pris.add(it); frag.appendChild(it); } });
+    const reste = items.filter(it => !pris.has(it)); if(reste.length){ const h = document.createElement('div'); h.className = 'jm-menu-sec'; h.textContent = 'Autres'; frag.appendChild(h); reste.forEach(it => frag.appendChild(it)); }
+    g.appendChild(frag); g.dataset.jmRange = '1';
+    items.forEach(it => { if(lib(it).trim() === 'Rendez-vous'){ const d = it.querySelector('.menu-desc'); if(d && /course/.test(d.textContent)) d.textContent = d.textContent.replace('une course', 'une intervention'); } });
+  }
+
+  // ---------- Badge du téléphone B ----------
+  function majBadgeB(){
+    let b = $('jmBadgeB'); const brand = document.querySelector('header .brand');
+    const estB = typeof syncActif === 'function' && syncActif() && typeof SYNC !== 'undefined' && SYNC.role === 'secours';
+    if(!estB){ if(b) b.style.display = 'none'; return; }
+    if(!b && brand){ b = document.createElement('div'); b.id = 'jmBadgeB'; b.className = 'jm-badge-b'; b.title = 'Téléphone de secours'; b.onclick = () => { if(typeof openSettings === 'function') openSettings(); }; brand.appendChild(b); }
+    if(!b) return;
+    const e = typeof jmEtatSynchro === 'function' ? jmEtatSynchro() : null;
+    const txt = !e ? 'B' : (e[0] === 'ok' ? 'B · ✓ ' + (e[1].split('·')[1] || '').trim() : e[0] === 'hors' ? 'B · hors ligne' : e[0] === 'conflit' ? 'B · ⚠️ conflit' : 'B · ☁️ en attente');
+    b.textContent = txt; b.className = 'jm-badge-b jm-badge-' + (e ? e[0] : 'ok'); b.style.display = '';
+  }
+  if(typeof synchroniser === 'function'){ const _s = synchroniser; synchroniser = async function(){ try{ return await _s.apply(this, arguments); } finally { try{ majBadgeB(); }catch(e){} } }; }
+  window.addEventListener('online', majBadgeB); window.addEventListener('offline', majBadgeB);
+
+  // ---------- Carte « En cours » : reste dû central, sur place ----------
+  if(typeof afficherInterventionEnCours === 'function'){
+    const _a = afficherInterventionEnCours;
+    afficherInterventionEnCours = function(aFaire){
+      const r = _a.apply(this, arguments);
+      try{
+        const carte = $('encoursCarte'); if(!carte || !aFaire || !aFaire.length) return r;
+        const liste = [...aFaire].sort((a, b) => new Date(a.data.date) - new Date(b.data.date));
+        const it = (typeof DISPATCH_ACTIVE_KEY !== 'undefined' && DISPATCH_ACTIVE_KEY) ? (liste.find(x => x.key === DISPATCH_ACTIVE_KEY) || liste[0]) : liste[0];
+        const d = it.data;
+        if(jmEstSurPlace(d)){ const lb = carte.querySelector('.ec-nav-label'); if(lb) lb.innerHTML = lb.innerHTML.replace(/Étape 1 — aller chercher le véhicule/, 'Aller sur place'); }
+        const lignes = [...carte.querySelectorAll('.jm-fr-l')];
+        const lr = lignes.find(l => /Reste à payer/.test(l.textContent)); if(lr){ const s = lr.querySelector('strong'); if(s) s.innerHTML = '<span class="jm-rouge">' + fmt(jmResteDu(d)) + '</span>'; }
+      }catch(e){}
+      return r;
+    };
+  }
+  function init(){ rangerPlus(); rangerMenu(); iconesMessages(); majBadgeB(); setInterval(majBadgeB, 30000);
+    // L'historique a pu être affiché avant ce bloc : on le rafraîchit une fois avec la règle unique du reste dû et le libellé « sur place ».
+    try{ if(typeof loadHistory === 'function') loadHistory(); if(typeof majResumeAccueil === 'function') majResumeAccueil(); }catch(e){} }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="jm-v266-script">
+// v266 — effacement d'adresse générique (Devis rapide, Rendez-vous) : vide le champ et prévient le calcul de distance.
+window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); if(!f) return; f.value = ''; f.dispatchEvent(new Event('input', {bubbles:true})); f.focus(); };
+</script>
+<script id="jm-v267-gestion-script">
+(function(){
+  // ===================================================================
+  //  v267 — Lot 4 : point d'entrée « Gestion », accueil allégé, VSP dans Dépannage,
+  //  charte commune des nouveaux documents (versionnée), reste dû unique sur les nouveaux documents.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  // ---------- 📊 Gestion ----------
+  const ECRANS = {dashboard:'openDashboard', resume:'ouvrirResumeMensuel', recettes:'openRecettes', pub:'openPub'};
+  let DEPUIS_GESTION = false;
+  window.openGestion = function(){ if(typeof closeMenu === 'function') closeMenu(); document.querySelectorAll('.modal-bg.show').forEach(m => m.classList.remove('show')); $('modalGestionBg').classList.add('show'); };
+  window.closeGestion = () => $('modalGestionBg').classList.remove('show');
+  window.jmGestionOuvrir = async function(cle){
+    closeGestion(); DEPUIS_GESTION = true;
+    try{ await window[ECRANS[cle]](); }catch(e){ console.warn('[v267] Gestion', e); }
+    setTimeout(() => { DEPUIS_GESTION = false; }, 400);
+  };
+  function lienRetour(modal, visible){
+    if(!modal) return; let l = modal.querySelector('.jm-retour-gestion');
+    if(!l && visible){ l = document.createElement('button'); l.type = 'button'; l.className = 'jm-retour-gestion'; l.textContent = '← Gestion';
+      l.onclick = () => { modal.classList.remove('show'); openGestion(); }; const cont = modal.querySelector('.modal') || modal; cont.insertBefore(l, cont.firstChild); }
+    if(l) l.style.display = visible ? '' : 'none';
+  }
+  Object.values(ECRANS).forEach(nom => {
+    if(typeof window[nom] !== 'function') return;
+    const _f = window[nom];
+    window[nom] = async function(){
+      const avant = new Set([...document.querySelectorAll('.modal-bg.show')]);
+      const r = await _f.apply(this, arguments);
+      const ouverte = [...document.querySelectorAll('.modal-bg.show')].find(m => !avant.has(m)) || [...document.querySelectorAll('.modal-bg.show')].pop();
+      lienRetour(ouverte, DEPUIS_GESTION);
+      return r;
+    };
+  });
+  // ---------- Documents : nouvelles versions ----------
+  // Factures : présentation 3 (charte actuelle + reste dû unique) pour les factures émises à partir de maintenant.
+  if(typeof lireMetaFactureDepuisFormulaire === 'function'){
+    const _m = lireMetaFactureDepuisFormulaire;
+    lireMetaFactureDepuisFormulaire = async function(){ const meta = await _m.apply(this, arguments); if(meta && meta.presentation === 2) meta.presentation = 3; return meta; };
+  }
+})();
+</script>
+
+
 
 
 
