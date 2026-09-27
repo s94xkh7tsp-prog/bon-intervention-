@@ -2002,6 +2002,10 @@ html.jm-soleil *{text-shadow:none!important}
 html:not([data-theme="dark"]) .jm-renta-avert{color:#9a5200;background:#fff4e5}
 html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!important;background:#fff!important;border-color:#000!important}
 </style>
+<style id="jm-v263-style">
+.jm-renta-reg{margin-top:8px;width:auto;min-height:34px;padding:0 12px;border-radius:10px;border:1px solid #35505e;background:transparent;color:#b9c8d0;font-weight:800;font-size:12px}
+html:not([data-theme="dark"]) .jm-renta-reg{color:#46555e;border-color:#cbd5da}
+</style>
 
 
 
@@ -3632,17 +3636,6 @@ html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!import
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
           <div class="rate-row"><label>Ouverture de véhicule (forfait, hors déplacement)</label><input type="number" id="r_ouverture_vehicule"></div>
           <div class="rate-row"><label>Supplément ouverture keyless / haut de gamme</label><input type="number" id="r_ouverture_keyless"></div>
-          <div class="rate-row"><label>Marge sur pièce / pneu fourni (%)</label><input type="number" id="r_margePieceFournie"></div>
-          <div class="rate-row"><label>Marge minimum sur pièce / pneu fourni (€)</label><input type="number" id="r_margePieceMinimum"></div>
-          <div class="rate-row"><label>Minimum facturé — changement de roue / pneu (€)</label><input type="number" id="r_minPneuChangement"></div>
-          <div class="rate-row"><label>Minimum facturé — réparation de pneu (€)</label><input type="number" id="r_minPneuReparation"></div>
-          <div class="rate-row"><label>Plafond de la franchise TVA (€ / an)</label><input type="number" id="r_plafondFranchise" step="100"></div>
-          <div class="rate-row"><label>Rentabilité : valeur de ton heure (€)</label><input type="number" id="r_valeurHeure" step="1"></div>
-          <div class="rate-row"><label>Rentabilité : usure du camion (€ / km, facultatif)</label><input type="number" id="r_usureKm" step="0.01"></div>
-          <div class="rate-row"><label>Charges fixes : assurance du camion (€ / an)</label><input type="number" id="r_chargesAssurance" step="1"></div>
-          <div class="rate-row"><label>Charges fixes : publicité (€ / an)</label><input type="number" id="r_chargesPub" step="1"></div>
-          <div class="rate-row"><label>Charges fixes : comptable (€ / an)</label><input type="number" id="r_chargesComptable" step="1"></div>
-          <div class="rate-row"><label>Charges fixes : autres (taxe de circulation, téléphone… € / an)</label><input type="number" id="r_chargesAutres" step="1"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
           <div class="rate-row"><label>CT — passage</label><input type="number" id="r_ct_passage"></div>
           <div class="rate-row"><label>CT — repassage / revisite</label><input type="number" id="r_ct_repassage"></div>
@@ -3665,6 +3658,13 @@ html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!import
           <div class="rate-row"><label>Roulettes de manutention (boîte/frein bloqués)</label><input type="number" id="r_roulettes"></div>
         </div>
 
+        <div class="grp">
+          <div class="grp-title">Pneus et pièces fournies</div>
+          <div class="rate-row"><label>Minimum facturé — changement de roue / pneu (€)</label><input type="number" id="r_minPneuChangement"></div>
+          <div class="rate-row"><label>Minimum facturé — réparation de pneu (€)</label><input type="number" id="r_minPneuReparation"></div>
+          <div class="rate-row"><label>Marge sur pièce / pneu fourni (%)</label><input type="number" id="r_margePieceFournie"></div>
+          <div class="rate-row"><label>Marge minimum sur pièce / pneu fourni (€)</label><input type="number" id="r_margePieceMinimum"></div>
+        </div>
         <div class="grp">
           <div class="grp-title">Kilométrage</div>
           <div class="rate-row"><label>Km dépannage / transfert — Formule A (aller + retour à vide)</label><input type="number" id="r_km_formuleA" step="0.05"></div>
@@ -3724,18 +3724,54 @@ html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!import
           <div class="rate-row"><label>Frais déplacement pour aller chercher</label><input type="number" id="r_battDeplacementFee" step="1"></div>
         </div>
 
+        
+
+      </div>
+    </div>
+
+    <div class="settings-category" id="catRentabiliteBloc">
+      <div class="extras-header" onclick="toggleSettingsCategory('catRentabilite')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">📊 Rentabilité et charges</label>
+        <span class="extras-chevron" id="catRentabiliteChevron">▾</span>
+      </div>
+      <div id="catRentabilite" style="display:none; padding-bottom:16px;">
+        <div class="km-mention" style="margin:8px 0;">Servent uniquement au calcul de la rentabilité estimée (sous le ticket). Aucun prix facturé n'en dépend, sauf l'alerte diesel.</div>
         <div class="grp">
-          <div class="grp-title">Coût de revient carburant (indicatif)</div>
+          <div class="grp-title">Ton temps et ton camion</div>
+          <div class="rate-row"><label>Valeur de ton heure (€)</label><input type="number" id="r_valeurHeure" step="1"></div>
+          <div class="rate-row"><label>Usure du camion (€ / km : entretien, pneus…)</label><input type="number" id="r_usureKm" step="0.01"></div>
+        </div>
+        <div class="grp">
+          <div class="grp-title">Gasoil et consommation</div>
           <div class="rate-row"><label>Prix gasoil station (€/L)</label><input type="number" id="r_diesel" step="0.01"></div>
         <div class="rate-row"><label>Alerte si le diesel dépasse (€/L, station)</label><input type="number" id="r_seuilAlerteDiesel" step="0.05"></div>
           <div class="rate-row"><label>Prix gasoil autoroute (€/L)</label><input type="number" id="r_dieselAutoroute" step="0.01"></div>
           <div class="rate-row"><label>Consommation (L/100km)</label><input type="number" id="r_conso" step="0.5"></div>
           <div class="cost-hint" id="costHint">Coût carburant estimé : — €/km</div>
         </div>
-
+        <div class="grp">
+          <div class="grp-title">Charges fixes annuelles (€ / an)</div>
+          <div class="rate-row"><label>Assurance du camion</label><input type="number" id="r_chargesAssurance" step="1"></div>
+          <div class="rate-row"><label>Publicité</label><input type="number" id="r_chargesPub" step="1"></div>
+          <div class="rate-row"><label>Comptable</label><input type="number" id="r_chargesComptable" step="1"></div>
+          <div class="rate-row"><label>Autres (taxe de circulation, téléphone…)</label><input type="number" id="r_chargesAutres" step="1"></div>
+          <div class="km-mention" id="chargesInfoReglages" style="margin-top:8px;"></div>
+        </div>
       </div>
     </div>
-
+    <div class="settings-category" id="catFranchiseBloc">
+      <div class="extras-header" onclick="toggleSettingsCategory('catFranchise')">
+        <label style="margin:0; cursor:pointer; font-weight:600;">🧾 Franchise TVA</label>
+        <span class="extras-chevron" id="catFranchiseChevron">▾</span>
+      </div>
+      <div id="catFranchise" style="display:none; padding-bottom:16px;">
+        <div class="grp">
+          <div class="rate-row"><label>Plafond annuel (€)</label><input type="number" id="r_plafondFranchise" step="100"></div>
+          <div class="km-mention" style="margin-top:8px;">Sert à la jauge de l'accueil et aux alertes. Indicateur de suivi interne : ton comptable reste la référence.</div>
+          <button type="button" class="ghost" style="margin-top:8px;" onclick="closeSettings(); openRecettes();">📒 Voir recettes et plafond</button>
+        </div>
+      </div>
+    </div>
     <div class="settings-category">
       <div class="extras-header" onclick="toggleSettingsCategory('catSync'); syncMajEcranReglages(); if(syncActif() && SYNC.role==='principal') syncChargerAppareils();">
         <label style="margin:0; cursor:pointer; font-weight:600;">☁️ Synchronisation & téléphone de secours</label>
@@ -4392,6 +4428,7 @@ html.jm-soleil .jm-renta-avert,html.jm-soleil .jm-plaf-interne{color:#000!import
     </div>
     <div class="km-mention" id="recTotaux" style="margin-bottom:10px;"></div>
     <button class="primary" onclick="jmRecettesExporter()">📤 Exporter pour le comptable (Excel)</button>
+    <button class="ghost" style="margin-top:8px;" onclick="jmOuvrirReglages('catFranchise', 'r_plafondFranchise')">⚙️ Modifier le plafond</button>
     <div id="recListe" style="margin-top:12px;"></div>
     <div class="km-mention" style="margin-top:10px; border-left-color:var(--orange);">Indicateur de suivi interne. Pour les obligations fiscales/comptables officielles, se référer au logiciel comptable et au comptable.</div>
     <div class="km-mention" style="margin-top:10px; opacity:.8;">Liste les encaissements enregistrés dans l'appli : acomptes, paiements (y compris répartis), ventes de véhicules et gardiennages restitués. Le plafond compte le chiffre d'affaires de l'année : interventions, moins notes de crédit, plus ventes de véhicules et gardiennages.</div>
@@ -8791,7 +8828,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v262';
+const APP_VERSION = 'jm-express-bon-v263';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -19377,7 +19414,7 @@ async function genererRecuV2(){
       '<div class="jm-renta-l"><span>Ton temps : ' + hh(r.minutes) + (r.estime ? ' (estimé)' : ' (horaires)') + ' × ' + fmt(Number(RATES.valeurHeure) || 0) + '/h</span><span>− ' + fmt(r.temps) + '</span></div>' +
       (r.pieces ? '<div class="jm-renta-l"><span>Pièces achetées (pneu, batterie)</span><span>− ' + fmt(r.pieces) + '</span></div>' : '') +
       '<div class="jm-renta-l jm-renta-tot"><span>Marge brute</span><span>' + fmt(r.marge) + '</span></div>' +
-      '<div class="jm-renta-avert">Estimation interne de gestion — ne remplace pas la comptabilité officielle.</div>' + '<div class="jm-renta-n">Estimation hors assurance, entretien et charges fixes. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km.</div>';
+      '<button type="button" class="jm-renta-reg" onclick="jmOuvrirReglages(\'catRentabilite\')">⚙️ Régler ces valeurs</button>' + '<div class="jm-renta-avert">Estimation interne de gestion — ne remplace pas la comptabilité officielle.</div>' + '<div class="jm-renta-n">Estimation hors assurance, entretien et charges fixes. Réglages → Tarifs : gasoil, consommation, valeur de ton heure, usure par km.</div>';
   }
   if(typeof calculer === 'function'){ const _c = calculer; calculer = function(){ const r = _c.apply(this, arguments); try{ afficherRentabilite(); majProgression(); }catch(e){} return r; }; }
   if(typeof invaliderTicketObsolete === 'function'){ const _i = invaliderTicketObsolete; invaliderTicketObsolete = function(){ const r = _i.apply(this, arguments); try{ const b = $('jmRenta'); if(b && (typeof lastCalc === 'undefined' || !lastCalc)) b.style.display = 'none'; }catch(e){} return r; }; }
@@ -19600,6 +19637,32 @@ async function genererRecuV2(){
   window.jmTelDossier = async function(k){ await rachatOuvrir(k); await stockDossierPdf(); };
   async function init(){ try{ const f = await jmRecalerCompteurs(); if(f.length) console.info('[v261] numérotation recalée', f); }catch(e){} }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 2000)); else setTimeout(init, 2000);
+})();
+</script>
+<script id="jm-v263-reglages-script">
+(function(){
+  // v263 — accès direct aux réglages de rentabilité et de franchise ; aucune valeur ni calcul modifié.
+  const $ = id => document.getElementById(id);
+  window.jmOuvrirReglages = function(cat, champ){
+    document.querySelectorAll('.modal-bg.show').forEach(m => { if(m.id !== 'modalBg') m.classList.remove('show'); });
+    if(typeof openSettings === 'function') openSettings();
+    setTimeout(() => {
+      const box = $(cat); if(box && box.style.display === 'none' && typeof toggleSettingsCategory === 'function') toggleSettingsCategory(cat);
+      const cible = (champ && $(champ)) || $(cat + 'Bloc') || box;
+      if(cible) cible.scrollIntoView({block: champ ? 'center' : 'start', behavior: 'smooth'});
+      if(champ && $(champ)) setTimeout(() => $(champ).focus(), 350);
+    }, 250);
+  };
+  async function infoCharges(){
+    const el = $('chargesInfoReglages'); if(!el) return;
+    let m = null; try{ m = JSON.parse((await window.storage.get('chargesFixesMaj')).value); }catch(e){}
+    const p = (typeof jmPartCharges === 'function') ? jmPartCharges() : null;
+    el.innerHTML = 'Total : <strong>' + fmt(typeof jmChargesAnnuelles === 'function' ? jmChargesAnnuelles() : 0) + ' / an</strong>' +
+      (p && p.part ? ' · ≈ ' + fmt(p.part) + ' par intervention (' + p.base + ')' : '') +
+      (m ? '<br>Dernière mise à jour : ' + new Date(m.date).toLocaleDateString('fr-BE') + ' — rappel automatique un an après.' : '');
+  }
+  if(typeof openSettings === 'function'){ const _o = openSettings; openSettings = function(){ const r = _o.apply(this, arguments); try{ infoCharges(); }catch(e){} return r; }; }
+  window.jmChargesOuvrirReglages = function(){ const b = $('modalChargesBg'); if(b) b.classList.remove('show'); jmOuvrirReglages('catRentabilite', 'r_chargesAssurance'); };
 })();
 </script>
 
