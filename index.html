@@ -2092,6 +2092,9 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-bandeau-passe span{color:var(--grey);font-size:12px}
 .jm-bandeau-passe button{flex:0 0 auto;min-height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--jm-action);background:transparent;color:var(--jm-action);font-weight:800}
 </style>
+<style id="jm-v270-style">
+.pay-badge.jm-bon-badge{color:var(--jm-docs);border-color:color-mix(in srgb,var(--jm-docs) 45%,transparent);background:color-mix(in srgb,var(--jm-docs) 10%,transparent)}
+</style>
 
 
 
@@ -2417,9 +2420,11 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <label>Téléphone du client (optionnel)</label>
       <div class="input-with-btn">
         <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
+        <button type="button" class="loc-btn" onclick="jmEffacerAdresse('telClient')" title="Effacer" aria-label="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></button>
         <button type="button" class="loc-btn" onclick="smsClient()" title="SMS"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></button>
       </div>
+      <label class="check-row" style="margin-top:6px;"><input type="checkbox" id="telRefuse" onchange="jmTelRefus()"><span>Le client ne souhaite pas donner son numéro</span></label>
     </div>
 
     <div class="field">
@@ -4590,13 +4595,16 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <div class="jm-qa-km"><div class="field" style="flex:1; margin:0;"><label>Km facturés</label><input type="number" id="qaKm" inputmode="decimal" placeholder="0"></div><button type="button" class="ghost" onclick="avecChargement(this, 'Calcul…', () => jmPasseDistance())">📏 Calculer</button></div>
       <div class="jm-qa-etape">4 · Client</div>
       <div class="field"><label>Nom (facultatif)</label><input type="text" id="qaClientNom" autocomplete="off"></div>
-      <div class="field-row"><div class="field" style="flex:1;"><label>Téléphone</label><input type="tel" id="qaTel" inputmode="tel"></div><div class="field" style="flex:1;"><label>Plaque</label><input type="text" id="qaPlaque" autocapitalize="characters"></div></div>
+      <div class="field-row"><div class="field" style="flex:1;"><label>Téléphone</label><div class="input-with-btn"><input type="tel" id="qaTel" inputmode="tel"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('qaTel')" title="Effacer" aria-label="Effacer">✕</button></div></div><div class="field" style="flex:1;"><label>Plaque</label><input type="text" id="qaPlaque" autocapitalize="characters"></div></div>
+      <label class="check-row" style="margin-top:-4px;"><input type="checkbox" id="qaTelRefuse" onchange="jmTelRefus('qa')"><span>Le client ne souhaite pas donner son numéro</span></label>
       <div class="jm-qa-etape">5 · Véhicule</div>
     </div>
     <div id="qaListe"></div>
     <div id="qaPasseFin" style="display:none;">
       <div class="jm-qa-etape">6 · Paiement</div>
       <div class="field"><label>Déjà payé ?</label><select id="qaPaye"><option value="">Non, à encaisser</option><option>Espèces</option><option>Payconiq</option><option>Virement</option><option>Tap to Pay</option><option>Lien Revolut</option></select></div>
+      <div class="field" style="margin-top:4px;"><label>Document à établir</label>
+        <div class="toggles" id="qaDocChoix" style="margin:0;"><div class="toggle on" data-doc="bon" onclick="jmPasseDoc('bon')">📄 Bon d'intervention</div><div class="toggle" data-doc="facture" onclick="jmPasseDoc('facture')">🧾 Facture</div><div class="toggle" data-doc="aucun" onclick="jmPasseDoc('aucun')">Aucun</div></div></div>
       <div id="qaActionsPrix">
         <button type="button" class="primary" onclick="jmPasseCalculer()">💶 Calculer le prix</button>
         <div id="qaPrix" class="jm-qa-prix" style="display:none;"></div>
@@ -9019,7 +9027,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v269';
+const APP_VERSION = 'jm-express-bon-v270';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16274,7 +16282,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -20203,6 +20211,47 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); if(!window.JM_PASSE_EN_COURS){ const b = $('jmBandeauPasse'); if(b) b.remove(); } return r; }; }
 })();
 </script>
+<script id="jm-v270-script">
+(function(){
+  // v270 — téléphone : effacer (✕) et « le client ne donne pas son numéro » ; intervention passée : choix du document.
+  const $ = id => document.getElementById(id);
+  window.jmTelRefus = function(src){
+    const main = src === 'qa' ? $('qaTelRefuse') : $('telRefuse'), champ = src === 'qa' ? $('qaTel') : $('telClient');
+    const on = !!(main && main.checked);
+    if(champ){ if(on) champ.value = ''; champ.disabled = on; champ.placeholder = on ? 'Numéro non communiqué' : (src === 'qa' ? '' : '04xx xx xx xx'); }
+    if(src === 'qa' && $('telRefuse')){ $('telRefuse').checked = on; jmTelRefus(); }
+    if(typeof invaliderTicketObsolete === 'function' && src !== 'qa') invaliderTicketObsolete();
+  };
+  // Affichage seulement : ne jamais invalider le calcul (réouverture, remise à zéro)
+  function ecrire(on){ on = !!on; ['telRefuse','qaTelRefuse'].forEach(id => { if($(id)) $(id).checked = on; });
+    [['telClient','04xx xx xx xx'],['qaTel','']].forEach(([id, ph]) => { const f = $(id); if(f){ if(on) f.value = ''; f.disabled = on; f.placeholder = on ? 'Numéro non communiqué' : ph; } }); }
+  if(typeof calculer === 'function'){ const _c = calculer; calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ if($('telRefuse') && $('telRefuse').checked) lastCalc.telRefuse = true; else delete lastCalc.telRefuse; } }catch(e){} return r; }; }
+  if(typeof chargerInterventionDepuisJournal === 'function'){ const _ch = chargerInterventionDepuisJournal; chargerInterventionDepuisJournal = async function(key){ const r = await _ch.apply(this, arguments); try{ const d = JSON.parse((await window.storage.get(key)).value); ecrire(!!d.telRefuse); }catch(e){} return r; }; }
+  if(typeof enregistrer === 'function'){ const _e = enregistrer; enregistrer = async function(){ const r = await _e.apply(this, arguments); try{ if(typeof editingKey === 'undefined' || !editingKey) ecrire(false); }catch(e){} return r; }; }
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); try{ ecrire(false); }catch(e){} return r; }; }
+  // Historique : bon d'intervention d'une intervention enregistrée (sans la laisser ouverte en modification)
+  window.jmBonDepuisJournal = async function(key){
+    if(typeof editingKey !== 'undefined' && editingKey && editingKey !== key){ if(!confirm('Une intervention est en cours de modification.\nL\'abandonner pour établir ce bon ?')) return; }
+    const onglet = [...document.querySelectorAll('.tab-section')].find(s => getComputedStyle(s).display !== 'none');
+    await chargerInterventionDepuisJournal(key); await new Promise(r => setTimeout(r, 900));
+    try{ const d = JSON.parse((await window.storage.get(key)).value); if($('invClientName') && d.clientNom) $('invClientName').value = d.clientNom; }catch(e){}
+    try{ await genererRecu(); } finally { try{ annulerEdition(); }catch(e){} if(onglet && typeof showTab === 'function') showTab(onglet.id, true); }
+  };
+  // Intervention passée : document choisi d'avance, ouvert automatiquement après l'enregistrement
+  window.jmPasseDoc = function(doc){ document.querySelectorAll('#qaDocChoix .toggle').forEach(t => t.classList.toggle('on', t.dataset.doc === doc)); };
+  if(typeof jmPasseEnregistrer === 'function'){
+    const _p = jmPasseEnregistrer;
+    window.jmPasseEnregistrer = async function(){
+      const choix = (document.querySelector('#qaDocChoix .toggle.on') || {}).dataset;
+      await _p.apply(this, arguments);
+      if(!choix || getComputedStyle($('qaDocs')).display === 'none') return;
+      if(choix.doc === 'bon') await jmPasseBon(); else if(choix.doc === 'facture') await jmPasseFacture();
+    };
+  }
+  if(typeof jmQaOuvrir === 'function'){ const _o = jmQaOuvrir; window.jmQaOuvrir = function(passe){ const r = _o.apply(this, arguments); if(passe && getComputedStyle($('qaDocs')).display === 'none'){ jmPasseDoc('bon'); ecrire(false); } return r; }; }
+})();
+</script>
+
 
 
 
