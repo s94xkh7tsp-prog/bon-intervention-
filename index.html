@@ -2106,6 +2106,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 @keyframes jmPulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--jm-danger) 18%,transparent)}}
 .jm-vocal-etat{line-height:1.45}.jm-vocal-prix{font-size:26px;font-weight:900;color:var(--jm-action)}
 .gear.jm-vocal-gear{color:var(--jm-gps)}
+.gear.jm-vocal-gear.jm-ecoute{color:var(--jm-danger);animation:jmPulse 1.1s ease-in-out infinite}
 </style>
 <style id="jm-v276-style">.jm-vocal-entendu{font-size:12px;color:var(--grey);font-style:italic}</style>
 
@@ -3577,7 +3578,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Générer la facture (PDF + signature)</button>
-    <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Reçu simple (sans mentions comptables)</button>
+    <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Bon d'intervention</button>
     <button class="ghost" onclick="openAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Demander un avis (QR à scanner)</button>
   </div>
   </section>
@@ -5275,7 +5276,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button type="button" class="jm-vocal-btn" id="vocalBtn" onclick="jmDevisVocal()">🎤 Devis vocal <span>dis le service, le départ et l'arrivée</span></button>
     <div id="vocalBloc" style="display:none;">
       <div class="km-mention jm-vocal-etat" id="vocalEtat" style="display:none;"></div>
-      <div class="field" style="margin:8px 0;"><textarea id="vocalTexte" rows="2" placeholder="Ou écris / dicte avec le 🎤 du clavier : « remorquage de … jusqu'à … »"></textarea></div>
+      <div class="field" style="margin:8px 0;"><div class="input-with-btn"><textarea id="vocalTexte" rows="2" placeholder="Ou écris / dicte avec le 🎤 du clavier : « remorquage de … jusqu'à … »"></textarea><button type="button" class="loc-btn" onclick="jmEffacerAdresse('vocalTexte')" title="Effacer" aria-label="Effacer">✕</button></div></div>
       <button type="button" class="ghost" style="margin:0 0 10px;" onclick="avecChargement(this, 'Analyse…', () => jmVocalAnalyser())">🔎 Analyser la demande</button>
     </div>
     <h3>📞 Devis rapide</h3>
@@ -9049,7 +9050,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v276';
+const APP_VERSION = 'jm-express-bon-v278';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20416,7 +20417,10 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   };
   window.jmVocalEtat = html => { const e = $('vocalEtat'); if(e){ e.innerHTML = html; e.style.display = 'block'; } };
   let REC = null;
+  const ECOUTE_LIB = '🎤 Devis vocal <span>dis le service, le départ et l\'arrivée</span>', STOP_LIB = '⏹ Arrêter l\'écoute <span>et calculer avec ce qui a été entendu</span>';
+  function etatBouton(ecoute){ const b = $('vocalBtn'); if(b){ b.classList.toggle('jm-ecoute', ecoute); b.innerHTML = ecoute ? STOP_LIB : ECOUTE_LIB; } const g = document.querySelector('header .jm-vocal-gear'); if(g) g.classList.toggle('jm-ecoute', ecoute); }
   window.jmDevisVocal = function(){
+    if(REC && $('vocalBtn').classList.contains('jm-ecoute')){ try{ REC.stop(); }catch(e){} return; }   // v277 : second appui = arrêter
     if(typeof openQuickQuote === 'function' && !$('modalQuickQuoteBg').classList.contains('show')) openQuickQuote();
     $('vocalBloc').style.display = 'block'; $('vocalBloc').scrollIntoView({block:'start'});
     const Api = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -20424,13 +20428,14 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     try{ if(REC) REC.abort(); }catch(e){}
     REC = new Api(); REC.lang = 'fr-BE'; REC.interimResults = true; REC.maxAlternatives = 1; REC.continuous = false;
     let final = '';
-    $('vocalBtn').classList.add('jm-ecoute'); jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.<br><em>Ex. : « remorquage de la rue de la Station à Gilly jusqu\'au garage Martin à Jumet »</em>');
+    etatBouton(true); jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.<br><em>Ex. : « remorquage de la rue de la Station à Gilly jusqu\'au garage Martin à Jumet »</em>');
     REC.onresult = ev => { let txt = ''; for(let i = 0; i < ev.results.length; i++){ txt += ev.results[i][0].transcript; if(ev.results[i].isFinal) final = txt; } $('vocalTexte').value = txt; };
-    REC.onerror = ev => { $('vocalBtn').classList.remove('jm-ecoute'); jmVocalEtat(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Micro refusé : autorise-le, ou touche le champ puis le 🎤 du clavier.' : ev.error === 'no-speech' ? 'Aucune voix détectée : rapproche le téléphone et réessaie.' : 'Dictée interrompue : réessaie, ou utilise le 🎤 du clavier.'); };
-    REC.onend = () => { $('vocalBtn').classList.remove('jm-ecoute'); const t = final || $('vocalTexte').value; if(t) jmVocalTraiter(t); };
-    try{ REC.start(); }catch(e){ jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.'); }
+    REC.onerror = ev => { etatBouton(false); jmVocalEtat(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Micro refusé : autorise-le, ou touche le champ puis le 🎤 du clavier.' : ev.error === 'no-speech' ? 'Aucune voix détectée : rapproche le téléphone et réessaie.' : 'Dictée interrompue : réessaie, ou utilise le 🎤 du clavier.'); };
+    REC.onend = () => { etatBouton(false); REC = null; const t = final || $('vocalTexte').value; if(t) jmVocalTraiter(t); };
+    try{ REC.start(); }catch(e){ etatBouton(false); jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.'); }
   };
   window.jmVocalAnalyser = () => jmVocalTraiter($('vocalTexte').value);
+  if(typeof closeQuickQuote === 'function'){ const _cq = closeQuickQuote; closeQuickQuote = function(){ if(REC){ try{ REC.onend = () => { etatBouton(false); REC = null; }; REC.abort(); }catch(e){} } return _cq.apply(this, arguments); }; }
   // Devis rapide : un service sur place se mesure sans dépose (aller base → intervention), comme le formulaire
   if(typeof mesurerDistanceDevis === 'function'){
     const _m = mesurerDistanceDevis;
