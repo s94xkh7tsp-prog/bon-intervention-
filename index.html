@@ -2099,6 +2099,14 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 /* v273 — barre de progression tenue sur 320 px (iPhone SE 1re génération) */
 @media (max-width:360px){ .jm-prog{gap:4px} .jm-prog-e{font-size:11px;gap:3px;padding:0 2px} .jm-prog-n{width:15px;height:15px;font-size:9.5px} }
 </style>
+<style id="jm-v274-style">
+.jm-vocal-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-height:64px;margin:4px 0 10px;border-radius:16px;border:1.5px solid var(--jm-gps);background:color-mix(in srgb,var(--jm-gps) 12%,transparent);color:var(--jm-gps);font-size:18px;font-weight:900}
+.jm-vocal-btn span{font-size:11.5px;font-weight:600;opacity:.8}
+.jm-vocal-btn.jm-ecoute{animation:jmPulse 1.1s ease-in-out infinite;background:color-mix(in srgb,var(--jm-danger) 16%,transparent);border-color:var(--jm-danger);color:var(--jm-danger)}
+@keyframes jmPulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--jm-danger) 18%,transparent)}}
+.jm-vocal-etat{line-height:1.45}.jm-vocal-prix{font-size:26px;font-weight:900;color:var(--jm-action)}
+.gear.jm-vocal-gear{color:var(--jm-gps)}
+</style>
 
 
 
@@ -2206,6 +2214,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     </div>
     <div class="head-row-icons">
       <div class="gear emergency" onclick="openUrgences()" title="Urgences"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 19h14"/><path d="M7 19v-5a5 5 0 0 1 10 0v5"/><path d="M12 4V2M4.5 8 3 6.8M19.5 8 21 6.8"/></svg></div>
+      <div class="gear jm-vocal-gear" onclick="jmDevisVocal()" title="Devis vocal"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></div>
       <div class="gear" onclick="openQuickQuote()" title="Devis rapide"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></div>
       <div class="gear" onclick="openMenu()" title="Menu">⋯</div>
     </div>
@@ -5262,6 +5271,12 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
 <div class="modal-bg" id="modalQuickQuoteBg">
   <div class="modal">
+    <button type="button" class="jm-vocal-btn" id="vocalBtn" onclick="jmDevisVocal()">🎤 Devis vocal <span>dis le service, le départ et l'arrivée</span></button>
+    <div id="vocalBloc" style="display:none;">
+      <div class="km-mention jm-vocal-etat" id="vocalEtat" style="display:none;"></div>
+      <div class="field" style="margin:8px 0;"><textarea id="vocalTexte" rows="2" placeholder="Ou écris / dicte avec le 🎤 du clavier : « remorquage de … jusqu'à … »"></textarea></div>
+      <button type="button" class="ghost" style="margin:0 0 10px;" onclick="avecChargement(this, 'Analyse…', () => jmVocalAnalyser())">🔎 Analyser la demande</button>
+    </div>
     <h3>📞 Devis rapide</h3>
     <p style="color:var(--grey); font-size:12.5px; margin:-8px 0 16px 0;">Pour donner une estimation à l'oral pendant l'appel — n'enregistre rien.</p>
     <div class="jm-quote-zone" id="jmQuoteZone"></div>
@@ -9033,7 +9048,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v273';
+const APP_VERSION = 'jm-express-bon-v275';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20279,6 +20294,147 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   if(typeof jmQaOuvrir === 'function'){ const _o = jmQaOuvrir; window.jmQaOuvrir = function(passe){ const r = _o.apply(this, arguments); if(passe && getComputedStyle($('qaDocs')).display === 'none'){ jmPasseDoc('bon'); ecrire(false); } return r; }; }
 })();
 </script>
+<script id="jm-v274-vocal-script">
+(function(){
+  // ===================================================================
+  //  v274 — Devis vocal : dictée → service, départ, arrivée, options → Devis rapide
+  //  (moteur habituel) → prix affiché et lu à voix haute. Repli : saisie ou dictée clavier.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const sansAccent = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const SERVICES = [
+    [/sans permis|\bvsp\b/, {v:'depannage', vsp:1}], [/\bmoto\b.*batterie|batterie.*\bmoto\b/, {v:'moto_batterie'}], [/\bmoto\b|scooter/, {v:'moto_remorquage'}],
+    [/test(er)? (de )?(la )?batterie|testeur|alternateur/, {v:'test_batt'}], [/(change|remplace|nouvelle|poser une).{0,15}batterie/, {v:'changement_batterie'}],
+    [/batterie|demarr|booster|cables?|plus de jus/, {v:'demarrage'}], [/repar.{0,20}(pneu|roue|crevaison)|(pneu|roue|crevaison).{0,20}repar/, {v:'pneu_rep'}],
+    [/crev|pneu|roue/, {v:'pneu_chg'}], [/ouvr|ouverture|cles? (enferme|perdu|oubli)|clef/, {v:'ouverture_vehicule'}],
+    [/carburant|essence dans|diesel dans|gasoil dans|mauvais plein/, {v:'erreur_carburant'}], [/embourb|enlise|treuil|fosse|boue/, {v:'desembourbement'}],
+    [/(controle technique|\bct\b).{0,40}(repass|revisite|contre.?visite)|(repass|revisite).{0,30}(controle|\bct\b)/, {v:'ct_repassage'}],
+    [/(controle technique|\bct\b).{0,40}accident/, {v:'ct_accidente'}], [/controle technique|\bct\b/, {v:'ct_passage'}],
+    [/epave|demolition|a la casse/, {v:'epave_demolition'}], [/materiel|longeron|toiture|toles?|poutre/, {v:'transport_materiel'}],
+    [/transfert|convoy|deplacer|amener (la|une|sa) voiture|transporter (la|une|sa) voiture/, {v:'transfert'}],
+    [/remorqu|depann|panne|accident|ne demarre|immobilis/, {v:'depannage'}]
+  ];
+  const VEH = [[/\bsuv\b|4 ?x ?4|4x4/, 'Suv'], [/utilitaire|camionnette|fourgon/, 'Utilitaire'], [/electrique|hybride|tesla/, 'Electrique']];
+  const FIN = /[\s,.;]*(combien.*|c.est combien.*|quel (est le )?prix.*|s.il (te|vous) plait.*|merci.*|stp.*|svp.*)$/i;
+  const HORS_ADRESSE = /\s+(?:aujourd['’]hui|apr[èe]s.?demain|demain|ce soir|cette nuit|de nuit|dans la nuit|en pleine nuit|ce matin|en journ[ée]e|de jour|cet apr[èe]s.?midi|(?:ce |le )?(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)|(?:un |le )?jour f[ée]ri[ée]|f[ée]ri[ée]|(?:ce |le )?week.?end|(?:à|a|vers) \d{1,2}\s*(?:h|heures?)|\d{1,2}\s*h\d{0,2}\b|avec (?:la |le |ma |mon )?(?:d[ée]panneuse|camion|plateau|voiture)|sans (?:la |le )?(?:d[ée]panneuse|camion|plateau)|en v[ée]hicule|v[ée]hicule (?:priv[ée]|perso)|voiture perso|par l['’]autoroute|sur l['’]autoroute)(?=[\s,.;!?]|$).*$/i;
+  const nettoyer = s => String(s || '').replace(HORS_ADRESSE, '').replace(FIN, '').replace(/\b(euh|heu|bah|ben)\b/gi, '').replace(/\s{2,}/g, ' ').replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '').replace(/^(?:la|le|les|l['’]|un|une)\s*/i, '').trim();
+  const LIEU = /\b(rue|avenue|av\.|place|chaussée|chaussee|boulevard|bd|parking|station|quai|route|chemin|square|allée|allee|impasse|clos|drève|dreve|galerie|centre commercial|gare|zoning|autoroute [ae]\d+|sortie)\b/i;
+  const PAS_ADRESSE = /^(?:un|une|mon|ma|son|sa|ses|leur|la voiture|le véhicule|le vehicule|l['’]essence|essence|diesel|gasoil|suv|4x4|utilitaire|voiture|véhicule|vehicule|camionnette|moto|scooter)\b/i;
+  const DEST = /\s+(?:jusqu['’]\s*(?:à|a|au|aux|chez)|jusque|vers|direction|à destination de|a destination de|pour (?:aller |l['’]amener |le déposer |le deposer |la déposer |la deposer )?(?:à|a|au|aux|chez)|(?:et )?(?:le |la |l['’])?d[ée]pos(?:er|e)r? (?:à|a|au|aux|chez)|(?:et )?(?:l['’]|le |la )?(?:amener|ramener|emmener|conduire) (?:à|a|au|aux|chez))\s+/i;
+  window.jmAnalyserDemande = function(texte){
+    const t = sansAccent(texte), r = {texte, service:null, de:'', a:'', vehicule:null, autoroute:/autoroute/.test(t)};
+    for(const [re, s] of SERVICES){ if(re.test(t)){ r.service = s; break; } }
+    if(!r.service) r.service = {v:'depannage'};
+    for(const [re, v] of VEH){ if(re.test(t)){ r.vehicule = v; break; } }
+    if(r.service.vsp) r.vehicule = 'Vsp';
+    // Véhicule utilisé : perso (sans la dépanneuse) ou dépanneuse
+    if(/vehicule (prive|perso)|voiture (perso|privee|personnelle)|ma voiture|sans (la )?depanneuse|sans (le )?camion|sans (le )?plateau/.test(t)) r.camion = false;
+    else if(/avec (la )?depanneuse|avec (le )?camion|avec (le )?plateau/.test(t)) r.camion = true;
+    // Moment de l'intervention : maintenant, ou jour / heure dits dans la phrase
+    const quand = new Date(); let jourDit = false, heureDite = false;
+    const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+    if(/apres.?demain/.test(t)){ quand.setDate(quand.getDate() + 2); jourDit = true; }
+    else if(/\bdemain\b/.test(t)){ quand.setDate(quand.getDate() + 1); jourDit = true; }
+    else { const j = JOURS.findIndex(x => new RegExp('\\b' + x + '\\b').test(t)); if(j >= 0){ let n = (j - quand.getDay() + 7) % 7; quand.setDate(quand.getDate() + n); jourDit = true; } }
+    const hm = t.match(/\b(\d{1,2})\s*(?:h|heures?)\s*(\d{2})?/);
+    if(hm && +hm[1] < 24){ quand.setHours(+hm[1], +(hm[2] || 0), 0, 0); heureDite = true; }
+    else if(/cette nuit|dans la nuit|de nuit|en pleine nuit/.test(t)){ quand.setHours(23, 0, 0, 0); heureDite = true; }
+    else if(/ce soir/.test(t)){ quand.setHours(21, 0, 0, 0); heureDite = true; }
+    else if(/(demain |ce )?matin/.test(t) && jourDit){ quand.setHours(9, 0, 0, 0); heureDite = true; }
+    else if(/en journee|de jour|cet apres.?midi|apres.?midi/.test(t)){ quand.setHours(14, 0, 0, 0); heureDite = true; }
+    else if(jourDit){ quand.setHours(12, 0, 0, 0); }
+    r.quand = quand; r.momentDit = jourDit || heureDite;
+    r.nuit = typeof estDansPlageNuit === 'function' ? estDansPlageNuit(quand) : false;
+    r.we = typeof estWeekEndOuFerie === 'function' ? estWeekEndOuFerie(quand) : [0, 6].includes(quand.getDay());
+    if(/\bferie\b|jour ferie/.test(t)) r.we = true;
+    const surPlace = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'].includes(r.service.v);
+    // Départ : premier « depuis / de / du / d' » qui n'introduit pas le véhicule ; arrivée : après « jusqu'à, vers, pour aller à, déposer à… »
+    const md = texte.match(DEST), gauche = md ? texte.slice(0, md.index) : texte, droite = md ? texte.slice(md.index + md[0].length) : '';
+    let depart = '';
+    for(const m of gauche.matchAll(/\b(depuis|de|du|d['’])\s*/gi)){ const suite = gauche.slice(m.index + m[0].length); if(!PAS_ADRESSE.test(suite)){ depart = suite; if(/^depuis$/i.test(m[1])) break; break; } }
+    if(!surPlace && md){ r.de = nettoyer(depart); r.a = nettoyer(droite); }
+    if(!surPlace && !md){ const m2 = texte.match(/\b(?:depuis|de|du)\s+(.+?)\s+(?:à|a|au)\s+(.+)$/i); if(m2 && !PAS_ADRESSE.test(m2[1])){ r.de = nettoyer(m2[1]); r.a = nettoyer(m2[2]); } }
+    if(!r.de){
+      const ml = texte.match(LIEU);
+      if(ml) r.de = nettoyer(texte.slice(ml.index));
+      else { const locs = [...texte.matchAll(/(?:^|\s)(?:à|a|au|aux|chez|sur|devant|près de|pres de)\s+(?!la voiture|un diesel|une essence)/gi)]; if(locs.length){ const l = locs[locs.length - 1]; r.de = nettoyer(texte.slice(l.index + l[0].length)); } }
+    }
+    return r;
+  };
+  function choisirService(s){
+    const sel = $('qqType'); if(!sel) return false;
+    const o = [...sel.options].find(x => x.value === s.v && (s.vsp ? x.dataset.vehicleType === 'vsp' : !x.dataset.vehicleType)) || [...sel.options].find(x => x.value === s.v);
+    if(!o) return false; sel.selectedIndex = [...sel.options].indexOf(o); sel.dispatchEvent(new Event('change', {bubbles:true})); if(typeof qqSurTypeChange === 'function') qqSurTypeChange(); return true;
+  }
+  const dire = texte => { try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(texte); u.lang = 'fr-FR'; u.rate = 1; speechSynthesis.speak(u); }catch(e){} };
+  const lib = () => { const s = $('qqType'); return s ? String((s.options[s.selectedIndex] || {}).textContent || '').replace(/^[^\p{L}]+/u, '').split(' — ')[0].trim() : ''; };
+  window.jmVocalTraiter = async function(texte){
+    texte = String(texte || '').trim(); if(!texte){ jmVocalEtat('Rien entendu. Réessaie ou écris la demande.'); return; }
+    const r = jmAnalyserDemande(texte);
+    $('vocalTexte').value = texte;
+    if(typeof openQuickQuote === 'function' && !$('modalQuickQuoteBg').classList.contains('show')) openQuickQuote();
+    choisirService(r.service);
+    if(r.vehicule && $('qqVt' + r.vehicule)) $('qqVt' + r.vehicule).click();
+    if($('qqAuto')) $('qqAuto').classList.toggle('on', !!r.autoroute);
+    if($('qqNuit')) $('qqNuit').classList.toggle('on', !!r.nuit);
+    if($('qqWe')) $('qqWe').classList.toggle('on', !!r.we);
+    if(r.camion !== undefined && $('qqCamion')) $('qqCamion').classList.toggle('on', r.camion);
+    $('qqFrom').value = r.de; $('qqTo').value = r.a; $('qqKm').value = '';
+    ['qqFrom','qqTo'].forEach(id => $(id).dispatchEvent(new Event('input', {bubbles:true})));
+    const compris = '<strong>' + lib() + '</strong>' + (r.de ? '<br>📍 ' + r.de : '<br>📍 <em>adresse de départ non comprise</em>') + (r.a ? '<br>🏁 ' + r.a : '') + (r.vehicule ? '<br>🚙 ' + r.vehicule.toLowerCase() : '') + (r.autoroute ? '<br>🛣️ autoroute' : '') +
+      (r.camion === false ? '<br>🚗 véhicule perso (sans la dépanneuse)' : r.camion ? '<br>🚚 avec la dépanneuse' : '') +
+      '<br>🕒 ' + (r.momentDit ? r.quand.toLocaleString('fr-BE', {weekday:'long', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : 'maintenant') + (r.nuit ? ' · 🌙 nuit' : '') + (r.we ? ' · 📅 week-end / férié' : '');
+    jmVocalEtat('J\'ai compris :<br>' + compris + '<br><br>⏳ Calcul de la distance…');
+    if(!r.de){ dire('Je n\'ai pas compris l\'adresse de départ. Vérifie à l\'écran.'); jmVocalEtat('J\'ai compris :<br>' + compris + '<br><br>⚠️ Complète l\'adresse dans le devis.'); return; }
+    let ok = true;
+    try{ await mesurerDistanceDevis(); }catch(e){ ok = false; }
+    const km = parseFloat($('qqKm').value);
+    if(!ok || !(km > 0)){ dire('Je n\'ai pas trouvé l\'itinéraire. Vérifie les adresses à l\'écran.'); jmVocalEtat('J\'ai compris :<br>' + compris + '<br><br>⚠️ Itinéraire introuvable : corrige une adresse ou entre les km dans le devis.'); return; }
+    try{ calculerDevisRapide(); }catch(e){}
+    const c = typeof QQ_DERNIER_CALC !== 'undefined' ? QQ_DERNIER_CALC : null;
+    if(!c || !(c.total > 0)){ jmVocalEtat('J\'ai compris :<br>' + compris + '<br><br>⚠️ Prix non calculé : vérifie le devis.'); return; }
+    const euros = Math.round(c.total);
+    jmVocalEtat('J\'ai compris :<br>' + compris + '<br>📏 ' + String(km).replace('.', ',') + ' km<br><br><span class="jm-vocal-prix">' + fmt(c.total) + '</span>');
+    const maj = [r.nuit ? 'de nuit' : '', r.we ? 'week-end ou férié' : ''].filter(Boolean).join(', ');
+    dire(lib() + ', ' + Math.round(km) + ' kilomètres' + (maj ? ', ' + maj : '') + '. Environ ' + euros + ' euros.');
+  };
+  window.jmVocalEtat = html => { const e = $('vocalEtat'); if(e){ e.innerHTML = html; e.style.display = 'block'; } };
+  let REC = null;
+  window.jmDevisVocal = function(){
+    if(typeof openQuickQuote === 'function' && !$('modalQuickQuoteBg').classList.contains('show')) openQuickQuote();
+    $('vocalBloc').style.display = 'block'; $('vocalBloc').scrollIntoView({block:'start'});
+    const Api = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!Api){ jmVocalEtat('Dictée directe indisponible ici : touche le champ ci-dessous puis le 🎤 du clavier, et « Analyser ».'); $('vocalTexte').focus(); return; }
+    try{ if(REC) REC.abort(); }catch(e){}
+    REC = new Api(); REC.lang = 'fr-BE'; REC.interimResults = true; REC.maxAlternatives = 1; REC.continuous = false;
+    let final = '';
+    $('vocalBtn').classList.add('jm-ecoute'); jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.<br><em>Ex. : « remorquage de la rue de la Station à Gilly jusqu\'au garage Martin à Jumet »</em>');
+    REC.onresult = ev => { let txt = ''; for(let i = 0; i < ev.results.length; i++){ txt += ev.results[i][0].transcript; if(ev.results[i].isFinal) final = txt; } $('vocalTexte').value = txt; };
+    REC.onerror = ev => { $('vocalBtn').classList.remove('jm-ecoute'); jmVocalEtat(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Micro refusé : autorise-le, ou touche le champ puis le 🎤 du clavier.' : ev.error === 'no-speech' ? 'Aucune voix détectée : rapproche le téléphone et réessaie.' : 'Dictée interrompue : réessaie, ou utilise le 🎤 du clavier.'); };
+    REC.onend = () => { $('vocalBtn').classList.remove('jm-ecoute'); const t = final || $('vocalTexte').value; if(t) jmVocalTraiter(t); };
+    try{ REC.start(); }catch(e){ jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.'); }
+  };
+  window.jmVocalAnalyser = () => jmVocalTraiter($('vocalTexte').value);
+  // Devis rapide : un service sur place se mesure sans dépose (aller base → intervention), comme le formulaire
+  if(typeof mesurerDistanceDevis === 'function'){
+    const _m = mesurerDistanceDevis;
+    mesurerDistanceDevis = async function(){
+      const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'];
+      const from = ($('qqFrom').value || '').trim(), to = ($('qqTo').value || '').trim();
+      if(!SUR.includes(($('qqType') || {}).value) || to || !from) return _m.apply(this, arguments);
+      if(!navigator.onLine){ showToast('Hors ligne : entre le km manuellement'); return; }
+      const et = $('qqEtatDistance');
+      try{
+        const km = await mesurerDistanceRoutiere('', BASE_ADDRESS, from);
+        $('qqKm').value = km.toFixed(1);
+        if(et){ et.textContent = '✓ Distance aller mesurée : base → intervention = ' + km.toFixed(1) + ' km (service sur place)'; et.dataset.mesure = '1'; }
+        calculerDevisRapide();
+      }catch(e){ showToast('Distance introuvable — entre le km à la main'); if(et) et.textContent = '⚠️ Mesure impossible — la distance saisie à la main est utilisée.'; throw e; }
+    };
+  }
+})();
+</script>
+
 <script id="jm-v271-script">
 (function(){
   // v271 — intervention passée : majorations nuit / week-end / autoroute visibles et modifiables.
