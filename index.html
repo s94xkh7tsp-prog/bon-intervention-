@@ -3742,6 +3742,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button class="msg-choice" onclick="fermerPlusTerrain(); jmQaOuvrir(false)">📋 Questions d'appel</button>
       <button class="msg-choice" onclick="fermerPlusTerrain(); jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
       <button class="msg-choice" onclick="openAssistant()">🤖 Assistant</button>
+      <button class="msg-choice" onclick="jmOuvrirChatGPT()">💬 ChatGPT</button>
       <button class="msg-choice" onclick="jmDepotDepuisIntervention()">🅿️ Mettre au dépôt</button>
       <button class="msg-choice" onclick="jmCessionDepuisIntervention()">📄 Cession d'épave</button>
       <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
@@ -9196,7 +9197,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v284';
+const APP_VERSION = 'jm-express-bon-v285';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20145,7 +20146,7 @@ async function genererRecuV2(){
     const renommer = (b, t) => { if(b) b.textContent = t; return b; };
     const sections = [
       ['Étapes', [renommer(par("'arrivee'"), '📌 Arrivé sur place'), attente, renommer(par("'depart_dest'"), '➡️ Départ vers destination'), par("'depot'"), par("'dechargement'"), renommer(par("'paiement'"), '🕒 Heure du paiement')]],
-      ['Client & paiement', [par('terrainAcompte'), par('jmQaOuvrir'), par('jmRecapPartenaire'), par('openAssistant'), par('terrainIncident')]],
+      ['Client & paiement', [par('terrainAcompte'), par('jmQaOuvrir'), par('jmRecapPartenaire'), par('openAssistant'), par('jmOuvrirChatGPT'), par('terrainIncident')]],
       ['Outils', [par('calculerAvecRetour'), par('jmDepotDepuisIntervention'), par('jmCessionDepuisIntervention'), par('jmGants'), par('jmSoleil')]]
     ];
     const annul = par('terrainAnnulation');
@@ -21077,6 +21078,21 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   };
   window.jmEstimCopier = async function(){ if(!val('estModele')){ showToast('Indique au moins le modèle'); return; } try{ await navigator.clipboard.writeText(jmEstimTexte()); showToast('Demande copiée : colle-la dans ChatGPT'); }catch(e){ showToast('Copie impossible'); } };
 })();
+</script>
+<script id="jm-v285-script">
+// v285 — ⋯ Actions terrain → 💬 ChatGPT : contexte de l'intervention (sans nom, plaque, adresse ni téléphone) copié, ChatGPT ouvert.
+window.jmOuvrirChatGPT = async function(){
+  if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+  const c = (typeof lastCalc !== 'undefined' && lastCalc) || null, q = (c && c.questionnaire) || {}, $ = id => document.getElementById(id);
+  const service = $('type') ? String(($('type').options[$('type').selectedIndex] || {}).textContent || '').replace(/^[^\p{L}]+/u, '').split(' — ')[0].trim() : '';
+  const L = {roule:'roule', roulepas:'ne roule pas', accidente:'accidenté', manuelle:'manuelle', auto:'automatique', autobloquee:'automatique bloquée en P', manque:'roue manquante / jante', bloquee:'roue(s) bloquée(s)', suv:'SUV / 4x4', utilitaire:'utilitaire', electrique:'électrique / hybride', vsp:'voiture sans permis'};
+  const lignes = [service && 'Service : ' + service, c && c.vehicleType && c.vehicleType !== 'normale' && 'Véhicule : ' + (L[c.vehicleType] || c.vehicleType), ($('ouvModele') || {}).value && 'Modèle : ' + $('ouvModele').value,
+    q.etat && 'État : ' + (L[q.etat] || q.etat), q.boite && 'Boîte : ' + (L[q.boite] || q.boite), q.frein === 'electrique' && 'Frein de parking électrique', q.roues && q.roues !== 'ok' && 'Roues : ' + (L[q.roues] || q.roues), ($('km') || {}).value && 'Distance : ' + $('km').value + ' km'].filter(Boolean);
+  const texte = 'Je suis dépanneur en Belgique, en intervention.' + (lignes.length ? '\n' + lignes.join('\n') : '') + '\n\nMa question : ';
+  let copie = false; try{ await navigator.clipboard.writeText(texte); copie = true; }catch(e){}
+  showToast(copie ? 'Contexte copié : colle-le dans ChatGPT et pose ta question' : 'ChatGPT ouvert');
+  window.open('https://chatgpt.com/', '_blank', 'noopener');
+};
 </script>
 
 
