@@ -2109,6 +2109,40 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .gear.jm-vocal-gear.jm-ecoute{color:var(--jm-danger);animation:jmPulse 1.1s ease-in-out infinite}
 </style>
 <style id="jm-v276-style">.jm-vocal-entendu{font-size:12px;color:var(--grey);font-style:italic}</style>
+<style id="jm-v281-style">
+.jm-confiance{margin-top:6px;padding:7px 10px;border-radius:10px;font-size:12.5px;font-weight:800}
+.jm-conf-faible{background:color-mix(in srgb,var(--jm-danger) 12%,transparent);border:1px solid var(--jm-danger);color:var(--jm-danger)}
+.jm-conf-moyenne{background:color-mix(in srgb,var(--jm-attention) 12%,transparent);border:1px solid var(--jm-attention);color:var(--jm-attention)}
+.jm-suivi{border-top:1px dashed var(--line);padding-top:8px}.jm-suivi-l{display:flex;gap:6px}.jm-suivi-l select{flex:1;min-height:42px}
+.jm-suivi-a{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.jm-suivi-a button{margin:0!important;min-height:42px!important;font-size:12.5px!important}
+.jm-suivi-h{font-size:11px;color:var(--grey);margin-top:4px}
+.jm-at-acc{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:0 0 8px;padding:0 12px;border-radius:13px;border:1.5px solid var(--jm-action);background:color-mix(in srgb,var(--jm-action) 10%,transparent);color:var(--jm-action);font-weight:800;font-size:13.5px}
+.jm-at-acc strong{background:var(--jm-action);color:#fff;border-radius:999px;padding:0 8px}.jm-at-acc em{margin-left:auto;font-style:normal;font-size:18px}
+.jm-at-ligne{display:grid;grid-template-columns:28px 1fr 12px;align-items:center;gap:8px;width:100%;min-height:52px;margin:0 0 6px;padding:8px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:inherit;text-align:left;font-size:13.5px}
+.jm-at-ligne em{font-style:normal;color:var(--grey);font-size:18px}
+.jm-diag-l{font-size:11.5px;padding:6px 0;border-bottom:1px dotted var(--line)}
+.jm-ia-sec{margin:8px 0;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:13px}.jm-ia-sec strong{display:block;color:var(--jm-docs);margin-bottom:4px}
+.pay-badge.jm-ia-badge{color:var(--jm-docs)}
+</style>
+<style id="jm-v282-style">
+.jm-as-grille{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
+.jm-as-grille button{display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 10px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:inherit;font-size:18px;text-align:left}
+.jm-as-grille button span{font-size:12.5px;font-weight:800;line-height:1.2}
+.jm-as-conf{margin:6px 0;padding:8px 10px;border-radius:10px;font-weight:800;font-size:13px}
+.jm-as-ok{background:color-mix(in srgb,var(--jm-paiement) 12%,transparent);border:1px solid var(--jm-paiement);color:var(--jm-paiement)}
+.jm-as-moyen{background:color-mix(in srgb,var(--jm-attention) 12%,transparent);border:1px solid var(--jm-attention);color:var(--jm-attention)}
+.jm-as-faible{background:color-mix(in srgb,var(--jm-danger) 10%,transparent);border:1px solid var(--jm-danger);color:var(--jm-danger)}
+.jm-as-gps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.jm-as-gps a{display:flex;align-items:center;justify-content:center;min-height:44px;margin:0!important;color:var(--jm-gps)!important;text-decoration:none;font-weight:800}
+</style>
+<style id="jm-v283-style">
+.jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
+.jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
+.jm-qq-assistant span{font-size:10.5px;font-weight:800}
+.jm-va-btn{color:var(--jm-docs)!important;border-color:color-mix(in srgb,var(--jm-docs) 55%,transparent)!important}
+.jm-va-bloc{margin:8px 0;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:13px}
+.jm-va-cand{display:block;width:100%;min-height:44px;margin:5px 0 0;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;text-align:left;font-size:13px}
+.jm-va-aucun{color:var(--grey);font-size:12px}.jm-va-prix{margin-top:6px}
+</style>
 <style id="jm-v279-style">
 /* v279 — listes (prestations, suppléments, manutentions, checklist) sans défilement imbriqué : elles défilent avec la page / la fenêtre (iPhone) */
 .jm-list-scroll{max-height:none!important;overflow:visible!important}
@@ -2986,6 +3020,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="field">
       <label>Prix annoncé au client (optionnel)</label>
       <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
+        <label class="check-row" style="margin-top:6px;"><input type="checkbox" id="prixConfirme" onchange="jmPrixConfirme()"><span>✓ Prix confirmé au client <em id="prixConfirmeInfo" style="font-style:normal; opacity:.75;"></em></span></label>
       <div class="km-mention">Note ici ce que tu as annoncé lors de l'appel. L'appli te signalera tout écart avec le montant calculé — utile pour tenir ta parole ou justifier un supplément.</div>
     </div>
 
@@ -3706,6 +3741,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button class="msg-choice" id="jmSoleilBtn" onclick="jmSoleil()">☀️ Plein soleil</button>
       <button class="msg-choice" onclick="fermerPlusTerrain(); jmQaOuvrir(false)">📋 Questions d'appel</button>
       <button class="msg-choice" onclick="fermerPlusTerrain(); jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
+      <button class="msg-choice" onclick="openAssistant()">🤖 Assistant</button>
       <button class="msg-choice" onclick="jmDepotDepuisIntervention()">🅿️ Mettre au dépôt</button>
       <button class="msg-choice" onclick="jmCessionDepuisIntervention()">📄 Cession d'épave</button>
       <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
@@ -3993,6 +4029,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <span class="extras-chevron" id="catSecuriteChevron">▾</span>
       </div>
       <div id="catSecurite" style="display:none; padding-bottom:16px;">
+        <div class="grp"><div class="grp-title">État de la sauvegarde</div><div class="km-mention" id="sauvEtat"></div>
+          <button type="button" class="ghost" style="margin-top:8px;" onclick="avecChargement(this, 'Vérification…', () => jmSauvegardeVerifier())">🔎 Vérifier la sauvegarde</button><div class="km-mention" id="sauvVerif" style="margin-top:6px;"></div></div>
+        <div class="grp"><div class="grp-title">Diagnostics</div><div id="diagListe"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;"><button type="button" class="ghost" style="margin:0;" onclick="jmDiagCopier()">📋 Copier le diagnostic</button><button type="button" class="ghost" style="margin:0;" onclick="jmDiagEffacer()">Effacer le journal</button></div></div>
 
         <div class="grp">
           <div class="grp-title">Code d'accès</div>
@@ -4716,10 +4756,95 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('resume')"><span>🗓️</span><strong>Résumé mensuel</strong><em>Le mois en un coup d'œil</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('recettes')"><span>📒</span><strong>Recettes</strong><em>Livre de caisse, plafond</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('pub')"><span>📣</span><strong>Publicité</strong><em>Origine clients, campagnes</em></button>
+      <button type="button" class="jm-gestion-carte" onclick="openRefus()"><span>📉</span><strong>Demandes perdues</strong><em>Refus par motif</em></button>
     </div>
     <div class="km-mention" style="margin-top:10px;">Indicateurs de suivi interne. Frais pro et pleins de gasoil : menu ⋯ → Gestion.</div>
     <button class="ghost close-modal" onclick="closeGestion()">Fermer</button>
   </div>
+</div>
+
+<div class="modal-bg" id="modalATraiterBg" onclick="if(event.target===this)jmATraiterFermer()">
+  <div class="modal"><div class="eyebrow">Activité</div><h1 class="page-title" style="font-size:22px;">📋 À traiter</h1>
+    <div id="aTraiterListe"></div><button class="ghost close-modal" onclick="jmATraiterFermer()">Fermer</button></div>
+</div>
+<div class="modal-bg" id="modalRelanceBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal terrain-sheet"><h3>💬 Relancer le client</h3><div class="km-mention" id="relanceTel" style="margin-bottom:8px;"></div>
+    <div class="field"><textarea id="relanceTexte" rows="6"></textarea></div>
+    <div class="msg-grid"><button class="msg-choice" onclick="jmRelanceEnvoyer('whatsapp')">💬 WhatsApp</button><button class="msg-choice" onclick="jmRelanceEnvoyer('sms')">✉️ SMS</button><button class="msg-choice wide" onclick="jmRelanceEnvoyer('copier')">📋 Copier</button></div>
+    <div class="km-mention" style="margin-top:8px;">Le message s'ouvre dans WhatsApp / Messages : c'est toi qui l'envoies.</div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalRelanceBg').classList.remove('show')">Fermer</button></div>
+</div>
+<div class="modal-bg" id="modalEcartBg">
+  <div class="modal terrain-sheet"><h3>Prix modifié</h3><div class="km-mention" id="ecartTexte" style="margin-bottom:10px;"></div>
+    <div class="field"><label>Motif</label><select id="ecartMotif"><option value="">Choisir…</option><option>Attente</option><option>Difficulté</option><option>Trafic</option><option>Treuillage supplémentaire</option><option>Autre</option></select></div>
+    <div class="field"><label>Précision (facultatif)</label><input type="text" id="ecartNote"></div>
+    <button class="primary" onclick="jmEcartValider()">Enregistrer avec ce motif</button>
+    <button class="ghost close-modal" onclick="document.getElementById('modalEcartBg').classList.remove('show')">Annuler</button></div>
+</div>
+<div class="modal-bg" id="modalIaBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal"><div class="eyebrow">Coach commercial</div><h1 class="page-title" style="font-size:21px;">🤖 Analyser avec ChatGPT</h1>
+    <div class="km-mention" id="iaContexte" style="margin-bottom:10px;"></div>
+    <div class="field"><label>Motif du refus (si connu)</label><select id="iaMotif"><option value="">Inconnu</option><option value="prix">Prix</option><option value="delai">Délai</option><option value="concurrent">Concurrent moins cher</option><option value="autre_solution">Autre solution trouvée</option><option value="plus_reponse">Plus de réponse</option><option value="zone">Zone / distance</option><option value="autre">Autre</option></select></div>
+    <div class="field"><label>Message du client</label><textarea id="iaClient" rows="4" placeholder="Colle ou dicte ce que le client a écrit / dit"></textarea></div>
+    <div class="field"><label>Ta réponse</label><textarea id="iaReponse" rows="4" placeholder="Ce que tu as répondu"></textarea></div>
+    <button class="primary" onclick="avecChargement(this, 'Analyse…', () => jmIaAnalyser())">🤖 Analyser</button>
+    <button class="ghost" style="margin-top:6px;" onclick="jmIaVoirEnvoi()">Voir les données envoyées</button>
+    <div id="iaResultat" style="margin-top:10px;"></div>
+    <button class="ghost" id="iaRetenir" style="display:none;" onclick="jmIaRetenir()">✓ Suggestion retenue</button>
+    <div class="km-mention" style="margin-top:8px; opacity:.8;">L'assistant n'a accès à aucun prix ni document : il analyse la communication. Nom, adresse, téléphone et plaque ne sont pas envoyés.</div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalIaBg').classList.remove('show')">Fermer</button></div>
+</div>
+<div class="modal-bg" id="modalRefusBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal"><div class="eyebrow">Gestion</div><h1 class="page-title" style="font-size:22px;">📉 Demandes perdues</h1><div id="refusContenu"></div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalRefusBg').classList.remove('show')">Fermer</button></div>
+</div>
+
+<div class="modal-bg" id="modalAssistantBg" onclick="if(event.target===this)closeAssistant()">
+  <div class="modal"><div class="eyebrow">Copilote terrain</div><h1 class="page-title" style="font-size:22px;">🤖 Assistant</h1>
+    <div class="jm-as-grille">
+      <button type="button" onclick="jmAsClient()">💬<span>Client / argumentaire</span></button>
+      <button type="button" onclick="jmAsRepere()">📍<span>Repère autoroute</span></button>
+      <button type="button" onclick="jmAsQuestion('debloquer')">🔧<span>Débloquer boîte / frein</span></button>
+      <button type="button" onclick="jmAsQuestion('vehicule')">🚗<span>Question véhicule</span></button>
+      <button type="button" onclick="jmAsGarage()">🏪<span>Garage / fournisseur</span></button>
+      <button type="button" onclick="jmAsQuestion('app')">📄<span>Comprendre l'appli</span></button>
+      <button type="button" onclick="openEstimation()">💶<span>Estimer un véhicule</span></button>
+    </div>
+    <div id="asRepereP" style="display:none;">
+      <div class="field"><label>Repère (écris ou dicte)</label><div class="input-with-btn"><input type="text" id="asRepereTexte" placeholder="E42 sortie 18 direction Liège · R3 sortie Couillet · E19 borne 72" autocomplete="off"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('asRepereTexte')" title="Effacer" aria-label="Effacer">✕</button><button type="button" class="loc-btn" onclick="dicterAdresse('asRepereTexte')" title="Dicter" aria-label="Dicter">🎤</button></div></div>
+      <button class="primary" onclick="avecChargement(this, 'Recherche…', () => jmAsLocaliser())">📍 Localiser</button>
+      <div class="km-mention" style="margin-top:6px; opacity:.8;">Position confirmée par la cartographie (OpenStreetMap), jamais devinée. Indique autoroute, sortie ou borne, et le sens.</div>
+    </div>
+    <div id="asQuestionP" style="display:none;">
+      <div class="grp-title" id="asTitreQ" style="margin-top:6px;"></div>
+      <div class="field" id="asVehiculeChamp"><label>Véhicule</label><input type="text" id="asVehicule" placeholder="Marque, modèle, année, motorisation (ex. BMW X3 2019 xDrive20d)" autocomplete="off"></div>
+      <div class="qa-o" id="asPresets" style="margin-bottom:8px;"></div>
+      <div class="field"><textarea id="asQuestion" rows="3"></textarea></div>
+      <button class="primary" onclick="avecChargement(this, 'Recherche…', () => jmAsDemander())">Demander</button>
+    </div>
+    <div id="asGarageP" style="display:none;">
+      <div class="qa-o" style="margin-top:6px;">
+        <button type="button" class="qa-c" onclick="jmAsChercher('garage')">Garage</button><button type="button" class="qa-c" onclick="jmAsChercher('pneus')">Pneus</button><button type="button" class="qa-c" onclick="jmAsChercher('batterie voiture')">Batteries</button>
+        <button type="button" class="qa-c" onclick="jmAsChercher('carrosserie')">Carrosserie</button><button type="button" class="qa-c" onclick="jmAsChercher('station service')">Station-service</button><button type="button" class="qa-c" onclick="jmAsChercher('casse automobile')">Casse / dépôt</button>
+      </div>
+    </div>
+    <div id="asResultat" style="margin-top:10px;"></div>
+    <div class="km-mention" style="margin-top:8px; opacity:.8;">Assistant consultatif : il ne modifie aucun prix, aucune intervention ni aucun document.</div>
+    <button class="ghost close-modal" onclick="closeAssistant()">Fermer</button></div>
+</div>
+
+<div class="modal-bg" id="modalEstimBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal"><div class="eyebrow">Rachat</div><h1 class="page-title" style="font-size:22px;">💶 Estimer un véhicule</h1>
+    <div class="field"><label>Modèle</label><div class="input-with-btn"><input type="text" id="estModele" placeholder="Marque, modèle, version (ex. Peugeot 208 1.2 PureTech)" autocomplete="off"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('estModele')" title="Effacer" aria-label="Effacer">✕</button></div></div>
+    <div class="field-row"><div class="field" style="flex:1;"><label>Année</label><input type="number" id="estAnnee" inputmode="numeric" placeholder="2017"></div><div class="field" style="flex:1;"><label>Kilométrage</label><input type="number" id="estKm" inputmode="numeric" placeholder="125000"></div></div>
+    <div class="field-row"><div class="field" style="flex:1;"><label>Carburant</label><select id="estCarbu"><option value="">—</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option><option>LPG</option></select></div>
+      <div class="field" style="flex:1;"><label>Boîte</label><select id="estBoite"><option value="">—</option><option>Manuelle</option><option>Automatique</option></select></div></div>
+    <div class="field"><label>État</label><select id="estEtat"><option value="">—</option><option>Roulant, bon état</option><option>Roulant, à réparer</option><option>Non roulant</option><option>Accidenté</option><option>Épave / pour pièces</option></select></div>
+    <div class="field"><label>Remarques (défauts, CT, Car-Pass…)</label><textarea id="estNotes" rows="2"></textarea></div>
+    <button class="primary" onclick="jmEstimOuvrir()">Ouvrir dans ChatGPT</button>
+    <button class="ghost" style="margin-top:6px;" onclick="jmEstimCopier()">📋 Copier la demande</button>
+    <div class="km-mention" style="margin-top:8px;">ChatGPT compare les annonces belges du moment (recherche web). Ce n'est qu'une estimation : la décision et le prix proposé restent les tiens.</div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalEstimBg').classList.remove('show')">Fermer</button></div>
 </div>
 
 <div class="modal-bg" id="modalMenuBg">
@@ -4746,6 +4871,21 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5M8 8h4"/></svg></span>
         <span class="menu-lbl">Recettes</span>
         <span class="menu-desc">Livre de caisse, plafond 25 000 €</span>
+      </div>
+      <div class="menu-item" onclick="openATraiter()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></span>
+        <span class="menu-lbl">À traiter</span>
+        <span class="menu-desc">En cours, RDV, impayés, devis, avis</span>
+      </div>
+      <div class="menu-item" onclick="openAssistant()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></span>
+        <span class="menu-lbl">Assistant</span>
+        <span class="menu-desc">Client, repère autoroute, véhicule, garages</span>
+      </div>
+      <div class="menu-item" onclick="openEstimation()">
+        <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M9 9.5c.5-.9 1.3-1.3 2.3-1.3M8 12h5M8 14h5"/></svg></span>
+        <span class="menu-lbl">Estimer un véhicule</span>
+        <span class="menu-desc">Valeur de rachat via ChatGPT</span>
       </div>
       <div class="menu-item" onclick="jmChangerTelephone()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
@@ -5277,7 +5417,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
 <div class="modal-bg" id="modalQuickQuoteBg">
   <div class="modal">
-    <button type="button" class="jm-vocal-btn" id="vocalBtn" onclick="jmDevisVocal()">🎤 Devis vocal <span>dis le service, le départ et l'arrivée</span></button>
+    <div class="jm-qq-haut"><button type="button" class="jm-vocal-btn" id="vocalBtn" onclick="jmDevisVocal()">🎤 Devis vocal <span>dis le service, le départ et l'arrivée</span></button><button type="button" class="jm-qq-assistant" onclick="openAssistant()" title="Assistant">🤖<span>Assistant</span></button></div>
     <div id="vocalBloc" style="display:none;">
       <div class="km-mention jm-vocal-etat" id="vocalEtat" style="display:none;"></div>
       <div class="field" style="margin:8px 0;"><div class="input-with-btn"><textarea id="vocalTexte" rows="2" placeholder="Ou écris / dicte avec le 🎤 du clavier : « remorquage de … jusqu'à … »"></textarea><button type="button" class="loc-btn" onclick="jmEffacerAdresse('vocalTexte')" title="Effacer" aria-label="Effacer">✕</button></div></div>
@@ -5312,6 +5452,8 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <button type="button" class="loc-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); useMyLocation('qqTo')" onclick="useMyLocation('qqTo')" title="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></button>
       </div>
     </div>
+    <button type="button" class="ghost jm-va-btn" style="margin-bottom:6px;" onclick="avecChargement(this, 'Vérification…', () => jmVerifierAdresses())">🤖 Vérifier les adresses sur la carte</button>
+    <div id="verifAdresses" style="display:none; margin-bottom:8px;"></div>
     <button type="button" class="ghost" style="margin-bottom:6px;" onclick="avecChargement(this, 'Mesure…', () => mesurerDistanceDevis())">📍 Mesurer par itinéraire (base → prise en charge → dépose)</button>
     <div class="km-mention" id="qqEtatDistance" style="margin-bottom:14px;">Sans adresses, la distance saisie à la main est utilisée telle quelle.</div>
 
@@ -9054,7 +9196,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v280';
+const APP_VERSION = 'jm-express-bon-v284';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16309,7 +16451,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -19513,19 +19655,20 @@ async function genererRecuV2(){
   const sauf = (...listes) => () => !listes.some(l => l.includes(type())), pour = (...listes) => () => listes.some(l => l.includes(type()));
   const Q = [
     {k:'lieu', t:'Où se trouve le véhicule ?', o:[['rue','Rue / parking'],['autoroute','Autoroute'],['soussol','Parking souterrain'],['difficile','Accès difficile / étroit']]},
-    {k:'batt', t:'Que se passe-t-il ?', o:[['clic','Ne démarre pas (clic)'],['rien','Rien ne s\'allume'],['voyant','Voyant batterie allumé'],['cale','Démarre puis cale']], v:pour(BATT)},
+    {k:'batt', t:'Le démarreur tourne-t-il ?', o:[['tourne','Oui, il tourne'],['clic','Clic, ne tourne pas'],['rien','Rien ne s\'allume'],['voyant','Voyant batterie allumé']], v:pour(BATT)},
     {k:'testBatt', t:'Test de santé de la batterie ?', o:[['oui','Oui, le client accepte'],['non','Non merci']], v:() => ['demarrage','moto_batterie'].includes(type())},
+    {k:'dimension', t:'Dimensions du pneu ?', o:[['connues','Connues (notées)'],['photo','À demander (photo du flanc)']], v:pour(PNEU)},
     {k:'pneu', t:'Quel dégât ?', o:[['creve','Crevé / à plat'],['eclate','Éclaté'],['jante','Jante abîmée']], v:pour(PNEU)},
     {k:'secours', t:'Roue de secours ?', o:[['oui','Oui'],['galette','Galette'],['non','Non / kit anti-crevaison']], v:pour(PNEU)},
-    {k:'antivol', t:'Écrou antivol ?', o:[['cle','Clé présente'],['sanscle','Clé introuvable'],['aucun','Pas d\'antivol']], v:pour(PNEU)},
+    {k:'antivol', t:'Écrou antivol ?', o:[['cle','Clé présente'],['sanscle','Clé introuvable'],['aucun','Pas d\'antivol']], v:() => false},
     {k:'carbu', t:'Quelle erreur ?', o:[['essdiesel','Essence dans un diesel'],['dieselss','Diesel dans une essence'],['autre','AdBlue / autre']], v:pour(CARBU)},
     {k:'carbuDem', t:'Moteur démarré après le plein ?', o:[['non','Non'],['oui','Oui']], v:pour(CARBU)},
     {k:'etat', t:'Le véhicule roule-t-il ?', o:[['roule','Roule'],['roulepas','Ne roule pas'],['accidente','Accidenté']], v:sauf(BATT, PNEU, CARBU, OUV)},
-    {k:'roues', t:'Est-il sur ses 4 roues ?', o:[['ok','Oui, 4 roues'],['manque','Roue manquante / jante'],['bloquee','Roue(s) bloquée(s)']], v:sauf(BATT, PNEU, CARBU, OUV, DIAG)},
-    {k:'boite', t:'Type de boîte ?', o:[['manuelle','Manuelle'],['auto','Automatique'],['autobloquee','Auto bloquée en P']], v:sauf(BATT, PNEU, CARBU, OUV, DIAG)},
-    {k:'frein', t:'Frein à main ?', o:[['normal','Classique / desserré'],['electrique','Électrique serré']], v:sauf(BATT, PNEU, CARBU, OUV, DIAG)},
-    {k:'vehicule', t:'Type de véhicule ?', o:[['normale','Voiture'],['suv','SUV / 4x4'],['utilitaire','Utilitaire'],['electrique','Électrique / hybride'],['vsp','Sans permis']]},
-    {k:'cles', t:'Les clés sont-elles là ?', o:[['oui','Avec les clés'],['non','Sans les clés']], v:sauf(OUV)}
+    {k:'roues', t:'Est-il sur ses 4 roues ?', o:[['ok','Oui, 4 roues'],['manque','Roue manquante / jante'],['bloquee','Roue(s) bloquée(s)']], v:sauf(BATT, CARBU, OUV, DIAG)},
+    {k:'boite', t:'Type de boîte ?', o:[['manuelle','Manuelle'],['auto','Automatique'],['autobloquee','Auto bloquée en P']], v:sauf(PNEU, CARBU, OUV, DIAG)},
+    {k:'frein', t:'Frein à main ?', o:[['normal','Classique / desserré'],['electrique','Électrique serré']], v:() => !BATT.concat(PNEU, CARBU, OUV, DIAG).includes(type()) && (REP.etat === 'roulepas' || /^auto/.test(REP.boite || ''))},
+    {k:'vehicule', t:'Type de véhicule ?', o:[['normale','Voiture'],['suv','SUV / 4x4'],['utilitaire','Utilitaire'],['electrique','Électrique / hybride'],['vsp','Sans permis']], v:sauf(BATT, PNEU)},
+    {k:'cles', t:'Les clés sont-elles là ?', o:[['oui','Avec les clés'],['non','Sans les clés']], v:() => false}
   ];
   const visibles = () => Q.filter(q => !q.v || q.v());
   const LIB = {}; Q.forEach(q => q.o.forEach(([v, l]) => LIB[q.k + ':' + v] = l));
@@ -20002,7 +20145,7 @@ async function genererRecuV2(){
     const renommer = (b, t) => { if(b) b.textContent = t; return b; };
     const sections = [
       ['Étapes', [renommer(par("'arrivee'"), '📌 Arrivé sur place'), attente, renommer(par("'depart_dest'"), '➡️ Départ vers destination'), par("'depot'"), par("'dechargement'"), renommer(par("'paiement'"), '🕒 Heure du paiement')]],
-      ['Client & paiement', [par('terrainAcompte'), par('jmQaOuvrir'), par('jmRecapPartenaire'), par('terrainIncident')]],
+      ['Client & paiement', [par('terrainAcompte'), par('jmQaOuvrir'), par('jmRecapPartenaire'), par('openAssistant'), par('terrainIncident')]],
       ['Outils', [par('calculerAvecRetour'), par('jmDepotDepuisIntervention'), par('jmCessionDepuisIntervention'), par('jmGants'), par('jmSoleil')]]
     ];
     const annul = par('terrainAnnulation');
@@ -20018,10 +20161,10 @@ async function genererRecuV2(){
 
   // ---------- Menu ⋯ : 5 sections ----------
   const MENU = [
-    ['Activité', ['Rendez-vous','Intervention passée','Recherche','Clients','Trajets fréquents','Demandes WhatsApp']],
+    ['Activité', ['À traiter','Assistant','Rendez-vous','Intervention passée','Recherche','Clients','Trajets fréquents','Demandes WhatsApp']],
     ['Paiement & documents', ['QR de paiement','Bons de commande','Demander un avis']],
     ['Gestion', ['Gestion','Frais pro (PDF)','Plein de gasoil']],
-    ['Véhicules', ['Rachat / épave','Dépôt']],
+    ['Véhicules', ['Rachat / épave','Dépôt','Estimer un véhicule']],
     ['Appareil', ['Changer de téléphone','Réglages']]
   ];
   function rangerMenu(){
@@ -20323,7 +20466,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
       const RUE = /\s+(?:rue|route|chaussée|chaussee|avenue|av\.|boulevard|bd|chemin|place|quai)\s+.*$/i;
       const v3 = v2.replace(RUE, '').trim();   // nom du garage / du lieu sans la rue : « BMW Louyet »
       if(v3 && v3 !== v2 && v3.split(/\s+/).length >= 1) essais.push(v3);
-      for(const v of essais){ await pause(1100); const r = await tenterGeocode(v); if(r) return r; }
+      for(const v of essais){ await pause(1100); const r = await tenterGeocode(v); if(r){ (window.JM_GEO_MOYEN = window.JM_GEO_MOYEN || []).push(v); return r; } }
       const rue = (v1.match(/(?:rue|route|chaussée|chaussee|avenue|boulevard|chemin|place|quai)\s+.*$/i) || [''])[0].replace(/,.*$/, '').trim();
       if(rue && !/,/.test(v1)){   // rue sans commune : on cherche dans la région de Charleroi (approximatif)
         await pause(1100); const r = await tenterGeocode(rue + ', Charleroi');
@@ -20507,6 +20650,438 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   }
 })();
 </script>
+<script id="jm-v281-script">
+(function(){
+  // ===================================================================
+  //  v281 — Confiance des adresses, suivi des devis (statut, motif, relances), écran « À traiter »,
+  //  diagnostics, état de sauvegarde, prix confirmé, coach commercial IA (via le Worker), refus par motif.
+  //  Aucun calcul de prix, aucune facture modifiés. L'IA n'agit jamais sur un prix ni sur un document.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  async function lire(k){ try{ return JSON.parse((await window.storage.get(k)).value); }catch(e){ return null; } }
+  async function ecrire(k, d){ await window.storage.set(k, JSON.stringify(d)); }
+  async function tout(p){ let ks = []; try{ ks = (await window.storage.list(p)).keys || []; }catch(e){} const out = []; for(const k of ks){ const d = await lire(k); if(d) out.push({key:k, d}); } return out; }
+  const libType = t => (typeof TYPE_LABELS !== 'undefined' && TYPE_LABELS[t]) || t || '';
+
+  // ---------- 1) Confiance des adresses ----------
+  window.JM_KM_CONFIANCE = 'elevee';
+  function badge(niveau, texte){
+    ['km', 'qqKm'].forEach(id => {
+      const f = $(id); if(!f) return; const zone = f.closest('.field') || f.parentElement; let b = zone.querySelector('.jm-confiance');
+      if(niveau === 'elevee'){ if(b) b.remove(); return; }
+      if(!b){ b = document.createElement('div'); b.className = 'jm-confiance'; zone.appendChild(b); }
+      b.className = 'jm-confiance jm-conf-' + niveau; b.textContent = texte;
+    });
+  }
+  window.jmConfianceReset = () => { window.JM_KM_CONFIANCE = 'elevee'; badge('elevee'); };
+  ['km', 'qqKm'].forEach(id => document.addEventListener('input', e => { if(e.target && e.target.id === id && e.isTrusted) jmConfianceReset(); }));
+  if(typeof mesurerDistanceRoutiere === 'function'){
+    const _m = mesurerDistanceRoutiere;
+    mesurerDistanceRoutiere = async function(){
+      window.JM_GEO_APPROX = []; window.JM_GEO_MOYEN = [];
+      const km = await _m.apply(this, arguments);
+      const faible = (window.JM_GEO_APPROX || []).slice(), moyen = (window.JM_GEO_MOYEN || []).slice();
+      if(faible.length){
+        if(!confirm('⚠️ Adresse approximative — confirmer avant départ\n\nAdresse exacte non trouvée : position de « ' + faible.join(' » et « ') + ' » utilisée (' + km.toFixed(1) + ' km).\n\nUtiliser cette distance quand même ?')){ throw new Error('Adresse à préciser'); }
+        window.JM_KM_CONFIANCE = 'faible'; badge('faible', '⚠️ Adresse approximative — confirmer avant départ');
+      } else if(moyen.length){ window.JM_KM_CONFIANCE = 'moyenne'; badge('moyenne', '🟠 Adresse interprétée (« ' + moyen[0] + ' ») — vérifie avant départ'); }
+      else jmConfianceReset();
+      return km;
+    };
+  }
+  if(typeof calculer === 'function'){ const _c = calculer; calculer = function(){ const r = _c.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ if(JM_KM_CONFIANCE !== 'elevee') lastCalc.adresseConfiance = JM_KM_CONFIANCE; else delete lastCalc.adresseConfiance; } }catch(e){} return r; }; }
+
+  // ---------- 2-3) Suivi des devis, motifs de refus, relances ----------
+  const STATUTS = [['recue','Demande reçue'],['envoye','Devis envoyé'],['accepte','Accepté'],['refuse','Refusé'],['sans_reponse','Sans réponse'],['annule','Annulé']];
+  const MOTIFS = [['prix','Prix'],['delai','Délai'],['concurrent','Concurrent moins cher'],['autre_solution','Autre solution trouvée'],['plus_reponse','Plus de réponse'],['zone','Zone / distance'],['autre','Autre']];
+  window.JM_STATUTS_DEVIS = STATUTS; window.JM_MOTIFS_REFUS = MOTIFS;
+  window.jmDevisStatut = async function(key, statut){ const d = await lire(key); if(!d) return; d.suivi = {...(d.suivi || {}), statut, date: new Date().toISOString()}; if(statut !== 'refuse') delete d.suivi.motif; await ecrire(key, d); blocDevis(key, d); };
+  window.jmDevisMotif = async function(key, motif){ const d = await lire(key); if(!d) return; d.suivi = {...(d.suivi || {statut:'refuse'}), motif}; await ecrire(key, d); blocDevis(key, d); };
+  function blocDevis(key, d){
+    const item = [...document.querySelectorAll('#listeDevisContenu .hist-item')].find(el => el.innerHTML.includes("'" + key + "'")); if(!item) return;
+    let b = item.querySelector('.jm-suivi'); if(!b){ b = document.createElement('div'); b.className = 'jm-suivi'; item.appendChild(b); }
+    const s = (d.suivi && d.suivi.statut) || 'recue', rel = (d.relances || []).length;
+    b.innerHTML = '<div class="jm-suivi-l"><select onchange="jmDevisStatut(\'' + key + '\', this.value)">' + STATUTS.map(([v, l]) => '<option value="' + v + '"' + (v === s ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>' +
+      (s === 'refuse' ? '<select onchange="jmDevisMotif(\'' + key + '\', this.value)"><option value="">Motif…</option>' + MOTIFS.map(([v, l]) => '<option value="' + v + '"' + (d.suivi.motif === v ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>' : '') + '</div>' +
+      '<div class="jm-suivi-a">' + (['recue','envoye','sans_reponse'].includes(s) ? '<button type="button" class="ghost" onclick="jmRelancer(\'' + key + '\')">💬 Relancer' + (rel ? ' (' + rel + ')' : '') + '</button>' : '') +
+      '<button type="button" class="ghost" onclick="jmIaOuvrir(\'' + key + '\')">🤖 Analyser avec ChatGPT</button></div>' +
+      (rel ? '<div class="jm-suivi-h">Relancé ' + d.relances.map(r => new Date(r.date).toLocaleString('fr-BE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})).join(' · ') + '</div>' : '');
+  }
+  if(typeof ouvrirListeDevis === 'function'){ const _l = ouvrirListeDevis; ouvrirListeDevis = async function(){ const r = await _l.apply(this, arguments); try{ for(const {key, d} of await tout('devis:')) blocDevis(key, d); }catch(e){} return r; }; }
+  let RELANCE = null;
+  window.jmRelancer = async function(key){
+    const d = await lire(key); if(!d) return; RELANCE = {key, d};
+    $('relanceTexte').value = 'Bonjour' + (d.clientNom ? ' ' + d.clientNom.split(' ')[0] : '') + ', JM Express Auto Dépannage.\n\nJe reviens vers vous concernant le devis ' + (d.numero || '') + ' (' + libType(d.type).split(' — ')[0].toLowerCase() + ', ' + fmt(d.total || 0) + '). Avez-vous pu y réfléchir ? Je reste disponible pour toute question.\n\nBonne journée.';
+    $('relanceTel').textContent = d.clientTel ? 'Au ' + d.clientTel : 'Pas de numéro : le message sera copié';
+    $('modalRelanceBg').classList.add('show');
+  };
+  window.jmRelanceEnvoyer = async function(canal){
+    if(!RELANCE) return; const {key} = RELANCE, d = await lire(key), msg = $('relanceTexte').value.trim(); if(!d || !msg) return;
+    let n = String(d.clientTel || '').replace(/[^0-9]/g, ''); if(n.startsWith('00')) n = n.slice(2); else if(n.startsWith('0')) n = '32' + n.slice(1);
+    d.relances = [...(d.relances || []), {date: new Date().toISOString(), type: 'devis', canal: n ? canal : 'copie'}];
+    if(!d.suivi || d.suivi.statut === 'recue') d.suivi = {...(d.suivi || {}), statut: 'envoye', date: new Date().toISOString()};
+    await ecrire(key, d); $('modalRelanceBg').classList.remove('show'); blocDevis(key, d);
+    if(!n || canal === 'copier'){ try{ await navigator.clipboard.writeText(msg); }catch(e){} showToast('Relance copiée'); return; }
+    location.href = canal === 'sms' ? 'sms:+' + n + '&body=' + encodeURIComponent(msg) : 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  };
+  if(typeof relancerFacture === 'function'){ const _r = relancerFacture; relancerFacture = async function(key){ try{ const d = await lire(key); if(d){ d.relances = [...(d.relances || []), {date: new Date().toISOString(), type: 'impaye'}]; await ecrire(key, d); } }catch(e){} return _r.apply(this, arguments); }; }
+
+  // ---------- 4) À traiter ----------
+  window.jmATraiter = async function(){
+    const out = [], now = new Date(), jour = now.toISOString().slice(0, 10), H24 = 864e5;
+    try{ const c = (typeof SYNC !== 'undefined' && SYNC.conflits) ? SYNC.conflits.length : 0; if(c) out.push({p:0, ico:'⚠️', t: c + ' conflit' + (c > 1 ? 's' : '') + ' de synchronisation', a:"openSettings()"}); }catch(e){}
+    const inter = await tout('intervention:');
+    inter.filter(x => x.d.statut !== 'fait').forEach(x => out.push({p:1, ico:'🚚', t:'En cours : ' + (x.d.numero || '') + ' · ' + libType(x.d.type).split(' — ')[0], a:"jmATraiterOuvrir('" + x.key + "')"}));
+    (await tout('rdv:')).filter(x => x.d.date === jour).forEach(x => out.push({p:2, ico:'📅', t:'RDV aujourd\'hui ' + (x.d.heure || '') + ' · ' + libType(x.d.type).split(' — ')[0], a:"jmATraiterFermer(); openRdv()"}));
+    inter.filter(x => x.d.statut === 'fait' && jmResteDu(x.d) > 0).sort((a, b) => new Date(a.d.date) - new Date(b.d.date)).forEach(x => out.push({p:3, ico:'💶', t:'Impayé ' + fmt(jmResteDu(x.d)) + ' · ' + (x.d.numero || '') + ' · ' + new Date(x.d.date).toLocaleDateString('fr-BE'), a:"jmATraiterFermer(); ouvrirImpayes()"}));
+    (await tout('devis:')).filter(x => { const s = (x.d.suivi && x.d.suivi.statut) || 'recue'; return ['recue','envoye','sans_reponse'].includes(s) && now - new Date((x.d.suivi && x.d.suivi.date) || x.d.date) > H24; })
+      .forEach(x => out.push({p:4, ico:'📝', t:'Devis sans réponse : ' + (x.d.numero || '') + ' · ' + fmt(x.d.total || 0), a:"jmATraiterFermer(); ouvrirListeDevis()"}));
+    try{ if(typeof waToutesLesDemandes === 'function'){ const w = (await waToutesLesDemandes()).filter(d => d.statut === 'en_attente' || d.statut === 'incomplete'); if(w.length) out.push({p:5, ico:'💬', t: w.length + ' demande' + (w.length > 1 ? 's' : '') + ' WhatsApp en attente', a:"jmATraiterFermer(); ouvrirDemandesWa()"}); } }catch(e){}
+    inter.filter(x => x.d.statut === 'fait' && !x.d.avisDemande && now - new Date(x.d.date) < 14 * H24 && jmResteDu(x.d) === 0).slice(0, 5).forEach(x => out.push({p:6, ico:'⭐', t:'Avis Google à demander · ' + (x.d.numero || ''), a:"jmATraiterFermer(); typeof demanderAvis==='function' ? demanderAvis() : openMenu()"}));
+    return out.sort((a, b) => a.p - b.p);
+  };
+  window.jmATraiterOuvrir = async k => { jmATraiterFermer(); await chargerInterventionDepuisJournal(k); };
+  window.jmATraiterFermer = () => $('modalATraiterBg').classList.remove('show');
+  window.openATraiter = async function(){
+    if(typeof closeMenu === 'function') closeMenu();
+    $('modalATraiterBg').classList.add('show'); $('aTraiterListe').innerHTML = '<div class="empty">Chargement…</div>';
+    const L = await jmATraiter();
+    $('aTraiterListe').innerHTML = L.length ? L.map(x => '<button type="button" class="jm-at-ligne" onclick="' + x.a + '"><span>' + x.ico + '</span><span>' + esc(x.t) + '</span><em>›</em></button>').join('') : '<div class="km-mention">✓ Rien à traiter pour le moment.</div>';
+  };
+  async function majCompteurAccueil(){
+    const p = $('jmAccueilPlus'); if(!p) return; let b = $('jmATraiterAcc');
+    if(!b){ b = document.createElement('button'); b.type = 'button'; b.id = 'jmATraiterAcc'; b.className = 'jm-at-acc'; b.onclick = () => openATraiter(); p.insertBefore(b, p.children[1] || null); }
+    const n = (await jmATraiter()).length; b.style.display = n ? '' : 'none'; b.innerHTML = '📋 À traiter <strong>' + n + '</strong> <em>›</em>';
+  }
+  if(typeof majResumeAccueil === 'function'){ const _r = majResumeAccueil; majResumeAccueil = function(){ const r = _r.apply(this, arguments); setTimeout(() => { majCompteurAccueil().catch(() => {}); }, 50); return r; }; }
+
+  // ---------- 5) Journal technique ----------
+  let DERNIERE = '';
+  document.addEventListener('click', e => { const b = e.target && e.target.closest && e.target.closest('button, .toggle, .menu-item, .gros-bouton, .msg-choice'); if(b) DERNIERE = (b.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40); }, true);
+  function noter(msg, stack){
+    try{
+      const L = JSON.parse(localStorage.getItem('jm_diagnostic') || '[]');
+      const ecran = ([...document.querySelectorAll('.modal-bg.show')].map(m => m.id).pop()) || ([...document.querySelectorAll('.tab-section')].find(s => getComputedStyle(s).display !== 'none') || {}).id || '';
+      const nettoie = s => String(s || '').replace(/\+?\d[\d \/.-]{7,}\d/g, '[n°]').replace(/[\w.-]+@[\w.-]+/g, '[email]').slice(0, 300);
+      L.unshift({v: typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?', tel: (typeof SYNC !== 'undefined' && SYNC.role) || 'seul', date: new Date().toISOString(), ecran, msg: nettoie(msg), stack: nettoie(stack).slice(0, 400), action: DERNIERE});
+      localStorage.setItem('jm_diagnostic', JSON.stringify(L.slice(0, 30)));
+    }catch(e){}
+  }
+  window.addEventListener('error', e => noter(e.message, e.error && e.error.stack));
+  window.addEventListener('unhandledrejection', e => noter('Promesse rejetée : ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack));
+  window.jmDiagAfficher = function(){
+    const L = JSON.parse(localStorage.getItem('jm_diagnostic') || '[]');
+    $('diagListe').innerHTML = L.length ? L.slice(0, 10).map(x => '<div class="jm-diag-l"><strong>' + new Date(x.date).toLocaleString('fr-BE') + '</strong> · ' + esc(x.v) + ' · ' + esc(x.tel) + ' · ' + esc(x.ecran) + '<br>' + esc(x.msg) + (x.action ? '<br><em>Dernière action : ' + esc(x.action) + '</em>' : '') + '</div>').join('') : '<div class="km-mention">Aucune erreur enregistrée.</div>';
+  };
+  window.jmDiagCopier = async function(){ const t = 'Diagnostic JM Express — ' + new Date().toLocaleString('fr-BE') + '\n' + JSON.stringify(JSON.parse(localStorage.getItem('jm_diagnostic') || '[]'), null, 1); try{ await navigator.clipboard.writeText(t); showToast('Diagnostic copié'); }catch(e){ showToast('Copie impossible'); } };
+  window.jmDiagEffacer = function(){ if(!confirm('Effacer le journal technique ?')) return; localStorage.removeItem('jm_diagnostic'); jmDiagAfficher(); };
+
+  // ---------- 6) Sauvegarde : état visible et vérification non destructive ----------
+  window.jmSauvegardeEtat = async function(){
+    let last = null; try{ last = (await window.storage.get('lastBackupDate')).value; }catch(e){}
+    const quand = s => s ? new Date(s).toLocaleString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : 'jamais';
+    const s = typeof jmEtatSynchro === 'function' ? jmEtatSynchro() : null, att = (typeof SYNC !== 'undefined' && SYNC.outbox) ? SYNC.outbox.length : 0, verif = localStorage.getItem('jm_backupVerif');
+    $('sauvEtat').innerHTML = 'Dernière sauvegarde complète : <strong>' + quand(last && /^\d/.test(last) ? last : (last ? Number(last) : null)) + '</strong><br>Synchronisation : ' + (s ? s[1] : 'non configurée') + (att ? ' · ' + att + ' élément(s) en attente' : '') + '<br>Dernière vérification : ' + quand(verif);
+  };
+  window.jmSauvegardeVerifier = async function(){
+    let ks = []; try{ ks = (await window.storage.list()).keys || []; }catch(e){}
+    const data = {}; let illisibles = 0;
+    for(const k of ks){ try{ const v = (await window.storage.get(k)).value; data[k] = v; if(/^(intervention|devis|bdc|rdv|rachat|depot):/.test(k)) JSON.parse(v); }catch(e){ illisibles++; } }
+    const texte = JSON.stringify({app:'JM Express', version:1, exportDate:new Date().toISOString(), data}), relu = JSON.parse(texte).data;
+    const identiques = Object.keys(data).every(k => relu[k] === data[k]);
+    const nInter = Object.keys(data).filter(k => k.startsWith('intervention:')).length;
+    const ok = identiques && !illisibles;
+    if(ok) localStorage.setItem('jm_backupVerif', new Date().toISOString());
+    $('sauvVerif').innerHTML = ok ? '✓ Sauvegarde vérifiée : ' + ks.length + ' éléments (' + nInter + ' interventions), ' + (texte.length / 1048576).toFixed(2) + ' Mo, entièrement relisible. Rien n\'a été modifié.' : '⚠️ ' + illisibles + ' élément(s) illisible(s) : envoie le diagnostic avant de changer de téléphone.';
+    jmSauvegardeEtat();
+  };
+  if(typeof openSettings === 'function'){ const _o = openSettings; openSettings = function(){ const r = _o.apply(this, arguments); try{ jmDiagAfficher(); jmSauvegardeEtat(); }catch(e){} return r; }; }
+
+  // ---------- 8) Prix confirmé au client ----------
+  let CONFIRME = null, ECART_MOTIF = null;
+  window.jmPrixConfirme = function(){ const c = $('prixConfirme'); CONFIRME = c.checked ? {montant: Number(($('prixAnnonce') || {}).value) || null, date: new Date().toISOString()} : null; majPrixConf(); if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete(); };
+  function majPrixConf(){ const t = $('prixConfirmeInfo'); if(t) t.textContent = CONFIRME ? 'Confirmé le ' + new Date(CONFIRME.date).toLocaleString('fr-BE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) + (CONFIRME.montant ? ' · ' + fmt(CONFIRME.montant) : '') : ''; if($('prixConfirme')) $('prixConfirme').checked = !!CONFIRME; }
+  if(typeof calculer === 'function'){ const _c2 = calculer; calculer = function(){ const r = _c2.apply(this, arguments); try{ if(typeof lastCalc !== 'undefined' && lastCalc){ if(CONFIRME){ lastCalc.prixConfirme = {...CONFIRME, montant: CONFIRME.montant || Number(($('prixAnnonce') || {}).value) || null}; } else delete lastCalc.prixConfirme; } }catch(e){} return r; }; }
+  if(typeof enregistrer === 'function'){
+    const _e = enregistrer;
+    enregistrer = async function(){
+      try{
+        if(typeof calculer === 'function') calculer();
+        const c = typeof lastCalc !== 'undefined' ? lastCalc : null;
+        if(c && c.prixConfirme && c.prixConfirme.montant && Math.round(c.total) !== Math.round(c.prixConfirme.montant) && !ECART_MOTIF){
+          $('ecartTexte').textContent = 'Prix confirmé au client : ' + fmt(c.prixConfirme.montant) + ' · prix final : ' + fmt(c.total) + '. Pourquoi ce changement ?';
+          $('modalEcartBg').classList.add('show'); return;
+        }
+      }catch(e){}
+      const motif = ECART_MOTIF; ECART_MOTIF = null; let avant = [];
+      try{ avant = (await window.storage.list('intervention:')).keys || []; }catch(e){}
+      const cleEdit = (typeof editingKey !== 'undefined' && editingKey) || null, conf = CONFIRME;
+      const r = await _e.apply(this, arguments);
+      try{
+        let k = cleEdit; if(!k){ const apres = (await window.storage.list('intervention:')).keys || []; const n = apres.filter(x => !avant.includes(x)); if(n.length === 1) k = n[0]; }
+        if(k && (motif || conf)){ const d = await lire(k); if(d){ if(conf) d.prixConfirme = {...conf, montant: conf.montant || d.prixAnnonce || null}; if(motif) d.ecartPrix = {initial: d.prixConfirme ? d.prixConfirme.montant : null, final: d.total, motif, date: new Date().toISOString()}; await ecrire(k, d); } }
+        if(!(typeof editingKey !== 'undefined' && editingKey)){ CONFIRME = null; majPrixConf(); }
+      }catch(e){}
+      return r;
+    };
+  }
+  window.jmEcartValider = function(){ const m = $('ecartMotif').value; if(!m){ showToast('Choisis le motif'); return; } ECART_MOTIF = m + ($('ecartNote').value.trim() ? ' — ' + $('ecartNote').value.trim() : ''); $('modalEcartBg').classList.remove('show'); enregistrer(); };
+  if(typeof chargerInterventionDepuisJournal === 'function'){ const _ch = chargerInterventionDepuisJournal; chargerInterventionDepuisJournal = async function(key){ const r = await _ch.apply(this, arguments); try{ const d = await lire(key); CONFIRME = d && d.prixConfirme ? {...d.prixConfirme} : null; majPrixConf(); }catch(e){} return r; }; }
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); CONFIRME = null; majPrixConf(); return r; }; }
+
+  // ---------- 9-16) Coach commercial IA ----------
+  const anonymiser = s => String(s || '').replace(/\+?\d[\d \/.-]{7,}\d/g, '[téléphone]').replace(/\b\d-[A-Z]{3}-\d{3}\b|\b[A-Z]{3}-\d{3}\b/gi, '[plaque]').replace(/[\w.-]+@[\w.-]+\.\w+/g, '[email]').slice(0, 2000);
+  let IA = null;
+  window.jmIaOuvrir = async function(key){
+    if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain();
+    let d = key ? await lire(key) : (typeof lastCalc !== 'undefined' && lastCalc ? {...lastCalc, prixAnnonce: Number(($('prixAnnonce') || {}).value) || null} : null);
+    if(!d){ showToast('Calcule d\'abord une intervention ou ouvre un devis'); return; }
+    IA = {key, d};
+    const quand = new Date(d.date || Date.now());
+    IA.ctx = {service: libType(d.type).split(' — ')[0], distanceKm: Number(d.km) || null, moment: quand.toLocaleString('fr-BE', {weekday:'long', hour:'2-digit', minute:'2-digit'}) + (d.nuit ? ' (nuit)' : '') + (d.we ? ' (week-end / férié)' : ''),
+      prixAnnonce: (d.prixConfirme && d.prixConfirme.montant) || d.prixAnnonce || d.total || null, supplements: (d.extras || []).map(e => libType(e.type || e)).join(', '), issue: d.suivi ? d.suivi.statut : (d.statut === 'annule' || d.annulation ? 'annulé' : '')};
+    $('iaContexte').textContent = IA.ctx.service + ' · ' + (IA.ctx.distanceKm ? IA.ctx.distanceKm + ' km · ' : '') + IA.ctx.moment + ' · prix annoncé ' + fmt(IA.ctx.prixAnnonce || 0) + (IA.ctx.supplements ? ' · ' + IA.ctx.supplements : '');
+    $('iaMotif').value = (d.suivi && d.suivi.motif) || ''; $('iaClient').value = ''; $('iaReponse').value = ''; $('iaResultat').innerHTML = ''; $('iaRetenir').style.display = 'none';
+    $('modalIaBg').classList.add('show');
+  };
+  window.jmIaAnalyser = async function(){
+    if(!IA) return;
+    const client = $('iaClient').value.trim(), rep = $('iaReponse').value.trim();
+    if(!client && !rep){ showToast('Colle au moins le message du client ou ta réponse'); return; }
+    if(!navigator.onLine){ $('iaResultat').innerHTML = '<div class="km-mention">Assistant temporairement indisponible (hors ligne).</div>'; return; }
+    if(typeof syncActif !== 'function' || !syncActif()){ $('iaResultat').innerHTML = '<div class="km-mention">Assistant indisponible : la synchronisation (serveur JM Express) doit être configurée sur ce téléphone.</div>'; return; }
+    const payload = {contexte: {...IA.ctx, motifRefus: $('iaMotif').value || null}, messageClient: anonymiser(client), reponseJm: anonymiser(rep)};
+    $('iaResultat').innerHTML = '<div class="km-mention">⏳ Analyse en cours…</div>';
+    try{
+      const r = await syncApi('/ia/analyse', payload), a = r && r.analyse;
+      if(!a) throw new Error('vide');
+      IA.res = a;
+      const sec = (t, v) => v ? '<div class="jm-ia-sec"><strong>' + t + '</strong><div>' + esc(Array.isArray(v) ? v.join('\n') : v).replace(/\n/g, '<br>') + '</div></div>' : '';
+      $('iaResultat').innerHTML = sec('Motif probable du refus', a.motif_probable) + sec('Ce qui a été bien fait', a.bien_fait) + sec('Ce qui peut être amélioré', a.a_ameliorer) +
+        sec('Meilleure réponse possible', a.meilleure_reponse) + sec('Argumentaire alternatif', a.argumentaire_alternatif) + sec('Conseil pour le prochain appel', a.conseil_prochain_appel) + sec('À modifier dans les messages rapides ?', a.messages_rapides) +
+        (a.meilleure_reponse ? '<button type="button" class="ghost" onclick="navigator.clipboard.writeText(IA_REPONSE_COPIE()).then(()=>showToast(\'Réponse copiée\'))">📋 Copier la meilleure réponse</button>' : '');
+      $('iaRetenir').style.display = IA.key ? '' : 'none';
+      if(IA.key){ const d = await lire(IA.key); if(d){ d.analysesIA = [...(d.analysesIA || []), {date: new Date().toISOString(), motif: String(a.motif_probable || '').slice(0, 200), resume: String(a.conseil_prochain_appel || '').slice(0, 400), retenue: false}].slice(-5); await ecrire(IA.key, d); } }
+    }catch(e){ $('iaResultat').innerHTML = '<div class="km-mention">Assistant temporairement indisponible' + (e && /ia_non_configuree|HTTP 503/.test(e.message) ? ' (clé non configurée sur le serveur)' : '') + '.</div>'; }
+  };
+  window.IA_REPONSE_COPIE = () => (IA && IA.res && IA.res.meilleure_reponse) || '';
+  window.jmIaRetenir = async function(){ if(!IA || !IA.key) return; const d = await lire(IA.key); if(d && d.analysesIA && d.analysesIA.length){ d.analysesIA[d.analysesIA.length - 1].retenue = true; await ecrire(IA.key, d); showToast('Suggestion marquée comme retenue'); } };
+  window.jmIaVoirEnvoi = function(){ if(!IA) return; alert('Données envoyées (anonymisées) :\n\n' + JSON.stringify({contexte: {...IA.ctx, motifRefus: $('iaMotif').value || null}, messageClient: anonymiser($('iaClient').value), reponseJm: anonymiser($('iaReponse').value)}, null, 1)); };
+
+  // ---------- 17) Refus par motif ----------
+  window.openRefus = async function(){
+    if(typeof closeGestion === 'function') closeGestion();
+    const L = (await tout('devis:')).map(x => x.d), n = L.length, par = {}, mot = {};
+    L.forEach(d => { const s = (d.suivi && d.suivi.statut) || 'recue'; par[s] = (par[s] || 0) + 1; if(s === 'refuse') mot[(d.suivi && d.suivi.motif) || 'non_precise'] = (mot[(d.suivi && d.suivi.motif) || 'non_precise'] || 0) + 1; });
+    const ref = par.refuse || 0, pct = (x, t) => t ? Math.round(x / t * 100) + ' %' : '—';
+    $('refusContenu').innerHTML = '<div class="km-mention">' + n + ' devis · ' + STATUTS.map(([v, l]) => l + ' : ' + (par[v] || 0)).join(' · ') + '</div>' +
+      '<div class="grp-title" style="margin-top:10px;">Motifs des ' + ref + ' refus</div>' + (ref ? [...MOTIFS, ['non_precise', 'Non précisé']].filter(([v]) => mot[v]).map(([v, l]) => '<div class="ticket-row" style="border:0;"><span class="l">' + l + '</span><span class="v">' + mot[v] + ' · ' + pct(mot[v], ref) + '</span></div>').join('') : '<div class="km-mention">Aucun refus enregistré.</div>') +
+      '<div class="km-mention" style="margin-top:10px;">Sans réponse : ' + pct(par.sans_reponse || 0, n) + ' des devis. Indicateur de suivi interne.</div>';
+    $('modalRefusBg').classList.add('show');
+  };
+})();
+</script>
+<script id="jm-v282-assistant-script">
+(function(){
+  // ===================================================================
+  //  v282 — 🤖 Assistant terrain : client / argumentaire (v281), repère autoroute (OpenStreetMap),
+  //  procédures véhicule et aide de l'appli (IA, niveau de confiance), garages / fournisseurs (carte).
+  //  Consultatif : rien n'est appliqué au prix ni aux documents ; une position incertaine n'est jamais utilisée sans confirmation.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const PRESETS = {
+    debloquer: ['Comment mettre la boîte automatique au N ?', 'Où se trouve le shift-lock override (déverrouillage du levier) ?', 'Batterie morte : comment libérer le frein de parking électrique ?'],
+    vehicule: ['Puis-je tracter ce véhicule roues au sol ?', 'Faut-il utiliser des dolly ?', 'Quelles précautions pour une transmission intégrale (xDrive, quattro, 4Motion…) ?', 'Précautions pour un véhicule électrique ou hybride ?']
+  };
+  let MODE = null, REPERE = null;
+  function panneau(m){ MODE = m; ['asRepereP','asQuestionP','asGarageP'].forEach(id => $(id).style.display = 'none'); $('asResultat').innerHTML = ''; }
+  function indispo(msg){ $('asResultat').innerHTML = '<div class="km-mention">' + (msg || 'Assistant temporairement indisponible.') + '</div>'; }
+  function pret(){ if(!navigator.onLine){ indispo('Assistant temporairement indisponible (hors ligne).'); return false; } if(typeof syncActif !== 'function' || !syncActif()){ indispo('Assistant indisponible : la synchronisation (serveur JM Express) doit être configurée sur ce téléphone.'); return false; } return true; }
+  window.openAssistant = function(){ if(typeof closeMenu === 'function') closeMenu(); if(typeof fermerPlusTerrain === 'function') fermerPlusTerrain(); panneau(null); $('modalAssistantBg').classList.add('show'); };
+  window.closeAssistant = () => $('modalAssistantBg').classList.remove('show');
+  window.jmAsClient = () => { closeAssistant(); jmIaOuvrir(typeof editingKey !== 'undefined' && editingKey ? editingKey : null); };
+  // ---------- Questions (véhicule / déblocage / appli) ----------
+  function vehiculeConnu(){
+    const c = (typeof lastCalc !== 'undefined' && lastCalc) || {}, q = c.questionnaire || {};
+    const v = {modele: ($('asVehicule') || {}).value || '', type: c.vehicleType || '', boite: q.boite || '', frein: q.frein === 'electrique' ? 'frein de parking électrique' : '', etat: q.etat || '', batterie: q.batt || '', service: c.type || ''};
+    return Object.fromEntries(Object.entries(v).filter(([, x]) => x));
+  }
+  window.jmAsQuestion = function(mode){
+    panneau(mode); $('asQuestionP').style.display = 'block';
+    const app = mode === 'app'; $('asVehiculeChamp').style.display = app ? 'none' : '';
+    $('asTitreQ').textContent = app ? '📄 Comprendre l\'application' : mode === 'debloquer' ? '🔧 Débloquer boîte / frein' : '🚗 Question véhicule';
+    $('asPresets').innerHTML = (PRESETS[mode] || []).map(p => '<button type="button" class="qa-c" onclick="document.getElementById(\'asQuestion\').value=this.textContent">' + esc(p) + '</button>').join('');
+    if(!app){ let m = ''; try{ m = localStorage.getItem('jm_asVehicule') || ''; }catch(e){} const o = ($('ouvModele') || {}).value; $('asVehicule').value = o || m; }
+    $('asQuestion').value = ''; $('asQuestion').placeholder = app ? 'Ex. : comment encoder une intervention passée ?' : 'Pose ta question, ou choisis-en une ci-dessus';
+  };
+  window.jmAsDemander = async function(){
+    const question = $('asQuestion').value.trim(); if(!question){ showToast('Écris ou choisis une question'); return; }
+    if(!pret()) return;
+    const mode = MODE === 'app' ? 'app' : 'vehicule', vehicule = mode === 'app' ? {} : vehiculeConnu();
+    try{ if(vehicule.modele) localStorage.setItem('jm_asVehicule', vehicule.modele); }catch(e){}
+    $('asResultat').innerHTML = '<div class="km-mention">⏳ Recherche…</div>';
+    try{
+      const r = await syncApi('/ia/assistant', {mode, question, vehicule}), a = r && r.reponse; if(!a) throw new Error('vide');
+      const B = {confirme:['✅ Confirmé','ok'], probable:['⚠️ Probable — à vérifier selon la génération','moyen'], a_verifier:['❓ À vérifier — procédure à confirmer dans la documentation constructeur','faible']}[a.confiance] || ['❓ À vérifier','faible'];
+      const sec = (t, v) => v ? '<div class="jm-ia-sec"><strong>' + t + '</strong><div>' + esc(v).replace(/\n/g, '<br>') + '</div></div>' : '';
+      $('asResultat').innerHTML = '<div class="jm-as-conf jm-as-' + B[1] + '">' + B[0] + '</div>' + sec('Réponse', a.reponse) + sec('Précautions', a.precautions) + sec('Recommandation', a.recommandation) +
+        (mode === 'vehicule' ? '<div class="km-mention" style="opacity:.8;">Conseil indicatif : en cas de doute, plateau ou dolly.</div>' : '');
+    }catch(e){ indispo(e && /HTTP 503/.test(e.message) ? 'Assistant indisponible (clé non configurée sur le serveur).' : null); }
+  };
+  // ---------- Repère autoroute ----------
+  window.jmAsRepere = () => { panneau('repere'); $('asRepereP').style.display = 'block'; };
+  window.jmAsLocaliser = async function(){
+    const texte = $('asRepereTexte').value.trim(); if(!texte){ showToast('Écris ou dicte le repère'); return; }
+    if(!pret()) return;
+    $('asResultat').innerHTML = '<div class="km-mention">⏳ Recherche dans la cartographie…</div>';
+    try{
+      const r = await syncApi('/ia/localiser', {texte}); REPERE = r;
+      const q = r.demande || {}, champ = (l, v) => v ? '<div class="ticket-row" style="border:0; padding:3px 0;"><span class="l">' + l + '</span><span class="v">' + esc(v) + '</span></div>' : '';
+      let h = champ('Autoroute', q.route) + champ('Sens', q.direction || 'non précisé') + champ('Repère', r.repere || (q.sortie ? 'Sortie ' + q.sortie : q.nomSortie ? 'Sortie ' + q.nomSortie : q.borne ? 'Borne ' + q.borne : '')) + champ('Commune', r.commune) +
+        champ('Sorties proches', (r.sortiesProches || []).map(s => s.ref + (s.nom ? ' ' + s.nom : '') + ' (' + String(s.km).replace('.', ',') + ' km)').join(' · ')) + champ('Coordonnées', r.position ? r.position.lat + ', ' + r.position.lon : '');
+      const manque = (r.manquant || []).length ? '<div class="km-mention" style="border-left-color:var(--jm-attention);">À préciser : ' + r.manquant.join(', ') + '</div>' : '';
+      if(!r.position){ $('asResultat').innerHTML = '<div class="jm-as-conf jm-as-faible">⚠️ Localisation à confirmer — ' + esc(r.message || r.erreur || 'repère incomplet') + '</div>' + h + manque; return; }
+      const conf = r.confiance === 'elevee' ? ['✅ Position confirmée par la cartographie (' + esc(r.source) + ')', 'ok'] : r.confiance === 'moyenne' ? ['⚠️ Position trouvée — sens à confirmer', 'moyen'] : ['⚠️ Localisation à confirmer (' + r.candidats + ' repères possibles)', 'faible'];
+      const ll = r.position.lat + ',' + r.position.lon;
+      $('asResultat').innerHTML = '<div class="jm-as-conf jm-as-' + conf[1] + '">' + conf[0] + '</div>' + h + manque +
+        '<div class="jm-as-gps"><a class="ghost" href="https://waze.com/ul?ll=' + ll + '&navigate=yes" target="_blank" rel="noopener">Waze</a><a class="ghost" href="https://maps.apple.com/?daddr=' + ll + '" target="_blank" rel="noopener">Plans</a><a class="ghost" href="https://www.google.com/maps/dir/?api=1&destination=' + ll + '" target="_blank" rel="noopener">Maps</a></div>' +
+        '<button type="button" class="ghost" onclick="jmAsUtiliserRepere()">📍 Utiliser comme lieu de prise en charge</button>';
+    }catch(e){ indispo(); }
+  };
+  function marquerIncertain(on){
+    const z = $('addrFrom') && ($('addrFrom').closest('.field') || $('addrFrom').parentElement); if(!z) return;
+    let b = z.querySelector('.jm-repere-incertain');
+    if(on && !b){ b = document.createElement('div'); b.className = 'jm-confiance jm-conf-faible jm-repere-incertain'; b.textContent = '⚠️ Localisation à confirmer (repère autoroute)'; z.appendChild(b); }
+    if(!on && b) b.remove();
+    window.JM_REPERE_INCERTAIN = !!on;
+  }
+  window.jmAsUtiliserRepere = function(){
+    const r = REPERE; if(!r || !r.position) return;
+    const incertain = r.confiance !== 'elevee';
+    if(incertain && !confirm('⚠️ Localisation à confirmer\n\n' + (r.confiance === 'moyenne' ? 'Le sens de circulation n\'est pas confirmé.' : 'Plusieurs repères possibles.') + '\nUtiliser cette position comme lieu de prise en charge ? Le prix restera marqué « adresse à confirmer ».')) return;
+    closeAssistant(); if(typeof showTab === 'function') showTab('tabNouveau');
+    const q = r.demande || {};
+    $('addrFrom').value = r.position.lat + ', ' + r.position.lon + ' (' + [q.route, r.repere, q.direction ? 'dir. ' + q.direction : ''].filter(Boolean).join(' · ') + ')';
+    $('addrFrom').dispatchEvent(new Event('input', {bubbles:true}));
+    marquerIncertain(incertain);
+    if(typeof invaliderTicketObsolete === 'function') invaliderTicketObsolete();
+    showToast(incertain ? 'Position ajoutée — à confirmer sur place' : 'Position ajoutée');
+  };
+  document.addEventListener('input', e => { if(e.target && e.target.id === 'addrFrom' && e.isTrusted) marquerIncertain(false); });
+  if(typeof mesurerDistanceRoutiere === 'function'){ const _m = mesurerDistanceRoutiere; mesurerDistanceRoutiere = async function(){ const km = await _m.apply(this, arguments); if(window.JM_REPERE_INCERTAIN) window.JM_KM_CONFIANCE = 'faible'; return km; }; }
+  if(typeof annulerEdition === 'function'){ const _a = annulerEdition; annulerEdition = function(){ const r = _a.apply(this, arguments); marquerIncertain(false); return r; }; }
+  // ---------- Garages / fournisseurs : recherche cartographique autour de moi ----------
+  window.jmAsGarage = () => { panneau('garage'); $('asGarageP').style.display = 'block'; };
+  window.jmAsChercher = function(quoi){
+    const ouvrir = (lat, lon) => {
+      const q = encodeURIComponent(quoi), pos = lat != null ? lat + ',' + lon : '';
+      $('asResultat').innerHTML = '<div class="km-mention">' + esc(quoi) + (pos ? ' autour de ta position' : ' (position indisponible : recherche générale)') + '</div><div class="jm-as-gps">' +
+        '<a class="ghost" href="https://maps.apple.com/?q=' + q + (pos ? '&sll=' + pos : '') + '" target="_blank" rel="noopener">Plans</a><a class="ghost" href="https://www.google.com/maps/search/' + q + (pos ? '/@' + pos + ',14z' : '') + '" target="_blank" rel="noopener">Google Maps</a></div>';
+    };
+    if(!navigator.geolocation){ ouvrir(null); return; }
+    $('asResultat').innerHTML = '<div class="km-mention">⏳ Position…</div>';
+    navigator.geolocation.getCurrentPosition(p => ouvrir(p.coords.latitude.toFixed(5), p.coords.longitude.toFixed(5)), () => ouvrir(null), {timeout: 8000, maximumAge: 120000});
+  };
+})();
+</script>
+<script id="jm-v283-adresses-script">
+(function(){
+  // v283 — Devis rapide / vocal : vérification des adresses (IA → formulations, cartographie → validation),
+  // choix explicite, mémorisation des lieux validés, recalcul. Repère d'autoroute → localisation v282.
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // Lieux validés : mémorisés et reconnus directement par la recherche d'adresse
+  function chargerLieux(){ try{ const L = JSON.parse(localStorage.getItem('jm_lieuxValides') || '{}'); if(typeof LIEUX_PRECIS !== 'undefined') Object.assign(LIEUX_PRECIS, L); }catch(e){} }
+  function memoriser(lib, lat, lon){ try{ const L = JSON.parse(localStorage.getItem('jm_lieuxValides') || '{}'); L[lib.trim().toLowerCase()] = {lat, lon}; const ks = Object.keys(L); if(ks.length > 300) delete L[ks[0]]; localStorage.setItem('jm_lieuxValides', JSON.stringify(L)); }catch(e){} if(typeof LIEUX_PRECIS !== 'undefined') LIEUX_PRECIS[lib.trim().toLowerCase()] = {lat, lon}; }
+  chargerLieux();
+  const REPERE = /\b[AER]\s?-?\s?\d{1,3}\b.*\b(sortie|borne|km|rep[eè]re)\b|\b(sortie|borne)\b.*\b[AER]\s?-?\s?\d{1,3}\b/i;
+  let CHOIX = {};
+  window.jmVerifierAdresses = async function(){
+    const zone = $('verifAdresses'); zone.style.display = 'block';
+    if(!navigator.onLine){ zone.innerHTML = '<div class="km-mention">Vérification indisponible hors ligne.</div>'; return; }
+    if(typeof syncActif !== 'function' || !syncActif()){ zone.innerHTML = '<div class="km-mention">Vérification indisponible : la synchronisation doit être configurée.</div>'; return; }
+    const champs = [['qqFrom','📍 Départ'], ['qqTo','🏁 Arrivée']].filter(([id]) => ($(id).value || '').trim() && $(id).offsetParent !== null);
+    if(!champs.length){ zone.innerHTML = '<div class="km-mention">Aucune adresse à vérifier.</div>'; return; }
+    CHOIX = {}; zone.innerHTML = '<div class="km-mention">⏳ Vérification sur la carte…</div>';
+    let html = '';
+    for(const [id, nom] of champs){
+      const texte = $(id).value.trim();
+      if(typeof LIEUX_PRECIS !== 'undefined' && LIEUX_PRECIS[texte.toLowerCase()]){ html += '<div class="jm-va-bloc"><strong>' + nom + '</strong><div class="jm-as-conf jm-as-ok">✅ « ' + esc(texte) + ' » : lieu déjà validé</div></div>'; continue; }
+      let cands = [];
+      try{
+        if(REPERE.test(texte)){
+          const r = await syncApi('/ia/localiser', {texte});
+          if(r && r.position) cands = [{libelle: texte + (r.commune ? ' — ' + r.commune : ''), lat: r.position.lat, lon: r.position.lon, repere: r.confiance !== 'elevee'}];
+        } else { const r = await syncApi('/ia/adresse', {texte}); cands = (r && r.candidats) || []; }
+      }catch(e){ html += '<div class="jm-va-bloc"><strong>' + nom + '</strong><div class="km-mention">Assistant temporairement indisponible.</div></div>'; continue; }
+      CHOIX[id] = cands;
+      html += '<div class="jm-va-bloc"><strong>' + nom + ' : « ' + esc(texte) + ' »</strong>' + (cands.length
+        ? '<div class="km-mention" style="margin:4px 0;">Touche le bon lieu :</div>' + cands.map((c, i) => '<button type="button" class="jm-va-cand" onclick="jmChoisirAdresse(\'' + id + '\',' + i + ')">' + (c.repere ? '⚠️ ' : '📍 ') + esc(c.libelle) + '</button>').join('') + '<button type="button" class="jm-va-cand jm-va-aucun" onclick="this.parentElement.innerHTML=\'<div class=km-mention>Adresse gardée telle quelle : corrige-la ou entre les km.</div>\'">Aucun ne correspond</button>'
+        : '<div class="jm-as-conf jm-as-faible">❌ Introuvable sur la carte : précise la rue, le numéro ou la commune.</div>') + '</div>';
+    }
+    zone.innerHTML = html;
+  };
+  window.jmChoisirAdresse = async function(id, i){
+    const c = (CHOIX[id] || [])[i]; if(!c) return;
+    if(c.repere && !confirm('⚠️ Localisation à confirmer\n\nUtiliser ce repère d\'autoroute ?')) return;
+    $(id).value = c.libelle; memoriser(c.libelle, c.lat, c.lon);
+    $(id).dispatchEvent(new Event('input', {bubbles:true}));
+    const bloc = [...document.querySelectorAll('#verifAdresses .jm-va-bloc')].find(b => b.innerHTML.includes("'" + id + "'"));
+    if(bloc) bloc.innerHTML = '<strong>' + (id === 'qqFrom' ? '📍 Départ' : '🏁 Arrivée') + '</strong><div class="jm-as-conf ' + (c.repere ? 'jm-as-moyen' : 'jm-as-ok') + '">' + (c.repere ? '⚠️ ' : '✅ ') + esc(c.libelle) + '</div>';
+    if(Object.keys(CHOIX).every(k => !(CHOIX[k] || []).length || document.querySelector('#verifAdresses .jm-as-ok, #verifAdresses .jm-as-moyen'))){
+      try{ await mesurerDistanceDevis(); calculerDevisRapide(); const t = typeof QQ_DERNIER_CALC !== 'undefined' && QQ_DERNIER_CALC ? QQ_DERNIER_CALC.total : null;
+        if(t){ $('verifAdresses').insertAdjacentHTML('beforeend', '<div class="km-mention jm-va-prix">📏 ' + String($('qqKm').value).replace('.', ',') + ' km · <strong>' + fmt(t) + '</strong></div>'); } }catch(e){}
+    }
+  };
+  // Après un devis vocal approximatif ou introuvable : proposer la vérification
+  if(typeof jmVocalEtat === 'function'){
+    const _v = jmVocalEtat;
+    window.jmVocalEtat = function(html){ _v.apply(this, arguments); if(/introuvable|approximative|non comprise|Complète/i.test(String(html))){ const e = $('vocalEtat'); if(e && !e.querySelector('.jm-va-btn')) e.insertAdjacentHTML('beforeend', '<br><button type="button" class="ghost jm-va-btn" style="margin-top:8px;" onclick="avecChargement(this, \'Vérification…\', () => jmVerifierAdresses())">🤖 Vérifier les adresses</button>'); } };
+  }
+  if(typeof closeQuickQuote === 'function'){ const _c = closeQuickQuote; closeQuickQuote = function(){ const z = $('verifAdresses'); if(z){ z.innerHTML = ''; z.style.display = 'none'; } return _c.apply(this, arguments); }; }
+})();
+</script>
+<script id="jm-v284-estim-script">
+(function(){
+  // v284 — « Estimer un véhicule » : demande préremplie ouverte dans ChatGPT (recherche d'annonces belges actuelles). Rien n'est décidé par l'appli.
+  const $ = id => document.getElementById(id);
+  const val = id => (($(id) || {}).value || '').trim();
+  const libSel = id => { const s = $(id); return s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].textContent || '').trim() : val(id); };
+  window.openEstimation = function(){
+    ['closeMenu','fermerPlusTerrain','closeAssistant'].forEach(f => { try{ if(typeof window[f] === 'function') window[f](); }catch(e){} });
+    const rachat = $('modalRachatBg') && $('modalRachatBg').classList.contains('show') && (val('rachatMarque') || val('rachatModele'));
+    if(rachat){
+      $('estModele').value = [val('rachatMarque'), val('rachatModele')].filter(Boolean).join(' ');
+      $('estAnnee').value = val('rachatAnnee'); $('estKm').value = val('rachatKilometrage');
+      $('estCarbu').value = libSel('rachatCarburant'); $('estBoite').value = libSel('rachatBoite'); $('estEtat').value = libSel('rachatEtat');
+      $('estNotes').value = [val('rachatProblemes'), libSel('rachatCt') ? 'CT : ' + libSel('rachatCt') : '', libSel('rachatCarpass') ? 'Car-Pass : ' + libSel('rachatCarpass') : ''].filter(Boolean).join(' · ');
+    } else if(!val('estModele') && val('ouvModele')) $('estModele').value = val('ouvModele');
+    $('modalEstimBg').classList.add('show');
+  };
+  window.jmEstimTexte = function(){
+    const R = typeof RATES !== 'undefined' ? RATES : {}, l = (n, v) => v ? '- ' + n + ' : ' + v + '\n' : '';
+    return 'Je suis dépanneur professionnel en Belgique (région de Charleroi) et j\'envisage de racheter ce véhicule :\n' +
+      l('Modèle', val('estModele')) + l('Année', val('estAnnee')) + l('Kilométrage', val('estKm') ? val('estKm') + ' km' : '') + l('Carburant', val('estCarbu')) + l('Boîte', val('estBoite')) + l('État', val('estEtat')) + l('Remarques', val('estNotes')) +
+      '\nRecherche des annonces actuelles comparables en Belgique (AutoScout24.be, 2dehands.be, Gocar.be : même modèle, année ±1, kilométrage proche) et donne :\n' +
+      '1. une fourchette de prix de revente réaliste, avec 3 annonces de référence (prix, kilométrage, lien) ;\n' +
+      '2. l\'impact de l\'état décrit sur le prix ;\n' +
+      '3. le prix d\'achat maximum conseillé pour un professionnel qui doit réparer puis revendre (frais de remise en vente environ ' + (R.fraisRemiseVente || 150) + ' €, en gardant une marge) ;\n' +
+      '4. la valeur épave si le véhicule part à la démolition (ferraille environ ' + (R.ferrailleTonne || 150) + ' € la tonne, selon le poids).\n' +
+      'Indique clairement ce qui vient d\'annonces vérifiées et ce qui est une estimation.';
+  };
+  window.jmEstimOuvrir = function(){
+    if(!val('estModele')){ showToast('Indique au moins le modèle'); return; }
+    window.open('https://chatgpt.com/?q=' + encodeURIComponent(jmEstimTexte()), '_blank', 'noopener');
+  };
+  window.jmEstimCopier = async function(){ if(!val('estModele')){ showToast('Indique au moins le modèle'); return; } try{ await navigator.clipboard.writeText(jmEstimTexte()); showToast('Demande copiée : colle-la dans ChatGPT'); }catch(e){ showToast('Copie impossible'); } };
+})();
+</script>
+
+
+
+
 
 <script id="jm-v271-script">
 (function(){
