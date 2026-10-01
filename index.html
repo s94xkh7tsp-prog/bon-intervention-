@@ -2107,6 +2107,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-vocal-etat{line-height:1.45}.jm-vocal-prix{font-size:26px;font-weight:900;color:var(--jm-action)}
 .gear.jm-vocal-gear{color:var(--jm-gps)}
 </style>
+<style id="jm-v276-style">.jm-vocal-entendu{font-size:12px;color:var(--grey);font-style:italic}</style>
 
 
 
@@ -9048,7 +9049,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v275';
+const APP_VERSION = 'jm-express-bon-v276';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20316,11 +20317,11 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   ];
   const VEH = [[/\bsuv\b|4 ?x ?4|4x4/, 'Suv'], [/utilitaire|camionnette|fourgon/, 'Utilitaire'], [/electrique|hybride|tesla/, 'Electrique']];
   const FIN = /[\s,.;]*(combien.*|c.est combien.*|quel (est le )?prix.*|s.il (te|vous) plait.*|merci.*|stp.*|svp.*)$/i;
-  const HORS_ADRESSE = /\s+(?:aujourd['’]hui|apr[èe]s.?demain|demain|ce soir|cette nuit|de nuit|dans la nuit|en pleine nuit|ce matin|en journ[ée]e|de jour|cet apr[èe]s.?midi|(?:ce |le )?(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)|(?:un |le )?jour f[ée]ri[ée]|f[ée]ri[ée]|(?:ce |le )?week.?end|(?:à|a|vers) \d{1,2}\s*(?:h|heures?)|\d{1,2}\s*h\d{0,2}\b|avec (?:la |le |ma |mon )?(?:d[ée]panneuse|camion|plateau|voiture)|sans (?:la |le )?(?:d[ée]panneuse|camion|plateau)|en v[ée]hicule|v[ée]hicule (?:priv[ée]|perso)|voiture perso|par l['’]autoroute|sur l['’]autoroute)(?=[\s,.;!?]|$).*$/i;
+  const HORS_ADRESSE = /\s+(?:aujourd['’]hui|apr[èe]s.?demain|demain|ce soir|cette nuit|de nuit|dans la nuit|en pleine nuit|ce matin|en journ[ée]e|de jour|cet apr[èe]s.?midi|(?:ce |le )?(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)|(?:un |le )?jour f[ée]ri[ée]|f[ée]ri[ée]|(?:ce |le )?week.?end|(?:à|a|vers) \d{1,2}\s*(?:h|heures?)|\d{1,2}\s*h\d{0,2}\b|avec (?:la |le |ma |mon )?(?:d[ée]panneuse|camion|plateau|voiture)|sans (?:la |le )?(?:d[ée]panneuse|camion|plateau)|en v[ée]hicule|v[ée]hicule (?:priv[ée]|perso)|voiture perso|par l['’]autoroute|sur l['’]autoroute|(?:et )?(?:il |qu['’]il |elle )?faut\b|et (?:il|elle) |s['’]il |merci)(?=[\s,.;!?]|$).*$/i;
   const nettoyer = s => String(s || '').replace(HORS_ADRESSE, '').replace(FIN, '').replace(/\b(euh|heu|bah|ben)\b/gi, '').replace(/\s{2,}/g, ' ').replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '').replace(/^(?:la|le|les|l['’]|un|une)\s*/i, '').trim();
   const LIEU = /\b(rue|avenue|av\.|place|chaussée|chaussee|boulevard|bd|parking|station|quai|route|chemin|square|allée|allee|impasse|clos|drève|dreve|galerie|centre commercial|gare|zoning|autoroute [ae]\d+|sortie)\b/i;
   const PAS_ADRESSE = /^(?:un|une|mon|ma|son|sa|ses|leur|la voiture|le véhicule|le vehicule|l['’]essence|essence|diesel|gasoil|suv|4x4|utilitaire|voiture|véhicule|vehicule|camionnette|moto|scooter)\b/i;
-  const DEST = /\s+(?:jusqu['’]\s*(?:à|a|au|aux|chez)|jusque|vers|direction|à destination de|a destination de|pour (?:aller |l['’]amener |le déposer |le deposer |la déposer |la deposer )?(?:à|a|au|aux|chez)|(?:et )?(?:le |la |l['’])?d[ée]pos(?:er|e)r? (?:à|a|au|aux|chez)|(?:et )?(?:l['’]|le |la )?(?:amener|ramener|emmener|conduire) (?:à|a|au|aux|chez))\s+/i;
+  const DEST = /\s+(?:jusqu['’]\s*(?:à|a|au|aux|chez)|jusque|vers|direction|à destination de|a destination de|pour (?:aller |l['’]amener |le déposer |le deposer |la déposer |la deposer )?(?:à|a|au|aux|chez)|(?:et )?(?:le |la |l['’])?d[ée]pos(?:er|e)r? (?:à|a|au|aux|chez)|(?:et )?(?:il faut |faut )?(?:l['’]|le |la )?(?:amener|ramener|emmener|conduire|déposer|deposer|remorquer) (?:à|a|au|aux|chez))\s+/i;
   window.jmAnalyserDemande = function(texte){
     const t = sansAccent(texte), r = {texte, service:null, de:'', a:'', vehicule:null, autoroute:/autoroute/.test(t)};
     for(const [re, s] of SERVICES){ if(re.test(t)){ r.service = s; break; } }
@@ -20350,15 +20351,30 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     const surPlace = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'].includes(r.service.v);
     // Départ : premier « depuis / de / du / d' » qui n'introduit pas le véhicule ; arrivée : après « jusqu'à, vers, pour aller à, déposer à… »
     const md = texte.match(DEST), gauche = md ? texte.slice(0, md.index) : texte, droite = md ? texte.slice(md.index + md[0].length) : '';
-    let depart = '';
-    for(const m of gauche.matchAll(/\b(depuis|de|du|d['’])\s*/gi)){ const suite = gauche.slice(m.index + m[0].length); if(!PAS_ADRESSE.test(suite)){ depart = suite; if(/^depuis$/i.test(m[1])) break; break; } }
-    if(!surPlace && md){ r.de = nettoyer(depart); r.a = nettoyer(droite); }
-    if(!surPlace && !md){ const m2 = texte.match(/\b(?:depuis|de|du)\s+(.+?)\s+(?:à|a|au)\s+(.+)$/i); if(m2 && !PAS_ADRESSE.test(m2[1])){ r.de = nettoyer(m2[1]); r.a = nettoyer(m2[2]); } }
-    if(!r.de){
-      const ml = texte.match(LIEU);
-      if(ml) r.de = nettoyer(texte.slice(ml.index));
-      else { const locs = [...texte.matchAll(/(?:^|\s)(?:à|a|au|aux|chez|sur|devant|près de|pres de)\s+(?!la voiture|un diesel|une essence)/gi)]; if(locs.length){ const l = locs[locs.length - 1]; r.de = nettoyer(texte.slice(l.index + l[0].length)); } }
+    const BRUIT = new Set("j ai j'ai il y a un une client cliente monsieur madame en panne pour le la les l' des du d'un d'une c'est combien euh alors donc bonjour voila voilà demande qui besoin faut remorquage remorquer depannage depanner dépannage dépanner demarrage démarrage demarrer démarrer batterie plat booster crevaison creve crevé crevee crevée pneu roue changement reparation réparation ouverture cles clés cle clé enfermees enfermées carburant essence diesel transfert transporter vsp voiture sans permis vehicule véhicule moto scooter controle contrôle technique ct epave épave treuillage desembourbement désembourbement embourbe embourbé test devis prix intervention urgence accident accidente accidenté immobilise immobilisé ne demarre démarre pas plus mon ma son sa".split(' '));
+    const sansBruit = s => { const mots = String(s || '').trim().split(/\s+/); let k = 0; while(k < mots.length && BRUIT.has(mots[k].toLowerCase().replace(/[,.;:!?]/g, ''))) k++; return mots.slice(k).join(' '); };
+    function depart(zone){
+      zone = String(zone || '').replace(HORS_ADRESSE, '');   // sans les mots de temps / véhicule
+      let iDe = -1, deTxt = '';
+      for(const m of zone.matchAll(/\b(depuis|de|du|d['’])\s*/gi)){ const suite = zone.slice(m.index + m[0].length); if(!PAS_ADRESSE.test(suite)){ iDe = m.index; deTxt = suite; break; } }
+      const ml = zone.match(LIEU), iLieu = ml ? ml.index : -1;
+      if(iLieu >= 0 && (iDe < 0 || iLieu < iDe)) return nettoyer(zone.slice(iLieu));
+      if(iDe >= 0) return nettoyer(deTxt);
+      const locs = [...zone.matchAll(/(?:^|\s)(?:à|a|au|aux|chez|sur|devant|près de|pres de)\s+(?!la voiture|un diesel|une essence)/gi)];
+      if(locs.length){ const l = locs[locs.length - 1]; return nettoyer(zone.slice(l.index + l[0].length)); }
+      return nettoyer(sansBruit(zone));
     }
+    if(md){ r.de = depart(gauche); if(!surPlace) r.a = nettoyer(droite); }
+    else if(!surPlace){
+      const m2 = texte.match(/\b(?:depuis|de|du)\s+(.+?)\s+(?:à|a|au)\s+(.+)$/i);
+      if(m2 && !PAS_ADRESSE.test(m2[1])){ r.de = nettoyer(m2[1]); r.a = nettoyer(m2[2]); }
+      else {
+        const reste = nettoyer(sansBruit(texte));
+        const deux = reste.match(/^((?:[A-ZÀ-Ý][\w'’-]*)(?:\s+[A-ZÀ-Ý][\w'’-]*)*)\s+([A-ZÀ-Ý][\w'’-]*)$/);
+        if(deux && !/\d/.test(reste) && !LIEU.test(reste)){ r.de = deux[1]; r.a = deux[2]; } else r.de = depart(texte);
+      }
+    }
+    else r.de = depart(texte);
     return r;
   };
   function choisirService(s){
@@ -20381,7 +20397,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     if(r.camion !== undefined && $('qqCamion')) $('qqCamion').classList.toggle('on', r.camion);
     $('qqFrom').value = r.de; $('qqTo').value = r.a; $('qqKm').value = '';
     ['qqFrom','qqTo'].forEach(id => $(id).dispatchEvent(new Event('input', {bubbles:true})));
-    const compris = '<strong>' + lib() + '</strong>' + (r.de ? '<br>📍 ' + r.de : '<br>📍 <em>adresse de départ non comprise</em>') + (r.a ? '<br>🏁 ' + r.a : '') + (r.vehicule ? '<br>🚙 ' + r.vehicule.toLowerCase() : '') + (r.autoroute ? '<br>🛣️ autoroute' : '') +
+    const compris = '<span class="jm-vocal-entendu">Entendu : « ' + texte.replace(/[<>&]/g, '') + ' »</span><br><strong>' + lib() + '</strong>' + (r.de ? '<br>📍 ' + r.de : '<br>📍 <em>adresse de départ non comprise</em>') + (r.a ? '<br>🏁 ' + r.a : '') + (r.vehicule ? '<br>🚙 ' + r.vehicule.toLowerCase() : '') + (r.autoroute ? '<br>🛣️ autoroute' : '') +
       (r.camion === false ? '<br>🚗 véhicule perso (sans la dépanneuse)' : r.camion ? '<br>🚚 avec la dépanneuse' : '') +
       '<br>🕒 ' + (r.momentDit ? r.quand.toLocaleString('fr-BE', {weekday:'long', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : 'maintenant') + (r.nuit ? ' · 🌙 nuit' : '') + (r.we ? ' · 📅 week-end / férié' : '');
     jmVocalEtat('J\'ai compris :<br>' + compris + '<br><br>⏳ Calcul de la distance…');
