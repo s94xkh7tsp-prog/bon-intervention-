@@ -2134,6 +2134,11 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-as-faible{background:color-mix(in srgb,var(--jm-danger) 10%,transparent);border:1px solid var(--jm-danger);color:var(--jm-danger)}
 .jm-as-gps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.jm-as-gps a{display:flex;align-items:center;justify-content:center;min-height:44px;margin:0!important;color:var(--jm-gps)!important;text-decoration:none;font-weight:800}
 </style>
+<style id="jm-v286-style">
+.jm-at-item{margin:0 0 8px}.jm-at-item .jm-at-ligne{margin:0}
+.jm-at-act{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;padding-left:36px}
+.jm-at-act button{flex:1 1 auto;min-height:42px;padding:0 10px;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;font-size:12.5px;font-weight:700}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -9197,7 +9202,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v285';
+const APP_VERSION = 'jm-express-bon-v286';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20736,10 +20741,12 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     inter.filter(x => x.d.statut !== 'fait').forEach(x => out.push({p:1, ico:'🚚', t:'En cours : ' + (x.d.numero || '') + ' · ' + libType(x.d.type).split(' — ')[0], a:"jmATraiterOuvrir('" + x.key + "')"}));
     (await tout('rdv:')).filter(x => x.d.date === jour).forEach(x => out.push({p:2, ico:'📅', t:'RDV aujourd\'hui ' + (x.d.heure || '') + ' · ' + libType(x.d.type).split(' — ')[0], a:"jmATraiterFermer(); openRdv()"}));
     inter.filter(x => x.d.statut === 'fait' && jmResteDu(x.d) > 0).sort((a, b) => new Date(a.d.date) - new Date(b.d.date)).forEach(x => out.push({p:3, ico:'💶', t:'Impayé ' + fmt(jmResteDu(x.d)) + ' · ' + (x.d.numero || '') + ' · ' + new Date(x.d.date).toLocaleDateString('fr-BE'), a:"jmATraiterFermer(); ouvrirImpayes()"}));
-    (await tout('devis:')).filter(x => { const s = (x.d.suivi && x.d.suivi.statut) || 'recue'; return ['recue','envoye','sans_reponse'].includes(s) && now - new Date((x.d.suivi && x.d.suivi.date) || x.d.date) > H24; })
-      .forEach(x => out.push({p:4, ico:'📝', t:'Devis sans réponse : ' + (x.d.numero || '') + ' · ' + fmt(x.d.total || 0), a:"jmATraiterFermer(); ouvrirListeDevis()"}));
+    (await tout('devis:')).filter(x => { const s = (x.d.suivi && x.d.suivi.statut) || 'recue'; return ['recue','envoye'].includes(s) && now - new Date((x.d.suivi && x.d.suivi.date) || x.d.date) > H24; })
+      .forEach(x => out.push({p:4, ico:'📝', t:'Devis sans réponse : ' + (x.d.numero || '') + ' · ' + fmt(x.d.total || 0), a:"jmATraiterFermer(); ouvrirListeDevis()",
+        act:[['💬 Relancer', "jmATraiterFermer(); jmRelancer('" + x.key + "')"], ['✕ Classer sans réponse', "jmATraiterAction('devis','" + x.key + "')"]]}));
     try{ if(typeof waToutesLesDemandes === 'function'){ const w = (await waToutesLesDemandes()).filter(d => d.statut === 'en_attente' || d.statut === 'incomplete'); if(w.length) out.push({p:5, ico:'💬', t: w.length + ' demande' + (w.length > 1 ? 's' : '') + ' WhatsApp en attente', a:"jmATraiterFermer(); ouvrirDemandesWa()"}); } }catch(e){}
-    inter.filter(x => x.d.statut === 'fait' && !x.d.avisDemande && now - new Date(x.d.date) < 14 * H24 && jmResteDu(x.d) === 0).slice(0, 5).forEach(x => out.push({p:6, ico:'⭐', t:'Avis Google à demander · ' + (x.d.numero || ''), a:"jmATraiterFermer(); typeof demanderAvis==='function' ? demanderAvis() : openMenu()"}));
+    inter.filter(x => x.d.statut === 'fait' && !x.d.avisDemande && !x.d.avisIgnore && now - new Date(x.d.date) < 14 * H24 && jmResteDu(x.d) === 0).slice(0, 5).forEach(x => out.push({p:6, ico:'⭐', t:'Avis Google à demander · ' + (x.d.numero || '') + ' · ' + new Date(x.d.date).toLocaleDateString('fr-BE'), a:"jmATraiterFermer(); openAvis()",
+      act:[['📲 Envoyer le lien', "jmATraiterAction('avisEnvoyer','" + x.key + "')"], ['✓ Déjà demandé', "jmATraiterAction('avisFait','" + x.key + "')"], ['✕ Ne pas demander', "jmATraiterAction('avisIgnore','" + x.key + "')"]]}));
     return out.sort((a, b) => a.p - b.p);
   };
   window.jmATraiterOuvrir = async k => { jmATraiterFermer(); await chargerInterventionDepuisJournal(k); };
@@ -20748,7 +20755,26 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     if(typeof closeMenu === 'function') closeMenu();
     $('modalATraiterBg').classList.add('show'); $('aTraiterListe').innerHTML = '<div class="empty">Chargement…</div>';
     const L = await jmATraiter();
-    $('aTraiterListe').innerHTML = L.length ? L.map(x => '<button type="button" class="jm-at-ligne" onclick="' + x.a + '"><span>' + x.ico + '</span><span>' + esc(x.t) + '</span><em>›</em></button>').join('') : '<div class="km-mention">✓ Rien à traiter pour le moment.</div>';
+    $('aTraiterListe').innerHTML = L.length ? L.map(x => '<div class="jm-at-item"><button type="button" class="jm-at-ligne" onclick="' + x.a + '"><span>' + x.ico + '</span><span>' + esc(x.t) + '</span><em>›</em></button>' +
+      (x.act ? '<div class="jm-at-act">' + x.act.map(([l, f]) => '<button type="button" onclick="' + f + '">' + l + '</button>').join('') + '</div>' : '') + '</div>').join('') : '<div class="km-mention">✓ Rien à traiter pour le moment.</div>';
+  };
+  // v286 — actions directes depuis « À traiter » (la ligne disparaît, le compteur de l'accueil suit)
+  window.jmATraiterAction = async function(quoi, key){
+    const d = await lire(key); if(!d) return; const maintenant = new Date().toISOString();
+    if(quoi === 'devis'){ d.suivi = {...(d.suivi || {}), statut: 'sans_reponse', date: maintenant}; }
+    if(quoi === 'avisFait') d.avisDemande = maintenant;
+    if(quoi === 'avisIgnore') d.avisIgnore = maintenant;
+    if(quoi === 'avisEnvoyer'){
+      d.avisDemande = maintenant;
+      const msg = 'Bonjour, merci pour votre confiance ! Votre avis compte beaucoup pour nous : ' + ((typeof COMPANY !== 'undefined' && COMPANY.reviewUrl) || '');
+      let n = String(d.telClient || '').replace(/[^0-9]/g, ''); if(n.startsWith('00')) n = n.slice(2); else if(n.startsWith('0')) n = '32' + n.slice(1);
+      await ecrire(key, d); await openATraiter(); majCompteurAccueil().catch(() => {});
+      if(n) location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+      else { try{ if(navigator.share) await navigator.share({text: msg}); else { await navigator.clipboard.writeText(msg); showToast('Pas de numéro : lien copié'); } }catch(e){} }
+      return;
+    }
+    await ecrire(key, d); await openATraiter(); majCompteurAccueil().catch(() => {});
+    showToast(quoi === 'devis' ? 'Devis classé sans réponse' : quoi === 'avisFait' ? 'Avis marqué comme demandé' : 'Avis retiré de la liste');
   };
   async function majCompteurAccueil(){
     const p = $('jmAccueilPlus'); if(!p) return; let b = $('jmATraiterAcc');
