@@ -2139,6 +2139,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-at-act{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;padding-left:36px}
 .jm-at-act button{flex:1 1 auto;min-height:42px;padding:0 10px;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;font-size:12.5px;font-weight:700}
 </style>
+<style id="jm-v287-style">
+.jm-rp-l{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dotted var(--line);font-size:13px}.jm-rp-l span{font-size:11.5px;color:var(--grey)}
+.jm-rp-m{display:flex;align-items:center;gap:6px;font-weight:800;white-space:nowrap}.jm-rp-m button{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--grey)}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -4763,6 +4767,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('recettes')"><span>📒</span><strong>Recettes</strong><em>Livre de caisse, plafond</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('pub')"><span>📣</span><strong>Publicité</strong><em>Origine clients, campagnes</em></button>
       <button type="button" class="jm-gestion-carte" onclick="openRefus()"><span>📉</span><strong>Demandes perdues</strong><em>Refus par motif</em></button>
+      <button type="button" class="jm-gestion-carte" onclick="openRecettesPerso()"><span>📒</span><strong>Mon livre perso</strong><em>Pourboires, recettes perso</em></button>
     </div>
     <div class="km-mention" style="margin-top:10px;">Indicateurs de suivi interne. Frais pro et pleins de gasoil : menu ⋯ → Gestion.</div>
     <button class="ghost close-modal" onclick="closeGestion()">Fermer</button>
@@ -4851,6 +4856,23 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button class="ghost" style="margin-top:6px;" onclick="jmEstimCopier()">📋 Copier la demande</button>
     <div class="km-mention" style="margin-top:8px;">ChatGPT compare les annonces belges du moment (recherche web). Ce n'est qu'une estimation : la décision et le prix proposé restent les tiens.</div>
     <button class="ghost close-modal" onclick="document.getElementById('modalEstimBg').classList.remove('show')">Fermer</button></div>
+</div>
+
+<div class="modal-bg" id="modalRecPersoBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal"><div class="eyebrow">Gestion</div><h1 class="page-title" style="font-size:22px;">📒 Mon livre perso</h1>
+    <div class="field-row"><div class="field" style="flex:1;"><label>Année</label><select id="rpAnnee" onchange="jmRecPersoAfficher()"></select></div></div>
+    <label class="check-row"><input type="checkbox" id="rpAvecPro" onchange="jmRecPersoAfficher()"><span>Afficher aussi mes recettes professionnelles (copie du livre comptable)</span></label>
+    <div id="rpTotaux" style="margin:8px 0;"></div>
+    <div class="grp-title">Ajouter une recette</div>
+    <div class="field-row"><div class="field" style="flex:1;"><label>Date</label><input type="date" id="rpDate"></div><div class="field" style="flex:1;"><label>Montant</label><input type="number" id="rpMontant" inputmode="decimal" placeholder="0"></div></div>
+    <div class="field"><label>Libellé</label><input type="text" id="rpLibelle" placeholder="Ex. : pourboire, vente de pièce…"></div>
+    <div class="field-row"><div class="field" style="flex:1;"><label>Moyen</label><select id="rpMoyen"><option>Espèces</option><option>Virement</option><option>Payconiq</option><option>Carte</option><option>Non précisé</option></select></div>
+      <div class="field" style="flex:1;"><label>Où l'inscrire</label><select id="rpDest"><option value="perso">Mon livre perso</option><option value="comptable">Livre comptable</option><option value="deux">Les deux</option></select></div></div>
+    <button class="primary" onclick="jmRecPersoAjouter()">+ Ajouter</button>
+    <div id="rpListe" style="margin-top:10px;"></div>
+    <button class="ghost" style="margin-top:8px;" onclick="jmRecPersoExporter()">⬇️ Exporter (CSV)</button>
+    <div class="km-mention" style="margin-top:8px;">Suivi personnel. Les recettes de tes prestations (factures et bons) restent toujours dans le livre comptable.</div>
+    <button class="ghost close-modal" onclick="document.getElementById('modalRecPersoBg').classList.remove('show')">Fermer</button></div>
 </div>
 
 <div class="modal-bg" id="modalMenuBg">
@@ -5186,6 +5208,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <option value="Autre">Autre</option>
       </select>
     </div>
+      <div class="field"><label>Pourboire / reçu en plus (facultatif)</label>
+        <div class="field-row" style="margin:0;"><input type="number" id="payPourboire" inputmode="decimal" placeholder="0" min="0" style="flex:1;">
+        <select id="payPourboireDest" style="flex:1;"><option value="perso">Mon livre perso</option><option value="comptable">Livre comptable</option><option value="deux">Les deux</option></select></div>
+        <div class="km-mention" style="margin-top:4px;">Jamais sur la facture ni sur le bon.</div></div>
 
     <div class="field" id="revlinkBox" style="display:none;">
       <div class="km-mention" style="margin:0; border-left-color:var(--orange);">
@@ -9202,7 +9228,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v286';
+const APP_VERSION = 'jm-express-bon-v287';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -17644,7 +17670,7 @@ window.addEventListener('unhandledrejection', (event) => {
 //  - Désactivée tant qu'aucun appareil n'est associé : comportement v211 strict.
 // ===================================================================
 const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:', 'depot:'];
-const SYNC_CLES = ['clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses', 'dispoStatut', 'gardiennageCounter', 'chargesFixesMaj'];
+const SYNC_CLES = ['recettesPerso', 'clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses', 'dispoStatut', 'gardiennageCounter', 'chargesFixesMaj'];
 const SYNC_CLES_REGLAGES = ['rates', 'baseAddress', 'nightHours', 'revolutLink'];   // principal → secours, lecture seule
 const SYNC_CHAMPS_PROTEGES = ['prixAnnonce', 'total', 'paye', 'paiement', 'statut', 'factures', 'creditNotes', 'bonsCommande', 'remiseValue', 'remiseUnit', 'remiseAmount', 'invoiceNumber', 'invoicedTotal'];
 const SYNC_CHAMPS_AFFICHES = {prixAnnonce:'Prix annoncé', total:'Montant calculé', paye:'Payé', statut:'Statut', invoiceNumber:'Facture', notes:'Notes', telClient:'Téléphone', clientNom:'Client', horaires:'Horaires'};
@@ -21120,6 +21146,80 @@ window.jmOuvrirChatGPT = async function(){
   window.open('https://chatgpt.com/', '_blank', 'noopener');
 };
 </script>
+<script id="jm-v287-recettes-perso-script">
+(function(){
+  // ===================================================================
+  //  v287 — Pourboires et livre de recettes personnel.
+  //  Pourboire : saisi au paiement, jamais sur facture / bon ; destination perso (défaut), comptable ou les deux.
+  //  Recettes perso : saisie libre, même choix de destination. Les recettes des prestations restent toujours au livre comptable.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  async function lire(k, def){ try{ return JSON.parse((await window.storage.get(k)).value); }catch(e){ return def; } }
+  async function tout(p){ let ks = []; try{ ks = (await window.storage.list(p)).keys || []; }catch(e){} const o = []; for(const k of ks){ const d = await lire(k, null); if(d) o.push({key:k, d}); } return o; }
+  const DEST = {perso:'Mon livre perso', comptable:'Livre comptable', deux:'Les deux'};
+  const libInter = d => (typeof typeLabelComplet === 'function' ? typeLabelComplet(d, 'fr') : d.type || '').split(' — ')[0];
+  // ---------- Saisie du pourboire au paiement ----------
+  let CLE_PAIEMENT = null;
+  function remplir(d){ const p = d && d.pourboire; if($('payPourboire')) $('payPourboire').value = p ? p.montant : ''; if($('payPourboireDest')) $('payPourboireDest').value = p ? p.dest : 'perso'; }
+  ['openPaiement','ouvrirPaiement'].forEach(n => { if(typeof window[n] !== 'function') return; const _o = window[n]; window[n] = async function(key){ const r = await _o.apply(this, arguments); try{ CLE_PAIEMENT = key || (typeof paiementKeyEnCours !== 'undefined' ? paiementKeyEnCours : null); remplir(await lire(CLE_PAIEMENT, null)); }catch(e){} return r; }; });
+  if(typeof enregistrerPaiement === 'function'){
+    const _e = enregistrerPaiement;
+    enregistrerPaiement = async function(){
+      const cle = (typeof paiementKeyEnCours !== 'undefined' && paiementKeyEnCours) || CLE_PAIEMENT, mt = r2(($('payPourboire') || {}).value), dest = ($('payPourboireDest') || {}).value || 'perso', moyen = ($('payMoyen') || {}).value || '';
+      const r = await _e.apply(this, arguments);
+      try{ if(cle){ const d = await lire(cle, null); if(d){ if(mt > 0) d.pourboire = {montant: mt, dest, moyen: moyen || 'Non précisé', date: new Date().toISOString()}; else delete d.pourboire; await window.storage.set(cle, JSON.stringify(d)); } } }catch(e){}
+      return r;
+    };
+  }
+  // ---------- Livre comptable : pourboires et recettes perso destinés au comptable ----------
+  if(typeof jmRecettes === 'function'){
+    const _r = jmRecettes;
+    window.jmRecettes = async function(){
+      const L = await _r.apply(this, arguments);
+      (await tout('intervention:')).forEach(({d}) => { const p = d.pourboire; if(p && p.montant > 0 && (p.dest === 'comptable' || p.dest === 'deux')) L.push({date: p.date, piece: d.invoiceNumber || d.numero || '', client: d.clientNom || '', libelle: 'Pourboire — ' + libInter(d), moyen: p.moyen || 'Non précisé', montant: r2(p.montant)}); });
+      (await lire('recettesPerso', [])).forEach(x => { if(x.montant > 0 && (x.dest === 'comptable' || x.dest === 'deux')) L.push({date: x.date, piece: '', client: '', libelle: 'Autre recette — ' + x.libelle, moyen: x.moyen || 'Non précisé', montant: r2(x.montant)}); });
+      return L.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    };
+  }
+  // ---------- Livre perso ----------
+  async function lignesPerso(an, avecPro){
+    const L = [];
+    if(avecPro){ (await jmRecettes()).forEach(x => L.push({...x, cat: /^Pourboire — /.test(x.libelle) ? 'Pourboires' : /^Autre recette — /.test(x.libelle) ? 'Recettes perso' : 'Recettes professionnelles'})); }
+    (await tout('intervention:')).forEach(({d}) => { const p = d.pourboire; if(p && p.montant > 0 && (p.dest === 'perso' || (!avecPro && p.dest === 'deux'))) L.push({date: p.date, piece: d.numero || '', libelle: 'Pourboire — ' + libInter(d), moyen: p.moyen, montant: r2(p.montant), cat: 'Pourboires'}); });
+    (await lire('recettesPerso', [])).forEach(x => { if(x.montant > 0 && (x.dest === 'perso' || (!avecPro && x.dest === 'deux'))) L.push({date: x.date, piece: '', libelle: x.libelle, moyen: x.moyen, montant: r2(x.montant), cat: 'Recettes perso', id: x.id}); });
+    return L.filter(x => !an || String(x.date).slice(0, 4) === an).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  }
+  window.openRecettesPerso = async function(){
+    if(typeof closeGestion === 'function') closeGestion();
+    const s = $('rpAnnee'); if(!s.options.length){ const a = new Date().getFullYear(); s.innerHTML = [a, a - 1, a - 2].map(x => '<option>' + x + '</option>').join('') + '<option value="">Toutes</option>'; }
+    try{ $('rpAvecPro').checked = localStorage.getItem('jm_rpAvecPro') === '1'; }catch(e){}
+    $('rpDate').value = new Date().toISOString().slice(0, 10);
+    $('modalRecPersoBg').classList.add('show'); await jmRecPersoAfficher();
+  };
+  window.jmRecPersoAfficher = async function(){
+    const avecPro = $('rpAvecPro').checked; try{ localStorage.setItem('jm_rpAvecPro', avecPro ? '1' : '0'); }catch(e){}
+    const L = await lignesPerso($('rpAnnee').value, avecPro), tot = {}; L.forEach(x => tot[x.cat] = r2((tot[x.cat] || 0) + x.montant));
+    $('rpTotaux').innerHTML = Object.keys(tot).length ? Object.entries(tot).map(([c, m]) => '<div class="ticket-row" style="border:0; padding:3px 0;"><span class="l">' + c + '</span><span class="v">' + fmt(m) + '</span></div>').join('') + '<div class="ticket-row" style="border:0;"><span class="l"><strong>Total</strong></span><span class="v"><strong>' + fmt(L.reduce((s, x) => s + x.montant, 0)) + '</strong></span></div>' : '<div class="km-mention">Aucune recette sur cette période.</div>';
+    $('rpListe').innerHTML = L.map(x => '<div class="jm-rp-l"><div><strong>' + esc(x.libelle) + '</strong><br><span>' + new Date(x.date).toLocaleDateString('fr-BE') + ' · ' + esc(x.moyen || '') + (x.piece ? ' · ' + esc(x.piece) : '') + '</span></div><div class="jm-rp-m">' + fmt(x.montant) + (x.id ? '<button type="button" onclick="jmRecPersoSuppr(\'' + x.id + '\')" aria-label="Supprimer">✕</button>' : '') + '</div></div>').join('');
+    window.__rpLignes = L;
+  };
+  window.jmRecPersoAjouter = async function(){
+    const mt = r2($('rpMontant').value), lib = $('rpLibelle').value.trim(); if(!(mt > 0) || !lib){ showToast('Indique un libellé et un montant'); return; }
+    const L = await lire('recettesPerso', []);
+    L.push({id: 'rp' + Date.now().toString(36), date: ($('rpDate').value || new Date().toISOString().slice(0, 10)) + 'T12:00:00', libelle: lib.slice(0, 120), montant: mt, moyen: $('rpMoyen').value || 'Non précisé', dest: $('rpDest').value || 'perso'});
+    await window.storage.set('recettesPerso', JSON.stringify(L));
+    $('rpMontant').value = ''; $('rpLibelle').value = ''; showToast('Recette ajoutée'); await jmRecPersoAfficher();
+  };
+  window.jmRecPersoSuppr = async function(id){ if(!confirm('Supprimer cette recette ?')) return; const L = (await lire('recettesPerso', [])).filter(x => x.id !== id); await window.storage.set('recettesPerso', JSON.stringify(L)); await jmRecPersoAfficher(); };
+  window.jmRecPersoExporter = function(){
+    const L = window.__rpLignes || [], csv = 'Date;Catégorie;Libellé;Moyen;Pièce;Montant\n' + L.map(x => [String(x.date).slice(0, 10), x.cat, x.libelle, x.moyen || '', x.piece || '', String(x.montant).replace('.', ',')].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';')).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], {type:'text/csv'})); a.download = 'Recettes_perso_' + ($('rpAnnee').value || 'toutes') + '.csv'; a.click();
+  };
+})();
+</script>
+
 
 
 
