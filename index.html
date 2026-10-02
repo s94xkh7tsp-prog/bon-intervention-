@@ -9228,7 +9228,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v287';
+const APP_VERSION = 'jm-express-bon-v288';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20781,6 +20781,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     if(typeof closeMenu === 'function') closeMenu();
     $('modalATraiterBg').classList.add('show'); $('aTraiterListe').innerHTML = '<div class="empty">Chargement…</div>';
     const L = await jmATraiter();
+    majCompteurAccueil(L.length).catch(() => {});   // v288 : le compteur de l'accueil suit toujours la liste
     $('aTraiterListe').innerHTML = L.length ? L.map(x => '<div class="jm-at-item"><button type="button" class="jm-at-ligne" onclick="' + x.a + '"><span>' + x.ico + '</span><span>' + esc(x.t) + '</span><em>›</em></button>' +
       (x.act ? '<div class="jm-at-act">' + x.act.map(([l, f]) => '<button type="button" onclick="' + f + '">' + l + '</button>').join('') + '</div>' : '') + '</div>').join('') : '<div class="km-mention">✓ Rien à traiter pour le moment.</div>';
   };
@@ -20802,11 +20803,12 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     await ecrire(key, d); await openATraiter(); majCompteurAccueil().catch(() => {});
     showToast(quoi === 'devis' ? 'Devis classé sans réponse' : quoi === 'avisFait' ? 'Avis marqué comme demandé' : 'Avis retiré de la liste');
   };
-  async function majCompteurAccueil(){
+  async function majCompteurAccueil(nConnu){
     const p = $('jmAccueilPlus'); if(!p) return; let b = $('jmATraiterAcc');
     if(!b){ b = document.createElement('button'); b.type = 'button'; b.id = 'jmATraiterAcc'; b.className = 'jm-at-acc'; b.onclick = () => openATraiter(); p.insertBefore(b, p.children[1] || null); }
-    const n = (await jmATraiter()).length; b.style.display = n ? '' : 'none'; b.innerHTML = '📋 À traiter <strong>' + n + '</strong> <em>›</em>';
+    const n = typeof nConnu === 'number' ? nConnu : (await jmATraiter()).length; b.style.display = n ? '' : 'none'; b.innerHTML = '📋 À traiter <strong>' + n + '</strong> <em>›</em>';
   }
+  window.jmMajATraiter = () => majCompteurAccueil().catch(() => {});
   if(typeof majResumeAccueil === 'function'){ const _r = majResumeAccueil; majResumeAccueil = function(){ const r = _r.apply(this, arguments); setTimeout(() => { majCompteurAccueil().catch(() => {}); }, 50); return r; }; }
 
   // ---------- 5) Journal technique ----------
@@ -21219,6 +21221,20 @@ window.jmOuvrirChatGPT = async function(){
   };
 })();
 </script>
+<script id="jm-v288-script">
+(function(){
+  // v288 — compteur « À traiter » de l'accueil recalculé dès que quelque chose change (retour dans l'appli, paiement, enregistrement, synchro, chaque minute).
+  if(typeof jmMajATraiter !== 'function') return;
+  const maj = () => setTimeout(jmMajATraiter, 300);
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') maj(); });
+  window.addEventListener('focus', maj);
+  if(typeof enregistrerPaiement === 'function'){ const f = enregistrerPaiement; enregistrerPaiement = async function(){ try{ return await f.apply(this, arguments); } finally { maj(); } }; }
+  if(typeof enregistrer === 'function'){ const f = enregistrer; enregistrer = async function(){ try{ return await f.apply(this, arguments); } finally { maj(); } }; }
+  ['synchroniser', 'syncTirer', 'jmRelanceEnvoyer', 'jmDevisStatut'].forEach(n => { const f = window[n]; if(typeof f !== 'function') return; window[n] = async function(){ try{ return await f.apply(this, arguments); } finally { maj(); } }; });
+  setInterval(() => { const a = document.getElementById('tabAccueil'); if(a && getComputedStyle(a).display !== 'none' && document.visibilityState === 'visible') jmMajATraiter(); }, 60000);
+})();
+</script>
+
 
 
 
