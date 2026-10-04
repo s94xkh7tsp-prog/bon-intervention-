@@ -2160,6 +2160,11 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 #modalLieuBg #lieuListe .jm-va-cand{min-height:44px;padding:7px 10px}
 #modalLieuBg .close-modal{margin-top:8px}
 </style>
+<style id="jm-v294-style">
+.jm-claude-btn{color:var(--jm-docs)!important;border-color:color-mix(in srgb,var(--jm-docs) 55%,transparent)!important;margin:4px 0 0!important}
+.jm-claude-cand{border-color:color-mix(in srgb,var(--jm-docs) 45%,var(--line))!important}
+.jm-claude-note{font-size:12px;color:var(--jm-docs);margin-bottom:6px;font-weight:700}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -4896,6 +4901,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <div class="modal terrain-sheet jm-lieu-sheet"><h3 id="lieuTitre">Lieu à confirmer</h3>
     <div class="field jm-lieu-champ"><label>Préciser : rue et numéro, commune, code postal ou point GPS</label><div class="jm-adr-wrap"><input type="text" id="lieuPrecision" autocomplete="off" enterkeyhint="search" onkeydown="if(event.key==='Enter'){event.preventDefault(); jmLieuPreciser();}"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('lieuPrecision')" title="Effacer" aria-label="Effacer">✕</button><button type="button" class="loc-btn" onclick="useMyLocation('lieuPrecision')" title="Utiliser ma position" aria-label="Utiliser ma position">📍</button><button type="button" class="jm-lieu-ok" onclick="jmLieuPreciser()">Rechercher</button></div></div>
     <div id="lieuListe"></div>
+    <div id="lieuClaude" style="margin-top:6px;"></div>
     <details class="km-mention" style="margin-top:8px;"><summary>Détail technique de la recherche</summary><pre id="lieuJournal" style="white-space:pre-wrap; font-size:11px;"></pre></details>
     <button class="ghost close-modal" onclick="document.getElementById('modalLieuBg').classList.remove('show')">Fermer</button></div>
 </div>
@@ -9253,7 +9259,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v293';
+const APP_VERSION = 'jm-express-bon-v294';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20606,7 +20612,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     function depart(zone){
       zone = String(zone || '').replace(HORS_ADRESSE, '');   // sans les mots de temps / véhicule
       let iDe = -1, deTxt = '';
-      for(const m of zone.matchAll(/\b(depuis|de|du|d['’])\s*/gi)){ const suite = zone.slice(m.index + m[0].length); if(RUE_AVANT.test(zone.slice(0, m.index))) continue; if(!PAS_ADRESSE.test(suite)){ iDe = m.index; deTxt = suite; break; } }
+      for(const m of zone.matchAll(/\b(depuis\s+|de\s+|du\s+|d['’]\s*)/gi)){ const suite = zone.slice(m.index + m[0].length); if(RUE_AVANT.test(zone.slice(0, m.index))) continue; if(!PAS_ADRESSE.test(suite)){ iDe = m.index; deTxt = suite; break; } }
       const ml = zone.match(LIEU), iLieu = ml ? ml.index + (ml[0].length - ml[0].trimStart().length) : -1;
       if(iLieu >= 0 && (iDe < 0 || iLieu < iDe)) return nettoyer(zone.slice(iLieu));
       if(iDe >= 0) return nettoyer(deTxt);
@@ -21619,6 +21625,123 @@ window.jmOuvrirChatGPT = async function(){
   }
 })();
 </script>
+<script id="jm-v294-claude-script">
+(function(){
+  // ===================================================================
+  //  v294 — Secours Claude (Haiku 4.5, via le Worker) pour les lieux, seulement quand l'appli ne trouve pas :
+  //  « Lieu à confirmer » (automatique si introuvable ou nom approchant, bouton sinon) et phrase vocale sans départ reconnu.
+  //  Claude ne fournit que des formulations ; la carte vérifie ; rien n'est appliqué sans ton choix.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const PAYS = {fr:'France', lu:'Luxembourg', nl:'Pays-Bas', de:'Allemagne'};
+  const dispo = () => navigator.onLine && typeof syncActif === 'function' && syncActif();
+  async function claude(texte, mode){
+    if(!dispo()) return {erreur: 'indisponible'};
+    try{ return await syncApi('/ia/lieux-claude', {texte, mode}); }
+    catch(e){ return {erreur: /HTTP 503/.test(e && e.message) ? 'non configuré' : 'indisponible'}; }
+  }
+  const proche = (a, b) => Math.abs(a.lat - b.lat) < 0.004 && Math.abs(a.lon - b.lon) < 0.006;
+  window.jmClaudeLieu = async function(auto){
+    const s = window.__lieuChoix, z = $('lieuClaude'); if(!s || !z) return;
+    z.innerHTML = '<div class="km-mention">⏳ Claude analyse « ' + esc(s.texte) + ' »…</div>';
+    const r = await claude(s.texte, 'lieu');
+    if(window.__lieuChoix !== s) return;
+    if(r.erreur){ z.innerHTML = auto ? '<button type="button" class="ghost jm-claude-btn" onclick="jmClaudeLieu(false)">🤖 Demander à Claude</button>' : '<div class="km-mention">Claude ' + (r.erreur === 'non configuré' ? 'n\'est pas configuré sur le serveur.' : 'est temporairement indisponible.') + '</div>'; return; }
+    const L = (r.lieu && r.lieu.requetes) || [];
+    if(!L.length){ z.innerHTML = '<div class="km-mention">🤖 Claude n\'a pas de proposition pour ce lieu.</div>'; return; }
+    const trouves = [], confirme = new Set();
+    for(const q of L){
+      let R = []; const p = r.lieu.pays && PAYS[r.lieu.pays] && !new RegExp(PAYS[r.lieu.pays], 'i').test(q) ? q + ', ' + PAYS[r.lieu.pays] : q;
+      try{ R = await jmChercherLieu(p); }catch(e){}
+      if(!R.length && q.includes(',')){   // « Ransart, Charleroi » : le nom seul, départagé par la commune
+        const [nom, ...ctx] = q.split(','), mots = ctx.join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/).filter(w => w.length > 2);
+        try{ const R2 = await jmChercherLieu(nom.trim()); const f = R2.filter(x => mots.every(w => String(x.libelle || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(w))); R = f.length ? f : R2; }catch(e){}
+      }
+      R.slice(0, 2).forEach(x => { const deja = s.candidats.findIndex(t => proche(t, x)); if(deja >= 0) confirme.add(deja); else if(!trouves.some(t => proche(t, x))) trouves.push({...x, exact: false, claude: true}); });
+    }
+    if(window.__lieuChoix !== s) return;
+    const conf = [...confirme].map(i => '<button type="button" class="jm-va-cand jm-claude-cand" onclick="jmLieuChoisir(' + i + ')">🤖 Claude confirme : ' + esc(s.candidats[i].libelle || s.candidats[i].nom) + '</button>').join('');
+    if(!trouves.length){ z.innerHTML = conf || '<div class="km-mention">🤖 Claude propose « ' + esc(L.join(' », « ')) + ' », mais aucun de ces lieux n\'est vérifiable sur la carte.</div>'; return; }
+    const i0 = s.candidats.length; s.candidats.push(...trouves);
+    z.innerHTML = conf + '<div class="km-mention" style="margin-bottom:4px;">🤖 Proposé par Claude, vérifié sur la carte :</div>' + trouves.map((c, k) => '<button type="button" class="jm-va-cand jm-claude-cand" onclick="jmLieuChoisir(' + (i0 + k) + ')">🤖 ' + esc(c.libelle || c.nom) + '<span class="jm-lieu-src">' + (c.localite ? 'centre de localité · ' : '') + esc(c.src) + '</span></button>').join('');
+  };
+  // À l'ouverture de « Lieu à confirmer » : Claude automatiquement si rien de sûr, sinon un bouton
+  const m = $('modalLieuBg');
+  if(m){
+    let ouvert = false;
+    new MutationObserver(() => {
+      const o = m.classList.contains('show'); if(o && !ouvert){
+        const s = window.__lieuChoix, z = $('lieuClaude'); if(z && s){
+          const sur = s.candidats.some(c => c.exact);
+          if(!sur && dispo()) jmClaudeLieu(true);
+          else z.innerHTML = dispo() ? '<button type="button" class="ghost jm-claude-btn" onclick="jmClaudeLieu(false)">🤖 Aucun ne convient ? Demander à Claude</button>' : '';
+        }
+      }
+      ouvert = o;
+    }).observe(m, {attributes: true, attributeFilter: ['class']});
+  }
+  // Devis vocal : phrase sans départ reconnu → Claude lit la phrase, la carte vérifie ensuite
+  if(typeof jmAnalyserDemande === 'function'){
+    const _a = jmAnalyserDemande;
+    window.jmAnalyserDemande = function(texte){ const c = window.__claudeParse; return c && c.texte === texte ? c.r : _a.apply(this, arguments); };
+  }
+  if(typeof jmVocalTraiter === 'function'){
+    const _v = jmVocalTraiter;
+    window.jmVocalTraiter = async function(texte){
+      let parClaude = false;
+      try{
+        const r = jmAnalyserDemande(String(texte || '').trim());
+        if(texte && !r.de && dispo()){
+          if(typeof jmVocalEtat === 'function') jmVocalEtat('🤖 Je demande à Claude de lire la demande…');
+          const c = await claude(String(texte).trim(), 'phrase'), ph = c && c.phrase;
+          if(ph && ph.depart && ph.depart.requetes && ph.depart.requetes.length){
+            const SERV = {remorquage:'depannage', transfert:'transfert', batterie:'demarrage', pneu:'pneu_chg', ouverture:'ouverture_vehicule', carburant:'erreur_carburant'};
+            const pays = o => o && o.pays && PAYS[o.pays] ? ', ' + PAYS[o.pays] : '';
+            const r2 = {...r, de: ph.depart.requetes[0] + pays(ph.depart), a: ph.arrivee && ph.arrivee.requetes && ph.arrivee.requetes[0] ? ph.arrivee.requetes[0] + pays(ph.arrivee) : ''};
+            if(ph.service && SERV[ph.service] && r.service && r.service.v === 'depannage') r2.service = {v: SERV[ph.service]};
+            window.__claudeParse = {texte: String(texte).trim(), r: r2}; parClaude = true;
+          }
+        }
+      }catch(e){}
+      let res;
+      try{ res = await _v.apply(this, arguments); }
+      finally{
+        if(parClaude){
+          window.__claudeParse = null;
+          const e = $('vocalEtat'); if(e) e.insertAdjacentHTML('afterbegin', '<div class="jm-claude-note">🤖 Départ et arrivée lus par Claude, vérifiés sur la carte — contrôle qu\'ils sont corrects.</div>');
+        }
+      }
+      // Lieux compris mais introuvables (ou seulement approchants) : Claude relit la phrase entendue, la carte vérifie
+      await new Promise(x => setTimeout(x, 250));
+      const s = window.__lieuChoix, choixOuvert = $('modalLieuBg') && $('modalLieuBg').classList.contains('show') && s;
+      const echec = choixOuvert ? !s.candidats.some(c => c.exact) : !parseFloat(($('qqKm') || {}).value);   // introuvable / approchant, ou aucune distance calculée
+      if(!parClaude && echec && dispo() && texte){
+        const c = await claude(String(texte).trim(), 'phrase'), ph = c && c.phrase;
+        const dep = ph && ph.depart && ph.depart.requetes && ph.depart.requetes[0], arr = ph && ph.arrivee && ph.arrivee.requetes && ph.arrivee.requetes[0];
+        const pays = o => o && o.pays && PAYS[o.pays] ? ', ' + PAYS[o.pays] : '';
+        const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'];
+        if(dep && !arr && !SUR.includes(($('qqType') || {}).value) && !$('qqTo').value.trim()){
+          $('modalLieuBg').classList.remove('show'); $('qqFrom').value = dep + pays(ph.depart); $('qqFrom').dispatchEvent(new Event('input', {bubbles:true}));
+          const msg = 'Claude a lu le départ, ' + dep + ', mais pas de destination. Précise-la dans le devis.';
+          if(typeof jmVocalEtat === 'function') jmVocalEtat('<div class="jm-claude-note">🤖 ' + esc(msg) + '</div>');
+          try{ if(window.speechSynthesis){ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(msg); u.lang = 'fr-FR'; speechSynthesis.speak(u); } }catch(e){}
+          return res;
+        }
+        if(dep && (dep + pays(ph.depart) !== $('qqFrom').value || (arr || '') !== $('qqTo').value)){
+          $('modalLieuBg').classList.remove('show');
+          $('qqFrom').value = dep + pays(ph.depart); if(arr) $('qqTo').value = arr + pays(ph.arrivee);
+          ['qqFrom','qqTo'].forEach(id => $(id).dispatchEvent(new Event('input', {bubbles:true})));
+          if(typeof jmVocalEtat === 'function') jmVocalEtat('<div class="jm-claude-note">🤖 Claude a relu la demande : ' + esc(dep) + (arr ? ' → ' + esc(arr) : '') + ' — vérification sur la carte…</div>');
+          try{ await mesurerDistanceDevis(); if(typeof jmApresChoixLieu === 'function') jmApresChoixLieu(); const e = $('vocalEtat'); if(e && !e.querySelector('.jm-claude-note')) e.insertAdjacentHTML('afterbegin', '<div class="jm-claude-note">🤖 Lieux relus par Claude, vérifiés sur la carte — contrôle qu\'ils sont corrects.</div>'); }catch(e){}
+        }
+      }
+      return res;
+    };
+  }
+})();
+</script>
+
 
 
 
