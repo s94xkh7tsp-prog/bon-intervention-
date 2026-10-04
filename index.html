@@ -9241,7 +9241,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v290';
+const APP_VERSION = 'jm-express-bon-v291';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -21394,7 +21394,7 @@ window.jmOuvrirChatGPT = async function(){
     if(s.champ){ $(s.champ).value = v; $(s.champ).dispatchEvent(new Event('input', {bubbles:true})); }
     $('modalLieuBg').classList.remove('show'); remesurer(s.champ);
   };
-  function remesurer(champ){ setTimeout(() => { try{ if(/^qq/.test(champ || '')) { if($('modalQuickQuoteBg').classList.contains('show')) mesurerDistanceDevis(); } else if(typeof calculerDistance === 'function') calculerDistance(); }catch(e){} }, 200); }
+  function remesurer(champ){ setTimeout(async () => { try{ if(/^qq/.test(champ || '')) { if($('modalQuickQuoteBg').classList.contains('show')){ await mesurerDistanceDevis(); if(typeof jmApresChoixLieu === 'function') jmApresChoixLieu(); } } else if(typeof calculerDistance === 'function') calculerDistance(); }catch(e){} }, 200); }
   // ---------- « Vérifier les adresses » : même recherche, sans dépendre du serveur ----------
   if(typeof syncApi === 'function'){
     const _s = syncApi;
@@ -21458,6 +21458,46 @@ window.jmOuvrirChatGPT = async function(){
   document.addEventListener('focusout', e => { const id = e.target && e.target.id; if(CHAMPS.includes(id)) setTimeout(() => { if(document.activeElement !== e.target){ const b = $(BOITE(id)); if(b && CREES.has(id)) b.style.display = 'none'; } }, 250); });
 })();
 </script>
+<script id="jm-v291-script">
+(function(){
+  // v291 — 1) la dernière fenêtre ouverte passe toujours au premier plan ; 2) devis vocal : lieu à confirmer annoncé
+  // clairement, puis distance et prix lus après le choix.
+  const $ = id => document.getElementById(id);
+  // 1) Premier plan
+  const vus = new WeakMap();
+  const surveiller = m => { if(vus.has(m)) return; vus.set(m, m.classList.contains('show'));
+    new MutationObserver(() => { const ouvert = m.classList.contains('show'); if(ouvert && !vus.get(m) && m.parentElement === document.body && document.body.lastElementChild !== m) document.body.appendChild(m); vus.set(m, ouvert); }).observe(m, {attributes: true, attributeFilter: ['class']}); };
+  document.querySelectorAll('.modal-bg').forEach(surveiller);
+  new MutationObserver(ms => ms.forEach(x => x.addedNodes.forEach(n => { if(n.nodeType === 1 && n.classList && n.classList.contains('modal-bg')) surveiller(n); }))).observe(document.body, {childList: true});
+  // 2) Devis vocal
+  const dire = t => { try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'fr-FR'; speechSynthesis.speak(u); }catch(e){} };
+  let VOCAL = 0;
+  if(typeof jmVocalTraiter === 'function'){
+    const _v = jmVocalTraiter;
+    window.jmVocalTraiter = async function(){
+      VOCAL = Date.now(); const r = await _v.apply(this, arguments);
+      await new Promise(x => setTimeout(x, 200));
+      const s = window.__lieuChoix;
+      if($('modalLieuBg') && $('modalLieuBg').classList.contains('show') && s){
+        const homonymes = s.candidats.filter(c => c.exact).length > 1;
+        const msg = !s.candidats.length ? 'Je n\'ai pas trouvé ' + s.texte + '. Précise l\'adresse à l\'écran.' : homonymes ? 'Plusieurs lieux s\'appellent ' + s.texte + '. Choisis le bon à l\'écran.' : 'Je ne connais pas exactement ' + s.texte + '. Confirme le lieu proposé à l\'écran.';
+        dire(msg); if(typeof jmVocalEtat === 'function') jmVocalEtat('⚠️ ' + msg.replace(/</g, ''));
+      }
+      return r;
+    };
+  }
+  window.jmApresChoixLieu = function(){
+    if(Date.now() - VOCAL > 5 * 60000 || !$('modalQuickQuoteBg').classList.contains('show')) return;
+    try{ calculerDevisRapide(); }catch(e){}
+    const c = typeof QQ_DERNIER_CALC !== 'undefined' ? QQ_DERNIER_CALC : null, km = parseFloat($('qqKm').value);
+    if(!c || !(c.total > 0) || !(km > 0)) return;
+    const s = $('qqType'), lib = s ? String((s.options[s.selectedIndex] || {}).textContent || '').replace(/^[^\p{L}]+/u, '').split(' — ')[0].trim() : '';
+    if(typeof jmVocalEtat === 'function') jmVocalEtat('✓ Lieu confirmé<br>📍 ' + ($('qqFrom').value || '').replace(/</g, '') + ($('qqTo').value ? '<br>🏁 ' + $('qqTo').value.replace(/</g, '') : '') + '<br>📏 ' + String(km).replace('.', ',') + ' km<br><br><span class="jm-vocal-prix">' + fmt(c.total) + '</span>');
+    dire(lib + ', ' + Math.round(km) + ' kilomètres. Environ ' + Math.round(c.total) + ' euros.');
+  };
+})();
+</script>
+
 
 
 
