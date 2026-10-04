@@ -9264,7 +9264,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v295';
+const APP_VERSION = 'jm-express-bon-v296';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -21121,7 +21121,8 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   window.jmChoisirAdresse = async function(id, i){
     const c = (CHOIX[id] || [])[i]; if(!c) return;
     if(c.repere && !confirm('⚠️ Localisation à confirmer\n\nUtiliser ce repère d\'autoroute ?')) return;
-    $(id).value = c.libelle; memoriser(c.libelle, c.lat, c.lon);
+    const propre = String(c.libelle || '').replace(/^❓\s*/, '').replace(/\s*\(centre\)\s*$/, '').trim();   // v296 : pas de marque d'écran dans l'adresse
+    $(id).value = propre; memoriser(propre, c.lat, c.lon);
     $(id).dispatchEvent(new Event('input', {bubbles:true}));
     const bloc = [...document.querySelectorAll('#verifAdresses .jm-va-bloc')].find(b => b.innerHTML.includes("'" + id + "'"));
     if(bloc) bloc.innerHTML = '<strong>' + (id === 'qqFrom' ? '📍 Départ' : '🏁 Arrivée') + '</strong><div class="jm-as-conf ' + (c.repere ? 'jm-as-moyen' : 'jm-as-ok') + '">' + (c.repere ? '⚠️ ' : '✅ ') + esc(c.libelle) + '</div>';
@@ -21416,7 +21417,9 @@ window.jmOuvrirChatGPT = async function(){
   }
   function proposer(){
     const p = window.JM_LIEU_A_CONFIRMER; if(!p) return; window.JM_LIEU_A_CONFIRMER = null;
-    const champ = CHAMPS.find(id => $(id) && $(id).value.trim() === p.texte) || null;
+    const nn = s => norm(s).replace(/\s*\([^)]*\)\s*$/, '');
+    const champ = CHAMPS.find(id => $(id) && $(id).value.trim() === p.texte) || CHAMPS.find(id => $(id) && $(id).value.trim() && nn($(id).value) === nn(p.texte))
+      || CHAMPS.find(id => $(id) && $(id).value.trim() && $(id).offsetParent !== null && (nn($(id).value).includes(nn(p.texte)) || nn(p.texte).includes(nn($(id).value)))) || null;   // v296
     window.__lieuChoix = {champ, candidats: p.candidats, texte: p.texte};
     $('lieuTitre').textContent = p.candidats.length ? 'Lieu à confirmer : « ' + p.texte + ' »' : 'Lieu introuvable : « ' + p.texte + ' »';
     $('lieuListe').innerHTML = p.candidats.length
@@ -21922,6 +21925,34 @@ window.jmOuvrirChatGPT = async function(){
     try{ const km = parseFloat((document.getElementById('qqKm') || {}).value), e = document.getElementById('vocalEtat');
       if(km > 0 && e && !e.querySelector('.jm-conf-vocal')) e.insertAdjacentHTML('beforeend', '<div class="jm-conf-vocal">' + jmConfianceVocal() + '</div>'); }catch(e){}
     return r; };
+})();
+</script>
+<script id="jm-v296-script">
+(function(){
+  // v296 — l'encadré du devis vocal reflète toujours les adresses corrigées (quel que soit le chemin de correction).
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let ENTENDU = '';
+  if(typeof jmVocalTraiter === 'function'){ const _v = jmVocalTraiter; window.jmVocalTraiter = async function(t){ ENTENDU = String(t || '').trim(); return _v.apply(this, arguments); }; }
+  window.jmVocalResume = function(){
+    const e = $('vocalEtat'); if(!e || !ENTENDU || !$('modalQuickQuoteBg').classList.contains('show')) return;
+    if($('vocalBloc')) $('vocalBloc').style.display = 'block';
+    const km = parseFloat(($('qqKm') || {}).value), c = typeof QQ_DERNIER_CALC !== 'undefined' ? QQ_DERNIER_CALC : null; if(!(km > 0) || !c || !(c.total > 0)) return;
+    const s = $('qqType'), lib = s ? String((s.options[s.selectedIndex] || {}).textContent || '').replace(/^[^\p{L}]+/u, '').split(' — ')[0].trim() : '';
+    const de = ($('qqFrom').value || '').trim(), a = ($('qqTo').value || '').trim();
+    const corrige = !norm2(ENTENDU).includes(norm2(de)) || (a && !norm2(ENTENDU).includes(norm2(a)));
+    const ia = e.querySelector('.jm-claude-note');
+    e.innerHTML = (ia ? ia.outerHTML : '') + '<span class="jm-vocal-entendu">Entendu : « ' + esc(ENTENDU) + ' »</span><br>' + (corrige ? '<strong>Adresses corrigées :</strong>' : '<strong>' + esc(lib) + '</strong>') +
+      '<br>📍 ' + esc(de) + (a ? '<br>🏁 ' + esc(a) : '') + (corrige ? '<br><span class="jm-vocal-entendu">' + esc(lib) + '</span>' : '') + '<br>📏 ' + String(km).replace('.', ',') + ' km<br><br><span class="jm-vocal-prix">' + fmt(c.total) + '</span>' +
+      '<div class="jm-conf-vocal">' + (typeof jmConfianceVocal === 'function' ? jmConfianceVocal() : '') + '</div>';
+    e.style.display = 'block';
+  };
+  const norm2 = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  // Après chaque calcul réussi du devis (lieu choisi, vérification, suggestion, champ corrigé à la main) : encadré mis à jour
+  if(typeof mesurerDistanceDevis === 'function'){ const _m = mesurerDistanceDevis; mesurerDistanceDevis = async function(){ const r = await _m.apply(this, arguments); setTimeout(() => { try{ jmVocalResume(); }catch(e){} }, 60); return r; }; }
+  if(typeof calculerDevisRapide === 'function'){ const _c = calculerDevisRapide; calculerDevisRapide = function(){ const r = _c.apply(this, arguments); setTimeout(() => { try{ jmVocalResume(); }catch(e){} }, 60); return r; }; }
+  if(typeof jmApresChoixLieu === 'function'){ const _a = jmApresChoixLieu; window.jmApresChoixLieu = function(){ const r = _a.apply(this, arguments); try{ jmVocalResume(); }catch(e){} return r; }; }
+  if(typeof closeQuickQuote === 'function'){ const _q = closeQuickQuote; closeQuickQuote = function(){ ENTENDU = ''; return _q.apply(this, arguments); }; }
 })();
 </script>
 
