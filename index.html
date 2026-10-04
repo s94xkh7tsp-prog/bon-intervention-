@@ -9241,7 +9241,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v291';
+const APP_VERSION = 'jm-express-bon-v292';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -13864,13 +13864,15 @@ function choisirMeilleurResultat(data){
 async function tenterGeocode(query, dejaReessaye){
   try{
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=8&addressdetails=1`
-              + `&accept-language=fr&countrycodes=be,fr,lu&q=${encodeURIComponent(query)}`;
-    const res = await fetch(url);
+              + `&accept-language=fr&q=${encodeURIComponent(query)}`;
+    // v292 : la Belgique d'abord ; France et Luxembourg seulement si rien n'est trouvé en Belgique
+    let res = await fetch(url + '&countrycodes=be'), dataBe = null;
+    if(res.ok){ dataBe = await res.json(); if(!dataBe.length){ await new Promise(r => setTimeout(r, 1100)); res = await fetch(url + '&countrycodes=be,fr,lu'); dataBe = null; } }
     if(!res.ok && !dejaReessaye){
       await new Promise(r => setTimeout(r, 1500));
       return tenterGeocode(query, true);
     }
-    const data = await res.json();
+    const data = dataBe || await res.json();
     if(!data.length){
       if(!dejaReessaye){
         await new Promise(r => setTimeout(r, 1500));
@@ -20557,7 +20559,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   const RUE_AVANT = /(?:^|\s)(?:rue|route|chaussée|chaussee|avenue|av\.|place|boulevard|bd|chemin|quai|square|allée|allee|impasse|drève|dreve|a[ée]roport|gare|zoning|parking|station)\s*$/i;
   const DEST_LIEU = /^(?:l['’])?(?:a[ée]roport|garage|carrosserie|concession|gare|parking|d[ée]p[ôo]t|domicile|maison|casse|h[ôo]pital|centre|zoning|bsca)/i;
   const PAS_ADRESSE = /^(?:un|une|mon|ma|son|sa|ses|leur|la voiture|le véhicule|le vehicule|l['’]essence|essence|diesel|gasoil|suv|4x4|utilitaire|voiture|véhicule|vehicule|camionnette|moto|scooter)\b/i;
-  const DEST = /\s+(?:jusqu['’]\s*(?:à|a|au|aux|chez)|jusque|vers|direction|à destination de|a destination de|pour (?:aller |l['’]amener |le déposer |le deposer |la déposer |la deposer )?(?:à|a|au|aux|chez)|(?:et )?(?:le |la |l['’])?d[ée]pos(?:er|e)r? (?:à|a|au|aux|chez)|(?:et )?(?:il faut |faut )?(?:l['’]|le |la )?(?:amener|ramener|emmener|conduire|déposer|deposer|remorquer) (?:à|a|au|aux|chez))\s+/i;
+  const DEST = /\s+(?:jusqu(?:['’]|\s)\s*(?:à|a|au|aux|chez)|jusque|vers|direction|à destination de|a destination de|pour (?:aller |l['’]amener |le déposer |le deposer |la déposer |la deposer )?(?:à|a|au|aux|chez)|(?:et )?(?:le |la |l['’])?d[ée]pos(?:er|e)r? (?:à|a|au|aux|chez)|(?:et )?(?:il faut |faut )?(?:l['’]|le |la )?(?:amener|ramener|emmener|conduire|déposer|deposer|remorquer) (?:à|a|au|aux|chez))\s+/i;
   window.jmAnalyserDemande = function(texte){
     const t = sansAccent(texte), r = {texte, service:null, de:'', a:'', vehicule:null, autoroute:/autoroute/.test(t)};
     for(const [re, s] of SERVICES){ if(re.test(t)){ r.service = s; break; } }
@@ -21267,8 +21269,10 @@ window.jmOuvrirChatGPT = async function(){
   const CACHE_K = 'jm_geoCache';
   const cacheLire = () => { try{ return JSON.parse(localStorage.getItem(CACHE_K) || '{}'); }catch(e){ return {}; } };
   function cacheGet(q){ const c = cacheLire()[norm(q)]; return c && Date.now() - c.t < 60 * 864e5 ? c : null; }
-  window.jmLieuMemoriser = (lib, x) => cacheSet(lib, {lat: x.lat, lon: x.lon, nom: x.titre || x.nom || lib, localite: !!x.localite});
-  function cacheSet(q, r){ try{ const c = cacheLire(); c[norm(q)] = {...r, t: Date.now()}; const ks = Object.keys(c); if(ks.length > 400) ks.sort((a, b) => c[a].t - c[b].t).slice(0, ks.length - 400).forEach(k => delete c[k]); localStorage.setItem(CACHE_K, JSON.stringify(c)); }catch(e){} }
+  window.jmLieuMemoriser = (lib, x) => cacheSet(lib, {lat: x.lat, lon: x.lon, nom: x.titre || x.nom || lib, localite: !!x.localite}, true);
+  const enBelgique = (lat, lon) => lat > 49.45 && lat < 51.56 && lon > 2.5 && lon < 6.42;
+  try{ const c0 = JSON.parse(localStorage.getItem('jm_geoCache') || '{}'); let k0 = 0; Object.keys(c0).forEach(k => { if(!enBelgique(c0[k].lat, c0[k].lon) && !c0[k].choisi){ delete c0[k]; k0++; } }); if(k0) localStorage.setItem('jm_geoCache', JSON.stringify(c0)); }catch(e){}   // v292 : nettoyage
+  function cacheSet(q, r, choisi){ if(!choisi && !enBelgique(r.lat, r.lon)) return; if(choisi) r = {...r, choisi: true}; try{ const c = cacheLire(); c[norm(q)] = {...r, t: Date.now()}; const ks = Object.keys(c); if(ks.length > 400) ks.sort((a, b) => c[a].t - c[b].t).slice(0, ks.length - 400).forEach(k => delete c[k]); localStorage.setItem(CACHE_K, JSON.stringify(c)); }catch(e){} }
   // ---------- Similarité des noms ----------
   function lev(a, b){ const m = a.length, n = b.length; if(!m) return n; if(!n) return m; let p = Array.from({length: n + 1}, (_, j) => j); for(let i = 1; i <= m; i++){ const q = [i]; for(let j = 1; j <= n; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = q; } return p[n]; }
   function correspondance(requete, nom){
@@ -21319,6 +21323,12 @@ window.jmOuvrirChatGPT = async function(){
       try{ r = await _g.apply(this, arguments); }catch(e){ err0 = e; }
       const incertain = (window.JM_GEO_APPROX || []).length > nA || (window.JM_GEO_MOYEN || []).length > nM;   // approximatif / réinterprété : jamais mémorisé comme sûr
       if(r && r._ambigu){ window.JM_LIEU_A_CONFIRMER = {texte: a, candidats: r._ambigu}; const e = new Error('Lieu à confirmer : ' + a); e.lieu = true; throw e; }
+      if(r && r._horsBE){   // jamais utilisé sans confirmation : proposer d'abord les lieux belges proches du nom, puis ceux trouvés à l'étranger
+        let be = []; try{ be = (await jmChercherLieu(a)).filter(x => x.pays === 'be'); }catch(e){}
+        window.JM_LIEU_A_CONFIRMER = {texte: a, candidats: be.concat(r._horsBE.map(x => ({...x, libelle: x.libelle}))).slice(0, 6), horsBE: true};
+        const e = new Error('Lieu à confirmer : ' + a); e.lieu = true; throw e;
+      }
+      if(r) (window.JM_GEO_RESOLUS = window.JM_GEO_RESOLUS || []).push({texte: a, nom: r._nom || a, pays: r._pays || ''});
       if(r){ if(r._localite) (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(r._nom || a); if(!extractCoordsFromText(a) && !incertain) cacheSet(a, {lat: r.lat, lon: r.lon, nom: r._nom, localite: !!r._localite}); return {lat: r.lat, lon: r.lon}; }
       {
         const err = err0;
@@ -21344,6 +21354,10 @@ window.jmOuvrirChatGPT = async function(){
       const r = _c.apply(this, arguments); if(!r || !data) return r;
       const x = data.find(d => +d.lat === r.lat && +d.lon === r.lon) || {}, nom = x.name || String(x.display_name || '').split(',')[0];
       r._nom = nom; r._localite = LOCALITE.test(x.addresstype || x.type || '') || x.class === 'boundary';
+      r._pays = ((x.address || {}).country_code || (/Belgi/.test(x.display_name || '') ? 'be' : '')).toLowerCase();
+      if(r._pays && r._pays !== 'be' && !/france|luxembourg|\b\d{5}\b/i.test(CUR_Q)){   // v292 : trouvé seulement hors de Belgique
+        r._horsBE = data.slice(0, 5).map(d => ({nom: d.name || String(d.display_name || '').split(',')[0], libelle: String(d.display_name || '').split(', ').slice(0, 4).join(', '), lat: +d.lat, lon: +d.lon, localite: LOCALITE.test(d.addresstype || d.type || ''), pays: ((d.address || {}).country_code || '').toLowerCase(), src: 'OpenStreetMap', exact: false}));
+      }
       const nu = /^[^\d,]+$/.test(CUR_Q) && !/\b(rue|route|avenue|chauss[ée]e|place|boulevard|chemin|quai|garage|gare|parking|a[ée]roport|station)\b/i.test(CUR_Q);
       if(nu){
         const memes = data.filter(d => (d.address && d.address.country_code === 'be' || /Belgi/.test(d.display_name || '')) && correspondance(CUR_Q, d.name || String(d.display_name || '').split(',')[0]) >= 0.95);
@@ -21367,8 +21381,12 @@ window.jmOuvrirChatGPT = async function(){
   }
   if(typeof mesurerDistanceRoutiere === 'function'){
     const _m = mesurerDistanceRoutiere;
-    mesurerDistanceRoutiere = async function(){ window.JM_GEO_CENTRE = []; window.JM_LIEU_A_CONFIRMER = null; const adresses = [...arguments].filter(Boolean).map(x => x.trim());
-      try{ const km = await _m.apply(this, arguments); window.JM_GEO_CENTRE = (window.JM_GEO_CENTRE || []).filter(n => adresses.some(a => norm(a).includes(norm(n)) || norm(n).includes(norm(a)))); badgeCentre(); return km; }
+    mesurerDistanceRoutiere = async function(){ window.JM_GEO_CENTRE = []; window.JM_LIEU_A_CONFIRMER = null; window.JM_GEO_RESOLUS = []; const adresses = [...arguments].filter(Boolean).map(x => x.trim());
+      try{ const km = await _m.apply(this, arguments);
+        if(km > 250){   // v292 : garde-fou
+          const L = (window.JM_GEO_RESOLUS || []).filter(x => x.texte !== String(BASE_ADDRESS).trim()).map(x => '• « ' + x.texte + ' » → ' + x.nom + (x.pays && x.pays !== 'be' ? ' (' + x.pays.toUpperCase() + ')' : ''));
+          if(!confirm('⚠️ Distance inhabituelle : ' + km.toFixed(0) + ' km\n\nLieux trouvés :\n' + L.join('\n') + '\n\nUtiliser cette distance ?')){ const e = new Error('Distance à vérifier'); e.lieu = true; throw e; }
+        } window.JM_GEO_CENTRE = (window.JM_GEO_CENTRE || []).filter(n => adresses.some(a => norm(a).includes(norm(n)) || norm(n).includes(norm(a)))); badgeCentre(); return km; }
       catch(e){ badgeCentre(); setTimeout(proposer, 50); throw e; } };
   }
   function proposer(){
@@ -21380,11 +21398,12 @@ window.jmOuvrirChatGPT = async function(){
       ? '<div class="km-mention" style="margin-bottom:6px;">' + (p.candidats.some(x => x.exact) ? 'Plusieurs lieux portent ce nom' : 'Nom proche trouvé sur la carte') + ' : touche le bon.</div>' + p.candidats.map((c, i) => '<button type="button" class="jm-va-cand" onclick="jmLieuChoisir(' + i + ')">' + (c.exact ? '📍 ' : '❓ ') + esc(c.libelle || c.nom) + '<span class="jm-lieu-src">' + (c.localite ? 'centre de localité · ' : '') + c.src + '</span></button>').join('')
       : '<div class="jm-as-conf jm-as-faible">Aucun lieu fiable trouvé : aucune distance calculée.</div>';
     $('lieuPrecision').value = p.texte; $('lieuJournal').textContent = jmGeoJournal(); $('modalLieuBg').classList.add('show');
+    if(typeof jmAnnonceLieu === 'function') jmAnnonceLieu(window.__lieuChoix);
   }
   window.jmLieuChoisir = async function(i){
     const s = window.__lieuChoix, c = s && s.candidats[i]; if(!c) return;
     const lib = c.libelle || c.nom;
-    cacheSet(lib, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite}); cacheSet(s.texte, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite});
+    cacheSet(lib, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite}, true); cacheSet(s.texte, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite}, true);
     if(s.champ){ $(s.champ).value = lib; $(s.champ).dispatchEvent(new Event('input', {bubbles:true})); }
     $('modalLieuBg').classList.remove('show'); showToast('Lieu confirmé : ' + lib);
     remesurer(s.champ);
@@ -21472,17 +21491,17 @@ window.jmOuvrirChatGPT = async function(){
   // 2) Devis vocal
   const dire = t => { try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'fr-FR'; speechSynthesis.speak(u); }catch(e){} };
   let VOCAL = 0;
+  window.jmAnnonceLieu = function(s){ if(!s || Date.now() - VOCAL > 5 * 60000) return;
+    const homonymes = s.candidats.filter(c => c.exact).length > 1;
+    const msg = !s.candidats.length ? 'Je n\'ai pas trouvé ' + s.texte + '. Précise l\'adresse à l\'écran.' : homonymes ? 'Plusieurs lieux s\'appellent ' + s.texte + '. Choisis le bon à l\'écran.' : 'Je ne connais pas exactement ' + s.texte + '. Confirme le lieu proposé à l\'écran.';
+    dire(msg); if(typeof jmVocalEtat === 'function') jmVocalEtat('⚠️ ' + msg.replace(/</g, '')); };
   if(typeof jmVocalTraiter === 'function'){
     const _v = jmVocalTraiter;
     window.jmVocalTraiter = async function(){
       VOCAL = Date.now(); const r = await _v.apply(this, arguments);
       await new Promise(x => setTimeout(x, 200));
       const s = window.__lieuChoix;
-      if($('modalLieuBg') && $('modalLieuBg').classList.contains('show') && s){
-        const homonymes = s.candidats.filter(c => c.exact).length > 1;
-        const msg = !s.candidats.length ? 'Je n\'ai pas trouvé ' + s.texte + '. Précise l\'adresse à l\'écran.' : homonymes ? 'Plusieurs lieux s\'appellent ' + s.texte + '. Choisis le bon à l\'écran.' : 'Je ne connais pas exactement ' + s.texte + '. Confirme le lieu proposé à l\'écran.';
-        dire(msg); if(typeof jmVocalEtat === 'function') jmVocalEtat('⚠️ ' + msg.replace(/</g, ''));
-      }
+      if($('modalLieuBg') && $('modalLieuBg').classList.contains('show') && s) jmAnnonceLieu(s);
       return r;
     };
   }
@@ -21497,6 +21516,97 @@ window.jmOuvrirChatGPT = async function(){
   };
 })();
 </script>
+<script id="jm-v292-localites-script">
+(function(){
+  // ===================================================================
+  //  v292 — Noms de lieux seuls (villages, villes, communes) : Belgique d'abord, pays précisé respecté,
+  //  pays voisins seulement s'ils sont proches, noms comparés dans toutes les langues, homonymes et
+  //  provinces gérés, confirmation dès qu'il y a un doute. Jamais de coordonnées inventées.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[-'’.,/()]/g, ' ').replace(/\s+/g, ' ').trim();
+  const LOC = /^(city|town|village|hamlet|suburb|quarter|neighbourhood|municipality|locality|isolated_dwelling|borough|city_district|administrative)$/;
+  const VASTE = /^(state|region|province|county|country|continent)$/;
+  const PAYS = [[/\b(france|frankrijk)\b|\b\d{5}\b/i, 'fr', 'France'], [/\b(luxembourg|luxemburg|grand duche|groothertogdom)\b/i, 'lu', 'Luxembourg'], [/\b(pays bas|nederland|hollande|holland)\b/i, 'nl', 'Pays-Bas'], [/\b(allemagne|deutschland|duitsland)\b/i, 'de', 'Allemagne']];
+  const MOTS_PAYS = /\b(?:(?:en|au|aux|in)\s+)?(france|frankrijk|luxembourg|luxemburg|grand duche|groothertogdom|pays bas|nederland|hollande|holland|allemagne|deutschland|duitsland|belgique|belgie|belgien)\b/gi;
+  const ADRESSE = /\d|\b(rue|route|avenue|av|chaussee|place|boulevard|bd|chemin|quai|square|allee|impasse|clos|dreve|straat|steenweg|laan|plein|weg|garage|gare|parking|aeroport|station|hopital|zoning|centre|magasin|carrosserie|sortie|autoroute)\b/;
+  const estNomSeul = a => { const s = norm(a).replace(MOTS_PAYS, ' ').trim() || norm(a); return s && !ADRESSE.test(norm(a).replace(/\b\d{4,5}\b/, '')) && s.split(' ').length <= 5 && !(typeof extractCoordsFromText === 'function' && extractCoordsFromText(a)); };
+  const km = (a, b) => { const R = 6371, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lon - a.lon); const h = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+  const base = () => ({lat: typeof BASE_LAT !== 'undefined' ? BASE_LAT : 50.41, lon: typeof BASE_LON !== 'undefined' ? BASE_LON : 4.38});
+  let dernier = 0;
+  async function nominatim(q, pays){
+    const att = 1100 - (Date.now() - dernier); if(att > 0) await new Promise(r => setTimeout(r, att)); dernier = Date.now();
+    const t0 = Date.now(); let st = 'erreur réseau', d = [];
+    try{ const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&limit=10&accept-language=fr&countrycodes=' + pays + '&q=' + encodeURIComponent(q)); st = r.status; if(r.ok) d = await r.json(); }catch(e){}
+    if(window.JM_GEO_TRACE) window.JM_GEO_TRACE.unshift({src:'OpenStreetMap (' + pays + ')', q, statut: st, n: d.length, ms: Date.now() - t0, t: new Date().toLocaleTimeString('fr-BE')});
+    if(st !== 200){ const e = new Error('service cartographique indisponible (' + st + ')'); e.service = true; throw e; }   // v292 : panne ≠ lieu introuvable
+    return d.map(x => { const a = x.address || {}, noms = [x.name, ...Object.values(x.namedetails || {})].filter(Boolean);
+      return {nom: x.name || String(x.display_name || '').split(',')[0], noms, type: x.addresstype || x.type || '', lat: +x.lat, lon: +x.lon, pays: (a.country_code || '').toLowerCase(), importance: +x.importance || 0, cp: a.postcode || '',
+        libelle: String(x.display_name || '').split(', ').filter(s => !/^(België|Belgique|Belgien|Wallonie|Vlaanderen|Région)/.test(s)).slice(0, 4).join(', ') + (a.country_code && a.country_code !== 'be' ? ' (' + (a.country || a.country_code.toUpperCase()) + ')' : ''), src: 'OpenStreetMap'}; });
+  }
+  const exact = (q, x) => x.noms.some(n => norm(n) === q);
+  function tri(L){   // une seule entrée par lieu ; localités avant provinces / régions
+    const loc = L.filter(x => !VASTE.test(x.type)), garde = loc.length ? loc : L, out = [];
+    garde.sort((a, b) => LOC.test(b.type) - LOC.test(a.type) || b.importance - a.importance).forEach(x => { if(!out.some(o => km(o, x) < 8)) out.push(x); });
+    return out;
+  }
+  function aConfirmer(texte, candidats, raison){ window.JM_LIEU_A_CONFIRMER = {texte, candidats: candidats.slice(0, 6).map(x => ({...x, exact: raison !== 'variante', localite: LOC.test(x.type) || x.localite})), raison}; const e = new Error('Lieu à confirmer : ' + texte); e.lieu = true; throw e; }
+  window.jmResoudreLocalite = async function(texte){
+    const indice = PAYS.find(([re]) => re.test(norm(texte)) || re.test(texte));
+    const parts = String(texte).split(','), principal = parts[0].trim(), contexte = norm(parts.slice(1).join(' ').replace(MOTS_PAYS, ' ')).split(' ').filter(w => w.length > 2);   // « Ransart, Charleroi » : nom + contexte
+    let nom = norm(texte).replace(MOTS_PAYS, ' ').replace(/\b\d{4,5}\b/g, ' ').replace(/\s+/g, ' ').trim();
+    let brut = String(texte).replace(/,?\s*\b(?:(?:en|au|aux|in)\s+)?(France|Frankrijk|Luxembourg|Luxemburg|Pays-Bas|Nederland|Allemagne|Deutschland|Belgique|België)\b\s*$/i, '').replace(/\b\d{4,5}\b/g, ' ').replace(/\s+/g, ' ').replace(/^[\s,]+|[\s,]+$/g, '').trim();
+    if(!nom){ nom = norm(texte).replace(/\b\d{4,5}\b/g, ' ').trim(); brut = String(texte).replace(/\b\d{4,5}\b/g, ' ').trim(); }   // « Luxembourg » : le pays est aussi le nom cherché
+    if(parts.length > 1 && norm(principal).replace(MOTS_PAYS, ' ').trim()){ nom = norm(principal).replace(/\b\d{4,5}\b/g, ' ').trim(); brut = principal.replace(/\b\d{4,5}\b/g, ' ').trim(); }
+    const parContexte = L => { if(L.length < 2 || !contexte.length) return L; const f = L.filter(x => contexte.every(w => norm(x.libelle).includes(w))); return f.length ? f : L; };
+    const cp = (String(texte).match(/\b(\d{4,5})\b/) || [])[1];
+    let choix = null;
+    if(indice){
+      let L = tri((await nominatim(brut, indice[1])).filter(x => exact(nom, x)));
+      if(cp && L.length > 1 && L.some(x => x.cp === cp)) L = L.filter(x => x.cp === cp);   // le code postal départage
+      L = parContexte(L);
+      if(L.length === 1) choix = L[0]; else if(L.length > 1) aConfirmer(texte, L, 'homonymes');
+    } else {
+      let BE = tri((await nominatim(brut, 'be')).filter(x => exact(nom, x)));
+      if(cp && BE.length > 1 && BE.some(x => x.cp === cp)) BE = BE.filter(x => x.cp === cp);
+      BE = parContexte(BE);
+      const V = parContexte(tri((await nominatim(brut, 'fr,lu,nl,de')).filter(x => exact(nom, x) && x.pays !== 'be' && km(base(), x) < 150 && !BE.some(b => km(b, x) < 8))));
+      if(contexte.length && BE.length && V.length){ const bc = BE.filter(x => contexte.every(w => norm(x.libelle).includes(w))), vc = V.filter(x => contexte.every(w => norm(x.libelle).includes(w))); if(bc.length + vc.length === 1){ return bc[0] || vc[0]; } }
+      if(BE.length === 1 && !V.length) choix = BE[0];
+      else if(!BE.length && V.length === 1) choix = V[0];
+      else if(BE.length + V.length > 1) aConfirmer(texte, BE.concat(V), BE.length > 1 ? 'homonymes' : 'pays');
+    }
+    if(choix) return choix;
+    // aucun nom exact : variantes (fautes, prononciation) proposées, jamais appliquées d'office
+    let V = []; try{ V = (await jmChercherLieu(brut)).filter(x => !indice || !x.pays || x.pays === indice[1]); }catch(e){}
+    if(V.length) aConfirmer(texte, V.map(x => ({...x, type: x.localite ? 'village' : ''})), 'variante');
+    const e = new Error('Lieu introuvable : ' + texte); e.lieu = true; window.JM_LIEU_A_CONFIRMER = {texte, candidats: []}; throw e;
+  };
+  if(typeof geocodeAddress === 'function'){
+    const _g = geocodeAddress;
+    geocodeAddress = async function(address){
+      const a = String(address || '').trim();
+      if(!estNomSeul(a) || (typeof LIEUX_PRECIS !== 'undefined' && LIEUX_PRECIS[a.toLowerCase()])) return _g.apply(this, arguments);
+      try{ const c = JSON.parse(localStorage.getItem('jm_geoCache') || '{}')[norm(a)]; if(c && (c.v292 || c.choisi)){ if(c.localite) (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(c.nom); (window.JM_GEO_RESOLUS = window.JM_GEO_RESOLUS || []).push({texte: a, nom: c.nom, pays: c.pays}); return {lat: c.lat, lon: c.lon}; } }catch(e){}
+      let x;
+      try{ x = await jmResoudreLocalite(a); }
+      catch(e){ if(e.service) return _g.apply(this, arguments); throw e; }   // service indisponible : recherche habituelle (avec ses nouvelles tentatives)
+      try{ const c = JSON.parse(localStorage.getItem('jm_geoCache') || '{}'); c[norm(a)] = {lat: x.lat, lon: x.lon, nom: x.nom, localite: true, pays: x.pays, v292: true, choisi: x.pays !== 'be', t: Date.now()}; localStorage.setItem('jm_geoCache', JSON.stringify(c)); }catch(e){}
+      (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(x.nom + (x.pays && x.pays !== 'be' ? ' (' + x.pays.toUpperCase() + ')' : ''));
+      (window.JM_GEO_RESOLUS = window.JM_GEO_RESOLUS || []).push({texte: a, nom: x.nom, pays: x.pays});
+      return {lat: x.lat, lon: x.lon};
+    };
+  }
+  // Un lieu choisi dans la fenêtre « Lieu à confirmer » est mémorisé pour la recherche par nom
+  if(typeof jmLieuChoisir === 'function'){
+    const _c = jmLieuChoisir;
+    window.jmLieuChoisir = async function(i){ const s = window.__lieuChoix, x = s && s.candidats[i];
+      if(x){ try{ const c = JSON.parse(localStorage.getItem('jm_geoCache') || '{}'); const v = {lat: x.lat, lon: x.lon, nom: x.nom, localite: true, pays: x.pays || 'be', v292: true, choisi: true, t: Date.now()}; c[norm(s.texte)] = v; c[norm(x.libelle || x.nom)] = v; localStorage.setItem('jm_geoCache', JSON.stringify(c)); }catch(e){} }
+      return _c.apply(this, arguments); };
+  }
+})();
+</script>
+
 
 
 
