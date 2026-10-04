@@ -9264,7 +9264,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v296';
+const APP_VERSION = 'jm-express-bon-v297';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -22005,6 +22005,158 @@ window.jmOuvrirChatGPT = async function(){
 
 
 
+
+
+<script id="jm-v297-vocal-multipays-script">
+(function(){
+  // ===================================================================
+  // v297 — Vocal adresses gratuit renforcé + Belgique / France / Pays-Bas / Luxembourg.
+  // Aucun service IA payant. Web Speech reste la transcription ; plusieurs hypothèses sont
+  // comparées localement, puis les géocodeurs publics gratuits déjà utilisés par l'app sont
+  // complétés par IGN (France) et PDOK (Pays-Bas). Aucun impact sur le moteur tarifaire.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9à-ÿ' -]+/gi,' ').replace(/\s+/g,' ').trim();
+  const LABEL = {BE:'Belgique', FR:'France', NL:'Pays-Bas', LU:'Luxembourg', DE:'Allemagne'};
+  const CODE = {be:'BE',fr:'FR',nl:'NL',lu:'LU',de:'DE'};
+  const paysDans = s => {
+    const n = norm(s);
+    if(/\b(france|frankrijk)\b/.test(n) || /\b\d{5}\b/.test(n)) return 'FR';
+    if(/\b(pays bas|pays-bas|nederland|hollande|holland|netherlands)\b/.test(n) || /\b\d{4}\s?[a-z]{2}\b/i.test(String(s))) return 'NL';
+    if(/\b(luxembourg|luxemburg|grand duche)\b/.test(n)) return 'LU';
+    if(/\b(belgique|belgie|belgien)\b/.test(n)) return 'BE';
+    if(/\b(allemagne|deutschland|duitsland|germany)\b/.test(n)) return 'DE';
+    return '';
+  };
+  const retirerPays = (s, code) => String(s || '').replace(new RegExp('(?:,?\\s*)\\b(?:en\\s+|au\\s+|aux\\s+)?' +
+    (code==='FR'?'(?:France|Frankrijk)':code==='NL'?'(?:Pays[- ]?Bas|Nederland|Hollande|Holland|Netherlands)':code==='LU'?'(?:Luxembourg|Luxemburg|Grand[- ]?Duch[eé])':code==='BE'?'(?:Belgique|Belgi[eë]|Belgien)':'(?:Allemagne|Deutschland|Duitsland|Germany)') + '\\b\\s*$', 'i'), '').trim();
+
+  // Conserve le pays choisi depuis les tuiles de l'accueil, uniquement sur le champ destination du devis.
+  if(typeof openZoneIntervention === 'function'){
+    const _oz = openZoneIntervention;
+    window.openZoneIntervention = function(code){ window.JM_V297_ZONE = code || ''; return _oz.apply(this, arguments); };
+  }
+  if(typeof zoneVersDevis === 'function'){
+    const _zv = zoneVersDevis;
+    window.zoneVersDevis = function(){ const r = _zv.apply(this, arguments); const f = $('qqTo'); if(f){ const c = window.JM_V297_ZONE || ''; if(c && c !== 'OTHER') f.dataset.country = c; else delete f.dataset.country; } return r; };
+  }
+
+  function lev(a,b){ a=norm(a); b=norm(b); const m=a.length,n=b.length; if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const q=[i];for(let j=1;j<=n;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q;}return p[n]; }
+  const sim = (a,b) => { a=norm(a); b=norm(b); return (!a||!b)?0:1-lev(a,b)/Math.max(a.length,b.length,1); };
+
+  // Cherche une localité belge probable à la fin d'une transcription : utile quand Safari entend
+  // « Lern / Lerne » au lieu de « Lernes ». Ne modifie que si la proximité est forte.
+  function corrigerLocaliteBE(texte){
+    if(typeof jmDico !== 'function' || !window.JM_BE_DICO || !window.JM_BE_DICO.length || paysDans(texte) && paysDans(texte)!=='BE') return {texte, gain:0};
+    const mots=String(texte||'').trim().split(/\s+/); let best=null;
+    for(let n=1;n<=Math.min(3,mots.length);n++){
+      const brut=mots.slice(-n).join(' ').replace(/[,.]$/,'');
+      if(brut.length<3 || /\d/.test(brut)) continue;
+      let r; try{ r=jmDico(brut,3); }catch(e){ continue; }
+      const cand=[...(r.exacts||[]),...(r.proches||[])];
+      for(const x of cand){ const score = x.nn===norm(brut)?1:(x.score||sim(brut,x.n)); if(score >= 0.80 && (!best || score>best.score)) best={n,brut,x,score}; }
+    }
+    if(!best || best.score<0.84) return {texte,gain:0};
+    if(norm(best.brut)===norm(best.x.n)) return {texte,gain:.08};
+    const out=mots.slice(0,-best.n).concat([best.x.n]).join(' ');
+    return {texte:out,gain:Math.min(.25,(best.score-.80)*1.2), correction:best.brut+' → '+best.x.n};
+  }
+
+  function aliasBonus(t){
+    try{ const A=JSON.parse(localStorage.getItem('jm_alias')||'{}'); const n=norm(t); if(A[n]) return .35; let b=0; Object.keys(A).forEach(k=>{ const s=sim(n,k); if(s>.88)b=Math.max(b,(s-.88)*1.4); }); return b; }catch(e){ return 0; }
+  }
+  function adresseScore(t){
+    let score=aliasBonus(t); const c=corrigerLocaliteBE(t); score+=c.gain;
+    if(/\b\d{1,4}[a-z]?\b/i.test(t)) score+=.04;
+    if(/\b(rue|route|avenue|chauss[ée]e|boulevard|place|chemin|straat|steenweg|laan|weg|plein|garage|gare|parking|a[ée]roport|airport)\b/i.test(t)) score+=.05;
+    if(paysDans(t)) score+=.05;
+    return {score, texte:c.texte, correction:c.correction};
+  }
+  window.jmV297ChoisirTranscription = function(alts, fieldId){
+    alts=(alts||[]).filter(x=>x&&String(x.transcript||x).trim()).map((x,i)=>({texte:String(x.transcript||x).trim(), conf:Number(x.confidence)||0, i}));
+    if(!alts.length) return null;
+    const f=$(fieldId), ctx=(f&&f.dataset.country)||'';
+    let best=null;
+    for(const a of alts){ const z=adresseScore(a.texte), p=paysDans(a.texte); let s=z.score + (a.conf||0)*.12 - a.i*.005; if(ctx && p===ctx)s+=.15; if(ctx && p && p!==ctx)s-=.2; const o={...a,...z,total:s}; if(!best||o.total>best.total)best=o; }
+    if(ctx && ctx!=='BE' && !paysDans(best.texte)) best.texte = best.texte.replace(/[,\s]+$/,'') + ', ' + LABEL[ctx];
+    return best;
+  };
+
+  // Remplace le petit micro de chaque champ : jusqu'à 5 hypothèses, choix local gratuit, aucun appel IA.
+  window.dicterAdresse = function(fieldId){
+    const Api=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Api){ if(typeof showToast==='function') showToast('Dictée vocale non disponible sur ce navigateur'); return; }
+    const field=$(fieldId); if(!field) return;
+    const r=new Api(); r.lang='fr-BE'; r.interimResults=false; r.maxAlternatives=5; r.continuous=false;
+    if(typeof showToast==='function') showToast('🎤 Parle maintenant…');
+    r.onresult=ev=>{
+      const R=ev.results&&ev.results[0], alts=[]; if(R) for(let i=0;i<Math.min(R.length||0,5);i++) alts.push({transcript:R[i].transcript,confidence:R[i].confidence});
+      const best=jmV297ChoisirTranscription(alts,fieldId); if(!best)return;
+      field.value=best.texte; field.dispatchEvent(new Event('input',{bubbles:true})); field.dispatchEvent(new Event('change',{bubbles:true}));
+      if(typeof checkAccesVehicule==='function') checkAccesVehicule(fieldId);
+      if(typeof showToast==='function') showToast((best.correction?'🎤 Corrigé : ':'🎤 Adresse : ')+best.texte);
+    };
+    r.onerror=ev=>{ if(typeof showToast!=='function')return; if(ev.error==='not-allowed'||ev.error==='permission-denied'||ev.error==='service-not-allowed')showToast('Micro refusé — autorise-le dans les réglages'); else if(ev.error==='no-speech')showToast('Aucune voix détectée, réessaie'); else showToast('Erreur de dictée vocale'); };
+    try{r.start();}catch(e){ if(typeof showToast==='function')showToast('Impossible de démarrer le micro'); }
+  };
+
+  // Devis vocal : même amélioration. Les alternatives sont évaluées avec le parseur métier existant.
+  if(typeof jmDevisVocal==='function'){
+    window.jmDevisVocal = function(){
+      if(window.JM_V297_REC){ try{ window.JM_V297_REC.stop(); }catch(e){} return; }
+      if(typeof openQuickQuote==='function' && !($('modalQuickQuoteBg')||{}).classList?.contains('show')) openQuickQuote();
+      if($('vocalBloc')){ $('vocalBloc').style.display='block'; $('vocalBloc').scrollIntoView({block:'start'}); }
+      const Api=window.SpeechRecognition||window.webkitSpeechRecognition; if(!Api){ if(typeof jmVocalEtat==='function')jmVocalEtat('Dictée directe indisponible : utilise le 🎤 du clavier puis « Analyser ».'); return; }
+      const rec=new Api(); window.JM_V297_REC=rec; rec.lang='fr-BE'; rec.interimResults=true; rec.maxAlternatives=5; rec.continuous=false; let finals=[];
+      const b=$('vocalBtn'); if(b){b.classList.add('jm-ecoute');b.innerHTML='⏹ Arrêter l\'écoute <span>et calculer</span>';}
+      if(typeof jmVocalEtat==='function') jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.');
+      rec.onresult=ev=>{ let visible=''; for(let i=0;i<ev.results.length;i++){ visible += ev.results[i][0].transcript; if(ev.results[i].isFinal){ finals=[]; for(let j=0;j<Math.min(ev.results[i].length||0,5);j++) finals.push({transcript:ev.results[i][j].transcript,confidence:ev.results[i][j].confidence}); } } if($('vocalTexte'))$('vocalTexte').value=visible; };
+      rec.onerror=ev=>{ if(b){b.classList.remove('jm-ecoute');b.innerHTML='🎤 Devis vocal <span>dis le service, le départ et l\'arrivée</span>';} window.JM_V297_REC=null; if(typeof jmVocalEtat==='function')jmVocalEtat(ev.error==='no-speech'?'Aucune voix détectée : réessaie.':'Dictée interrompue : réessaie ou utilise le 🎤 du clavier.'); };
+      rec.onend=()=>{ if(b){b.classList.remove('jm-ecoute');b.innerHTML='🎤 Devis vocal <span>dis le service, le départ et l\'arrivée</span>';} window.JM_V297_REC=null; let pool=finals.length?finals:[{transcript:($('vocalTexte')||{}).value||'',confidence:0}];
+        let best=null; for(const a of pool){ let sc=(Number(a.confidence)||0)*.1, parsed=null; try{parsed=typeof jmAnalyserDemande==='function'?jmAnalyserDemande(a.transcript):null;}catch(e){} if(parsed){ if(parsed.de)sc+=adresseScore(parsed.de).score+.12; if(parsed.a)sc+=adresseScore(parsed.a).score+.12; if(parsed.service)sc+=.04; } const o={...a,total:sc}; if(!best||o.total>best.total)best=o; }
+        const t=(best&&best.transcript)||(($('vocalTexte')||{}).value||''); if(t&&typeof jmVocalTraiter==='function')jmVocalTraiter(t);
+      };
+      try{rec.start();}catch(e){window.JM_V297_REC=null;if(b)b.classList.remove('jm-ecoute');if(typeof jmVocalEtat==='function')jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.');}
+    };
+  }
+
+  // ---------- Géocodage gratuit ciblé par pays ----------
+  async function fetchJson(url,ms=5500){ const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms); try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw new Error(String(r.status));return await r.json();}finally{clearTimeout(to);} }
+  function trace(src,q,n,st='ok'){ try{ if(window.JM_GEO_TRACE){window.JM_GEO_TRACE.unshift({src,q,statut:st,n,ms:0,t:new Date().toLocaleTimeString('fr-BE')});if(window.JM_GEO_TRACE.length>30)window.JM_GEO_TRACE.pop();} }catch(e){} }
+  async function france(q){
+    try{ const d=await fetchJson('https://data.geopf.fr/geocodage/search?q='+encodeURIComponent(retirerPays(q,'FR'))+'&limit=6'); const f=(d.features||[]).map(x=>{const p=x.properties||{},c=(x.geometry||{}).coordinates||[];return {nom:p.name||p.label||'',libelle:p.label||[p.name,p.postcode,p.city].filter(Boolean).join(', '),lat:+c[1],lon:+c[0],pays:'fr',cp:p.postcode||'',localite:/municipality|locality/i.test(p.type||''),src:'IGN France',exact:(+p.score||0)>=.75,score:+p.score||0};}).filter(x=>x.lat&&x.lon); trace('IGN France',q,f.length); return f; }catch(e){trace('IGN France',q,0,'indisponible');return[];}
+  }
+  async function paysBas(q){
+    try{ const d=await fetchJson('https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q='+encodeURIComponent(retirerPays(q,'NL'))+'&rows=6&fl=weergavenaam,centroide_ll,type,score,postcode,woonplaatsnaam'); const docs=((d.response||{}).docs||[]).map(x=>{const m=String(x.centroide_ll||'').match(/POINT\(([-0-9.]+)\s+([-0-9.]+)\)/i);return m?{nom:x.weergavenaam||x.woonplaatsnaam||'',libelle:x.weergavenaam||'',lat:+m[2],lon:+m[1],pays:'nl',cp:x.postcode||'',localite:/woonplaats|gemeente|buurt|wijk/i.test(x.type||''),src:'PDOK Pays-Bas',exact:true,score:Number(x.score)||0}:null;}).filter(Boolean); trace('PDOK Pays-Bas',q,docs.length); return docs; }catch(e){trace('PDOK Pays-Bas',q,0,'indisponible');return[];}
+  }
+  let lastNom=0;
+  async function osmPays(q,cc){ const wait=1100-(Date.now()-lastNom);if(wait>0)await new Promise(r=>setTimeout(r,wait));lastNom=Date.now();try{const d=await fetchJson('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=fr&countrycodes='+cc.toLowerCase()+'&q='+encodeURIComponent(retirerPays(q,cc)),6500);const L=(d||[]).map(x=>({nom:x.name||String(x.display_name||'').split(',')[0],libelle:String(x.display_name||'').split(', ').slice(0,5).join(', '),lat:+x.lat,lon:+x.lon,pays:cc.toLowerCase(),cp:(x.address||{}).postcode||'',localite:/city|town|village|hamlet|municipality|locality|suburb/i.test(x.addresstype||x.type||''),src:'OpenStreetMap '+LABEL[cc],exact:true,score:+x.importance||0}));trace('OpenStreetMap '+LABEL[cc],q,L.length);return L;}catch(e){trace('OpenStreetMap '+LABEL[cc],q,0,'indisponible');return[];} }
+  window.jmV297ChercherPays = async function(q,cc){ cc=(cc||paysDans(q)||'').toUpperCase(); let L=[]; if(cc==='FR')L=await france(q); else if(cc==='NL')L=await paysBas(q); else if(cc==='LU'||cc==='DE')L=await osmPays(q,cc); if(!L.length && (cc==='FR'||cc==='NL'))L=await osmPays(q,cc); return L; };
+
+  // Si l'adresse indique explicitement un pays, le géocodeur correspondant passe avant le moteur Belgique.
+  if(typeof geocodeAddress==='function'){
+    const _g=geocodeAddress;
+    window.geocodeAddress=async function(address){
+      const a=String(address||'').trim(); let cc=paysDans(a); const fields=['qqFrom','qqTo','addrFrom','addrTo','addrDepart','qaAdrFrom','qaAdrTo','rdvAdresse'];
+      if(!cc){ const f=fields.map($).find(x=>x&&norm(x.value)===norm(a)&&x.dataset&&x.dataset.country); if(f)cc=f.dataset.country; }
+      if(cc && cc!=='BE'){
+        const L=await jmV297ChercherPays(a,cc); if(L.length){ const x=L[0]; if(L.length>1 && (x.score<.70 || (L[1].score||0)>(x.score||0)*.92)){ window.JM_LIEU_A_CONFIRMER={texte:a,candidats:L.slice(0,6)}; const e=new Error('Lieu à confirmer : '+a);e.lieu=true;throw e; }
+          (window.JM_GEO_RESOLUS=window.JM_GEO_RESOLUS||[]).push({texte:a,nom:x.nom,pays:x.pays}); return {lat:x.lat,lon:x.lon}; }
+      }
+      return _g.apply(this,arguments);
+    };
+  }
+
+  // Recherche de variantes : pays explicitement dicté => source du pays, sinon moteur v296 inchangé.
+  if(typeof jmChercherLieu==='function'){
+    const _cl=jmChercherLieu;
+    window.jmChercherLieu=async function(texte){ const cc=paysDans(texte); if(cc&&cc!=='BE'){const L=await jmV297ChercherPays(texte,cc);if(L.length)return L.slice(0,5);} return _cl.apply(this,arguments); };
+  }
+
+  // Diagnostic public de la fonctionnalité (utile dans le rapport / console, sans données client).
+  window.JM_V297_INFO={gratuit:true,iaPayante:false,speech:'Web Speech',pays:['BE','FR','NL','LU'],sources:['Dictionnaire belge local','OpenStreetMap','Photon','IGN France','PDOK Pays-Bas']};
+})();
+</script>
 
 </body>
 </html>
