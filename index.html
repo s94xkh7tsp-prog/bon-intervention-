@@ -9264,7 +9264,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v297';
+const APP_VERSION = 'jm-express-bon-v298';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -22158,5 +22158,41 @@ window.jmOuvrirChatGPT = async function(){
 })();
 </script>
 
+
+<script id="jm-v298-vocal-encadre-corrige-script">
+(function(){
+  // v298 — après validation/correction des lieux du devis vocal, l'encadré de dictée
+  // affiche lui aussi la demande normalisée. Le texte réellement entendu reste conservé
+  // dans le résumé « Entendu » au-dessus. Aucun impact sur le calcul tarifaire.
+  const $ = id => document.getElementById(id);
+  function libService(){
+    const s=$('qqType');
+    return s ? String((s.options[s.selectedIndex]||{}).textContent||'').replace(/^[^\p{L}]+/u,'').split(' — ')[0].trim() : '';
+  }
+  window.jmV298MajEncadreVocal = function(){
+    const box=$('vocalTexte'), de=$('qqFrom'), a=$('qqTo'), km=$('qqKm');
+    if(!box || !de) return;
+    const from=String(de.value||'').trim(), to=String((a||{}).value||'').trim();
+    if(!from) return;
+    // On ne remplace la dictée qu'une fois qu'un lieu a réellement été résolu/mesuré.
+    if(km && km.value && !(parseFloat(km.value)>0)) return;
+    const service=libService() || 'Intervention';
+    const txt = to ? (service + ' de ' + from + ' jusqu’à ' + to) : (service + ' à ' + from);
+    if(txt && box.value !== txt) box.value = txt;
+  };
+  if(typeof jmVocalResume==='function'){
+    const _r=jmVocalResume;
+    window.jmVocalResume=function(){ const x=_r.apply(this,arguments); try{jmV298MajEncadreVocal();}catch(e){} return x; };
+  }
+  if(typeof jmApresChoixLieu==='function'){
+    const _a=jmApresChoixLieu;
+    window.jmApresChoixLieu=function(){ const x=_a.apply(this,arguments); setTimeout(()=>{try{jmV298MajEncadreVocal();}catch(e){}},80); return x; };
+  }
+  if(typeof jmVocalTraiter==='function'){
+    const _v=jmVocalTraiter;
+    window.jmVocalTraiter=async function(){ const x=await _v.apply(this,arguments); try{jmV298MajEncadreVocal();}catch(e){} return x; };
+  }
+})();
+</script>
 </body>
 </html>
