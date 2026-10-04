@@ -2143,6 +2143,11 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-rp-l{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dotted var(--line);font-size:13px}.jm-rp-l span{font-size:11.5px;color:var(--grey)}
 .jm-rp-m{display:flex;align-items:center;gap:6px;font-weight:800;white-space:nowrap}.jm-rp-m button{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--grey)}
 </style>
+<style id="jm-v289-style">.jm-lieu-src{display:block;font-size:11px;color:var(--grey);margin-top:2px}</style>
+<style id="jm-v290-style">
+.jm-sugg-titre{padding:6px 15px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--jm-gps);background:color-mix(in srgb,var(--jm-gps) 8%,transparent)}
+.jm-sugg-item span{display:block;font-size:12px;color:var(--grey);margin-top:2px}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -4873,6 +4878,14 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button class="ghost" style="margin-top:8px;" onclick="jmRecPersoExporter()">⬇️ Exporter (CSV)</button>
     <div class="km-mention" style="margin-top:8px;">Suivi personnel. Les recettes de tes prestations (factures et bons) restent toujours dans le livre comptable.</div>
     <button class="ghost close-modal" onclick="document.getElementById('modalRecPersoBg').classList.remove('show')">Fermer</button></div>
+</div>
+
+<div class="modal-bg" id="modalLieuBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal terrain-sheet"><h3 id="lieuTitre">Lieu à confirmer</h3><div id="lieuListe"></div>
+    <div class="field" style="margin-top:10px;"><label>Ou précise : rue et numéro, commune, code postal, ou point GPS</label><div class="input-with-btn"><input type="text" id="lieuPrecision" autocomplete="off"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('lieuPrecision')" title="Effacer" aria-label="Effacer">✕</button><button type="button" class="loc-btn" onclick="useMyLocation('lieuPrecision')" title="Utiliser ma position" aria-label="Utiliser ma position">📍</button></div></div>
+    <button class="primary" onclick="jmLieuPreciser()">Rechercher</button>
+    <details class="km-mention" style="margin-top:8px;"><summary>Détail technique de la recherche</summary><pre id="lieuJournal" style="white-space:pre-wrap; font-size:11px;"></pre></details>
+    <button class="ghost close-modal" onclick="document.getElementById('modalLieuBg').classList.remove('show')">Fermer</button></div>
 </div>
 
 <div class="modal-bg" id="modalMenuBg">
@@ -9228,7 +9241,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v288';
+const APP_VERSION = 'jm-express-bon-v290';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20539,7 +20552,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   const VEH = [[/\bsuv\b|4 ?x ?4|4x4/, 'Suv'], [/utilitaire|camionnette|fourgon/, 'Utilitaire'], [/electrique|hybride|tesla/, 'Electrique']];
   const FIN = /[\s,.;]*(combien.*|c.est combien.*|quel (est le )?prix.*|s.il (te|vous) plait.*|merci.*|stp.*|svp.*)$/i;
   const HORS_ADRESSE = /\s+(?:aujourd['’]hui|apr[èe]s.?demain|demain|ce soir|cette nuit|de nuit|dans la nuit|en pleine nuit|ce matin|en journ[ée]e|de jour|cet apr[èe]s.?midi|(?:ce |le )?(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)|(?:un |le )?jour f[ée]ri[ée]|f[ée]ri[ée]|(?:ce |le )?week.?end|(?:à|a|vers) \d{1,2}\s*(?:h|heures?)|\d{1,2}\s*h\d{0,2}\b|avec (?:la |le |ma |mon )?(?:d[ée]panneuse|camion|plateau|voiture)|sans (?:la |le )?(?:d[ée]panneuse|camion|plateau)|en v[ée]hicule|v[ée]hicule (?:priv[ée]|perso)|voiture perso|par l['’]autoroute|sur l['’]autoroute|(?:et )?(?:il |qu['’]il |elle )?faut\b|et (?:il|elle) |s['’]il |merci)(?=[\s,.;!?]|$).*$/i;
-  const nettoyer = s => String(s || '').replace(HORS_ADRESSE, '').replace(FIN, '').replace(/\b(euh|heu|bah|ben)\b/gi, '').replace(/\s{2,}/g, ' ').replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '').replace(/^(?:la|le|les|l['’]|un|une)\s*/i, '').trim();
+  const nettoyer = s => String(s || '').replace(HORS_ADRESSE, '').replace(FIN, '').replace(/\b(euh|heu|bah|ben)\b/gi, '').replace(/\s{2,}/g, ' ').replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '').replace(/^(?:(?:[Ll]a|[Ll]e|[Ll]es|[Uu]n|[Uu]ne)\s+|[Ll]['’]\s*)(?=[a-zà-ÿ])/, '').trim();
   const LIEU = /(?:^|\s)(garage|carrosserie|concession|a[ée]roport|h[ôo]pital|magasin|supermarch[ée]|rue|avenue|av\.|place|chaussée|chaussee|boulevard|bd|parking|station|quai|route|chemin|square|allée|allee|impasse|clos|drève|dreve|galerie|centre commercial|gare|zoning|autoroute [ae]\d+|sortie)(?=\s|$)/i;
   const RUE_AVANT = /(?:^|\s)(?:rue|route|chaussée|chaussee|avenue|av\.|place|boulevard|bd|chemin|quai|square|allée|allee|impasse|drève|dreve|a[ée]roport|gare|zoning|parking|station)\s*$/i;
   const DEST_LIEU = /^(?:l['’])?(?:a[ée]roport|garage|carrosserie|concession|gare|parking|d[ée]p[ôo]t|domicile|maison|casse|h[ôo]pital|centre|zoning|bsca)/i;
@@ -21234,6 +21247,219 @@ window.jmOuvrirChatGPT = async function(){
   setInterval(() => { const a = document.getElementById('tabAccueil'); if(a && getComputedStyle(a).display !== 'none' && document.visibilityState === 'visible') jmMajATraiter(); }, 60000);
 })();
 </script>
+<script id="jm-v289-lieux-script">
+(function(){
+  // ===================================================================
+  //  v289 — Recherche de lieux unique (Devis rapide, formulaire, tous les calculs de distance).
+  //  Sources gratuites sans clé : Nominatim (OpenStreetMap) puis Photon (OpenStreetMap, tolérant aux fautes, FR / NL).
+  //  Mémoire des lieux trouvés, journal de recherche, contrôle du nom, confirmation des variantes et des homonymes.
+  //  Jamais de coordonnées ni de kilomètres inventés. Moteur tarifaire inchangé.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[-'’.,/()]/g, ' ').replace(/\s+/g, ' ').trim();
+  const BBOX_BE = '2.5,49.45,6.45,51.55';
+  const LOCALITE = /^(city|town|village|hamlet|suburb|quarter|neighbourhood|municipality|locality|isolated_dwelling|administrative|borough|county)$/;
+  // ---------- Journal de recherche (diagnostic) ----------
+  const TRACE = []; window.JM_GEO_TRACE = TRACE;
+  function tracer(e){ TRACE.unshift({...e, t: new Date().toLocaleTimeString('fr-BE')}); if(TRACE.length > 30) TRACE.pop(); }
+  // ---------- Mémoire des lieux trouvés ----------
+  const CACHE_K = 'jm_geoCache';
+  const cacheLire = () => { try{ return JSON.parse(localStorage.getItem(CACHE_K) || '{}'); }catch(e){ return {}; } };
+  function cacheGet(q){ const c = cacheLire()[norm(q)]; return c && Date.now() - c.t < 60 * 864e5 ? c : null; }
+  window.jmLieuMemoriser = (lib, x) => cacheSet(lib, {lat: x.lat, lon: x.lon, nom: x.titre || x.nom || lib, localite: !!x.localite});
+  function cacheSet(q, r){ try{ const c = cacheLire(); c[norm(q)] = {...r, t: Date.now()}; const ks = Object.keys(c); if(ks.length > 400) ks.sort((a, b) => c[a].t - c[b].t).slice(0, ks.length - 400).forEach(k => delete c[k]); localStorage.setItem(CACHE_K, JSON.stringify(c)); }catch(e){} }
+  // ---------- Similarité des noms ----------
+  function lev(a, b){ const m = a.length, n = b.length; if(!m) return n; if(!n) return m; let p = Array.from({length: n + 1}, (_, j) => j); for(let i = 1; i <= m; i++){ const q = [i]; for(let j = 1; j <= n; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = q; } return p[n]; }
+  function correspondance(requete, nom){
+    const a = norm(requete).replace(/\b\d{4}\b/g, '').trim(), b = norm(nom); if(!a || !b) return 0;
+    if(a === b || b.startsWith(a + ' ') || a.startsWith(b + ' ')) return 1;
+    const tete = a.split(' ').slice(0, b.split(' ').length).join(' ');
+    return Math.max(1 - lev(a, b) / Math.max(a.length, b.length), 1 - lev(tete, b) / Math.max(tete.length, b.length));
+  }
+  // ---------- Sources ----------
+  let dernier = 0;
+  async function poli(){ const att = 1100 - (Date.now() - dernier); if(att > 0) await new Promise(r => setTimeout(r, att)); dernier = Date.now(); }
+  async function nominatim(params, libelle){
+    await poli(); const t0 = Date.now(); let st = 'erreur réseau', data = [];
+    try{ const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=fr&' + params); st = r.status; if(r.ok) data = await r.json(); }catch(e){}
+    tracer({src:'OpenStreetMap', q: libelle, statut: st, n: data.length, ms: Date.now() - t0});
+    return data.map(x => { const a = x.address || {}, nom = x.name || String(x.display_name || '').split(',')[0];
+      return {nom, libelle: String(x.display_name || '').split(', ').filter(s => !/^(België|Belgique|Belgien|Wallonie|Vlaanderen|Région)/.test(s)).slice(0, 4).join(', '), lat: +x.lat, lon: +x.lon,
+        localite: LOCALITE.test(x.addresstype || x.type || '') || (x.category === 'boundary'), pays: (a.country_code || '').toLowerCase(), cp: a.postcode || '', src: 'OpenStreetMap'}; });
+  }
+  async function photon(q){
+    const t0 = Date.now(); let st = 'erreur réseau', f = [];
+    try{ const r = await fetch('https://photon.komoot.io/api/?limit=6&lang=fr&bbox=' + BBOX_BE + '&q=' + encodeURIComponent(q)); st = r.status; if(r.ok) f = (await r.json()).features || []; }catch(e){}
+    tracer({src:'Photon', q, statut: st, n: f.length, ms: Date.now() - t0});
+    return f.map(x => { const p = x.properties || {}, c = (x.geometry || {}).coordinates || [];
+      return {nom: p.name || p.street || '', libelle: [p.name, p.street && p.name !== p.street ? p.street + (p.housenumber ? ' ' + p.housenumber : '') : '', p.city && p.city !== p.name ? p.city : '', p.postcode].filter(Boolean).join(', '), lat: +c[1], lon: +c[0],
+        localite: p.osm_key === 'place' || p.osm_key === 'boundary', pays: String(p.countrycode || '').toLowerCase(), cp: p.postcode || '', src: 'Photon'}; }).filter(x => x.lat);
+  }
+  // ---------- Recherche unique ----------
+  window.jmChercherLieu = async function(texte){
+    const q = String(texte || '').replace(/\s*\([A-Z]\d+(\/[A-Z]\d+)?\)\s*$/, '').trim(); if(!q) return [];
+    let L = await nominatim('countrycodes=be&q=' + encodeURIComponent(q), q);
+    const cp = (q.match(/\b(\d{4})\b/) || [])[1], nomSeul = q.replace(/\b\d{4}\b/, '').replace(/,.*$/, '').trim();
+    if(!L.length && cp) L = await nominatim('country=be&postalcode=' + cp + '&q=' + encodeURIComponent(nomSeul), nomSeul + ' ' + cp);
+    if(!L.length || !L.some(x => correspondance(q, x.nom) >= 0.75)) L = L.concat(await photon(q));
+    if(!L.length) L = await nominatim('countrycodes=be,fr,lu&q=' + encodeURIComponent(q), q + ' (BE, FR, LU)');
+    const vus = []; L.forEach(x => { x.score = correspondance(q, x.nom); if(!vus.some(v => Math.abs(v.lat - x.lat) < 0.004 && Math.abs(v.lon - x.lon) < 0.006)) vus.push(x); });
+    return vus.filter(x => x.score >= 0.6 || !/^\S+$/.test(norm(q).replace(/ /g, '')) && x.score >= 0.4)
+      .sort((a, b) => (b.pays === 'be') - (a.pays === 'be') || b.score - a.score).slice(0, 5)
+      .map(x => ({...x, exact: x.score >= 0.95}));
+  };
+  // ---------- Branchement sur tous les calculs de distance ----------
+  if(typeof geocodeAddress === 'function'){
+    const _g = geocodeAddress;
+    geocodeAddress = async function(address){
+      const a = String(address || '').trim(), c = cacheGet(a);
+      if(c){ tracer({src:'mémoire', q: a, statut: 'ok', n: 1, ms: 0}); if(c.localite) (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(c.nom || a); return {lat: c.lat, lon: c.lon}; }
+      let r = null, err0 = null; const nA = (window.JM_GEO_APPROX || []).length, nM = (window.JM_GEO_MOYEN || []).length;
+      try{ r = await _g.apply(this, arguments); }catch(e){ err0 = e; }
+      const incertain = (window.JM_GEO_APPROX || []).length > nA || (window.JM_GEO_MOYEN || []).length > nM;   // approximatif / réinterprété : jamais mémorisé comme sûr
+      if(r && r._ambigu){ window.JM_LIEU_A_CONFIRMER = {texte: a, candidats: r._ambigu}; const e = new Error('Lieu à confirmer : ' + a); e.lieu = true; throw e; }
+      if(r){ if(r._localite) (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(r._nom || a); if(!extractCoordsFromText(a) && !incertain) cacheSet(a, {lat: r.lat, lon: r.lon, nom: r._nom, localite: !!r._localite}); return {lat: r.lat, lon: r.lon}; }
+      {
+        const err = err0;
+        if(/^Adresse à préciser/.test(err.message)) throw err;
+        const L = await jmChercherLieu(a), exacts = L.filter(x => x.exact);
+        const homonymes = exacts.length > 1 && exacts.some(x => Math.hypot(x.lat - exacts[0].lat, x.lon - exacts[0].lon) > 0.08);
+        if(exacts.length && !homonymes){
+          const x = exacts[0]; cacheSet(a, {lat: x.lat, lon: x.lon, nom: x.nom, localite: x.localite});
+          if(x.localite) (window.JM_GEO_CENTRE = window.JM_GEO_CENTRE || []).push(x.nom);
+          return {lat: x.lat, lon: x.lon};
+        }
+        window.JM_LIEU_A_CONFIRMER = {texte: a, candidats: L};
+        const e = new Error(L.length ? 'Lieu à confirmer : ' + a : 'Lieu introuvable : ' + a); e.lieu = true; throw e;
+      }
+    };
+  }
+  // Résultats Nominatim existants : nom et type gardés (centre de localité, mémoire)
+  // Réponse de la recherche habituelle : type de lieu (localité ?) et homonymes, sans requête supplémentaire
+  let CUR_Q = '';
+  if(typeof choisirMeilleurResultat === 'function'){
+    const _c = choisirMeilleurResultat;
+    choisirMeilleurResultat = function(data){
+      const r = _c.apply(this, arguments); if(!r || !data) return r;
+      const x = data.find(d => +d.lat === r.lat && +d.lon === r.lon) || {}, nom = x.name || String(x.display_name || '').split(',')[0];
+      r._nom = nom; r._localite = LOCALITE.test(x.addresstype || x.type || '') || x.class === 'boundary';
+      const nu = /^[^\d,]+$/.test(CUR_Q) && !/\b(rue|route|avenue|chauss[ée]e|place|boulevard|chemin|quai|garage|gare|parking|a[ée]roport|station)\b/i.test(CUR_Q);
+      if(nu){
+        const memes = data.filter(d => (d.address && d.address.country_code === 'be' || /Belgi/.test(d.display_name || '')) && correspondance(CUR_Q, d.name || String(d.display_name || '').split(',')[0]) >= 0.95);
+        const loin = memes.filter(d => Math.hypot(+d.lat - memes[0].lat, +d.lon - memes[0].lon) > 0.08);
+        if(memes.length > 1 && loin.length) r._ambigu = memes.slice(0, 5).map(d => ({nom: d.name || String(d.display_name).split(',')[0], libelle: String(d.display_name || '').split(', ').filter(s => !/^(België|Belgique|Belgien|Wallonie|Vlaanderen|Région)/.test(s)).slice(0, 4).join(', '), lat: +d.lat, lon: +d.lon, localite: LOCALITE.test(d.addresstype || d.type || ''), pays: 'be', src: 'OpenStreetMap', exact: true}));
+      }
+      return r;
+    };
+  }
+  if(typeof tenterGeocode === 'function'){
+    const _t = tenterGeocode;
+    tenterGeocode = async function(q){ CUR_Q = String(q || '').trim(); const t0 = Date.now(); const r = await _t.apply(this, arguments); tracer({src:'OpenStreetMap (recherche habituelle)', q, statut: r ? 'ok' : 'aucun résultat', n: r ? 1 : 0, ms: Date.now() - t0}); return r; };
+  }
+  // ---------- Après une mesure : centre de localité, lieu à confirmer ----------
+  const CHAMPS = ['qqFrom','qqTo','addrFrom','addrTo','addrDepart','fournisseurAdresse'];
+  function badgeCentre(){
+    const L = [...new Set(window.JM_GEO_CENTRE || [])];
+    ['km','qqKm'].forEach(id => { const f = $(id); if(!f) return; const z = f.closest('.field') || f.parentElement; let b = z.querySelector('.jm-centre'); if(!L.length){ if(b) b.remove(); return; }
+      if(!b){ b = document.createElement('div'); b.className = 'jm-confiance jm-conf-moyenne jm-centre'; z.appendChild(b); }
+      b.textContent = '📍 Distance estimée depuis le centre de ' + L.join(' et ') + ' — précise la rue, le numéro ou un point GPS pour plus de précision'; });
+  }
+  if(typeof mesurerDistanceRoutiere === 'function'){
+    const _m = mesurerDistanceRoutiere;
+    mesurerDistanceRoutiere = async function(){ window.JM_GEO_CENTRE = []; window.JM_LIEU_A_CONFIRMER = null; const adresses = [...arguments].filter(Boolean).map(x => x.trim());
+      try{ const km = await _m.apply(this, arguments); window.JM_GEO_CENTRE = (window.JM_GEO_CENTRE || []).filter(n => adresses.some(a => norm(a).includes(norm(n)) || norm(n).includes(norm(a)))); badgeCentre(); return km; }
+      catch(e){ badgeCentre(); setTimeout(proposer, 50); throw e; } };
+  }
+  function proposer(){
+    const p = window.JM_LIEU_A_CONFIRMER; if(!p) return; window.JM_LIEU_A_CONFIRMER = null;
+    const champ = CHAMPS.find(id => $(id) && $(id).value.trim() === p.texte) || null;
+    window.__lieuChoix = {champ, candidats: p.candidats, texte: p.texte};
+    $('lieuTitre').textContent = p.candidats.length ? 'Lieu à confirmer : « ' + p.texte + ' »' : 'Lieu introuvable : « ' + p.texte + ' »';
+    $('lieuListe').innerHTML = p.candidats.length
+      ? '<div class="km-mention" style="margin-bottom:6px;">' + (p.candidats.some(x => x.exact) ? 'Plusieurs lieux portent ce nom' : 'Nom proche trouvé sur la carte') + ' : touche le bon.</div>' + p.candidats.map((c, i) => '<button type="button" class="jm-va-cand" onclick="jmLieuChoisir(' + i + ')">' + (c.exact ? '📍 ' : '❓ ') + esc(c.libelle || c.nom) + '<span class="jm-lieu-src">' + (c.localite ? 'centre de localité · ' : '') + c.src + '</span></button>').join('')
+      : '<div class="jm-as-conf jm-as-faible">Aucun lieu fiable trouvé : aucune distance calculée.</div>';
+    $('lieuPrecision').value = p.texte; $('lieuJournal').textContent = jmGeoJournal(); $('modalLieuBg').classList.add('show');
+  }
+  window.jmLieuChoisir = async function(i){
+    const s = window.__lieuChoix, c = s && s.candidats[i]; if(!c) return;
+    const lib = c.libelle || c.nom;
+    cacheSet(lib, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite}); cacheSet(s.texte, {lat: c.lat, lon: c.lon, nom: c.nom, localite: c.localite});
+    if(s.champ){ $(s.champ).value = lib; $(s.champ).dispatchEvent(new Event('input', {bubbles:true})); }
+    $('modalLieuBg').classList.remove('show'); showToast('Lieu confirmé : ' + lib);
+    remesurer(s.champ);
+  };
+  window.jmLieuPreciser = function(){
+    const s = window.__lieuChoix, v = $('lieuPrecision').value.trim(); if(!s || !v) return;
+    if(s.champ){ $(s.champ).value = v; $(s.champ).dispatchEvent(new Event('input', {bubbles:true})); }
+    $('modalLieuBg').classList.remove('show'); remesurer(s.champ);
+  };
+  function remesurer(champ){ setTimeout(() => { try{ if(/^qq/.test(champ || '')) { if($('modalQuickQuoteBg').classList.contains('show')) mesurerDistanceDevis(); } else if(typeof calculerDistance === 'function') calculerDistance(); }catch(e){} }, 200); }
+  // ---------- « Vérifier les adresses » : même recherche, sans dépendre du serveur ----------
+  if(typeof syncApi === 'function'){
+    const _s = syncApi;
+    syncApi = async function(chemin, corps){
+      if(chemin === '/ia/adresse'){
+        const L = await jmChercherLieu(corps && corps.texte);
+        return {candidats: L.map(x => ({libelle: (x.exact ? '' : '❓ ') + (x.libelle || x.nom) + (x.localite ? ' (centre)' : ''), lat: x.lat, lon: x.lon}))};
+      }
+      return _s.apply(this, arguments);
+    };
+  }
+  // ---------- Diagnostics : journal de recherche ----------
+  window.jmGeoJournal = () => TRACE.slice(0, 12).map(x => x.t + ' · ' + x.src + ' · « ' + x.q + ' » → ' + x.statut + ' (' + x.n + ' résultat' + (x.n > 1 ? 's' : '') + ', ' + x.ms + ' ms)').join('\n') || 'Aucune recherche depuis l\'ouverture de l\'appli.';
+  if(typeof jmDiagAfficher === 'function'){ const _d = jmDiagAfficher; window.jmDiagAfficher = function(){ _d.apply(this, arguments); const z = $('diagListe'); if(z) z.insertAdjacentHTML('beforeend', '<div class="jm-diag-l"><strong>Recherches de lieux</strong><br>' + esc(jmGeoJournal()).replace(/\n/g, '<br>') + '</div>'); }; }
+})();
+</script>
+<script id="jm-v290-suggestions-script">
+(function(){
+  // v290 — Suggestions en direct depuis la carte (Photon / OpenStreetMap, gratuit, sans clé) dans tous les champs d'adresse :
+  // villages, anciennes communes, rues, lieux — en plus de la liste intégrée. Le lieu touché est mémorisé avec ses coordonnées.
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const CHAMPS = ['adrSaisie','addrFrom','addrTo','addrDepart','qqFrom','qqTo','qaAdrFrom','qaAdrTo','rdvAdresse','lieuPrecision','fournisseurAdresse'];
+  const BOITE = id => id === 'adrSaisie' ? 'adrSuggest' : id + 'Suggest';   // saisie plein écran du formulaire
+  const T = {}, S = {}, DATA = {}, CREES = new Set();
+  function boite(id){
+    let b = $(BOITE(id));
+    if(!b){ const f = $(id); if(!f) return null; b = document.createElement('div'); b.id = BOITE(id); b.className = 'addr-suggest'; b.style.display = 'none'; (f.closest('.input-with-btn, .jm-adr-wrap') || f).insertAdjacentElement('afterend', b); CREES.add(id); }
+    return b;
+  }
+  function vider(id){ const b = $(BOITE(id)); if(!b) return; const s = b.querySelector('.jm-sugg-carte'); if(s) s.remove(); if(!b.querySelector('.addr-sugg-item')) b.style.display = 'none'; }
+  async function chercher(id){
+    const f = $(id); if(!f) return; const v = f.value.trim();
+    if(v.length < 3 || !navigator.onLine || (typeof extractCoordsFromText === 'function' && extractCoordsFromText(v))){ vider(id); return; }
+    const n = S[id] = (S[id] || 0) + 1; let feats = [];
+    try{ const r = await fetch('https://photon.komoot.io/api/?limit=6&lang=fr&bbox=2.5,49.45,6.45,51.55&q=' + encodeURIComponent(v)); if(r.ok) feats = (await r.json()).features || []; }catch(e){}
+    if(n !== S[id] || f.value.trim() !== v) return;   // réponse dépassée
+    const items = feats.map(x => { const p = x.properties || {}, c = (x.geometry || {}).coordinates || [];
+      const rue = p.street ? p.street + (p.housenumber ? ' ' + p.housenumber : '') : '';
+      const titre = /^(street|house)$/.test(p.type || '') && rue ? rue : (p.name || rue);
+      const commune = p.city && p.city !== titre ? p.city : (p.district && p.district !== titre ? p.district : '');
+      const sous = [p.type === 'house' || p.type === 'street' ? '' : (p.name && rue && p.name !== rue ? rue : ''), commune, p.postcode].filter(Boolean).join(', ');
+      return {titre, sous, label: [titre, commune, p.postcode].filter(Boolean).join(', '), lat: +c[1], lon: +c[0], localite: p.osm_key === 'place' || p.osm_key === 'boundary', pays: String(p.countrycode || '').toLowerCase()}; })
+      .filter(x => x.titre && x.lat && (!x.pays || x.pays === 'be'));
+    const vus = new Set(); DATA[id] = items.filter(x => !vus.has(x.label) && vus.add(x.label));
+    vider(id); if(!DATA[id].length) return;
+    const b = boite(id); if(!b) return;
+    b.insertAdjacentHTML('beforeend', '<div class="jm-sugg-carte"><div class="jm-sugg-titre">Sur la carte</div>' + DATA[id].map((x, i) =>
+      '<div class="addr-sugg-item jm-sugg-item" data-val="' + esc(x.label) + '" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmSuggChoisir(\'' + id + '\',' + i + ', this)" onclick="jmSuggChoisir(\'' + id + '\',' + i + ', this)">📍 <strong>' + esc(x.titre) + '</strong>' + (x.sous ? ' <span>' + esc(x.sous) + '</span>' : '') + '</div>').join('') + '</div>');
+    b.style.display = 'block';
+  }
+  window.jmSuggChoisir = function(id, i, el){
+    const x = (DATA[id] || [])[i], f = $(id); if(!x || !f) return;
+    if(typeof jmLieuMemoriser === 'function') jmLieuMemoriser(x.label, x);
+    if(id === 'adrSaisie' && typeof choisirDansModal === 'function' && el){ choisirDansModal(el); return; }   // même validation que la liste existante
+    f.value = x.label;
+    const b = $(BOITE(id)); if(b){ b.style.display = 'none'; if(CREES.has(id)) b.innerHTML = ''; }
+    f.dispatchEvent(new Event('input', {bubbles:true})); f.dispatchEvent(new Event('change', {bubbles:true}));
+  };
+  document.addEventListener('input', e => { const id = e.target && e.target.id; if(!CHAMPS.includes(id) || !e.isTrusted) return; clearTimeout(T[id]); T[id] = setTimeout(() => chercher(id), 450); });
+  document.addEventListener('focusout', e => { const id = e.target && e.target.id; if(CHAMPS.includes(id)) setTimeout(() => { if(document.activeElement !== e.target){ const b = $(BOITE(id)); if(b && CREES.has(id)) b.style.display = 'none'; } }, 250); });
+})();
+</script>
+
+
 
 
 
