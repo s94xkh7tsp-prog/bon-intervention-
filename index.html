@@ -2148,6 +2148,18 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-sugg-titre{padding:6px 15px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--jm-gps);background:color-mix(in srgb,var(--jm-gps) 8%,transparent)}
 .jm-sugg-item span{display:block;font-size:12px;color:var(--grey);margin-top:2px}
 </style>
+<style id="jm-v293-style">
+/* v293 — « Lieu à confirmer » : en haut de l'écran, hauteur de l'écran réellement visible (iPhone), champ de saisie en premier */
+#modalLieuBg{align-items:flex-start!important;padding:calc(env(safe-area-inset-top, 0px) + 10px) 8px 0;overflow:hidden}
+#modalLieuBg .jm-lieu-sheet{border-radius:22px!important;max-height:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px)!important;max-height:calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px)!important;
+  overflow-y:auto!important;padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px))!important;margin:0 auto}
+#modalLieuBg .jm-lieu-sheet h3{margin:0 0 10px;font-size:17px}
+#modalLieuBg .jm-lieu-champ{margin:0 0 10px}
+#modalLieuBg .jm-lieu-champ .jm-adr-wrap > input{font-size:17px!important;min-height:50px}
+#modalLieuBg .jm-lieu-ok{flex:1 1 auto;min-height:42px;margin-left:auto;padding:0 16px;border-radius:12px;border:0;background:linear-gradient(180deg,#ffad33,#ff9500);color:#1b1b1b;font-weight:900;font-size:15px}
+#modalLieuBg #lieuListe .jm-va-cand{min-height:44px;padding:7px 10px}
+#modalLieuBg .close-modal{margin-top:8px}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -4881,9 +4893,9 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 </div>
 
 <div class="modal-bg" id="modalLieuBg" onclick="if(event.target===this)this.classList.remove('show')">
-  <div class="modal terrain-sheet"><h3 id="lieuTitre">Lieu à confirmer</h3><div id="lieuListe"></div>
-    <div class="field" style="margin-top:10px;"><label>Ou précise : rue et numéro, commune, code postal, ou point GPS</label><div class="input-with-btn"><input type="text" id="lieuPrecision" autocomplete="off"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('lieuPrecision')" title="Effacer" aria-label="Effacer">✕</button><button type="button" class="loc-btn" onclick="useMyLocation('lieuPrecision')" title="Utiliser ma position" aria-label="Utiliser ma position">📍</button></div></div>
-    <button class="primary" onclick="jmLieuPreciser()">Rechercher</button>
+  <div class="modal terrain-sheet jm-lieu-sheet"><h3 id="lieuTitre">Lieu à confirmer</h3>
+    <div class="field jm-lieu-champ"><label>Préciser : rue et numéro, commune, code postal ou point GPS</label><div class="jm-adr-wrap"><input type="text" id="lieuPrecision" autocomplete="off" enterkeyhint="search" onkeydown="if(event.key==='Enter'){event.preventDefault(); jmLieuPreciser();}"><button type="button" class="loc-btn" onclick="jmEffacerAdresse('lieuPrecision')" title="Effacer" aria-label="Effacer">✕</button><button type="button" class="loc-btn" onclick="useMyLocation('lieuPrecision')" title="Utiliser ma position" aria-label="Utiliser ma position">📍</button><button type="button" class="jm-lieu-ok" onclick="jmLieuPreciser()">Rechercher</button></div></div>
+    <div id="lieuListe"></div>
     <details class="km-mention" style="margin-top:8px;"><summary>Détail technique de la recherche</summary><pre id="lieuJournal" style="white-space:pre-wrap; font-size:11px;"></pre></details>
     <button class="ghost close-modal" onclick="document.getElementById('modalLieuBg').classList.remove('show')">Fermer</button></div>
 </div>
@@ -9241,7 +9253,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v292';
+const APP_VERSION = 'jm-express-bon-v293';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -21398,6 +21410,7 @@ window.jmOuvrirChatGPT = async function(){
       ? '<div class="km-mention" style="margin-bottom:6px;">' + (p.candidats.some(x => x.exact) ? 'Plusieurs lieux portent ce nom' : 'Nom proche trouvé sur la carte') + ' : touche le bon.</div>' + p.candidats.map((c, i) => '<button type="button" class="jm-va-cand" onclick="jmLieuChoisir(' + i + ')">' + (c.exact ? '📍 ' : '❓ ') + esc(c.libelle || c.nom) + '<span class="jm-lieu-src">' + (c.localite ? 'centre de localité · ' : '') + c.src + '</span></button>').join('')
       : '<div class="jm-as-conf jm-as-faible">Aucun lieu fiable trouvé : aucune distance calculée.</div>';
     $('lieuPrecision').value = p.texte; $('lieuJournal').textContent = jmGeoJournal(); $('modalLieuBg').classList.add('show');
+    requestAnimationFrame(() => { const s = $('modalLieuBg').querySelector('.modal'); if(s) s.scrollTop = 0; $('modalLieuBg').scrollTop = 0; });   // v293 : toujours depuis le début
     if(typeof jmAnnonceLieu === 'function') jmAnnonceLieu(window.__lieuChoix);
   }
   window.jmLieuChoisir = async function(i){
