@@ -2166,6 +2166,13 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 .jm-claude-note{font-size:12px;color:var(--jm-docs);margin-bottom:6px;font-weight:700}
 </style>
 <style id="jm-v295-style">.jm-conf-vocal{margin-top:6px;font-size:12.5px;font-weight:800}.jm-sugg-local .jm-sugg-titre{color:var(--jm-paiement);background:color-mix(in srgb,var(--jm-paiement) 8%,transparent)}</style>
+<style id="jm-v297-style">
+.jm-conf-dictee{margin-top:5px;font-size:12px;font-weight:800;color:var(--grey)}
+.jm-sugg-dictee .jm-sugg-titre{color:var(--jm-action);background:color-mix(in srgb,var(--jm-action) 8%,transparent)}
+.jm-vocal-autres{margin-top:4px;font-size:11.5px;color:var(--grey);font-style:italic}
+.jm-as-grille{grid-template-columns:1fr 1fr 1fr!important}.jm-as-grille button{flex-direction:column;justify-content:center;text-align:center;font-size:20px;min-height:64px}
+.jm-as-grille button span{font-size:11px}
+</style>
 <style id="jm-v283-style">
 .jm-qq-haut{display:grid;grid-template-columns:1fr 74px;gap:8px;margin:4px 0 10px}.jm-qq-haut .jm-vocal-btn{margin:0}
 .jm-qq-assistant{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:16px;border:1.5px solid var(--jm-docs);background:color-mix(in srgb,var(--jm-docs) 10%,transparent);color:var(--jm-docs);font-size:22px}
@@ -4839,13 +4846,17 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
 <div class="modal-bg" id="modalAssistantBg" onclick="if(event.target===this)closeAssistant()">
   <div class="modal"><div class="eyebrow">Copilote terrain</div><h1 class="page-title" style="font-size:22px;">🤖 Assistant</h1>
+    <div class="field-row" style="align-items:center; margin:0 0 6px;"><div class="field" style="flex:1; margin:0;"><label>Mode assistant</label><select id="asMode" onchange="jmAsMode(this.value)"><option value="local">Local gratuit</option><option value="externe">IA externe facultative</option></select></div></div>
+    <div class="km-mention" id="asModeEtat" style="margin-bottom:8px;">Assistant local actif</div>
     <div class="jm-as-grille">
-      <button type="button" onclick="jmAsClient()">💬<span>Client / argumentaire</span></button>
+      <button type="button" onclick="jmAsClientLocal()">💬<span>Client / réponse</span></button>
       <button type="button" onclick="jmAsRepere()">📍<span>Repère autoroute</span></button>
-      <button type="button" onclick="jmAsQuestion('debloquer')">🔧<span>Débloquer boîte / frein</span></button>
+      <button type="button" onclick="jmAsQuestion('debloquer')">🔧<span>Boîte / frein</span></button>
       <button type="button" onclick="jmAsQuestion('vehicule')">🚗<span>Question véhicule</span></button>
+      <button type="button" onclick="jmAsAide('app')">📱<span>Aide application</span></button>
+      <button type="button" onclick="jmAsAide('fonction')">📄<span>Comprendre une fonction</span></button>
+      <button type="button" onclick="jmAsLibre()">❓<span>Question libre</span></button>
       <button type="button" onclick="jmAsGarage()">🏪<span>Garage / fournisseur</span></button>
-      <button type="button" onclick="jmAsQuestion('app')">📄<span>Comprendre l'appli</span></button>
       <button type="button" onclick="openEstimation()">💶<span>Estimer un véhicule</span></button>
     </div>
     <div id="asRepereP" style="display:none;">
@@ -4867,7 +4878,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
     <div id="asResultat" style="margin-top:10px;"></div>
-    <div class="km-mention" style="margin-top:8px; opacity:.8;">Assistant consultatif : il ne modifie aucun prix, aucune intervention ni aucun document.</div>
+    <div class="km-mention" style="margin-top:8px; opacity:.8;">Assistant consultatif : il ne calcule aucun prix (le prix vient du moteur JM Express) et ne modifie aucune intervention ni aucun document.</div>
     <button class="ghost close-modal" onclick="closeAssistant()">Fermer</button></div>
 </div>
 
@@ -9264,7 +9275,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v298';
+const APP_VERSION = 'jm-express-bon-v297';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20691,10 +20702,11 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     const Api = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!Api){ jmVocalEtat('Dictée directe indisponible ici : touche le champ ci-dessous puis le 🎤 du clavier, et « Analyser ».'); $('vocalTexte').focus(); return; }
     try{ if(REC) REC.abort(); }catch(e){}
-    REC = new Api(); REC.lang = 'fr-BE'; REC.interimResults = true; REC.maxAlternatives = 1; REC.continuous = false;
+    REC = new Api(); REC.lang = 'fr-BE'; REC.interimResults = true; REC.maxAlternatives = 5; REC.continuous = false;
     let final = '';
     etatBouton(true); jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.<br><em>Ex. : « remorquage de la rue de la Station à Gilly jusqu\'au garage Martin à Jumet »</em>');
-    REC.onresult = ev => { let txt = ''; for(let i = 0; i < ev.results.length; i++){ txt += ev.results[i][0].transcript; if(ev.results[i].isFinal) final = txt; } $('vocalTexte').value = txt; };
+    REC.onresult = ev => { let txt = ''; for(let i = 0; i < ev.results.length; i++){ txt += ev.results[i][0].transcript; if(ev.results[i].isFinal) final = txt; } $('vocalTexte').value = txt;
+      const d = ev.results[ev.results.length - 1]; if(d && d.isFinal && ev.results.length === 1){ const A = []; for(let j = 0; j < d.length; j++){ const t = String(d[j].transcript || '').trim(); if(t && !A.includes(t)) A.push(t); } window.__vocalAlts = A; } };   // v297 : jusqu'à 5 hypothèses
     REC.onerror = ev => { etatBouton(false); jmVocalEtat(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Micro refusé : autorise-le, ou touche le champ puis le 🎤 du clavier.' : ev.error === 'no-speech' ? 'Aucune voix détectée : rapproche le téléphone et réessaie.' : 'Dictée interrompue : réessaie, ou utilise le 🎤 du clavier.'); };
     REC.onend = () => { etatBouton(false); REC = null; const t = final || $('vocalTexte').value; if(t) jmVocalTraiter(t); };
     try{ REC.start(); }catch(e){ etatBouton(false); jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.'); }
@@ -21955,6 +21967,307 @@ window.jmOuvrirChatGPT = async function(){
   if(typeof closeQuickQuote === 'function'){ const _q = closeQuickQuote; closeQuickQuote = function(){ ENTENDU = ''; return _q.apply(this, arguments); }; }
 })();
 </script>
+<script id="jm-v297-vocal-script">
+(function(){
+  // ===================================================================
+  //  v297 — Partie 1 : vocal des adresses. Plusieurs hypothèses (jusqu'à 5 si le navigateur les donne),
+  //  choix par le moteur local (mémoire, dictionnaire, comparaison à l'oreille), petits micros branchés
+  //  sur la même logique que le devis vocal, pays (France : Géoplateforme IGN ; Pays-Bas : PDOK), confiance.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[-'’.,/()]/g, ' ').replace(/\s+/g, ' ').trim();
+  const km = (a, b) => { const R = 6371, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lon - a.lon); const h = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+  const alias = () => { try{ return JSON.parse(localStorage.getItem('jm_alias') || '{}'); }catch(e){ return {}; } };
+  const cache = () => { try{ return JSON.parse(localStorage.getItem('jm_geoCache') || '{}'); }catch(e){ return {}; } };
+  // ---------- Dictionnaire : premier mot unique (« Lillois » → Lillois-Witterzée) compté comme exact ----------
+  if(typeof jmDico === 'function'){
+    const _d = jmDico;
+    window.jmDico = function(texte, max){
+      const r = _d.apply(this, arguments); if(r.exacts.length) return r;
+      const q = norm(texte).replace(/\b\d{4}\b/g, '').trim(), D = window.JM_BE_DICO || [];
+      if(q.length >= 5 && !/\s/.test(q)){ const L = D.filter(x => x.nn.split(' ')[0] === q); if(L.length === 1 || (L.length > 1 && L.every(x => km(x, L[0]) < 6))) return {exacts: [L[0]], proches: r.proches.filter(x => x !== L[0])}; }
+      return r;
+    };
+  }
+  // ---------- Score d'une hypothèse de lieu (local, hors ligne) ----------
+  window.jmScoreLieu = function(t){
+    const a = String(t || '').trim(); if(!a) return {score: 0};
+    const A = alias()[norm(a)]; if(A && A.lat) return {score: 100, adresse: A.adresse, lat: A.lat, lon: A.lon, src: 'mémoire'};
+    const C = cache()[norm(a)]; if(C && C.choisi) return {score: 90, adresse: a, lat: C.lat, lon: C.lon, src: 'mémoire'};
+    if(typeof jmDico !== 'function') return {score: 10};
+    const {exacts, proches} = jmDico(a.split(',')[0]);
+    if(exacts.length === 1) return {score: 85, adresse: exacts[0].n + ', ' + exacts[0].z, lat: exacts[0].lat, lon: exacts[0].lon, src: 'dictionnaire'};
+    if(exacts.length > 1) return {score: 60, proches: exacts};
+    if(proches.length) return {score: Math.round(50 * proches[0].score), proches};
+    return {score: /\d|rue|route|avenue|chauss|place|garage|gare|a[ée]roport|bsca/i.test(a) ? 30 : 10};
+  };
+  // ---------- Petits micros (Départ / Destination / tous les champs d'adresse) ----------
+  const BOITE = id => id === 'adrSaisie' ? 'adrSuggest' : id + 'Suggest';
+  let PROPS = {};
+  window.dicterAdresse = function(fieldId){
+    const Api = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!Api){ showToast('Dictée vocale non disponible sur ce navigateur'); return; }
+    const field = $(fieldId); if(!field) return;
+    const rec = new Api(); rec.lang = 'fr-BE'; rec.interimResults = false; rec.maxAlternatives = 5;
+    showToast('🎤 Parle maintenant…');
+    try{ rec.start(); }catch(e){ showToast('Micro indisponible'); return; }
+    rec.onresult = ev => {
+      const alts = []; for(let i = 0; i < ev.results[0].length; i++){ const t = String(ev.results[0][i].transcript || '').trim(); if(t && !alts.includes(t)) alts.push(t); }
+      jmTraiterDicteeChamp(fieldId, alts);
+    };
+    rec.onerror = ev => { showToast(ev.error === 'not-allowed' || ev.error === 'permission-denied' ? 'Micro refusé — autorise-le dans Réglages > Confidentialité' : ev.error === 'no-speech' ? 'Aucune voix détectée, réessaie' : 'Erreur de dictée vocale'); };
+  };
+  window.jmTraiterDicteeChamp = function(fieldId, alts){
+    const field = $(fieldId); if(!field || !alts.length) return;
+    const notes = alts.map((t, i) => ({t, i, ...jmScoreLieu(t)})).sort((x, y) => y.score - x.score || x.i - y.i), best = notes[0];
+    field.dataset.dicteeBrute = alts[0];
+    const appliquer = (v, conf) => { field.value = v; field.dispatchEvent(new Event('input', {bubbles:true})); field.dispatchEvent(new Event('change', {bubbles:true})); if(typeof checkAccesVehicule === 'function') try{ checkAccesVehicule(fieldId); }catch(e){} badge(fieldId, conf); };
+    if(best.score >= 85){
+      if(best.lat && typeof jmLieuMemoriser === 'function') jmLieuMemoriser(best.adresse, {lat: best.lat, lon: best.lon, nom: best.adresse.split(',')[0], localite: best.src === 'dictionnaire'});
+      appliquer(best.adresse, '✅ ' + (best.adresse !== best.t ? 'Entendu « ' + best.t + ' » → ' + best.adresse : 'Confiance élevée') + (best.src === 'mémoire' ? ' (adresse déjà confirmée)' : ''));
+      showToast('✅ ' + best.adresse); return;
+    }
+    // Pas de certitude : la meilleure hypothèse est écrite, et des propositions sont affichées sous le champ
+    appliquer(best.t, best.score >= 40 ? '⚠️ Confiance moyenne — vérifie ou choisis ci-dessous' : '❓ Confiance faible — choisis ci-dessous ou corrige');
+    const P = [], vu = new Set(), ajouter = (lib, lat, lon, src) => { const k = norm(lib); if(!vu.has(k)){ vu.add(k); P.push({lib, lat, lon, src}); } };
+    notes.forEach(n => { (n.proches || []).slice(0, 3).forEach(x => ajouter(x.n + ', ' + x.z, x.lat, x.lon, n.t === alts[0] ? 'nom proche' : 'entendu « ' + n.t + ' »')); });
+    alts.forEach(t => ajouter(t, null, null, 'tel qu\'entendu'));
+    PROPS[fieldId] = {brut: alts[0], P: P.slice(0, 5)};
+    let b = $(BOITE(fieldId)); if(!b){ b = document.createElement('div'); b.id = BOITE(fieldId); b.className = 'addr-suggest'; (field.closest('.input-with-btn, .jm-adr-wrap') || field).insertAdjacentElement('afterend', b); }
+    const ancien = b.querySelector('.jm-sugg-dictee'); if(ancien) ancien.remove();
+    b.insertAdjacentHTML('afterbegin', '<div class="jm-sugg-dictee"><div class="jm-sugg-titre">Tu voulais dire ?</div>' + PROPS[fieldId].P.map((x, i) => '<div class="addr-sugg-item jm-sugg-item" data-val="' + esc(x.lib) + '" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); jmChoisirDictee(\'' + fieldId + '\',' + i + ', this)" onclick="jmChoisirDictee(\'' + fieldId + '\',' + i + ', this)">' + (x.lat ? '🏘️' : '🗣️') + ' <strong>' + esc(x.lib) + '</strong> <span>' + esc(x.src) + '</span></div>').join('') + '</div>');
+    b.style.display = 'block';
+  };
+  window.jmChoisirDictee = function(fieldId, i, el){
+    const s = PROPS[fieldId], x = s && s.P[i], f = $(fieldId); if(!x || !f) return;
+    if(x.lat){ if(typeof jmLieuMemoriser === 'function') jmLieuMemoriser(x.lib, {lat: x.lat, lon: x.lon, nom: x.lib.split(',')[0], localite: true}); if(typeof jmAliasEcrire === 'function') jmAliasEcrire(s.brut, x.lib, x.lat, x.lon); }
+    if(fieldId === 'adrSaisie' && typeof choisirDansModal === 'function' && el){ choisirDansModal(el); return; }
+    f.value = x.lib; const b = $(BOITE(fieldId)); if(b){ const d = b.querySelector('.jm-sugg-dictee'); if(d) d.remove(); if(!b.querySelector('.addr-sugg-item')) b.style.display = 'none'; }
+    f.dispatchEvent(new Event('input', {bubbles:true})); f.dispatchEvent(new Event('change', {bubbles:true})); badge(fieldId, x.lat ? '✅ Lieu confirmé (mémorisé pour la prochaine dictée)' : '');
+  };
+  function badge(id, txt){ const f = $(id); if(!f) return; const z = f.closest('.field') || f.parentElement; let e = z.querySelector('.jm-conf-dictee'); if(!txt){ if(e) e.remove(); return; } if(!e){ e = document.createElement('div'); e.className = 'jm-conf-dictee'; z.appendChild(e); } e.textContent = txt; }
+  document.addEventListener('input', e => { if(e.isTrusted && e.target && e.target.id) badge(e.target.id, ''); });
+  // ---------- Devis vocal : plusieurs hypothèses comparées avant de choisir ----------
+  if(typeof jmVocalTraiter === 'function'){
+    const _v = jmVocalTraiter;
+    window.jmVocalTraiter = async function(texte){
+      const alts = (window.__vocalAlts || []).filter(Boolean); window.__vocalAlts = null;
+      let choisi = String(texte || '').trim(), autres = [];
+      if(alts.length > 1 && alts.includes(choisi) && typeof jmAnalyserDemande === 'function'){
+        const notes = alts.map((t, i) => { const r = jmAnalyserDemande(t); return {t, i, s: (r.de ? jmScoreLieu(r.de).score : 0) + (r.a ? jmScoreLieu(r.a).score : 0)}; }).sort((x, y) => y.s - x.s || x.i - y.i);
+        choisi = notes[0].t; autres = alts.filter(t => t !== choisi);
+        if($('vocalTexte')) $('vocalTexte').value = choisi;
+      }
+      window.JM_VOCAL_AUTRES = autres;
+      return _v.call(this, choisi);
+    };
+  }
+  if(typeof jmVocalResume === 'function'){
+    const _r = jmVocalResume;
+    window.jmVocalResume = function(){ const r = _r.apply(this, arguments); const e = $('vocalEtat'); const A = window.JM_VOCAL_AUTRES || [];
+      if(e && A.length && !e.querySelector('.jm-vocal-autres')) e.insertAdjacentHTML('beforeend', '<div class="jm-vocal-autres">Autres hypothèses entendues : « ' + A.map(esc).join(' », « ') + ' »</div>'); return r; };
+  }
+  // ---------- Pays ----------
+  const pdok = async q => { try{ const r = await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?rows=5&fq=type:(woonplaats OR gemeente)&q=' + encodeURIComponent(q)); if(!r.ok) return []; return ((await r.json()).response || {}).docs.map(d => { const m = String(d.centroide_ll || '').match(/POINT\(([-\d.]+) ([-\d.]+)\)/); return m ? {nom: d.woonplaatsnaam || d.gemeentenaam || String(d.weergavenaam || '').split(',')[0], libelle: d.weergavenaam + ' (Pays-Bas)', lat: +m[2], lon: +m[1], pays: 'nl', type: 'city', src: 'PDOK'} : null; }).filter(Boolean); }catch(e){ return []; } };
+  const geopf = async q => { try{ const r = await fetch('https://data.geopf.fr/geocodage/search?limit=5&type=municipality&q=' + encodeURIComponent(q)); if(!r.ok) return []; return ((await r.json()).features || []).map(f => { const p = f.properties || {}, c = (f.geometry || {}).coordinates || []; return {nom: p.city || p.name, libelle: (p.city || p.name) + ', ' + (p.postcode || '') + ' (France)', lat: +c[1], lon: +c[0], pays: 'fr', type: 'city', src: 'Géoplateforme IGN'}; }); }catch(e){ return []; } };
+  const confirmer = (texte, C) => { window.JM_LIEU_A_CONFIRMER = {texte, candidats: C.map(x => ({...x, exact: true, localite: true}))}; const e = new Error('Lieu à confirmer : ' + texte); e.lieu = true; throw e; };
+  if(typeof jmResoudreLocalite === 'function'){
+    const _r = jmResoudreLocalite;
+    window.jmResoudreLocalite = async function(texte){
+      let t = String(texte || '').replace(/\s+(ville|centre|centre-ville)$/i, '').trim();
+      const n = norm(t), dit = s => new RegExp('\\b(' + s + ')\\b').test(n);
+      // « Luxembourg » seul : la ville (Grand-Duché) ou la province belge ?
+      if(n === 'luxembourg' && !/ville|centre/i.test(texte)){
+        const C = []; try{ const L = await geopfOuNominatim('Luxembourg', 'lu'); if(L) C.push({...L, libelle: 'Luxembourg-ville (Grand-Duché)'}); }catch(e){}
+        const A = (window.JM_BE_DICO || []).find(x => x.nn === 'arlon'); if(A) C.push({nom: 'Arlon', libelle: 'Province de Luxembourg (Belgique) — Arlon, ' + A.z, lat: A.lat, lon: A.lon, pays: 'be', src: 'Dictionnaire belge'});
+        if(C.length) confirmer(texte, C);
+      }
+      const nom = t.replace(/,?\s*\b(?:(?:en|au|aux|in)\s+)?(Hollande|Holland|Pays-Bas|Pays Bas|Nederland|France|Frankrijk)\b\s*$/i, '').trim();
+      if(dit('hollande|holland|pays bas|nederland')){ const L = (await pdok(nom)).filter(x => norm(x.nom) === norm(nom)); if(L.length === 1 || (L.length > 1 && L.every(x => km(x, L[0]) < 8))) return L[0]; if(L.length > 1) confirmer(texte, L); }
+      if(dit('france|frankrijk') || /\b\d{5}\b/.test(t)){ const L = (await geopf(nom.replace(/\b\d{5}\b/, '').trim() || nom)).filter(x => norm(x.nom) === norm(nom.replace(/\b\d{5}\b/, '').trim())); const cp = (t.match(/\b(\d{5})\b/) || [])[1]; const L2 = cp ? L.filter(x => x.libelle.includes(cp)) : L; const F = L2.length ? L2 : L; if(F.length === 1) return F[0]; if(F.length > 1) confirmer(texte, F); }
+      try{ return await _r.call(this, t); }
+      catch(e){
+        // Introuvable en Belgique et autour : chercher le nom exact plus loin (ex. « Rotterdam »), à confirmer
+        const p = window.JM_LIEU_A_CONFIRMER;
+        if(e.lieu && (!p || !p.candidats || !p.candidats.length) && navigator.onLine){
+          const L = (await pdok(nom)).filter(x => norm(x.nom) === norm(nom)).slice(0, 2).concat((await geopf(nom)).filter(x => norm(x.nom) === norm(nom)).slice(0, 2));
+          if(L.length) confirmer(texte, L);
+        }
+        throw e;
+      }
+    };
+  }
+  async function geopfOuNominatim(q, pays){ try{ const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=3&countrycodes=' + pays + '&q=' + encodeURIComponent(q)); const d = r.ok ? await r.json() : []; const x = d.find(v => /city|town|administrative/.test(v.addresstype || v.type || '')) || d[0]; return x ? {nom: q, lat: +x.lat, lon: +x.lon, pays, src: 'OpenStreetMap'} : null; }catch(e){ return null; } }
+})();
+</script>
+
+<script id="jm-v297-assistant-script">
+(function(){
+  // ===================================================================
+  //  v297 — Partie 2 : assistant local gratuit (hors ligne). Base JM Express (aide appli, fonctions),
+  //  terrain prudent (✅ / ⚠️ / ❓), réponses client, repère autoroute sans serveur (OpenStreetMap),
+  //  IA externe seulement si le mode le permet ET que tu dis oui. Jamais de prix calculé par l'assistant.
+  // ===================================================================
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const C = 'confirme', P = 'probable', V = 'a_verifier';
+  const DOC = 'Procédure exacte à confirmer dans la documentation constructeur.';
+  const BASE = [
+    // ---- Aide application ----
+    {cat:'app', t:'Créer une intervention', k:['creer intervention','nouvelle intervention','nouveau dossier','encoder intervention'], c:C, r:'Accueil → « Nouvelle intervention ». Choisis le service, remplis Prise en charge et Dépose (ou 🎤 / 📍), touche 📏 pour les km, puis « Calculer ». Vérifie le ticket et touche « Enregistrer ».'},
+    {cat:'app', t:'Faire un devis', k:['devis','devis rapide','prix au telephone','combien'], c:C, r:'Touche l\'icône 📞 « Devis rapide » en haut (ou « Devis » dans la barre du bas). Pour dicter : 🎤 « Devis vocal » (« remorquage de … jusqu\'à … »). Le prix vient toujours du moteur JM Express. « Mes devis » garde l\'historique, avec statut et relance.'},
+    {cat:'app', t:'Retrouver un client', k:['client','retrouver client','carnet','fiche client'], c:C, r:'Menu ⋯ → Activité → « Clients ». Tu peux aussi chercher par nom, plaque ou adresse : menu ⋯ → « Recherche ».'},
+    {cat:'app', t:'Ajouter un acompte', k:['acompte','avance','paye avant','payer avant'], c:C, r:'Dans l\'intervention, bloc paiement : « 💶 Acompte reçu avant départ » (montant et moyen). Sur le terrain : ⋯ Actions terrain → « 💶 Acompte reçu ». Le reste dû se recalcule tout seul.'},
+    {cat:'app', t:'Synchroniser les téléphones', k:['synchro','synchroniser','sync','telephone b','autre telephone'], c:C, r:'La synchronisation est automatique quand il y a du réseau. Réglages → Synchronisation montre l\'état et permet de lancer une synchro à la main.'},
+    {cat:'app', t:'Remplacer le téléphone principal', k:['remplacer telephone','nouveau telephone','changer de telephone','telephone principal','telephone a'], c:C, r:'Sur l\'ancien téléphone : menu ⋯ → « Changer de téléphone » (synchro, sauvegarde, dossiers PDF). Sur le nouveau : Réglages → Synchro → « 📲 Remplacer le téléphone principal », puis tape REMPLACER pour confirmer. Les tarifs et la numérotation sont récupérés.'},
+    {cat:'app', t:'Associer le téléphone de secours (B)', k:['associer','telephone de secours','telephone b','code association','jumeler'], c:P, r:'Réglages → Synchronisation : sur le téléphone principal (A), crée un code d\'association ; sur le téléphone B, choisis le rôle de secours et saisis ce code. B reçoit les interventions ; la facturation reste sur A.'},
+    {cat:'app', t:'Vérifier la sauvegarde', k:['sauvegarde','verifier sauvegarde','backup','perdre donnees'], c:C, r:'Réglages → Sécurité & données → « 🔎 Vérifier la sauvegarde » : relecture complète, sans rien modifier. L\'écran montre aussi la dernière sauvegarde et l\'état de la synchro.'},
+    {cat:'app', t:'Envoyer une feuille de route', k:['feuille de route','planning','tournee','envoyer route'], c:C, r:'Accueil → « 🗺️ Feuille de route » : choisis les interventions puis envoie-la (WhatsApp, SMS ou copie).'},
+    {cat:'app', t:'Ouvrir le GPS', k:['gps','waze','itineraire','naviguer','maps'], c:C, r:'Dans l\'intervention, les boutons GPS à côté des adresses ouvrent Waze, Plans ou Google Maps. « ▶ Départ » dans la barre terrain lance la course.'},
+    {cat:'app', t:'Appeler ou écrire au client', k:['appeler','telephoner','sms','whatsapp client','message client'], c:C, r:'Champ téléphone du client : boutons 📞 (appel) et 💬 (SMS / WhatsApp). ⋯ Actions terrain propose aussi des messages tout prêts.'},
+    {cat:'app', t:'Prendre des photos', k:['photo','photos','etat des lieux','degats'], c:C, r:'Barre de progression en haut de l\'intervention → « Photos ». Prends l\'état du véhicule avant chargement : elles protègent en cas de litige.'},
+    {cat:'app', t:'Terminer une intervention', k:['terminer','fin intervention','cloturer','fini'], c:C, r:'Barre terrain → « ✓ Terminer ». Ensuite : paiement, puis bon d\'intervention ou facture.'},
+    {cat:'app', t:'Corriger une adresse', k:['corriger adresse','adresse fausse','mauvaise adresse','lieu introuvable','adresse'], c:C, r:'✕ efface, 🎤 redicte, 📍 met ta position. Si le lieu est douteux, la fenêtre « Lieu à confirmer » propose des choix ; dans le Devis rapide, « 🤖 Vérifier les adresses ». Chaque correction confirmée est retenue pour la prochaine dictée.'},
+    {cat:'app', t:'Retrouver une ancienne intervention', k:['ancienne intervention','historique','retrouver intervention','ancien dossier','recherche'], c:C, r:'Barre du bas → « Historique » ; ou menu ⋯ → « Recherche » (plaque, client, adresse). Les documents se réimpriment à l\'identique.'},
+    {cat:'app', t:'Encoder une intervention passée', k:['intervention passee','apres coup','oublie encoder','hier'], c:C, r:'Accueil → tuile « Passée » : fiche courte avec la vraie date (nuit et week-end proposés), les adresses, le paiement, puis bon d\'intervention ou facture.'},
+    {cat:'app', t:'Faire une facture', k:['facture','facturer','pdf facture'], c:C, r:'Après le calcul : « Générer la facture (PDF + signature) », ou depuis l\'historique → « Facture ». Le « Bon d\'intervention » est le justificatif sans mentions comptables.'},
+    // ---- Fonctions ----
+    {cat:'fonction', t:'À traiter', k:['a traiter','choses a faire','rappels'], c:C, r:'Regroupe interventions en cours, RDV du jour, impayés, devis sans réponse, demandes WhatsApp et avis à demander. Chaque ligne a ses actions (relancer, déjà demandé, classer…).'},
+    {cat:'fonction', t:'Rentabilité estimée', k:['rentabilite','marge','gagne','benefice'], c:C, r:'Sous le ticket (privé) : prix − gasoil − temps − pièces − usure − part des charges fixes. Estimation interne, réglable dans Réglages → Rentabilité et charges.'},
+    {cat:'fonction', t:'Plafond de franchise TVA', k:['plafond','franchise','tva','25000'], c:C, r:'Jauge sur l\'accueil et détail dans Gestion → Recettes : suivi des recettes de l\'année face au plafond réglé. Indicateur interne : ton comptable fait foi.'},
+    {cat:'fonction', t:'Livre perso et pourboires', k:['pourboire','livre perso','recette perso'], c:C, r:'Au paiement : champ « Pourboire » (jamais sur la facture ni le bon), destination perso / comptable / les deux. Gestion → « Mon livre perso » pour la liste et l\'export.'},
+    {cat:'fonction', t:'Confiance des adresses', k:['confiance','centre de localite','approximative','badge orange'], c:C, r:'✅ adresse trouvée telle quelle ; ⚠️ interprétée ou centre de localité ; ❓ approximative : l\'appli demande de confirmer avant d\'utiliser la distance.'},
+    {cat:'fonction', t:'Dictionnaire des localités', k:['dictionnaire','localites','hors ligne adresse','village'], c:C, r:'≈ 2 750 localités belges sur le téléphone, utilisables hors ligne (Réglages → Sécurité & données → Adresses). Il reconnaît les sections (Leernes, Feluy…) et les noms approchants.'},
+    {cat:'fonction', t:'Mode gants et plein soleil', k:['gants','plein soleil','gros boutons','lisible'], c:C, r:'⋯ Actions terrain → « 🧤 Mode gants » (gros boutons, se coupe tout seul) et « ☀️ Plein soleil » (contraste fort).'},
+    // ---- Terrain (prudent) ----
+    {cat:'terrain', t:'Batterie à plat — démarrage au booster', k:['batterie','a plat','booster','cables','demarrage','demarrer','ne demarre pas batterie'], c:C, r:'Contact coupé, accessoires éteints. Rouge sur + batterie, noir sur une masse métallique du moteur (pas sur le – de la batterie si le constructeur prévoit un point de masse). Démarrer, laisser tourner, débrancher noir puis rouge. Start-stop (AGM / EFB) : utiliser les points de démarrage prévus. Batterie gonflée, fissurée ou qui sent l\'acide : ne pas booster.'},
+    {cat:'terrain', t:'Véhicule qui ne démarre pas', k:['ne demarre pas','demarre pas','panne demarrage','clic'], c:C, r:'1) Voyants au contact ? Rien → batterie / masse. 2) Clic sans rotation → batterie faible ou démarreur. 3) Le démarreur tourne sans démarrer → carburant, antidémarrage (voyant clé) ou allumage. 4) Erreur de carburant possible ? Ne pas insister au démarreur. Si doute : remorquage.'},
+    {cat:'terrain', t:'Boîte automatique — mettre au N', k:['boite automatique','boite auto','bva','neutre','mettre au n','point mort auto'], c:P, r:'En général : contact mis (il faut du 12 V), frein enfoncé, levier sur N. Sans batterie, la plupart des boîtes restent bloquées en P : brancher un booster, ou utiliser le déverrouillage de secours (shift-lock) s\'il existe. Remorquage roues motrices au sol : souvent limité ou interdit selon le constructeur → plateau ou dolly. ' + DOC},
+    {cat:'terrain', t:'Shift-lock (déverrouillage du levier)', k:['shift lock','shiftlock','deverrouillage levier','levier bloque','bloque en p'], c:P, r:'Sur beaucoup de véhicules : petit cache près du levier, à soulever, puis appuyer avec une clé ou un tournevis en déplaçant le levier. L\'emplacement et l\'existence varient selon le modèle (certaines boîtes à commande électrique n\'en ont pas). ' + DOC + ' En cas de doute : dolly sous l\'essieu bloqué ou plateau.'},
+    {cat:'terrain', t:'Frein de parking électrique', k:['frein electrique','frein de parking electrique','epb','frein a main electrique','frein bloque'], c:V, r:'Il faut en principe du 12 V pour le desserrer : brancher un booster puis utiliser la commande (souvent avec frein enfoncé, contact mis). Certains modèles ont un déblocage de secours (outil, câble ou mode atelier) : ne pas improviser. ' + DOC + ' Si impossible : roulettes / dolly sous les roues freinées, ou plateau avec treuil lent.'},
+    {cat:'terrain', t:'4x4, AWD, xDrive, quattro, 4Motion, 4Matic', k:['4x4','awd','4 roues motrices','xdrive','quattro','4motion','4matic','transmission integrale','integrale'], c:C, r:'Ne pas tracter avec un seul essieu au sol : risque de casse du coupleur ou de la transmission. Plateau, ou dolly sous l\'essieu resté au sol. Les modes « remorquage » éventuels sont propres au constructeur. ' + DOC},
+    {cat:'terrain', t:'Véhicule électrique', k:['electrique','ev','tesla','zoe','batterie haute tension','haute tension'], c:C, r:'Ne jamais tracter roues motrices au sol (le moteur produit du courant) : plateau, ou dolly selon le cas. Ne jamais toucher les câbles orange ni une batterie haute tension endommagée ; en cas de choc, fumée ou bruit anormal, s\'éloigner et prévenir les pompiers. Un mode « transport » existe sur certains modèles : ' + DOC},
+    {cat:'terrain', t:'Véhicule hybride', k:['hybride','hev','phev','plug in'], c:C, r:'Même prudence que l\'électrique : plateau recommandé, câbles orange et batterie haute tension à ne pas toucher. Le démarrage au booster se fait uniquement sur la batterie 12 V (souvent dans le coffre ou un point déporté). ' + DOC},
+    {cat:'terrain', t:'Treuillage', k:['treuil','treuillage','desembourber','enlise','sortir du fosse'], c:C, r:'Câble ou sangle en bon état, crochet sur l\'anneau de remorquage d\'origine (jamais sur la suspension). Personne dans l\'axe du câble. Véhicule au neutre, frein desserré si possible, traction lente et continue, angle le plus droit possible. Arrêter si le véhicule se met en travers.'},
+    {cat:'terrain', t:'Dolly / roulettes', k:['dolly','roulettes','patins','chariot'], c:C, r:'Pour roues bloquées (frein, boîte, transmission) : placer sous les roues bloquées, sangler, vérifier le blocage. Rouler lentement, éviter les virages serrés et les longues distances.'},
+    {cat:'terrain', t:'Roues bloquées', k:['roue bloquee','roues bloquees','bloque','ne roule pas'], c:C, r:'Identifier la cause (frein de parking, boîte en P, frein grippé, transmission). Sans déblocage sûr : dolly sous l\'essieu bloqué ou plateau avec treuil lent. Ne jamais forcer en traînant les roues.'},
+    {cat:'terrain', t:'Direction verrouillée (antivol / neiman)', k:['direction','volant bloque','neiman','antivol de direction'], c:C, r:'Avec la clé : tourner le volant légèrement en tournant la clé. Sans clé ni déverrouillage : soulever l\'essieu directeur (dolly ou plateau) ; ne jamais tracter roues directrices au sol volant bloqué.'},
+    {cat:'terrain', t:'Remorquer roues au sol', k:['roues au sol','tracter','remorquer au sol','barre de remorquage'], c:P, r:'Possible seulement si le constructeur l\'autorise pour ce type de transmission, souvent avec vitesse et distance limitées, et jamais pour un électrique, un hybride ou une transmission intégrale. En cas de doute : plateau. ' + DOC},
+    {cat:'terrain', t:'Sécurité sur place', k:['securite','balisage','gilet','triangle','gyrophare'], c:C, r:'Gilet, gyrophares, triangle à bonne distance, véhicule de dépannage en protection. Faire sortir les occupants du côté sûr. Ne jamais travailler côté circulation sans protection.'},
+    // ---- Client (réponses prêtes) ----
+    {cat:'client', t:'Le client hésite', k:['hesite','reflechir','pas sur'], c:C, r:'Je comprends. Pour vous aider à décider : le prix comprend le déplacement, la prise en charge sécurisée et la dépose où vous voulez. Je peux être chez vous rapidement ; dites-moi simplement si je bloque le créneau.', court:'Je reste disponible. Le prix comprend le déplacement, la prise en charge et la dépose. Je bloque le créneau ?'},
+    {cat:'client', t:'Le prix paraît trop élevé', k:['trop cher','cher','prix eleve','moins cher'], c:C, r:'Je comprends que le montant compte. Il comprend le déplacement, l\'intervention et la dépose, sans frais cachés, avec facture. Je préfère annoncer un prix clair plutôt qu\'une surprise à l\'arrivée.', court:'Le prix annoncé est tout compris (déplacement, intervention, dépose), sans surprise et avec facture.'},
+    {cat:'client', t:'« Je vous tiens au courant »', k:['tiens au courant','je vous rappelle','vous recontacte'], c:C, r:'Très bien. Je garde votre demande de côté ; si vous me confirmez rapidement, je peux encore intervenir aujourd\'hui. Bonne journée.', court:'Pas de souci, je garde votre demande. Un simple message et j\'interviens.'},
+    {cat:'client', t:'Le client demande le délai', k:['delai','quand','combien de temps','arrivez quand'], c:C, r:'Je peux être sur place dans environ [délai] ; je vous préviens dès que je pars et si quelque chose change en route.', court:'Je peux être là dans environ [délai], je vous préviens au départ.'},
+    {cat:'client', t:'Le client compare avec un concurrent', k:['concurrent','autre depanneur','ailleurs','compare'], c:C, r:'C\'est normal de comparer. De mon côté : prix annoncé à l\'avance, tout compris, facture, et je reste joignable du début à la fin. Si vous voulez, je bloque le créneau.', court:'Normal de comparer. Chez moi : prix clair tout compris, facture, et je reste joignable. Je bloque le créneau ?'},
+    {cat:'client', t:'Le client veut négocier', k:['negocier','reduction','geste','remise'], c:C, r:'Je comprends. Mon prix est calculé au plus juste pour ce trajet et cette intervention. Je préfère vous garantir ce montant sans mauvaise surprise.', court:'Mon prix est calculé au plus juste et garanti sans surprise.'},
+    {cat:'client', t:'Le client annule', k:['annule','annulation','plus besoin'], c:C, r:'C\'est noté, merci de m\'avoir prévenu. N\'hésitez pas si vous avez besoin plus tard : je reste disponible.', court:'C\'est noté, merci de m\'avoir prévenu. Je reste disponible.'},
+    {cat:'client', t:'Le client ne répond plus', k:['ne repond plus','pas de reponse','silence','relance'], c:C, r:'Bonjour, je reviens vers vous pour votre demande de dépannage. Avez-vous toujours besoin d\'aide ? Je peux encore intervenir aujourd\'hui.', court:'Bonjour, avez-vous toujours besoin d\'aide pour votre véhicule ? Je peux encore passer aujourd\'hui.'}
+  ];
+  window.JM_AIDE_LOCALE = BASE;
+  const VIDE = new Set('le la les de du des un une a au aux et ou en est il elle je tu on comment quoi que qui pour sur dans avec par ce cette ces mon ma mes ton ta faire fait peux peut dois doit quand ou est'.split(' '));
+  window.jmAideChercher = function(q, cats){
+    const n = ' ' + norm(q) + ' ', mots = norm(q).split(' ').filter(m => m.length > 2 && !VIDE.has(m));
+    return BASE.filter(x => !cats || cats.includes(x.cat)).map(x => {
+      let s = 0; x.k.forEach(k => { const nk = norm(k); if(n.includes(' ' + nk + ' ') || n.includes(' ' + nk)) s += nk.includes(' ') ? 3 : 2; });
+      mots.forEach(m => { if(norm(x.t).split(' ').includes(m)) s += 1; });
+      return {x, s};
+    }).filter(r => r.s >= 2).sort((a, b) => b.s - a.s).map(r => r.x);
+  };
+  // ---------- Mode (local par défaut) et journal ----------
+  const MODE = () => { try{ return localStorage.getItem('jm_assistantMode') || 'local'; }catch(e){ return 'local'; } };
+  window.jmAsMode = v => { try{ localStorage.setItem('jm_assistantMode', v); }catch(e){} majMode(); };
+  function majMode(){ const s = $('asMode'); if(s) s.value = MODE(); const e = $('asModeEtat'); if(e) e.textContent = MODE() === 'local' ? 'Assistant local actif (gratuit, hors ligne)' : 'Assistant local actif · IA en ligne proposée seulement si tu le demandes'; }
+  function noter(type, q, src){ try{ const L = JSON.parse(localStorage.getItem('jm_asJournal') || '[]'); L.unshift({d: new Date().toISOString(), type, q: String(q || '').replace(/\+?\d[\d \/.-]{7,}\d/g, '[n°]').replace(/\b\d-[A-Z]{3}-\d{3}\b/gi, '[plaque]').slice(0, 100), src}); localStorage.setItem('jm_asJournal', JSON.stringify(L.slice(0, 60))); }catch(e){} }
+  const conf = c => ({confirme:['✅ Confirmé','ok'], probable:['⚠️ Probable — à vérifier selon le modèle','moyen'], a_verifier:['❓ À vérifier — documentation constructeur','faible']}[c] || ['❓ À vérifier','faible']);
+  function afficher(L, q, type){
+    const z = $('asResultat'); if(!L.length) return false;
+    const x = L[0], b = conf(x.c);
+    z.innerHTML = '<div class="jm-as-conf jm-as-' + b[1] + '">' + b[0] + ' · réponse locale</div><div class="jm-ia-sec"><strong>' + esc(x.t) + '</strong><div>' + esc(x.r) + '</div></div>' +
+      (x.court ? '<div class="jm-ia-sec"><strong>Version courte (WhatsApp / SMS)</strong><div>' + esc(x.court) + '</div></div><div class="jm-as-gps"><button type="button" class="ghost" onclick="jmAsCopier(' + BASE.indexOf(x) + ',0)">📋 Copier</button><button type="button" class="ghost" onclick="jmAsCopier(' + BASE.indexOf(x) + ',1)">📋 Version courte</button><a class="ghost" href="https://wa.me/?text=' + encodeURIComponent(x.court) + '" target="_blank" rel="noopener">💬 WhatsApp</a></div>' : '') +
+      (L.length > 1 ? '<div class="km-mention">Voir aussi : ' + L.slice(1, 3).map(y => '<a href="#" onclick="jmAsVoir(' + BASE.indexOf(y) + ');return false;">' + esc(y.t) + '</a>').join(' · ') + '</div>' : '') +
+      (x.cat === 'terrain' ? '<div class="km-mention" style="opacity:.8;">Conseil général : en cas de doute, plateau ou dolly.</div>' : '');
+    noter(type, q, 'local'); return true;
+  }
+  window.jmAsVoir = i => afficher([BASE[i]], BASE[i].t, BASE[i].cat);
+  window.jmAsCopier = async (i, court) => { try{ await navigator.clipboard.writeText(court ? BASE[i].court : BASE[i].r); showToast('Copié'); }catch(e){ showToast('Copie impossible'); } };
+  function pasDeReponse(q, type, externe){
+    const z = $('asResultat'); noter(type, q, 'aucune');
+    const peut = MODE() === 'externe' && navigator.onLine && typeof syncActif === 'function' && syncActif() && externe;
+    z.innerHTML = '<div class="km-mention">Je n\'ai pas assez d\'informations localement' + (type === 'terrain' ? ' pour une réponse sûre. En cas de doute : plateau ou dolly, et ' + DOC.toLowerCase() : '.') + '</div>' +
+      (peut ? '<div class="km-mention" style="margin-top:6px;">Essayer avec l\'assistant IA en ligne ?</div><div class="jm-as-gps"><button type="button" class="primary" style="margin:0;" onclick="jmAsExterne()">Oui</button><button type="button" class="ghost" style="margin:0;" onclick="document.getElementById(\'asResultat\').innerHTML=\'\'">Non</button></div>' : '');
+  }
+  // ---------- Questions véhicule / boîte-frein / aide : local d'abord ----------
+  const _ext = window.jmAsDemander;
+  window.jmAsExterne = async function(){ noter('externe', ($('asQuestion') || {}).value, 'externe'); if(typeof _ext === 'function') return _ext(); };
+  window.jmAsDemander = async function(){
+    const q = ($('asQuestion').value || '').trim(), modeQ = ($('asTitreQ').textContent || '').includes('appli') ? 'app' : 'terrain';
+    if(!q){ showToast('Écris ou choisis une question'); return; }
+    const L = jmAideChercher(q + ' ' + (($('asVehicule') || {}).value || ''), modeQ === 'app' ? ['app', 'fonction'] : ['terrain']);
+    if(!afficher(L, q, modeQ)) pasDeReponse(q, modeQ, true);
+  };
+  window.jmAsAide = function(cat){
+    if(typeof jmAsQuestion === 'function') jmAsQuestion('app');
+    $('asTitreQ').textContent = cat === 'fonction' ? '📄 Comprendre une fonction' : '📱 Aide application';
+    const L = BASE.filter(x => x.cat === (cat === 'fonction' ? 'fonction' : 'app'));
+    $('asPresets').innerHTML = L.map(x => '<button type="button" class="qa-c" onclick="jmAsVoir(' + BASE.indexOf(x) + ')">' + esc(x.t) + '</button>').join('');
+    $('asQuestion').placeholder = 'Ou pose ta question : « comment ajouter un acompte ? »';
+  };
+  window.jmAsLibre = function(){
+    if(typeof jmAsQuestion === 'function') jmAsQuestion('app');
+    $('asTitreQ').textContent = '❓ Question libre'; $('asPresets').innerHTML = ''; $('asQuestion').placeholder = 'Ta question (application, terrain, client…)';
+    const btn = document.querySelector('#asQuestionP button.primary'); if(btn) btn.setAttribute('onclick', "avecChargement(this, 'Recherche…', () => jmAsLibreChercher())");
+  };
+  window.jmAsLibreChercher = function(){ const q = ($('asQuestion').value || '').trim(); if(!q) return; const L = jmAideChercher(q); if(!afficher(L, q, 'libre')) pasDeReponse(q, 'libre', true); };
+  window.jmAsClientLocal = function(){
+    if(typeof jmAsQuestion === 'function') jmAsQuestion('app');
+    $('asTitreQ').textContent = '💬 Client / réponse'; $('asVehiculeChamp').style.display = 'none';
+    const L = BASE.filter(x => x.cat === 'client');
+    $('asPresets').innerHTML = L.map(x => '<button type="button" class="qa-c" onclick="jmAsVoir(' + BASE.indexOf(x) + ')">' + esc(x.t) + '</button>').join('') +
+      '<button type="button" class="qa-c" onclick="jmAsClient()">🤖 Analyser un échange (IA en ligne)</button>';
+    $('asQuestion').placeholder = 'Ou décris la situation : « le client trouve ça trop cher »';
+    const btn = document.querySelector('#asQuestionP button.primary'); if(btn) btn.setAttribute('onclick', "avecChargement(this, 'Recherche…', () => { const q=document.getElementById('asQuestion').value; const L=jmAideChercher(q, ['client']); if(!L.length) document.getElementById('asResultat').innerHTML='<div class=km-mention>Choisis une situation ci-dessus.</div>'; else jmAsVoir(JM_AIDE_LOCALE.indexOf(L[0])); })");
+  };
+  if(typeof jmAsQuestion === 'function'){ const _q = jmAsQuestion; window.jmAsQuestion = function(m){ const r = _q.apply(this, arguments); const btn = document.querySelector('#asQuestionP button.primary'); if(btn) btn.setAttribute('onclick', "avecChargement(this, 'Recherche…', () => jmAsDemander())"); return r; }; }
+  if(typeof openAssistant === 'function'){ const _o = openAssistant; window.openAssistant = function(){ const r = _o.apply(this, arguments); majMode(); return r; }; }
+  // ---------- Repère autoroute sans serveur : lecture locale + OpenStreetMap ----------
+  const kmD = (a, b) => { const R = 6371000, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lon - a.lon); const h = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+  function lire(t){
+    t = String(t || '').replace(/\s+/g, ' ');
+    const mr = t.match(/\b([AERaer])\s?-?\s?(\d{1,3})\b/), ms = t.match(/sortie\s*(?:n[°o]\s*|num[ée]ro\s*|nr\s*)?(\d{1,3}[a-z]?)\b/i);
+    const mn = !ms && t.match(/sortie\s+(?:de\s+|d['’])?([A-ZÀ-Ý][\p{L}'’ -]{2,40}?)(?=\s+(?:direction|vers|dir\.?)\b|,|$)/u);
+    const mb = t.match(/(?:borne|bk|pk|km|kilom[eè]tre|rep[eè]re(?:\s+kilom[ée]trique)?)\s*(\d{1,3}(?:[.,]\d{1,2})?)/i), md = t.match(/(?:direction|vers|dir\.?)\s+([\p{L}'’ -]{2,40}?)(?=,|\s+(?:borne|sortie|km)|$)/iu);
+    return {route: mr ? mr[1].toUpperCase() + mr[2] : null, sortie: ms ? ms[1].toLowerCase() : null, nomSortie: mn ? mn[1].trim() : null, borne: mb ? mb[1].replace(',', '.') : null, direction: md ? md[1].trim() : null};
+  }
+  async function overpass(q){ const r = await fetch('https://overpass-api.de/api/interpreter', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'data=' + encodeURIComponent(q)}); if(!r.ok) throw new Error('overpass ' + r.status); return (await r.json()).elements || []; }
+  window.jmLocaliserLocal = async function(texte){
+    const q = lire(texte), manquant = []; if(!q.route) manquant.push('autoroute'); if(!q.sortie && !q.borne && !q.nomSortie) manquant.push('numéro de sortie, borne ou repère'); if(!q.direction) manquant.push('sens (direction)');
+    if(!q.route || (!q.sortie && !q.borne && !q.nomSortie)) return {demande: q, manquant, confiance: 'incomplet'};
+    const L = q.route[0], num = q.route.slice(1), re = L === 'E' ? 'E ?' + num + '([^0-9]|$)' : '(^|;) ?' + L + ' ?' + num + '(;|$)';
+    const routes = 'area(3600052411)->.be;(way["highway"~"^(motorway|trunk|motorway_link)$"]["ref"~"' + re + '"](area.be);way["highway"~"^(motorway|trunk)$"]["int_ref"~"' + re + '"](area.be);)->.w;';
+    let f, type; if(q.sortie){ f = 'node(w.w)["highway"="motorway_junction"]["ref"~"^' + q.sortie + '$",i];'; type = 'sortie'; } else if(q.nomSortie){ f = 'node(w.w)["highway"="motorway_junction"]["name"~"' + q.nomSortie.replace(/["\\]/g, '') + '",i];'; type = 'sortie'; } else { const [e, d] = q.borne.split('.'); f = 'node(w.w)["highway"="milestone"]["distance"~"^' + e + (d ? '[.,]' + d : '([.,]0+)?') + '$"];'; type = 'borne'; }
+    let pts; try{ pts = (await overpass('[out:json][timeout:20];' + routes + f + 'out body;')).filter(x => x.lat); }catch(e){ return {demande: q, manquant, confiance: 'a_confirmer', erreur: 'cartographie indisponible'}; }
+    if(!pts.length) return {demande: q, manquant, confiance: 'a_confirmer', type, message: 'Repère non trouvé dans la cartographie'};
+    const c = pts[0], g = pts.filter(x => kmD(c, x) < 2500), pos = {lat: g.reduce((s, x) => s + x.lat, 0) / g.length, lon: g.reduce((s, x) => s + x.lon, 0) / g.length};
+    let voisines = [], commune = null;
+    try{ const v = (await overpass('[out:json][timeout:15];' + routes + 'node(w.w)["highway"="motorway_junction"](around:12000,' + pos.lat + ',' + pos.lon + ');out body;')).filter(x => x.lat && (x.tags || {}).ref && x.tags.ref !== (c.tags || {}).ref); const vu = new Set(); voisines = v.map(x => ({ref: x.tags.ref, nom: x.tags.name || '', km: Math.round(kmD(pos, x) / 100) / 10})).sort((a, b) => a.km - b.km).filter(x => !vu.has(x.ref) && vu.add(x.ref)).slice(0, 3); }catch(e){}
+    try{ const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=12&lat=' + pos.lat + '&lon=' + pos.lon); const a = (await r.json()).address || {}; commune = a.town || a.city || a.village || a.municipality || null; }catch(e){}
+    return {demande: q, manquant, type, confiance: pts.length > g.length ? 'a_confirmer' : (q.direction ? 'elevee' : 'moyenne'), position: {lat: Math.round(pos.lat * 1e6) / 1e6, lon: Math.round(pos.lon * 1e6) / 1e6}, repere: type === 'sortie' ? 'Sortie ' + ((c.tags || {}).ref || '') + ((c.tags || {}).name ? ' — ' + c.tags.name : '') : 'Borne ' + q.borne, commune, sortiesProches: voisines, candidats: pts.length, source: 'OpenStreetMap'};
+  };
+  if(typeof jmAsLocaliser === 'function'){
+    const _l = jmAsLocaliser;
+    window.jmAsLocaliser = async function(){   // même affichage qu'avant, sans passer par le serveur
+      if(!navigator.onLine){ $('asResultat').innerHTML = '<div class="km-mention">Hors ligne : la cartographie est nécessaire pour confirmer un repère. Note autoroute, sens et repère, et réessaie avec du réseau.</div>'; return; }
+      const o = window.syncApi, a = window.syncActif;
+      window.syncApi = async (chemin, corps) => chemin === '/ia/localiser' ? jmLocaliserLocal(corps.texte) : o(chemin, corps); window.syncActif = () => true;
+      try{ await _l.apply(this, arguments); noter('repere', ($('asRepereTexte') || {}).value, 'local'); } finally { window.syncApi = o; window.syncActif = a; }
+    };
+  }
+})();
+</script>
+
 
 
 
@@ -22006,193 +22319,5 @@ window.jmOuvrirChatGPT = async function(){
 
 
 
-
-<script id="jm-v297-vocal-multipays-script">
-(function(){
-  // ===================================================================
-  // v297 — Vocal adresses gratuit renforcé + Belgique / France / Pays-Bas / Luxembourg.
-  // Aucun service IA payant. Web Speech reste la transcription ; plusieurs hypothèses sont
-  // comparées localement, puis les géocodeurs publics gratuits déjà utilisés par l'app sont
-  // complétés par IGN (France) et PDOK (Pays-Bas). Aucun impact sur le moteur tarifaire.
-  // ===================================================================
-  const $ = id => document.getElementById(id);
-  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9à-ÿ' -]+/gi,' ').replace(/\s+/g,' ').trim();
-  const LABEL = {BE:'Belgique', FR:'France', NL:'Pays-Bas', LU:'Luxembourg', DE:'Allemagne'};
-  const CODE = {be:'BE',fr:'FR',nl:'NL',lu:'LU',de:'DE'};
-  const paysDans = s => {
-    const n = norm(s);
-    if(/\b(france|frankrijk)\b/.test(n) || /\b\d{5}\b/.test(n)) return 'FR';
-    if(/\b(pays bas|pays-bas|nederland|hollande|holland|netherlands)\b/.test(n) || /\b\d{4}\s?[a-z]{2}\b/i.test(String(s))) return 'NL';
-    if(/\b(luxembourg|luxemburg|grand duche)\b/.test(n)) return 'LU';
-    if(/\b(belgique|belgie|belgien)\b/.test(n)) return 'BE';
-    if(/\b(allemagne|deutschland|duitsland|germany)\b/.test(n)) return 'DE';
-    return '';
-  };
-  const retirerPays = (s, code) => String(s || '').replace(new RegExp('(?:,?\\s*)\\b(?:en\\s+|au\\s+|aux\\s+)?' +
-    (code==='FR'?'(?:France|Frankrijk)':code==='NL'?'(?:Pays[- ]?Bas|Nederland|Hollande|Holland|Netherlands)':code==='LU'?'(?:Luxembourg|Luxemburg|Grand[- ]?Duch[eé])':code==='BE'?'(?:Belgique|Belgi[eë]|Belgien)':'(?:Allemagne|Deutschland|Duitsland|Germany)') + '\\b\\s*$', 'i'), '').trim();
-
-  // Conserve le pays choisi depuis les tuiles de l'accueil, uniquement sur le champ destination du devis.
-  if(typeof openZoneIntervention === 'function'){
-    const _oz = openZoneIntervention;
-    window.openZoneIntervention = function(code){ window.JM_V297_ZONE = code || ''; return _oz.apply(this, arguments); };
-  }
-  if(typeof zoneVersDevis === 'function'){
-    const _zv = zoneVersDevis;
-    window.zoneVersDevis = function(){ const r = _zv.apply(this, arguments); const f = $('qqTo'); if(f){ const c = window.JM_V297_ZONE || ''; if(c && c !== 'OTHER') f.dataset.country = c; else delete f.dataset.country; } return r; };
-  }
-
-  function lev(a,b){ a=norm(a); b=norm(b); const m=a.length,n=b.length; if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const q=[i];for(let j=1;j<=n;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q;}return p[n]; }
-  const sim = (a,b) => { a=norm(a); b=norm(b); return (!a||!b)?0:1-lev(a,b)/Math.max(a.length,b.length,1); };
-
-  // Cherche une localité belge probable à la fin d'une transcription : utile quand Safari entend
-  // « Lern / Lerne » au lieu de « Lernes ». Ne modifie que si la proximité est forte.
-  function corrigerLocaliteBE(texte){
-    if(typeof jmDico !== 'function' || !window.JM_BE_DICO || !window.JM_BE_DICO.length || paysDans(texte) && paysDans(texte)!=='BE') return {texte, gain:0};
-    const mots=String(texte||'').trim().split(/\s+/); let best=null;
-    for(let n=1;n<=Math.min(3,mots.length);n++){
-      const brut=mots.slice(-n).join(' ').replace(/[,.]$/,'');
-      if(brut.length<3 || /\d/.test(brut)) continue;
-      let r; try{ r=jmDico(brut,3); }catch(e){ continue; }
-      const cand=[...(r.exacts||[]),...(r.proches||[])];
-      for(const x of cand){ const score = x.nn===norm(brut)?1:(x.score||sim(brut,x.n)); if(score >= 0.80 && (!best || score>best.score)) best={n,brut,x,score}; }
-    }
-    if(!best || best.score<0.84) return {texte,gain:0};
-    if(norm(best.brut)===norm(best.x.n)) return {texte,gain:.08};
-    const out=mots.slice(0,-best.n).concat([best.x.n]).join(' ');
-    return {texte:out,gain:Math.min(.25,(best.score-.80)*1.2), correction:best.brut+' → '+best.x.n};
-  }
-
-  function aliasBonus(t){
-    try{ const A=JSON.parse(localStorage.getItem('jm_alias')||'{}'); const n=norm(t); if(A[n]) return .35; let b=0; Object.keys(A).forEach(k=>{ const s=sim(n,k); if(s>.88)b=Math.max(b,(s-.88)*1.4); }); return b; }catch(e){ return 0; }
-  }
-  function adresseScore(t){
-    let score=aliasBonus(t); const c=corrigerLocaliteBE(t); score+=c.gain;
-    if(/\b\d{1,4}[a-z]?\b/i.test(t)) score+=.04;
-    if(/\b(rue|route|avenue|chauss[ée]e|boulevard|place|chemin|straat|steenweg|laan|weg|plein|garage|gare|parking|a[ée]roport|airport)\b/i.test(t)) score+=.05;
-    if(paysDans(t)) score+=.05;
-    return {score, texte:c.texte, correction:c.correction};
-  }
-  window.jmV297ChoisirTranscription = function(alts, fieldId){
-    alts=(alts||[]).filter(x=>x&&String(x.transcript||x).trim()).map((x,i)=>({texte:String(x.transcript||x).trim(), conf:Number(x.confidence)||0, i}));
-    if(!alts.length) return null;
-    const f=$(fieldId), ctx=(f&&f.dataset.country)||'';
-    let best=null;
-    for(const a of alts){ const z=adresseScore(a.texte), p=paysDans(a.texte); let s=z.score + (a.conf||0)*.12 - a.i*.005; if(ctx && p===ctx)s+=.15; if(ctx && p && p!==ctx)s-=.2; const o={...a,...z,total:s}; if(!best||o.total>best.total)best=o; }
-    if(ctx && ctx!=='BE' && !paysDans(best.texte)) best.texte = best.texte.replace(/[,\s]+$/,'') + ', ' + LABEL[ctx];
-    return best;
-  };
-
-  // Remplace le petit micro de chaque champ : jusqu'à 5 hypothèses, choix local gratuit, aucun appel IA.
-  window.dicterAdresse = function(fieldId){
-    const Api=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!Api){ if(typeof showToast==='function') showToast('Dictée vocale non disponible sur ce navigateur'); return; }
-    const field=$(fieldId); if(!field) return;
-    const r=new Api(); r.lang='fr-BE'; r.interimResults=false; r.maxAlternatives=5; r.continuous=false;
-    if(typeof showToast==='function') showToast('🎤 Parle maintenant…');
-    r.onresult=ev=>{
-      const R=ev.results&&ev.results[0], alts=[]; if(R) for(let i=0;i<Math.min(R.length||0,5);i++) alts.push({transcript:R[i].transcript,confidence:R[i].confidence});
-      const best=jmV297ChoisirTranscription(alts,fieldId); if(!best)return;
-      field.value=best.texte; field.dispatchEvent(new Event('input',{bubbles:true})); field.dispatchEvent(new Event('change',{bubbles:true}));
-      if(typeof checkAccesVehicule==='function') checkAccesVehicule(fieldId);
-      if(typeof showToast==='function') showToast((best.correction?'🎤 Corrigé : ':'🎤 Adresse : ')+best.texte);
-    };
-    r.onerror=ev=>{ if(typeof showToast!=='function')return; if(ev.error==='not-allowed'||ev.error==='permission-denied'||ev.error==='service-not-allowed')showToast('Micro refusé — autorise-le dans les réglages'); else if(ev.error==='no-speech')showToast('Aucune voix détectée, réessaie'); else showToast('Erreur de dictée vocale'); };
-    try{r.start();}catch(e){ if(typeof showToast==='function')showToast('Impossible de démarrer le micro'); }
-  };
-
-  // Devis vocal : même amélioration. Les alternatives sont évaluées avec le parseur métier existant.
-  if(typeof jmDevisVocal==='function'){
-    window.jmDevisVocal = function(){
-      if(window.JM_V297_REC){ try{ window.JM_V297_REC.stop(); }catch(e){} return; }
-      if(typeof openQuickQuote==='function' && !($('modalQuickQuoteBg')||{}).classList?.contains('show')) openQuickQuote();
-      if($('vocalBloc')){ $('vocalBloc').style.display='block'; $('vocalBloc').scrollIntoView({block:'start'}); }
-      const Api=window.SpeechRecognition||window.webkitSpeechRecognition; if(!Api){ if(typeof jmVocalEtat==='function')jmVocalEtat('Dictée directe indisponible : utilise le 🎤 du clavier puis « Analyser ».'); return; }
-      const rec=new Api(); window.JM_V297_REC=rec; rec.lang='fr-BE'; rec.interimResults=true; rec.maxAlternatives=5; rec.continuous=false; let finals=[];
-      const b=$('vocalBtn'); if(b){b.classList.add('jm-ecoute');b.innerHTML='⏹ Arrêter l\'écoute <span>et calculer</span>';}
-      if(typeof jmVocalEtat==='function') jmVocalEtat('🎤 Je t\'écoute… Dis le service, le départ et l\'arrivée.');
-      rec.onresult=ev=>{ let visible=''; for(let i=0;i<ev.results.length;i++){ visible += ev.results[i][0].transcript; if(ev.results[i].isFinal){ finals=[]; for(let j=0;j<Math.min(ev.results[i].length||0,5);j++) finals.push({transcript:ev.results[i][j].transcript,confidence:ev.results[i][j].confidence}); } } if($('vocalTexte'))$('vocalTexte').value=visible; };
-      rec.onerror=ev=>{ if(b){b.classList.remove('jm-ecoute');b.innerHTML='🎤 Devis vocal <span>dis le service, le départ et l\'arrivée</span>';} window.JM_V297_REC=null; if(typeof jmVocalEtat==='function')jmVocalEtat(ev.error==='no-speech'?'Aucune voix détectée : réessaie.':'Dictée interrompue : réessaie ou utilise le 🎤 du clavier.'); };
-      rec.onend=()=>{ if(b){b.classList.remove('jm-ecoute');b.innerHTML='🎤 Devis vocal <span>dis le service, le départ et l\'arrivée</span>';} window.JM_V297_REC=null; let pool=finals.length?finals:[{transcript:($('vocalTexte')||{}).value||'',confidence:0}];
-        let best=null; for(const a of pool){ let sc=(Number(a.confidence)||0)*.1, parsed=null; try{parsed=typeof jmAnalyserDemande==='function'?jmAnalyserDemande(a.transcript):null;}catch(e){} if(parsed){ if(parsed.de)sc+=adresseScore(parsed.de).score+.12; if(parsed.a)sc+=adresseScore(parsed.a).score+.12; if(parsed.service)sc+=.04; } const o={...a,total:sc}; if(!best||o.total>best.total)best=o; }
-        const t=(best&&best.transcript)||(($('vocalTexte')||{}).value||''); if(t&&typeof jmVocalTraiter==='function')jmVocalTraiter(t);
-      };
-      try{rec.start();}catch(e){window.JM_V297_REC=null;if(b)b.classList.remove('jm-ecoute');if(typeof jmVocalEtat==='function')jmVocalEtat('Impossible de démarrer le micro : utilise le 🎤 du clavier.');}
-    };
-  }
-
-  // ---------- Géocodage gratuit ciblé par pays ----------
-  async function fetchJson(url,ms=5500){ const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms); try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw new Error(String(r.status));return await r.json();}finally{clearTimeout(to);} }
-  function trace(src,q,n,st='ok'){ try{ if(window.JM_GEO_TRACE){window.JM_GEO_TRACE.unshift({src,q,statut:st,n,ms:0,t:new Date().toLocaleTimeString('fr-BE')});if(window.JM_GEO_TRACE.length>30)window.JM_GEO_TRACE.pop();} }catch(e){} }
-  async function france(q){
-    try{ const d=await fetchJson('https://data.geopf.fr/geocodage/search?q='+encodeURIComponent(retirerPays(q,'FR'))+'&limit=6'); const f=(d.features||[]).map(x=>{const p=x.properties||{},c=(x.geometry||{}).coordinates||[];return {nom:p.name||p.label||'',libelle:p.label||[p.name,p.postcode,p.city].filter(Boolean).join(', '),lat:+c[1],lon:+c[0],pays:'fr',cp:p.postcode||'',localite:/municipality|locality/i.test(p.type||''),src:'IGN France',exact:(+p.score||0)>=.75,score:+p.score||0};}).filter(x=>x.lat&&x.lon); trace('IGN France',q,f.length); return f; }catch(e){trace('IGN France',q,0,'indisponible');return[];}
-  }
-  async function paysBas(q){
-    try{ const d=await fetchJson('https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q='+encodeURIComponent(retirerPays(q,'NL'))+'&rows=6&fl=weergavenaam,centroide_ll,type,score,postcode,woonplaatsnaam'); const docs=((d.response||{}).docs||[]).map(x=>{const m=String(x.centroide_ll||'').match(/POINT\(([-0-9.]+)\s+([-0-9.]+)\)/i);return m?{nom:x.weergavenaam||x.woonplaatsnaam||'',libelle:x.weergavenaam||'',lat:+m[2],lon:+m[1],pays:'nl',cp:x.postcode||'',localite:/woonplaats|gemeente|buurt|wijk/i.test(x.type||''),src:'PDOK Pays-Bas',exact:true,score:Number(x.score)||0}:null;}).filter(Boolean); trace('PDOK Pays-Bas',q,docs.length); return docs; }catch(e){trace('PDOK Pays-Bas',q,0,'indisponible');return[];}
-  }
-  let lastNom=0;
-  async function osmPays(q,cc){ const wait=1100-(Date.now()-lastNom);if(wait>0)await new Promise(r=>setTimeout(r,wait));lastNom=Date.now();try{const d=await fetchJson('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=fr&countrycodes='+cc.toLowerCase()+'&q='+encodeURIComponent(retirerPays(q,cc)),6500);const L=(d||[]).map(x=>({nom:x.name||String(x.display_name||'').split(',')[0],libelle:String(x.display_name||'').split(', ').slice(0,5).join(', '),lat:+x.lat,lon:+x.lon,pays:cc.toLowerCase(),cp:(x.address||{}).postcode||'',localite:/city|town|village|hamlet|municipality|locality|suburb/i.test(x.addresstype||x.type||''),src:'OpenStreetMap '+LABEL[cc],exact:true,score:+x.importance||0}));trace('OpenStreetMap '+LABEL[cc],q,L.length);return L;}catch(e){trace('OpenStreetMap '+LABEL[cc],q,0,'indisponible');return[];} }
-  window.jmV297ChercherPays = async function(q,cc){ cc=(cc||paysDans(q)||'').toUpperCase(); let L=[]; if(cc==='FR')L=await france(q); else if(cc==='NL')L=await paysBas(q); else if(cc==='LU'||cc==='DE')L=await osmPays(q,cc); if(!L.length && (cc==='FR'||cc==='NL'))L=await osmPays(q,cc); return L; };
-
-  // Si l'adresse indique explicitement un pays, le géocodeur correspondant passe avant le moteur Belgique.
-  if(typeof geocodeAddress==='function'){
-    const _g=geocodeAddress;
-    window.geocodeAddress=async function(address){
-      const a=String(address||'').trim(); let cc=paysDans(a); const fields=['qqFrom','qqTo','addrFrom','addrTo','addrDepart','qaAdrFrom','qaAdrTo','rdvAdresse'];
-      if(!cc){ const f=fields.map($).find(x=>x&&norm(x.value)===norm(a)&&x.dataset&&x.dataset.country); if(f)cc=f.dataset.country; }
-      if(cc && cc!=='BE'){
-        const L=await jmV297ChercherPays(a,cc); if(L.length){ const x=L[0]; if(L.length>1 && (x.score<.70 || (L[1].score||0)>(x.score||0)*.92)){ window.JM_LIEU_A_CONFIRMER={texte:a,candidats:L.slice(0,6)}; const e=new Error('Lieu à confirmer : '+a);e.lieu=true;throw e; }
-          (window.JM_GEO_RESOLUS=window.JM_GEO_RESOLUS||[]).push({texte:a,nom:x.nom,pays:x.pays}); return {lat:x.lat,lon:x.lon}; }
-      }
-      return _g.apply(this,arguments);
-    };
-  }
-
-  // Recherche de variantes : pays explicitement dicté => source du pays, sinon moteur v296 inchangé.
-  if(typeof jmChercherLieu==='function'){
-    const _cl=jmChercherLieu;
-    window.jmChercherLieu=async function(texte){ const cc=paysDans(texte); if(cc&&cc!=='BE'){const L=await jmV297ChercherPays(texte,cc);if(L.length)return L.slice(0,5);} return _cl.apply(this,arguments); };
-  }
-
-  // Diagnostic public de la fonctionnalité (utile dans le rapport / console, sans données client).
-  window.JM_V297_INFO={gratuit:true,iaPayante:false,speech:'Web Speech',pays:['BE','FR','NL','LU'],sources:['Dictionnaire belge local','OpenStreetMap','Photon','IGN France','PDOK Pays-Bas']};
-})();
-</script>
-
-
-<script id="jm-v298-vocal-encadre-corrige-script">
-(function(){
-  // v298 — après validation/correction des lieux du devis vocal, l'encadré de dictée
-  // affiche lui aussi la demande normalisée. Le texte réellement entendu reste conservé
-  // dans le résumé « Entendu » au-dessus. Aucun impact sur le calcul tarifaire.
-  const $ = id => document.getElementById(id);
-  function libService(){
-    const s=$('qqType');
-    return s ? String((s.options[s.selectedIndex]||{}).textContent||'').replace(/^[^\p{L}]+/u,'').split(' — ')[0].trim() : '';
-  }
-  window.jmV298MajEncadreVocal = function(){
-    const box=$('vocalTexte'), de=$('qqFrom'), a=$('qqTo'), km=$('qqKm');
-    if(!box || !de) return;
-    const from=String(de.value||'').trim(), to=String((a||{}).value||'').trim();
-    if(!from) return;
-    // On ne remplace la dictée qu'une fois qu'un lieu a réellement été résolu/mesuré.
-    if(km && km.value && !(parseFloat(km.value)>0)) return;
-    const service=libService() || 'Intervention';
-    const txt = to ? (service + ' de ' + from + ' jusqu’à ' + to) : (service + ' à ' + from);
-    if(txt && box.value !== txt) box.value = txt;
-  };
-  if(typeof jmVocalResume==='function'){
-    const _r=jmVocalResume;
-    window.jmVocalResume=function(){ const x=_r.apply(this,arguments); try{jmV298MajEncadreVocal();}catch(e){} return x; };
-  }
-  if(typeof jmApresChoixLieu==='function'){
-    const _a=jmApresChoixLieu;
-    window.jmApresChoixLieu=function(){ const x=_a.apply(this,arguments); setTimeout(()=>{try{jmV298MajEncadreVocal();}catch(e){}},80); return x; };
-  }
-  if(typeof jmVocalTraiter==='function'){
-    const _v=jmVocalTraiter;
-    window.jmVocalTraiter=async function(){ const x=await _v.apply(this,arguments); try{jmV298MajEncadreVocal();}catch(e){} return x; };
-  }
-})();
-</script>
 </body>
 </html>
