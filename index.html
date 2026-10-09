@@ -9386,7 +9386,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v303';
+const APP_VERSION = 'jm-express-bon-v304';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11975,12 +11975,16 @@ async function chargerInterventionDepuisJournal(key){
   ecrireMateriel(d.type === 'transport_materiel' ? d.materiel : null);
   editingKey = key;
   VERSION_EDITION = (d.moteurVersion === 'A') ? 'A' : 'v224';
+  // v304 : le chargement doit aussi afficher le formulaire, quelle que soit la liste d’origine.
+  ['modalATraiterBg','modalRechercheBg','modalRouteBg'].forEach(id => document.getElementById(id)?.classList.remove('show'));
+  showTab('tabNouveau', true);
   majBandeauVersion();
   document.getElementById('editBanner').style.display = 'flex';
   updateAdvancedSummary();
   await calculerAvecRetour();
   majBarreActionsContextuelle();
-  document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
+  const formulaireEdition = document.querySelector('#tabNouveau .card') || document.getElementById('tabNouveau');
+  if(formulaireEdition) formulaireEdition.scrollIntoView({behavior:'smooth', block:'start'});
   showToast('Modification en cours — ajuste puis réenregistre');
 }
 
@@ -15671,6 +15675,7 @@ async function enregistrer(){
   // Rafraîchir lastCalc juste avant la sauvegarde évite de réenregistrer les anciennes valeurs.
   // calculer() utilise le même moteur tarifaire existant : aucun barème n'est modifié.
   calculer();
+  if(!lastCalc) return; // Un trajet incomplet ne doit pas réenregistrer les anciennes données.
   try{
     let id, entry;
     if(editingKey){
