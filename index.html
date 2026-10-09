@@ -3134,7 +3134,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
-<details class="field" id="multiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Remorquages supplémentaires / imprévu</summary><p class="km-mention">Le premier trajet reste dans les champs habituels. Saisis ici le montant final convenu de chaque trajet supplémentaire, majorations comprises. Ces montants s’ajoutent après la remise du premier trajet. Ne les encode pas aussi dans les frais supplémentaires.</p><div class="field"><label>Remorquage 2 (optionnel)</label><input id="multiFrom2" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('multi')"><input id="multiTo2" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('multi')"><input id="multiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('multi')"></div><div class="field"><label>Remorquage 3 (optionnel)</label><input id="multiFrom3" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('multi')"><input id="multiTo3" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('multi')"><input id="multiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('multi')"></div><label>Imprévu et justification des prestations supplémentaires</label><textarea id="multiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('multi')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('multi')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="multiAgreement" placeholder="Ex : accord par téléphone à 14h30 pour le second trajet" oninput="jmMultiChange('multi')"><div class="km-mention">Les trajets et la justification seront repris sur les documents partagés.</div></details>
+<details class="field" id="multiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Trajets A → B → C / attentes aux dépôts</summary><p class="km-mention">A → B reste dans les champs habituels. Chaque nouveau remorquage est calculé séparément avec le barème de transport, à partir de ses kilomètres. Le retour à vide part du dernier garage. Ne reporte pas ces kilomètres dans le premier trajet, ni ces attentes dans les options avancées.</p><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 1</legend><label>Minutes d’attente à ce garage</label><input id="multiWaitMinutes1" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('multi')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('multi',1)">+30 min</button><label>Explication de cette attente</label><textarea id="multiWaitReason1" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('multi')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><div class="field" style="border-top:1px solid var(--line);padding-top:12px"><label>Remorquage 2 — B → C (optionnel)</label><label>Départ</label><input id="multiFrom2" placeholder="Vide = garage précédent" oninput="jmMultiAdresse('multi',2,'From')"><label>Nouveau garage / destination</label><input id="multiTo2" placeholder="Adresse et commune du garage suivant" oninput="jmMultiAdresse('multi',2,'To')"><label>Kilomètres de ce trajet uniquement</label><input id="multiKm2" type="number" min="0" step="0.1" inputmode="decimal" placeholder="À mesurer ou à saisir" oninput="jmMultiChange('multi')"><button type="button" class="ghost" onclick="jmMultiMesurer('multi',2)">Mesurer B → C</button><label>Prix convenu à la place du calcul (facultatif, hors attente)</label><input id="multiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Vide = tarif automatique" oninput="jmMultiChange('multi')"><div id="multiPrix2" class="km-mention"></div></div><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 2</legend><label>Minutes d’attente à ce garage</label><input id="multiWaitMinutes2" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('multi')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('multi',2)">+30 min</button><label>Explication de cette attente</label><textarea id="multiWaitReason2" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('multi')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><div class="field" style="border-top:1px solid var(--line);padding-top:12px"><label>Remorquage 3 — C → D (optionnel)</label><label>Départ</label><input id="multiFrom3" placeholder="Vide = garage précédent" oninput="jmMultiAdresse('multi',3,'From')"><label>Nouveau garage / destination</label><input id="multiTo3" placeholder="Adresse et commune du garage suivant" oninput="jmMultiAdresse('multi',3,'To')"><label>Kilomètres de ce trajet uniquement</label><input id="multiKm3" type="number" min="0" step="0.1" inputmode="decimal" placeholder="À mesurer ou à saisir" oninput="jmMultiChange('multi')"><button type="button" class="ghost" onclick="jmMultiMesurer('multi',3)">Mesurer C → D</button><label>Prix convenu à la place du calcul (facultatif, hors attente)</label><input id="multiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Vide = tarif automatique" oninput="jmMultiChange('multi')"><div id="multiPrix3" class="km-mention"></div></div><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 3</legend><label>Minutes d’attente à ce garage</label><input id="multiWaitMinutes3" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('multi')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('multi',3)">+30 min</button><label>Explication de cette attente</label><textarea id="multiWaitReason3" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('multi')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><label>Imprévu et justification des remorquages</label><textarea id="multiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('multi')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('multi')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="multiAgreement" placeholder="Ex : accord par téléphone pour le second trajet" oninput="jmMultiChange('multi')"><div class="km-mention">Chaque trajet et chaque attente seront détaillés sur le devis et la facture. La remise du premier trajet ne modifie pas les prestations supplémentaires.</div></details>
         <div class="field">
       <label>Frais supplémentaire (optionnel)</label>
       <div class="field-row">
@@ -5602,7 +5602,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
-<details class="field" id="qqMultiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Remorquages supplémentaires / imprévu</summary><p class="km-mention">Le premier trajet reste dans les champs habituels. Saisis ici le montant final convenu de chaque trajet supplémentaire, majorations comprises. Ces montants s’ajoutent après la remise du premier trajet. Ne les encode pas aussi dans les frais supplémentaires.</p><div class="field"><label>Remorquage 2 (optionnel)</label><input id="qqMultiFrom2" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('qqMulti')"><input id="qqMultiTo2" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('qqMulti')"><input id="qqMultiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('qqMulti')"></div><div class="field"><label>Remorquage 3 (optionnel)</label><input id="qqMultiFrom3" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('qqMulti')"><input id="qqMultiTo3" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('qqMulti')"><input id="qqMultiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('qqMulti')"></div><label>Imprévu et justification des prestations supplémentaires</label><textarea id="qqMultiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('qqMulti')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('qqMulti')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="qqMultiAgreement" placeholder="Ex : accord par téléphone à 14h30 pour le second trajet" oninput="jmMultiChange('qqMulti')"><div class="km-mention">Les trajets et la justification seront repris sur les documents partagés.</div></details>
+<details class="field" id="qqMultiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Trajets A → B → C / attentes aux dépôts</summary><p class="km-mention">A → B reste dans les champs habituels. Chaque nouveau remorquage est calculé séparément avec le barème de transport, à partir de ses kilomètres. Le retour à vide part du dernier garage. Ne reporte pas ces kilomètres dans le premier trajet, ni ces attentes dans les options avancées.</p><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 1</legend><label>Minutes d’attente à ce garage</label><input id="qqMultiWaitMinutes1" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('qqMulti')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('qqMulti',1)">+30 min</button><label>Explication de cette attente</label><textarea id="qqMultiWaitReason1" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('qqMulti')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><div class="field" style="border-top:1px solid var(--line);padding-top:12px"><label>Remorquage 2 — B → C (optionnel)</label><label>Départ</label><input id="qqMultiFrom2" placeholder="Vide = garage précédent" oninput="jmMultiAdresse('qqMulti',2,'From')"><label>Nouveau garage / destination</label><input id="qqMultiTo2" placeholder="Adresse et commune du garage suivant" oninput="jmMultiAdresse('qqMulti',2,'To')"><label>Kilomètres de ce trajet uniquement</label><input id="qqMultiKm2" type="number" min="0" step="0.1" inputmode="decimal" placeholder="À mesurer ou à saisir" oninput="jmMultiChange('qqMulti')"><button type="button" class="ghost" onclick="jmMultiMesurer('qqMulti',2)">Mesurer B → C</button><label>Prix convenu à la place du calcul (facultatif, hors attente)</label><input id="qqMultiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Vide = tarif automatique" oninput="jmMultiChange('qqMulti')"><div id="qqMultiPrix2" class="km-mention"></div></div><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 2</legend><label>Minutes d’attente à ce garage</label><input id="qqMultiWaitMinutes2" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('qqMulti')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('qqMulti',2)">+30 min</button><label>Explication de cette attente</label><textarea id="qqMultiWaitReason2" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('qqMulti')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><div class="field" style="border-top:1px solid var(--line);padding-top:12px"><label>Remorquage 3 — C → D (optionnel)</label><label>Départ</label><input id="qqMultiFrom3" placeholder="Vide = garage précédent" oninput="jmMultiAdresse('qqMulti',3,'From')"><label>Nouveau garage / destination</label><input id="qqMultiTo3" placeholder="Adresse et commune du garage suivant" oninput="jmMultiAdresse('qqMulti',3,'To')"><label>Kilomètres de ce trajet uniquement</label><input id="qqMultiKm3" type="number" min="0" step="0.1" inputmode="decimal" placeholder="À mesurer ou à saisir" oninput="jmMultiChange('qqMulti')"><button type="button" class="ghost" onclick="jmMultiMesurer('qqMulti',3)">Mesurer C → D</button><label>Prix convenu à la place du calcul (facultatif, hors attente)</label><input id="qqMultiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Vide = tarif automatique" oninput="jmMultiChange('qqMulti')"><div id="qqMultiPrix3" class="km-mention"></div></div><fieldset style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0"><legend>Attente au dépôt 3</legend><label>Minutes d’attente à ce garage</label><input id="qqMultiWaitMinutes3" type="number" min="0" step="1" inputmode="numeric" placeholder="0" oninput="jmMultiChange('qqMulti')"><button type="button" class="ghost" onclick="jmMultiAjouterAttente('qqMulti',3)">+30 min</button><label>Explication de cette attente</label><textarea id="qqMultiWaitReason3" rows="3" placeholder="Ex : garage non informé, refus faute de place, attente du réceptionnaire…" oninput="jmMultiChange('qqMulti')"></textarea><div class="km-mention">Tarif d’attente des réglages : par tranche de 15 min. Une attente de 30 min compte deux tranches.</div></fieldset><label>Imprévu et justification des remorquages</label><textarea id="qqMultiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('qqMulti')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('qqMulti')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="qqMultiAgreement" placeholder="Ex : accord par téléphone pour le second trajet" oninput="jmMultiChange('qqMulti')"><div class="km-mention">Chaque trajet et chaque attente seront détaillés sur le devis et la facture. La remise du premier trajet ne modifie pas les prestations supplémentaires.</div></details>
     <div class="qq-result">
       <div class="qq-label">Estimation</div>
       <div class="qq-amount" id="qqResult">0,00 €</div>
@@ -8497,47 +8497,103 @@ async function tousLesDevis(){
 }
 
 
-// v300 — montants convenus des trajets supplémentaires, sans modifier les barèmes.
+// v303 — trajets successifs calculés et attentes distinctes aux dépôts.
+function jmMultiNombre(v){const n=Number(v);return Number.isFinite(n)?Math.max(0,n):0;}
 function jmMultiLire(prefix){
-  const val = id => String(document.getElementById(prefix + id).value || '').trim();
-  const trajets = [2,3].map(numero => ({numero, from:val('From'+numero), to:val('To'+numero), amount:Math.max(0,Math.round((parseFloat(val('Amount'+numero)) || 0)*100)/100)})).filter(t => t.from || t.to || t.amount);
-  return {remorquagesSupplementaires:trajets, justificationRemorquages:val('Reason'), accordRemorquages:val('Agreement')};
+  const val = id => String((document.getElementById(prefix+id)||{}).value || '').trim();
+  const main = prefix==='qqMulti'?'qq':'addr';
+  const premiereDestination=String((document.getElementById(main+'To')||{}).value || '').trim();
+  let precedente=premiereDestination;
+  const trajets=[];
+  [2,3].forEach(numero=>{
+    const fromSaisi=val('From'+numero),to=val('To'+numero),kmSaisi=val('Km'+numero),prix=val('Amount'+numero);
+    const actif=!!(fromSaisi||to||kmSaisi||prix);
+    if(actif){trajets.push({numero,from:fromSaisi||precedente,fromAuto:!fromSaisi,to,km:kmSaisi===''?null:jmMultiNombre(kmSaisi),mode:prix===''?'auto':'manuel',amount:prix===''?0:jmMultiNombre(prix)});precedente=to;}
+  });
+  const attentes=[1,2,3].map(numero=>({numero,minutes:Math.ceil(jmMultiNombre(val('WaitMinutes'+numero))),raison:val('WaitReason'+numero)})).filter(a=>a.minutes||a.raison);
+  return {remorquagesSupplementaires:trajets,attentesDepots:attentes,justificationRemorquages:val('Reason'),accordRemorquages:val('Agreement')};
 }
 function jmMultiRestaurer(prefix,d){
-  d=d || {};
-  [2,3].forEach(n => {const t=(d.remorquagesSupplementaires || []).find(t=>t.numero===n) || {}; ['From','To','Amount'].forEach(k => {document.getElementById(prefix+k+n).value=t[k.toLowerCase()] || '';});});
-  document.getElementById(prefix+'Reason').value=d.justificationRemorquages || '';
-  document.getElementById(prefix+'Agreement').value=d.accordRemorquages || '';
-  document.getElementById(prefix+'Bloc').open=!!((d.remorquagesSupplementaires || []).length || d.justificationRemorquages);
+  d=d||{};
+  [2,3].forEach(n=>{const t=(d.remorquagesSupplementaires||[]).find(t=>t.numero===n)||{}; const valeurs={From:t.fromAuto?'':t.from,To:t.to,Km:t.km,Amount:t.mode==='auto'?'':t.amount};Object.entries(valeurs).forEach(([k,v])=>{document.getElementById(prefix+k+n).value=v==null?'':v;});});
+  [1,2,3].forEach(n=>{const a=(d.attentesDepots||[]).find(a=>a.numero===n)||{};document.getElementById(prefix+'WaitMinutes'+n).value=a.minutes||'';document.getElementById(prefix+'WaitReason'+n).value=a.raison||'';});
+  document.getElementById(prefix+'Reason').value=d.justificationRemorquages||'';
+  document.getElementById(prefix+'Agreement').value=d.accordRemorquages||'';
+  document.getElementById(prefix+'Bloc').open=!!((d.remorquagesSupplementaires||[]).length||(d.attentesDepots||[]).length||d.justificationRemorquages);
 }
-function jmMultiChange(prefix){
+function jmMultiCalculer(d,tarifs,config){
+  const moteur=d.moteurVersion==='v224'?MOTEUR_v224_calculerTarif:MOTEUR_A_calculerTarif;
+  const bar=d.moteurVersion==='v224'?tarifsV224():tarifs;
+  let precedente=d.to||'';
+  const trajets=(d.remorquagesSupplementaires||[]).map(t=>{
+    const from=t.fromAuto?precedente:(t.from||precedente);precedente=t.to||'';
+    // Anciennes fiches v300-v302 : conserver les montants convenus.
+    if(t.mode!=='auto') return {...t,from,amount:jmMultiNombre(t.amount)};
+    const incomplet=t.km==null||!from||!t.to;
+    const input={type:['depannage','transfert','moto_remorquage'].includes(d.type)?d.type:'transfert',km:jmMultiNombre(t.km),nuit:!!d.nuit,we:!!d.we,auto:!!d.auto,vehicleType:d.vehicleType,extras:[],remiseValue:0,retour:false};
+    const detail=incomplet?null:moteur(input,bar,config);
+    return {...t,from,amount:detail?detail.total:0,detail,incomplet};
+  });
+  const attentes=(d.attentesDepots||[]).map(a=>({...a,minutes:Math.ceil(jmMultiNombre(a.minutes)),lieu:a.numero===1?(d.to||''):(trajets.find(t=>t.numero===a.numero)||{}).to||'',cost:Math.round(Math.ceil(jmMultiNombre(a.minutes)/15)*jmMultiNombre(bar.attente15minFee)*100)/100}));
+  return {remorquagesSupplementaires:trajets,attentesDepots:attentes,calculTrajetsIncomplet:trajets.some(t=>t.incomplet)||attentes.some(a=>a.minutes>0&&!a.lieu)};
+}
+function jmMultiChange(prefix,adresses){
+  if(adresses){const ctx=prefix==='qqMulti'?RV_CTX.devis:RV_CTX.form;ctx.mesure.verifie=false;ctx.mesure.cle=null;}
   if(prefix==='qqMulti') calculerDevisRapide();
-  else {invaliderTicketObsolete(); planifierSauvegardeBrouillon();}
+  else {invaliderTicketObsolete();planifierSauvegardeBrouillon();jmMultiAfficherPrix(prefix);}
 }
+function jmMultiAfficherPrix(prefix){
+  const q=prefix==='qqMulti',on=id=>!!document.getElementById(id)?.classList.contains('on');
+  const d={...jmMultiLire(prefix),type:document.getElementById(q?'qqType':'type').value,to:document.getElementById(q?'qqTo':'addrTo').value,nuit:on(q?'qqNuit':'tgNuit'),we:on(q?'qqWe':'tgWe'),auto:on(q?'qqAuto':'tgAuto'),vehicleType:q?(typeof QQ_VEHICLE_TYPE!=='undefined'?QQ_VEHICLE_TYPE:'normale'):VEHICLE_TYPE,moteurVersion:q?'A':(typeof VERSION_EDITION!=='undefined'?VERSION_EDITION:'A')};
+  const r=jmMultiCalculer(d,RATES,{typesRemorquage:TYPES_REMORQUAGE});
+  [2,3].forEach(n=>{const t=r.remorquagesSupplementaires.find(t=>t.numero===n),el=document.getElementById(prefix+'Prix'+n);if(el)el.textContent=t?(t.incomplet?'Renseigne le départ, la destination et les kilomètres.':(t.mode==='auto'?'Prix calculé : ':'Prix convenu : ')+fmt(t.amount)) : '';});
+  return r;
+}
+async function jmMultiMesurer(prefix,n){
+  const t=jmMultiLire(prefix).remorquagesSupplementaires.find(t=>t.numero===n);
+  if(!t||!t.from||!t.to){showToast('Indique les adresses et communes des deux garages');return;}
+  if(!navigator.onLine){showToast('Hors ligne : saisis les kilomètres de ce trajet');return;}
+  const from=t.from,to=t.to;
+  showToast('Mesure du trajet entre les deux garages…');
+  try{const km=await mesurerDistanceRoutiere('',from,to);const actuel=jmMultiLire(prefix).remorquagesSupplementaires.find(t=>t.numero===n);if(!actuel||actuel.from!==from||actuel.to!==to)return;document.getElementById(prefix+'Km'+n).value=km.toFixed(1);jmMultiChange(prefix);showToast('Trajet '+n+' : '+km.toFixed(1)+' km');}catch(e){showToast('Itinéraire introuvable : précise la commune ou saisis les kilomètres');}
+}
+function jmMultiAdresse(prefix,n,champ){
+  document.getElementById(prefix+'Km'+n).value='';
+  if(n===2 && champ==='To' && !document.getElementById(prefix+'From3').value.trim())document.getElementById(prefix+'Km3').value='';
+  jmMultiChange(prefix,true);
+}
+// Le premier garage change : invalider les distances dérivées.
+document.addEventListener('input',e=>{
+  const prefix=e.target?.id==='addrTo'?'multi':e.target?.id==='qqTo'?'qqMulti':null;
+  if(prefix && !document.getElementById(prefix+'From2').value.trim()){
+    document.getElementById(prefix+'Km2').value='';jmMultiChange(prefix,true);
+  }
+});
+function jmMultiAjouterAttente(prefix,n){const e=document.getElementById(prefix+'WaitMinutes'+n);e.value=jmMultiNombre(e.value)+30;jmMultiChange(prefix);}
 function jmMultiExemple(prefix){
   document.getElementById(prefix+'Reason').value="Le véhicule a été transporté au garage initialement désigné. À l’arrivée, ce garage a refusé sa prise en charge, aucune demande préalable n’ayant été enregistrée et aucune place n’étant disponible. Le véhicule a dû être rechargé et transporté vers un autre garage. Ces remorquages sont détaillés et facturés séparément.";
   jmMultiChange(prefix);
 }
 function jmMultiTicket(d){const el=document.getElementById('tkMulti'); const txt=jmMultiTexte(d); el.textContent=txt; el.style.display=txt?'block':'none';}
-function jmMultiTotal(d){return (d.remorquagesSupplementaires || []).reduce((s,t)=>s+(Number(t.amount)||0),0);}
-function jmMultiTexte(d){
-  const a=d.remorquagesSupplementaires || [];
-  if(!a.length && !d.justificationRemorquages && !d.accordRemorquages) return '';
-  return ['Remorquage 1 : '+(d.from || '—')+' → '+(d.to || '—'), ...a.map(t=>'Remorquage '+t.numero+' : '+(t.from || '—')+' → '+(t.to || '—')+' — '+fmt(t.amount)), d.justificationRemorquages || '', d.accordRemorquages ? 'Accord client : '+d.accordRemorquages : ''].filter(Boolean).join('\n');
+function jmMultiTotal(d){return (d.remorquagesSupplementaires || []).reduce((s,t)=>s+jmMultiNombre(t.amount),0)+(d.attentesDepots||[]).reduce((s,a)=>s+jmMultiNombre(a.cost),0);}
+function jmMultiEncadres(d){
+  const result=[];const a=d.remorquagesSupplementaires||[];
+  if(a.length||d.justificationRemorquages||d.accordRemorquages)result.push({titre:'TRAJETS ET IMPRÉVU',texte:['Remorquage 1 : '+(d.from||'—')+' → '+(d.to||'—'),...a.map(t=>'Remorquage '+t.numero+' : '+(t.from||'—')+' → '+(t.to||'—')+(t.km!=null?' — '+fmtKm(t.km)+' km':'')+' — '+(t.incomplet?'À compléter':fmt(t.amount))),d.justificationRemorquages||'',d.accordRemorquages?'Accord client : '+d.accordRemorquages:''].filter(Boolean).join('\n')});
+  (d.attentesDepots||[]).forEach(a=>result.push({titre:'ATTENTE AU DÉPÔT '+a.numero,texte:[a.lieu||((a.numero===1?d.to:(d.remorquagesSupplementaires||[]).find(t=>t.numero===a.numero)?.to)||'Lieu non précisé'),a.minutes+' min — '+fmt(a.cost||0),a.raison||''].filter(Boolean).join('\n')}));
+  return result;
 }
+function jmMultiTexte(d){return jmMultiEncadres(d).map(b=>b.titre+'\n'+b.texte).join('\n\n');}
 function jmMultiPdf(pdf,d,y,annexe){
-  const txt=jmMultiTexte(d); if(!txt) return y;
-  if(annexe){pdf.newPage(); y=50;}
-  const titre='IMPRÉVU ET REMORQUAGES SUPPLÉMENTAIRES';
-  const lines=txt.split('\n').flatMap(t=>wrapText(t.replace(/(\S{75})/g,'$1 '),78));
-  let index=0;
-  while(index<lines.length){
-    if(y>680){pdf.newPage(); y=50;}
-    const count=Math.min(lines.length-index,Math.floor((760-y-38)/13));
-    pdf.rect(50,y,495,32+count*13,{mode:'S',rgb:[196,136,0]});
-    pdf.text(60,y+17,titre+(index?' (suite)':''),{font:'F2',size:9,rgb:[196,136,0]});
-    for(let i=0;i<count;i++) pdf.text(60,y+35+i*13,lines[index+i],{size:9,gray:0.25});
-    index+=count; y+=44+count*13;
+  const boxes=jmMultiEncadres(d);if(!boxes.length)return y;
+  if(annexe){pdf.newPage();y=50;}
+  for(const box of boxes){
+    const lines=box.texte.split('\n').flatMap(t=>wrapText(t.replace(/(\S{75})/g,'$1 '),78));let index=0;
+    while(index<lines.length){
+      if(y>680){pdf.newPage();y=50;}
+      const count=Math.min(lines.length-index,Math.floor((760-y-38)/13));
+      pdf.rect(50,y,495,32+count*13,{mode:'S',rgb:[196,136,0]});pdf.text(60,y+17,box.titre+(index?' (suite)':''),{font:'F2',size:9,rgb:[196,136,0]});
+      for(let i=0;i<count;i++)pdf.text(60,y+35+i*13,lines[index+i],{size:9,gray:0.25});index+=count;y+=44+count*13;
+    }
   }
   return y;
 }
@@ -8545,6 +8601,7 @@ function jmMultiPdf(pdf,d,y,annexe){
 function lireParamsDevis(){
   return {
     ...jmMultiLire('qqMulti'),
+    ...(QQ_DERNIER_CALC?{remorquagesSupplementaires:QQ_DERNIER_CALC.remorquagesSupplementaires,attentesDepots:QQ_DERNIER_CALC.attentesDepots}:{}),
     type: document.getElementById('qqType').value,
     km: parseFloat(document.getElementById('qqKm').value) || 0,
     nuit: document.getElementById('qqNuit').classList.contains('on'),
@@ -8910,7 +8967,7 @@ const RV_CTX = {
 };
 const rvEl = (ctx, k) => document.getElementById(ctx[k]);
 function rvActif(ctx){ const t = rvEl(ctx,'toggle'); return !!(t && t.classList.contains('on')); }
-function rvLireTo(ctx){ const e = rvEl(ctx,'to'); const v = e ? (e.value || '').trim() : ''; return (v && v !== '—') ? v : ''; }
+function rvLireTo(ctx){ const e = rvEl(ctx,'to'); let v = e ? (e.value || '').trim() : ''; const p=ctx.nom==='devis'?'qqMulti':'multi';const a=jmMultiLire(p).remorquagesSupplementaires;if(a.length)v=a[a.length-1].to||'';return (v && v !== '—') ? v : ''; }
 function rvCle(ctx){ return cleAdresses('', rvLireTo(ctx), BASE_ADDRESS); }
 function rvKmAller(ctx){ const e = rvEl(ctx,'km'); return e ? (parseFloat(e.value) || 0) : 0; }
 function rvTauxKm(ctx){
@@ -9329,7 +9386,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v300';
+const APP_VERSION = 'jm-express-bon-v303';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11170,6 +11227,7 @@ function lireDonneesDevisRapide(){
   } : null;
   return {
     ...jmMultiLire('qqMulti'),
+    from:document.getElementById('qqFrom').value.trim(),to:document.getElementById('qqTo').value.trim(),
     type,
     km: parseFloat(document.getElementById('qqKm').value) || 0,
     nuit: on('qqNuit'), we: on('qqWe'), auto: on('qqAuto'),
@@ -11190,7 +11248,8 @@ function calculerDevisRapide(){
   R.from = document.getElementById('qqFrom').value.trim();
   R.to = document.getElementById('qqTo').value.trim();
   QQ_DERNIER_CALC = R;
-  document.getElementById('qqResult').textContent = fmt(R.total);
+  document.getElementById('qqResult').textContent = R.calculTrajetsIncomplet?'À compléter':fmt(R.total);
+  jmMultiAfficherPrix('qqMulti');
   document.getElementById('qqDetail').innerHTML = qqDetailHtml(R);
   qqMajResumePrecisions();
 }
@@ -12330,7 +12389,8 @@ function lignesDocument(c, lang, meta){
     add(S.ctPrestataire, c.ctPrestataireCost || 0);
     add(S.ctRetour + (c.retourCTKm ? ' (' + fmtKm(c.retourCTKm) + ' km)' : ''), c.ctRetourCost || 0);
   }
-  (c.remorquagesSupplementaires || []).forEach(t => L.push({label:'Remorquage '+t.numero+' — rechargement et transport',amount:t.amount,type:'remorquage'}));
+  (c.remorquagesSupplementaires || []).forEach(t => add('Remorquage '+t.numero+' — rechargement et transport'+(t.km!=null?' ('+fmtKm(t.km)+' km)':''),t.amount,'remorquage'));
+  (c.attentesDepots||[]).forEach(a=>add('Attente au dépôt '+a.numero+' ('+a.minutes+' min)',a.cost,'attente_depot'));
   if(c.remiseAmount > 0) L.push({label:S.remise, amount:-c.remiseAmount, type:'remise'});
   if(typeof c.total === 'number'){
     // v225 : la somme se fait sur les montants tels qu'imprimés (au centime), pour que lignes = total, toujours.
@@ -14352,8 +14412,9 @@ function MOTEUR_A_calculerTarif(d, tarifs, config) {
 // v225 — point d'entrée unique : devis, devis rapide, WhatsApp, validation finale, enregistrement.
 // Une intervention calculée en v224 garde le moteur v224 figé (avec les tarifs de l'époque).
 function MOTEUR_calculerTarif(d, tarifs, config) {
-  const supplement = jmMultiTotal(d);
-  const finaliser = r => ({...r, remorquagesSupplementaires:d.remorquagesSupplementaires || [], justificationRemorquages:d.justificationRemorquages || '', accordRemorquages:d.accordRemorquages || '', total:Math.round((r.total+supplement)*100)/100});
+  const multi=jmMultiCalculer(d,tarifs,config);
+  const supplement = jmMultiTotal(multi);
+  const finaliser = r => ({...r,...multi, justificationRemorquages:d.justificationRemorquages || '', accordRemorquages:d.accordRemorquages || '', total:Math.round((r.total+supplement)*100)/100});
   if(d && d.moteurVersion === 'v224'){
     const r = MOTEUR_v224_calculerTarif(d, tarifsV224(), config);
     r.moteurVersion = 'v224'; r.formuleA = false; r.pasArrondi = 0; r.arrondiGrille = null; r.arrondiAjout = 0;
@@ -15056,6 +15117,8 @@ function reinitialiserSimuWa(){
 }
 
 function calculer(){
+  const multiVerification=jmMultiAfficherPrix('multi');
+  if(multiVerification.calculTrajetsIncomplet){invaliderTicketObsolete();lastCalc=null;showToast('Complète les adresses et les kilomètres des remorquages supplémentaires');return;}
   const type = document.getElementById('type').value;
   // v217 — téléphone de secours : les tarifs restent en lecture seule, mais le calcul
   // doit utiliser la dernière copie locale reçue du principal. On relit directement
@@ -15162,6 +15225,7 @@ function calculer(){
   if(true){
     DERNIERE_ENTREE_MOTEUR = {
       ...jmMultiLire('multi'),
+      from,to,
       moteurVersion: versionCalcul,
       type, km, nuit, we, auto, retour, camionOn,
       kmRetourVide: rvDonnees.kmRetourVide, kmRetourVerifie: rvDonnees.kmRetourVerifie,
@@ -15268,6 +15332,8 @@ function calculer(){
   lastCalc.moteurVersion = versionCalcul;
   lastCalc.materiel = (lastCalc.type === 'transport_materiel') ? lireMateriel() : null;
   if(DERNIER_RESULTAT_MOTEUR){
+    lastCalc.remorquagesSupplementaires=DERNIER_RESULTAT_MOTEUR.remorquagesSupplementaires;
+    lastCalc.attentesDepots=DERNIER_RESULTAT_MOTEUR.attentesDepots;
     lastCalc.formuleA = !!DERNIER_RESULTAT_MOTEUR.formuleA;
     lastCalc.pasArrondi = DERNIER_RESULTAT_MOTEUR.pasArrondi || 0;
     lastCalc.arrondiGrille = DERNIER_RESULTAT_MOTEUR.arrondiGrille;
@@ -15450,7 +15516,8 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
-  'multiFrom2','multiTo2','multiAmount2','multiFrom3','multiTo3','multiAmount3','multiReason','multiAgreement',
+  'multiFrom2','multiTo2','multiKm2','multiAmount2','multiFrom3','multiTo3','multiKm3','multiAmount3','multiReason','multiAgreement',
+  'multiWaitMinutes1','multiWaitReason1','multiWaitMinutes2','multiWaitReason2','multiWaitMinutes3','multiWaitReason3',
   'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','kmRetourVide','remise',
   'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
   'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
@@ -19808,7 +19875,7 @@ async function genererRecuV2(){
   const type = () => (document.getElementById('type') || {}).value || '';
   const sauf = (...listes) => () => !listes.some(l => l.includes(type())), pour = (...listes) => () => listes.some(l => l.includes(type()));
   const Q = [
-    {k:'lieu', t:'Où se trouve le véhicule ?', o:[['rue','Rue / parking'],['autoroute','Autoroute'],['soussol','Parking souterrain'],['difficile','Accès difficile / étroit']]},
+    {k:'lieu', t:'Où se trouve le véhicule ?', o:[['rue','Rue / parking'],['autoroute','Autoroute'],['soussol','Parking souterrain'],['chantier','Chantier'],['terrain_vague','Terrain vague'],['parc','Parc'],['chemin_campagne','Chemin de campagne'],['aire_repos','Aire de repos'],['station_service','Station-service'],['domicile','Domicile'],['garage','Garage'],['depot','Dépôt'],['cour_entreprise','Cour d’entreprise'],['accotement','Accotement'],['champ','Champ'],['chemin_forestier','Chemin forestier'],['fosse','Fossé'],['difficile','Accès difficile / étroit']]},
     {k:'batt', t:'Le démarreur tourne-t-il ?', o:[['tourne','Oui, il tourne'],['clic','Clic, ne tourne pas'],['rien','Rien ne s\'allume'],['voyant','Voyant batterie allumé']], v:pour(BATT)},
     {k:'testBatt', t:'Test de santé de la batterie ?', o:[['oui','Oui, le client accepte'],['non','Non merci']], v:() => ['demarrage','moto_batterie'].includes(type())},
     {k:'dimension', t:'Dimensions du pneu ?', o:[['connues','Connues (notées)'],['photo','À demander (photo du flanc)']], v:pour(PNEU)},
