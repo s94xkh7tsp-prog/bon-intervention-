@@ -1,0 +1,30 @@
+name = "jm-express-whatsapp"
+type = "javascript"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables (à définir via Cloudflare dashboard ou wrangler secret)
+# wrangler secret put META_WEBHOOK_TOKEN
+# wrangler secret put META_ACCESS_TOKEN
+# wrangler secret put META_PHONE_NUMBER_ID
+# wrangler secret put META_BUSINESS_ACCOUNT_ID
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jm-express"
+database_id = "YOUR_DATABASE_ID"  # À récupérer après création en Cloudflare
+
+[[routes]]
+pattern = "example.com/whatsapp/*"
+zone_name = "example.com"
+
+# Configuration pour CORS (si nécessaire)
+[env.production]
+name = "jm-express-whatsapp-prod"
+d1_databases = [
+  { binding = "DB", database_name = "jm-express-prod", database_id = "YOUR_DB_ID_PROD" }
+]
+
+[build]
+command = "npm install"
+cwd = "./"

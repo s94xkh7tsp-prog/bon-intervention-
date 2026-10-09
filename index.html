@@ -4748,6 +4748,27 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   </div>
 </div>
 
+<div class="modal-bg" id="modalComptabiliteRappelBg">
+  <div class="modal terrain-sheet">
+    <h3>📊 Rappel comptable trimestriel</h3>
+    <div class="km-mention" style="margin-bottom:12px;">Trimestre à préparer : <strong id="comptRappelTrimestre"></strong></div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block; margin-bottom:8px; font-weight:600;">Pièces à préparer :</label>
+      <label class="check-row"><input type="checkbox" id="comptChkFacturesVente"><span>Factures de vente</span></label>
+      <label class="check-row"><input type="checkbox" id="comptChkFacturesAchat"><span>Factures d'achat</span></label>
+      <label class="check-row"><input type="checkbox" id="comptChkNotesFrais"><span>Notes de frais</span></label>
+      <label class="check-row"><input type="checkbox" id="comptChkJustificatifs"><span>Justificatifs</span></label>
+      <label class="check-row"><input type="checkbox" id="comptChkExtraits"><span>Extraits bancaires</span></label>
+    </div>
+    <div style="margin-bottom:12px; padding:8px; background:var(--lighter); border-radius:4px;">
+      <label style="font-size:13px;">Statut : <strong id="comptRappelStatus">À préparer</strong></label>
+    </div>
+    <button class="primary" onclick="jmComptMarquerPret()">✓ Prêt à envoyer</button>
+    <button class="ghost" style="margin-top:8px;" onclick="jmComptMarquerEnvoye()">📤 Marquer comme envoyé</button>
+    <button class="ghost close-modal" onclick="jmComptReporterRappel()">Reporter de 7 jours</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalTelBg" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="modal">
     <div class="eyebrow">Nouveau téléphone</div>
@@ -20046,7 +20067,101 @@ async function genererRecuV2(){
   window.jmChargesOuvrirReglages = async function(){ $('modalChargesBg').classList.remove('show'); if(typeof openSettings === 'function') openSettings(); setTimeout(() => { const e = $('r_chargesAssurance'); if(e){ const cat = e.closest('.extras-list'); if(cat && getComputedStyle(cat).display === 'none'){ let h = cat.previousElementSibling; while(h && !h.classList.contains('extras-header')) h = h.previousElementSibling; if(h) h.click(); } e.scrollIntoView({block:'center'}); e.focus(); } }, 350); };
   window.jmChargesConfirmer = async function(){ await ecrireMaj({date: new Date().toISOString(), sig: signature()}); $('modalChargesBg').classList.remove('show'); showToast('Charges fixes confirmées pour un an'); };
   window.jmChargesPlusTard = async function(){ const m = await lireMaj() || {date: new Date().toISOString(), sig: signature()}; m.report = new Date(Date.now() + 30 * 864e5).toISOString(); await ecrireMaj(m); $('modalChargesBg').classList.remove('show'); showToast('Rappel dans 30 jours'); };
-  async function init(){ await jmMajNbInterventions(); setTimeout(() => { jmChargesRappel(); }, 2500); }
+
+  // === COMPTABILITÉ — Rappels trimestriels ===
+  const TRIMESTRES_FR = {0: 'Q4 (oct-déc)', 1: 'Q1 (jan-mar)', 2: 'Q2 (avr-juin)', 3: 'Q3 (juil-sept)'};
+  const DATES_RAPPEL = [{m:1,d:5},{m:4,d:5},{m:7,d:5},{m:10,d:5}];
+
+  async function lireRappelCompt(){ try{ return JSON.parse((await window.storage.get('comptabiliteReminders')).value); }catch(e){ return {}; } }
+  async function ecrireRappelCompt(o){ try{ await window.storage.set('comptabiliteReminders', JSON.stringify(o)); }catch(e){} }
+
+  function getTrimestrePrecedent(){
+    const now = new Date();
+    const mois = now.getMonth() + 1; // 1-12
+    let q = Math.ceil(mois / 3) - 1;
+    if(q < 0) q = 3; // Jan/fév/mar → Q4 année précédente
+    const annee = q === 3 && mois <= 3 ? now.getFullYear() - 1 : now.getFullYear();
+    return {trimestre: q, annee, cle: annee + '-Q' + (q+1)};
+  }
+
+  window.jmComptRappelAfficher = async function(){
+    const now = new Date();
+    const mois = now.getMonth() + 1; // 1-12
+    const jour = now.getDate();
+
+    // Vérifier si on est sur une date de rappel
+    const dateRappelAujourdhui = DATES_RAPPEL.some(d => d.m === mois && jour === d.d);
+    if(!dateRappelAujourdhui) return false;
+
+    const {trimestre, annee, cle} = getTrimestrePrecedent();
+    const rappels = await lireRappelCompt();
+    const data = rappels[cle];
+
+    // Si déjà envoyé, ne pas afficher
+    if(data && data.dateEnvoye) return false;
+
+    // Si un report est en cours et pas expiré, ne pas afficher
+    if(data && data.dateReport && new Date(data.dateReport) > now) return false;
+
+    // Afficher le modal
+    const trimsLabels = ['', '(jan-mar)', '(avr-juin)', '(juil-sept)', '(oct-déc)'];
+    const qNum = trimestre + 1;
+    const label = 'Q' + qNum + ' ' + trimsLabels[qNum] + ' ' + annee;
+    $('comptRappelTrimestre').textContent = label;
+    $('comptRappelStatus').textContent = data?.status || 'À préparer';
+    $('comptChkFacturesVente').checked = data?.checklist?.factures_vente || false;
+    $('comptChkFacturesAchat').checked = data?.checklist?.factures_achat || false;
+    $('comptChkNotesFrais').checked = data?.checklist?.notes_frais || false;
+    $('comptChkJustificatifs').checked = data?.checklist?.justificatifs || false;
+    $('comptChkExtraits').checked = data?.checklist?.extraits || false;
+    $('modalComptabiliteRappelBg').classList.add('show');
+    return true;
+  };
+
+  window.jmComptMarquerPret = async function(){
+    const {cle} = getTrimestrePrecedent();
+    const rappels = await lireRappelCompt();
+    rappels[cle] = {
+      trimestre: cle,
+      status: 'Prêt à envoyer',
+      checklist: {
+        factures_vente: $('comptChkFacturesVente').checked,
+        factures_achat: $('comptChkFacturesAchat').checked,
+        notes_frais: $('comptChkNotesFrais').checked,
+        justificatifs: $('comptChkJustificatifs').checked,
+        extraits: $('comptChkExtraits').checked
+      },
+      datePrepa: new Date().toISOString(),
+      dateReport: null
+    };
+    await ecrireRappelCompt(rappels);
+    $('modalComptabiliteRappelBg').classList.remove('show');
+    showToast('Statut : Prêt à envoyer');
+  };
+
+  window.jmComptMarquerEnvoye = async function(){
+    const {cle} = getTrimestrePrecedent();
+    const rappels = await lireRappelCompt();
+    const r = rappels[cle] || {};
+    r.status = 'Envoyé au comptable';
+    r.dateEnvoye = new Date().toISOString();
+    rappels[cle] = r;
+    await ecrireRappelCompt(rappels);
+    $('modalComptabiliteRappelBg').classList.remove('show');
+    showToast('✓ Marqué comme envoyé le ' + new Date().toLocaleDateString('fr-BE'));
+  };
+
+  window.jmComptReporterRappel = async function(){
+    const {cle} = getTrimestrePrecedent();
+    const rappels = await lireRappelCompt();
+    rappels[cle] = rappels[cle] || {trimestre: cle, status: 'À préparer', checklist: {}};
+    rappels[cle].dateReport = new Date(Date.now() + 7 * 864e5).toISOString();
+    await ecrireRappelCompt(rappels);
+    $('modalComptabiliteRappelBg').classList.remove('show');
+    showToast('Rappel reporté de 7 jours');
+  };
+
+  async function init(){ await jmMajNbInterventions(); setTimeout(() => { jmChargesRappel(); jmComptRappelAfficher(); }, 2500); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
