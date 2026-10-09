@@ -14572,14 +14572,15 @@ function waExtraire(messages){
     if(court.length > 3 && tl.includes(court.toLowerCase()) && !trouves.includes(court)) trouves.push(court);
   }
   if(trouves.length < 2){
-    const re = /\b(?:[àa]|de|depuis|sur)\s+([A-ZÉÈÀ][\wÀ-ÿ'’\-]{3,24})/g;
+    // Chercher après "de/à/depuis/sur" OU avant "à" (format "lieu à autre_lieu")
+    const re1 = /\b(?:[àa]|de|depuis|sur)\s+([A-ZÉÈÀ][\wÀ-ÿ’’\- ]{2,35}?)(?:\s+(?:à|vers|jusqu|de|depuis)|$)/gi;
     let m;
-    while((m = re.exec(texte)) !== null){
-      const v = m[1].trim();
-      if(!trouves.includes(v) && !/^(Bonjour|Merci|Monsieur|Madame)$/i.test(v)) trouves.push(v);
+    while((m = re1.exec(texte)) !== null){
+      const v = m[1].trim().replace(/[,;.].*$/, ‘’);
+      if(v.length > 2 && !trouves.includes(v) && !/^(Bonjour|Merci|Monsieur|Madame)$/i.test(v)) trouves.push(v);
     }
   }
-  const mDest = texte.match(/(?:vers|jusqu'?[àa]|direction|d[ée]poser [àa]|emmener [àa]|garage [àa])\s+([A-ZÉÈÀ][\wÀ-ÿ'’\- ]{2,40})/i);
+  const mDest = texte.match(/(?:vers|à|jusqu’?[àa]|direction|d[ée]poser [àa]|emmener [àa]|garage [àa])\s+([A-ZÉÈÀ][\wÀ-ÿ’’\- ]{2,40})/i);
   if(mDest) out.lieuDestination = mDest[1].trim().replace(/[.,;].*$/, '');
   if(trouves.length) out.lieuPriseEnCharge = trouves[0];
   if(trouves.length > 1 && !out.lieuDestination) out.lieuDestination = trouves[1];
@@ -14952,6 +14953,105 @@ function ouvrirSimuWa(){
 function fermerSimuWa(){ document.getElementById('modalSimuWaBg').classList.remove('show'); }
 
 let waConversationEnCours = [];
+let waSimuDerniereReponse = null; // {bloquants, donnees, res}
+
+function waGenererSuggestions(champ){
+  const sugg = {
+    typePrestation: ['Remorquage', 'Batterie', 'Pneu', 'Carburant', 'Débourbage', 'Autre']
+  };
+
+  // Pour les lieux : utiliser ROUTES + FAVORIS + communes par défaut
+  if(champ === 'lieuPriseEnCharge' || champ === 'lieuDestination'){
+    const lieux = new Set();
+
+    // Ajouter toutes les communes de ROUTES
+    if(typeof ROUTES !== 'undefined' && Array.isArray(ROUTES)){
+      ROUTES.forEach(r => {
+        if(r.from) lieux.add(String(r.from).split(',')[0].trim());
+        if(r.to) lieux.add(String(r.to).split(',')[0].trim());
+      });
+    }
+
+    // Ajouter tous les FAVORIS
+    if(typeof FAVORIS !== 'undefined' && Array.isArray(FAVORIS)){
+      FAVORIS.forEach(f => {
+        if(typeof f === 'string') lieux.add(f.split(',')[0].trim());
+        else if(f.nom) lieux.add(f.nom.split(',')[0].trim());
+        else if(f.adresse) lieux.add(f.adresse.split(',')[0].trim());
+      });
+    }
+
+    // Ajouter communes, autoroutes, aires de repos si la liste est vide
+    if(lieux.size === 0){
+      const communesEtLieux = [
+        // Charleroi et région immédiate
+        'Charleroi', 'Gilly', 'Montignies', 'Jumet', 'Tarcienne', 'Farcennes', 'Lobbes', 'Walcourt', 'Fontaine-l\'Évêque', 'Fleurus',
+        // Hainaut
+        'Mons', 'La Louvière', 'Binche', 'Tournai', 'Ath', 'Soignies', 'Nivelles', 'Quaregnon', 'Colfontaine', 'Dour', 'Roux', 'Marcinelle',
+        // Namur
+        'Namur', 'Dinant', 'Rochefort', 'Ciney', 'Arlon',
+        // Liège
+        'Liège', 'Verviers', 'Seraing', 'Huy', 'Ans',
+        // Brabant
+        'Bruxelles', 'Leuven', 'Wavre', 'Jodoigne', 'Braine-l\'Alleud',
+        // FRANCE - Nord et régions proches
+        'Lille', 'Roubaix', 'Tourcoing', 'Arras', 'Amiens', 'Cambrai', 'Douai', 'Valenciennes', 'Maubeuge', 'Hirson', 'Saint-Quentin', 'Reims', 'Sedan', 'Longwy',
+        // LUXEMBOURG
+        'Luxembourg', 'Esch-sur-Alzette', 'Dudelange', 'Differdange', 'Pétange', 'Remich', 'Echternach',
+        // PAYS-BAS / HOLLANDE
+        'Amsterdam', 'Rotterdam', 'Utrecht', 'Arnhem', 'Nimègue', 'Maastricht', 'Venlo', 'Tilburg', 'Breda', 'Groningue',
+        // Autoroutes et RN
+        'E4', 'E42', 'E44', 'E5', 'E40', 'E429', 'E19', 'E25', 'E50', 'E75', 'N1', 'N4', 'N5', 'N93', 'N99', 'A1', 'A2', 'A4',
+        // Aires de repos et parkings
+        'Aire de Fleurus', 'Aire de Mons', 'BSCA Parking', 'Parking Charleroi', 'Aire de Rivière', 'Aire d\'Essonne',
+        // Lieux touristiques/points repère
+        'Aéroport Charleroi', 'Gare de Charleroi', 'CH Charleroi', 'Hospice', 'Garage', 'Domicile'
+      ];
+      communesEtLieux.forEach(c => lieux.add(c));
+    }
+
+    // Pour lieuDestination, ajouter aussi les types de destination
+    if(champ === 'lieuDestination'){
+      lieux.add('Garage');
+      lieux.add('Domicile');
+    }
+
+    return Array.from(lieux).slice(0, 8); // max 8 suggestions
+  }
+
+  return sugg[champ] || [];
+}
+
+async function simulerRepondre(choix){
+  if(!waSimuDerniereReponse){ showToast('Erreur de contexte'); return; }
+
+  const {bloquants} = waSimuDerniereReponse;
+  const champ = bloquants[0]; // le premier champ manquant
+
+  // Générer un texte contextuel pour que waExtraire() le reconnaisse
+  let texteContextuel = choix;
+  if(champ === 'typePrestation'){
+    const mapping = {
+      'Remorquage': 'remorquage', 'Batterie': 'batterie', 'Pneu': 'pneu',
+      'Carburant': 'carburant', 'Débourbage': 'débourbage', 'Autre': 'autre'
+    };
+    texteContextuel = mapping[choix] || choix.toLowerCase();
+  } else if(champ === 'lieuPriseEnCharge'){
+    texteContextuel = 'à ' + choix; // "à Gilly" matchera la regex /\b(?:à|de|depuis)
+  } else if(champ === 'lieuDestination'){
+    texteContextuel = 'vers ' + choix; // "vers Garage" matchera la regex /(?:vers|jusqu'à...
+  }
+
+  // Ajouter la réponse du client avec le contexte
+  waConversationEnCours.push({de:'client', texte:texteContextuel, horodatage:new Date().toISOString()});
+
+  // Relancer le traitement avec le contexte nuit/we actuel
+  const ctx = {
+    nuit: document.getElementById('simuWaNuit').classList.contains('on'),
+    we: document.getElementById('simuWaWe').classList.contains('on')
+  };
+  await simulerTraiterConversation(ctx);
+}
 
 async function simulerMessageClient(){
   const texte = (document.getElementById('simuWaTexte').value || '').trim();
@@ -14962,6 +15062,10 @@ async function simulerMessageClient(){
     nuit: document.getElementById('simuWaNuit').classList.contains('on'),
     we: document.getElementById('simuWaWe').classList.contains('on')
   };
+  await simulerTraiterConversation(ctx);
+}
+
+async function simulerTraiterConversation(ctx){
   const res = await waTraiter(waConversationEnCours, ctx);
   const box = document.getElementById('simuWaResultat');
 
@@ -14979,9 +15083,26 @@ async function simulerMessageClient(){
     waConversationEnCours.push({de:'assistant', texte:q, horodatage:new Date().toISOString()});
     html += `<div style="margin-bottom:7px; text-align:right;">
       <span style="display:inline-block; max-width:85%; padding:8px 11px; border-radius:13px; font-size:13px; background:var(--orange-soft); color:var(--white);">${q}</span></div>`;
+
+    // Ajouter les boutons de suggestion pour le premier champ manquant
+    const champsManquants = res.bloquants || [];
+    if(champsManquants.length > 0){
+      const champ = champsManquants[0];
+      const suggestions = waGenererSuggestions(champ);
+      waSimuDerniereReponse = {bloquants: champsManquants, donnees: res.donnees, res};
+
+      if(suggestions.length > 0){
+        html += `<div style="margin-top:10px; display:flex; flex-direction:column; gap:7px;">`;
+        for(const sugg of suggestions){
+          html += `<button type="button" style="width:100%; min-height:44px; background:var(--panel); color:var(--white); border:1px solid var(--line); padding:13px; border-radius:26px; font-size:15px; font-weight:600; cursor:pointer; text-align:left; transition:background .12s ease, transform .08s ease, color .12s ease;" onclick="simulerRepondre('${sugg.replace(/'/g, "\\'")}')">${sugg}</button>`;
+        }
+        html += `</div>`;
+      }
+    }
+
     html += `<div class="km-mention" style="border-left-color:var(--red); margin-top:10px;">
       <strong>Aucune estimation calculée</strong> — il manque : ${res.bloquants.join(', ')}.<br>
-      Réponds à la place du client ci-dessus pour continuer.</div>`;
+      Clique sur une suggestion ou ajoute ta réponse ci-dessous.</div>`;
   } else if(res.etat === 'proposition'){
     const p = res.proposition;
     html += `<div class="km-mention" style="border-left-color:var(--green); margin-top:10px;">
