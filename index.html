@@ -12325,7 +12325,7 @@ async function lireMetaFactureDepuisFormulaire(c){
     clientVat: document.getElementById('invClientVat').value.trim(),
     attestLeveeSaisie: c.type === 'levee_saisie' && document.getElementById('attestLeveeSaisie').checked,
     etatLieuxNotes: TYPES_REMORQUAGE.includes(c.type) ? document.getElementById('etatLieuxNotes').value.trim() : '',
-    missionContexte: document.getElementById('missionContexte').value.trim(),
+    missionContexte: (document.getElementById('missionContexte')?.value || '').trim(),
     delai: jours,
     dateIso: new Date().toISOString(),
     echeanceIso: new Date(Date.now() + jours * 86400000).toISOString().slice(0,10),
@@ -15556,7 +15556,7 @@ const CHAMPS_BROUILLON = [
   'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
   'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
   'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
-  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage'
+  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage','missionContexte'
 ];
 const TOGGLES_BROUILLON = [
   'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
@@ -15752,7 +15752,7 @@ async function enregistrer(){
     if(etatLieuxVideoPrise) entry.etatLieuxVideo = true;
     const etatLieuxNotes = document.getElementById('etatLieuxNotes').value.trim();
     if(etatLieuxNotes) entry.etatLieuxNotes = etatLieuxNotes;
-    const missionContexte = document.getElementById('missionContexte').value.trim();
+    const missionContexte = (document.getElementById('missionContexte')?.value || '').trim();
     if(missionContexte) entry.missionContexte = missionContexte;
     await window.storage.set(id, JSON.stringify(entry));
     const idNouvellementCree = editingKey ? null : id;   // seulement pour une création, pas une modification
