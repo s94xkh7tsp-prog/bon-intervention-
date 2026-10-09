@@ -3134,6 +3134,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
+<details class="field" id="multiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Remorquages supplémentaires / imprévu</summary><p class="km-mention">Le premier trajet reste dans les champs habituels. Saisis ici le montant final convenu de chaque trajet supplémentaire, majorations comprises. Ces montants s’ajoutent après la remise du premier trajet. Ne les encode pas aussi dans les frais supplémentaires.</p><div class="field"><label>Remorquage 2 (optionnel)</label><input id="multiFrom2" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('multi')"><input id="multiTo2" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('multi')"><input id="multiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('multi')"></div><div class="field"><label>Remorquage 3 (optionnel)</label><input id="multiFrom3" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('multi')"><input id="multiTo3" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('multi')"><input id="multiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('multi')"></div><label>Imprévu et justification des prestations supplémentaires</label><textarea id="multiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('multi')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('multi')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="multiAgreement" placeholder="Ex : accord par téléphone à 14h30 pour le second trajet" oninput="jmMultiChange('multi')"><div class="km-mention">Les trajets et la justification seront repris sur les documents partagés.</div></details>
         <div class="field">
       <label>Frais supplémentaire (optionnel)</label>
       <div class="field-row">
@@ -3647,6 +3648,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="ticket-row" id="rowVehicleFee" style="display:none;"><span class="l" id="tkVehicleLabel">Supplément véhicule</span><span class="v" id="tkVehicleFee">—</span></div>
     <div class="ticket-row" id="rowArrondi" style="display:none;"><span class="l" id="tkArrondiLbl">Arrondi au 5 € supérieur</span><span class="v" id="tkArrondi">—</span></div>
     <div class="ticket-row" id="rowRemise" style="display:none;"><span class="l">Remise ponctuelle</span><span class="v" id="tkRemise">—</span></div>
+    <div id="tkMulti" style="display:none;border:1px solid var(--orange);padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px"></div>
     <div class="ticket-total">
       <span class="lbl">Total à payer</span>
       <span class="amt" id="tkTotal">0 €</span>
@@ -5600,6 +5602,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
+<details class="field" id="qqMultiBloc" style="border:1px solid var(--orange);padding:12px;border-radius:12px;margin:12px 0"><summary style="font-weight:800;cursor:pointer">Remorquages supplémentaires / imprévu</summary><p class="km-mention">Le premier trajet reste dans les champs habituels. Saisis ici le montant final convenu de chaque trajet supplémentaire, majorations comprises. Ces montants s’ajoutent après la remise du premier trajet. Ne les encode pas aussi dans les frais supplémentaires.</p><div class="field"><label>Remorquage 2 (optionnel)</label><input id="qqMultiFrom2" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('qqMulti')"><input id="qqMultiTo2" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('qqMulti')"><input id="qqMultiAmount2" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('qqMulti')"></div><div class="field"><label>Remorquage 3 (optionnel)</label><input id="qqMultiFrom3" placeholder="Départ / garage refusant le véhicule" oninput="jmMultiChange('qqMulti')"><input id="qqMultiTo3" placeholder="Arrivée / garage suivant" oninput="jmMultiChange('qqMulti')"><input id="qqMultiAmount3" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Montant final du trajet (€)" oninput="jmMultiChange('qqMulti')"></div><label>Imprévu et justification des prestations supplémentaires</label><textarea id="qqMultiReason" rows="5" placeholder="Explique le refus, le rechargement et la nouvelle destination…" oninput="jmMultiChange('qqMulti')"></textarea><button type="button" class="btn" onclick="jmMultiExemple('qqMulti')">Insérer l’exemple : refus du garage</button><label>Accord du client (facultatif)</label><input id="qqMultiAgreement" placeholder="Ex : accord par téléphone à 14h30 pour le second trajet" oninput="jmMultiChange('qqMulti')"><div class="km-mention">Les trajets et la justification seront repris sur les documents partagés.</div></details>
     <div class="qq-result">
       <div class="qq-label">Estimation</div>
       <div class="qq-amount" id="qqResult">0,00 €</div>
@@ -8493,8 +8496,55 @@ async function tousLesDevis(){
   }catch(e){ return []; }
 }
 
+
+// v300 — montants convenus des trajets supplémentaires, sans modifier les barèmes.
+function jmMultiLire(prefix){
+  const val = id => String(document.getElementById(prefix + id).value || '').trim();
+  const trajets = [2,3].map(numero => ({numero, from:val('From'+numero), to:val('To'+numero), amount:Math.max(0,Math.round((parseFloat(val('Amount'+numero)) || 0)*100)/100)})).filter(t => t.from || t.to || t.amount);
+  return {remorquagesSupplementaires:trajets, justificationRemorquages:val('Reason'), accordRemorquages:val('Agreement')};
+}
+function jmMultiRestaurer(prefix,d){
+  d=d || {};
+  [2,3].forEach(n => {const t=(d.remorquagesSupplementaires || []).find(t=>t.numero===n) || {}; ['From','To','Amount'].forEach(k => {document.getElementById(prefix+k+n).value=t[k.toLowerCase()] || '';});});
+  document.getElementById(prefix+'Reason').value=d.justificationRemorquages || '';
+  document.getElementById(prefix+'Agreement').value=d.accordRemorquages || '';
+  document.getElementById(prefix+'Bloc').open=!!((d.remorquagesSupplementaires || []).length || d.justificationRemorquages);
+}
+function jmMultiChange(prefix){
+  if(prefix==='qqMulti') calculerDevisRapide();
+  else {invaliderTicketObsolete(); planifierSauvegardeBrouillon();}
+}
+function jmMultiExemple(prefix){
+  document.getElementById(prefix+'Reason').value="Le véhicule a été transporté au garage initialement désigné. À l’arrivée, ce garage a refusé sa prise en charge, aucune demande préalable n’ayant été enregistrée et aucune place n’étant disponible. Le véhicule a dû être rechargé et transporté vers un autre garage. Ces remorquages sont détaillés et facturés séparément.";
+  jmMultiChange(prefix);
+}
+function jmMultiTicket(d){const el=document.getElementById('tkMulti'); const txt=jmMultiTexte(d); el.textContent=txt; el.style.display=txt?'block':'none';}
+function jmMultiTotal(d){return (d.remorquagesSupplementaires || []).reduce((s,t)=>s+(Number(t.amount)||0),0);}
+function jmMultiTexte(d){
+  const a=d.remorquagesSupplementaires || [];
+  if(!a.length && !d.justificationRemorquages && !d.accordRemorquages) return '';
+  return ['Remorquage 1 : '+(d.from || '—')+' → '+(d.to || '—'), ...a.map(t=>'Remorquage '+t.numero+' : '+(t.from || '—')+' → '+(t.to || '—')+' — '+fmt(t.amount)), d.justificationRemorquages || '', d.accordRemorquages ? 'Accord client : '+d.accordRemorquages : ''].filter(Boolean).join('\n');
+}
+function jmMultiPdf(pdf,d,y,annexe){
+  const txt=jmMultiTexte(d); if(!txt) return y;
+  if(annexe){pdf.newPage(); y=50;}
+  const titre='IMPRÉVU ET REMORQUAGES SUPPLÉMENTAIRES';
+  const lines=txt.split('\n').flatMap(t=>wrapText(t.replace(/(\S{75})/g,'$1 '),78));
+  let index=0;
+  while(index<lines.length){
+    if(y>680){pdf.newPage(); y=50;}
+    const count=Math.min(lines.length-index,Math.floor((760-y-38)/13));
+    pdf.rect(50,y,495,32+count*13,{mode:'S',rgb:[196,136,0]});
+    pdf.text(60,y+17,titre+(index?' (suite)':''),{font:'F2',size:9,rgb:[196,136,0]});
+    for(let i=0;i<count;i++) pdf.text(60,y+35+i*13,lines[index+i],{size:9,gray:0.25});
+    index+=count; y+=44+count*13;
+  }
+  return y;
+}
+
 function lireParamsDevis(){
   return {
+    ...jmMultiLire('qqMulti'),
     type: document.getElementById('qqType').value,
     km: parseFloat(document.getElementById('qqKm').value) || 0,
     nuit: document.getElementById('qqNuit').classList.contains('on'),
@@ -8520,6 +8570,7 @@ function lireParamsDevis(){
 }
 
 function reporterDevisDansFormulaire(v){
+  jmMultiRestaurer('multi',v);
   document.getElementById('type').value = v.type;
   updateKmLabel();
   document.getElementById('km').value = v.km || '';
@@ -8653,6 +8704,7 @@ function texteDevisClient(v){
   const ech = v.valableJusquau ? v.valableJusquau.split('-').reverse().join('/') : '';
   let t = nom ? `Bonjour ${nom},\n\n` : 'Bonjour,\n\n';
   t += `Voici votre devis ${v.numero} pour : ${TYPE_LABELS[v.type] || v.type}.\n\n`;
+  if(jmMultiTexte(v)) t += jmMultiTexte(v) + '\n\n';
   t += `Montant estimé : ${fmt(v.total)}\n`;
   if(ech) t += `Devis valable jusqu'au ${ech}\n`;
   t += `\nCe montant est établi sur la base des informations communiquées et peut varier selon la situation constatée sur place.\n\n`;
@@ -8697,6 +8749,8 @@ async function partagerDevisPdf(key){
     if(conditions.length) { pdf.text(50, y, 'Conditions : ' + conditions.join(', '), {size:9.5, gray:0.3}); y += 13; }
     y += 12;
 
+    y=jmMultiPdf(pdf,v,y,false);
+    if(y>650){pdf.newPage(); y=50;}
     pdf.rect(50, y, 495, 1.2, {mode:'f', rgb:[210,206,196]}); y += 20;
     pdf.text(50, y, 'MONTANT ESTIMÉ', {font:'F2', size:11}); 
     pdf.text(495, y, fmt(v.total), {font:'F2', size:15});
@@ -9275,7 +9329,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v299';
+const APP_VERSION = 'jm-express-bon-v300';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11115,6 +11169,7 @@ function lireDonneesDevisRapide(){
     kmRetour: parseFloat(document.getElementById('qqCtKmRetour').value) || 0
   } : null;
   return {
+    ...jmMultiLire('qqMulti'),
     type,
     km: parseFloat(document.getElementById('qqKm').value) || 0,
     nuit: on('qqNuit'), we: on('qqWe'), auto: on('qqAuto'),
@@ -11162,6 +11217,7 @@ function qqDetailHtml(R){
   if(R.ctPrestataireCost) L.push('Frais prestataire CT : ' + fmt(R.ctPrestataireCost));
   if(R.ctRetourCost) L.push('Retour après contrôle : ' + fmt(R.ctRetourCost));
   if(R.remiseAmount > 0) L.push('Remise : −' + fmt(R.remiseAmount));
+  if(jmMultiTexte(R)) L.push('<strong>Remorquages supplémentaires / imprévu</strong><br>'+esc(jmMultiTexte(R)).replace(/\n/g,'<br>'));
   return L.join('<br>');
 }
 
@@ -11659,6 +11715,7 @@ function afficherTicketDepuisData(d){
   document.getElementById('rowRemise').classList.toggle('over-threshold', remisePct > 10);
   document.getElementById('tkRemise').textContent = '−' + fmt(d.remiseAmount || 0) + (d.remiseUnit === 'pct' ? ' (' + d.remiseValue + '%)' : ' (' + remisePct.toFixed(0) + '%)');
 
+  jmMultiTicket(d);
   document.getElementById('tkTotal').textContent = fmt(d.total);
   document.getElementById('ticket').classList.add('show');
   document.getElementById('ticket').scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -11722,6 +11779,7 @@ async function chargerInterventionDepuisJournal(key){
     d = JSON.parse(res.value);
   }catch(e){ showToast('Impossible de retrouver cette intervention'); return; }
 
+  jmMultiRestaurer('multi',d);
   document.getElementById('type').value = d.type;
   updateKmLabel();
   document.getElementById('plaqueImmat').value = d.plaque || '';
@@ -12272,6 +12330,7 @@ function lignesDocument(c, lang, meta){
     add(S.ctPrestataire, c.ctPrestataireCost || 0);
     add(S.ctRetour + (c.retourCTKm ? ' (' + fmtKm(c.retourCTKm) + ' km)' : ''), c.ctRetourCost || 0);
   }
+  (c.remorquagesSupplementaires || []).forEach(t => L.push({label:'Remorquage '+t.numero+' — rechargement et transport',amount:t.amount,type:'remorquage'}));
   if(c.remiseAmount > 0) L.push({label:S.remise, amount:-c.remiseAmount, type:'remise'});
   if(typeof c.total === 'number'){
     // v225 : la somme se fait sur les montants tels qu'imprimés (au centime), pour que lignes = total, toujours.
@@ -12494,6 +12553,7 @@ function construirePdfFacture(c, meta){
 
     let lineIdx = 0;
     const priceLine = (label, amount) => {
+      if(jmMultiTexte(c) && y>730){pdf.newPage(); y=50;}
       if(lineIdx % 2 === 1){
         pdf.rect(50, y-11, 495, 16, {mode:'f', gray:0.96});
       }
@@ -12505,6 +12565,7 @@ function construirePdfFacture(c, meta){
     lignesDocument(c, lang, meta).forEach(l => priceLine(l.label, l.amount));
     if(meta.avertissement){ y += 4; pdf.text(56, y, meta.avertissement, {size:7.5, gray:0.5}); y += 12; }
 
+    if(jmMultiTexte(c) && y>370){pdf.newPage(); y=50;}
     y += 8;
     pdf.rect(50, y-4, 495, 28, {mode:'f', rgb:[255,248,228]});
     pdf.text(56, y+15, S.totalTvac, {font:'F2', size:13});
@@ -12571,6 +12632,7 @@ function construirePdfFacture(c, meta){
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
     pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
+    jmMultiPdf(pdf,c,reviewY+100,false);
     return pdf.build();
   }
 }
@@ -14290,12 +14352,14 @@ function MOTEUR_A_calculerTarif(d, tarifs, config) {
 // v225 — point d'entrée unique : devis, devis rapide, WhatsApp, validation finale, enregistrement.
 // Une intervention calculée en v224 garde le moteur v224 figé (avec les tarifs de l'époque).
 function MOTEUR_calculerTarif(d, tarifs, config) {
+  const supplement = jmMultiTotal(d);
+  const finaliser = r => ({...r, remorquagesSupplementaires:d.remorquagesSupplementaires || [], justificationRemorquages:d.justificationRemorquages || '', accordRemorquages:d.accordRemorquages || '', total:Math.round((r.total+supplement)*100)/100});
   if(d && d.moteurVersion === 'v224'){
     const r = MOTEUR_v224_calculerTarif(d, tarifsV224(), config);
     r.moteurVersion = 'v224'; r.formuleA = false; r.pasArrondi = 0; r.arrondiGrille = null; r.arrondiAjout = 0;
-    return r;
+    return finaliser(r);
   }
-  return MOTEUR_A_calculerTarif(d, tarifs, config);
+  return finaliser(MOTEUR_A_calculerTarif(d, tarifs, config));
 }
 
 // ===================== MOTEUR v224 FIGÉ — NE JAMAIS MODIFIER =====================
@@ -15097,6 +15161,7 @@ function calculer(){
   const versionCalcul = (typeof MOTEUR_ACTIF !== 'undefined' && !MOTEUR_ACTIF) ? 'v224' : (VERSION_EDITION || 'A');
   if(true){
     DERNIERE_ENTREE_MOTEUR = {
+      ...jmMultiLire('multi'),
       moteurVersion: versionCalcul,
       type, km, nuit, we, auto, retour, camionOn,
       kmRetourVide: rvDonnees.kmRetourVide, kmRetourVerifie: rvDonnees.kmRetourVerifie,
@@ -15191,7 +15256,7 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+  lastCalc = {...jmMultiLire('multi'), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
@@ -15360,6 +15425,7 @@ function calculer(){
   document.getElementById('tkRemise').textContent = '−' + fmt(remiseAmount) + (remiseUnit === 'pct' ? ' (' + remiseValue + '%)' : ' (' + remisePct.toFixed(0) + '%)') + (remisePct > 10 ? ' ⚠️' : '');
   if(remisePct > 10) showToast('⚠️ Remise > 10% du total — geste exceptionnel ?');
 
+  jmMultiTicket(lastCalc);
   document.getElementById('tkTotal').textContent = fmt(total);
   if(typeof syncEstSecours === 'function' && syncEstSecours() && Number(total) === 0){
     const raison = annulation ? 'annulation active'
@@ -15384,6 +15450,7 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
+  'multiFrom2','multiTo2','multiAmount2','multiFrom3','multiTo3','multiAmount3','multiReason','multiAgreement',
   'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','kmRetourVide','remise',
   'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
   'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
@@ -15647,6 +15714,7 @@ async function enregistrer(){
       if(el) el.classList.remove('on');
     });
     renderOperationsEnlise();
+    jmMultiRestaurer('multi',{});
     document.getElementById('fraisLibelle').value = '';
     document.getElementById('fraisMontant').value = '';
     document.getElementById('annulationMontant').value = '';
@@ -15704,6 +15772,7 @@ function copierRecap(){
   if(c.attenteCost) txt += `\nTemps d'attente (${c.minutesAttente} min) : ${fmt(c.attenteCost)}`;
   if(c.ctRepasse) txt += `\n2e passage contrôle technique : ${fmt(c.ctRepasse)}`;
   if(c.remiseAmount > 0) txt += `\nRemise : −${fmt(c.remiseAmount)}`;
+  if(jmMultiTexte(c)) txt += '\n\n'+jmMultiTexte(c);
   txt += `\n\n*TOTAL À PAYER : ${fmt(c.total)}*\n\nKilométrage d'intervention : distance réellement parcourue par la dépanneuse, incluant le retour à vide lorsque celui-ci est nécessaire.\n\nFranchise TVA art. 56bis CTVA`;
 
   if(navigator.clipboard){
@@ -17570,6 +17639,7 @@ function lireFormulairePourMoteur(){
   const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
   const type = document.getElementById('type').value;
   return {
+    ...jmMultiLire('multi'),
     type,
     plaque: val('plaqueImmat'), depart: val('addrDepart'),
     from: val('addrFrom'), to: val('addrTo'), km: val('km'),
@@ -18777,6 +18847,7 @@ function construirePdfFactureV2(c, meta){
 
     let lineIdx = 0;
     const priceLine = (label, amount) => {
+      if(jmMultiTexte(c) && y>730){pdf.newPage(); y=50;}
       if(lineIdx % 2 === 1){
         pdf.rect(50, y-11, 495, 16, {mode:'f', gray:0.96});
       }
@@ -18788,6 +18859,7 @@ function construirePdfFactureV2(c, meta){
     lignesDocument(c, lang, meta).forEach(l => priceLine(l.label, l.amount));
     if(meta.avertissement){ y += 4; pdf.text(56, y, meta.avertissement, {size:7.5, gray:0.5}); y += 12; }
 
+    if(jmMultiTexte(c) && y>370){pdf.newPage(); y=50;}
     y += 8;
     const acV2 = (c.paiement && c.paiement.acompte && c.paiement.acompte.montant > 0) ? Number(c.paiement.acompte.montant) : 0;
     const payeV2 = (typeof statutPaiement === 'function' ? statutPaiement(c) : (c.paye ? 'paye' : 'attente')) === 'paye';
@@ -18867,6 +18939,7 @@ function construirePdfFactureV2(c, meta){
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
     pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
+    jmMultiPdf(pdf,c,reviewY+100,false);
     return pdf.build();
   }
 }
