@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v310';
+const CACHE_NAME = 'jm-express-bon-v311';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
@@ -12,7 +12,11 @@ const APP_SHELL_OPTIONAL = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './services-hero.png'
+  './services-hero.png',
+  './game-driver.js',
+  './game.html',
+  './game-client.js',
+  './game-questions.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -57,6 +61,10 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   const isAppShell = url.origin === self.location.origin;
 
+  if(url.pathname.includes('/api/game/')) return;
+  if(isAppShell && /\/game(?:-client|-driver|-questions)?\.(?:html|js)$/.test(url.pathname)){
+    event.respondWith(fetch(req,{cache:'no-store'}).then(res=>{if(!res.ok)throw Error('game');const copy=res.clone();caches.open(CACHE_NAME).then(c=>c.put(req,copy));return res;}).catch(()=>caches.match(req)));return;
+  }
   // sw.js sert à détecter les mises à jour : il doit toujours venir du réseau,
   // sinon l'application comparerait sa version à une copie périmée d'elle-même.
   if (url.pathname.endsWith('/sw.js')) {

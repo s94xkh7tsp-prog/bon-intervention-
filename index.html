@@ -3798,6 +3798,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button class="msg-choice" onclick="openAssistant()">🤖 Assistant</button>
       <button class="msg-choice" onclick="jmOuvrirChatGPT()">💬 ChatGPT</button>
       <button class="msg-choice" onclick="jmLivraisonOuvrir()">Livraison au garage</button>
+      <button class="msg-choice" onclick="jmDefiOuvrir()">🎮 Défi JM / résultat</button>
       <button class="msg-choice" onclick="jmDepotDepuisIntervention()">🅿️ Mettre au dépôt</button>
       <button class="msg-choice" onclick="jmCessionDepuisIntervention()">📄 Cession d'épave</button>
       <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
@@ -9505,7 +9506,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v310';
+const APP_VERSION = 'jm-express-bon-v311';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -22613,6 +22614,7 @@ window.jmOuvrirChatGPT = async function(){
 
 
 <datalist id="jmTravailMotifs"><option value="Roue désolidarisée"><option value="Véhicule accidenté"><option value="Roues bloquées"><option value="Chargement impossible"><option value="Accès impossible"><option value="Risque de dommage"><option value="Refus du client"></datalist>
+<button type="button" class="ghost" onclick="jmDefiOuvrir()" style="margin:12px 20px">🎮 Défi JM — proposer / retrouver une partie</button>
 <div class="modal-bg" id="jmLivraisonBg" onclick="if(event.target===this)jmLivraisonFermer()"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="jmLivraisonTitre"><h3 id="jmLivraisonTitre">Livraison au garage</h3><p id="jmLivraisonVehicule"></p><label>Garage / lieu de livraison</label><input id="jmLivraisonLieu"><label>Nom du réceptionnaire</label><input id="jmLivraisonNom" placeholder="Garage — nom de la personne"><div class="field-row"><div class="field"><label>Date de livraison</label><input id="jmLivraisonDate" type="date"></div><div class="field"><label>Heure de livraison</label><input id="jmLivraisonHeure" type="time"></div></div><button type="button" class="ghost" onclick="jmLivraisonMaintenant()">Maintenant</button><label>Observations (facultatif)</label><textarea id="jmLivraisonNotes" rows="2" placeholder="Ex : clés remises, réserve signalée"></textarea><p class="km-mention">En signant, le réceptionnaire confirme avoir reçu le véhicule indiqué, au lieu et à l’heure renseignés, avec les observations éventuelles ci-dessus. Cette signature ne vaut pas confirmation du paiement.</p><label>Signature du réceptionnaire (facultative)</label><input type="hidden" id="jmLivraisonSignatureSauvee"><div class="sig-wrap"><canvas id="jmLivraisonSig"></canvas></div><button type="button" class="ghost" onclick="clearSignature('jmLivraisonSig')">Effacer la signature</button><button type="button" class="primary" onclick="avecChargement(this,'Enregistrement…',()=>jmLivraisonEnregistrer())">Enregistrer la livraison</button><button type="button" class="ghost" onclick="jmLivraisonFermer()">Fermer</button></div></div>
 <script id="jm-v308-preuves-script">
 // v308 — preuves aux deux étapes. Les vidéos sont stockées sur ce téléphone.
@@ -23062,5 +23064,6 @@ async function jmClientChoisirContact(){
 }
 
 </script>
+<script src="game-driver.js"></script>
 </body>
 </html>
