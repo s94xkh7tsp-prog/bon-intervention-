@@ -3540,7 +3540,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           <div style="height:1px; background:var(--line); margin:14px 0;"></div>
           <div class="field" style="margin-bottom:0;">
             <label>Véhicule réceptionné par (nom)</label>
-            <input type="text" id="recuParNom" placeholder="Ex: Carrosserie Martin — M. Martin">
+            <label>Date de livraison</label><input type="date" id="recuParDate"><label>Garage / lieu de livraison</label><input id="recuParLieu" placeholder="Garage et adresse"><label>Observations à la remise (facultatif)</label><input id="recuParNotes" placeholder="Ex : clés remises, réserve signalée"><input type="hidden" id="recuParSignatureSauvee"><input type="hidden" id="remisParSignatureSauvee"><input type="text" id="recuParNom" placeholder="Ex: Carrosserie Martin — M. Martin">
             <div class="field-row" style="margin-top:8px;">
               <div class="field" style="margin-bottom:0;">
                 <label>Heure de réception</label>
@@ -3558,6 +3558,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
+    <button type="button" class="ghost" onclick="jmLivraisonOuvrir()">Livraison au garage — heure et signature</button>
     <div class="photo-row" id="etatLieuxField" style="display:none;">
       <label>État des lieux avant chargement (protection en cas de litige)</label>
       <input type="file" id="etatLieuxPhotos" accept="image/*" multiple onchange="handleEtatLieuxPhotos(event)" style="display:none;">
@@ -3586,12 +3587,12 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
 
       <div class="field" style="margin-bottom:0;">
-        <label>Photos après déchargement (preuve de remise en bon état)</label>
-        <input type="file" id="dechargPhotos" accept="image/*" multiple onchange="handleDechargPhotos(event)" style="display:none;">
+        <div class="field" style="margin:14px 0"><label>Véhicule chargé sur le plateau</label><input type="hidden" id="jmPreuvesBrouillon"><input type="file" id="jmPlateauPhoto" accept="image/*" capture="environment" hidden onchange="jmPreuvesPhotos(event,'plateau')"><input type="file" id="jmPlateauGalerie" accept="image/*" multiple hidden onchange="jmPreuvesPhotos(event,'plateau')"><input type="file" id="jmPlateauVideo" accept="video/*" capture="environment" hidden onchange="jmPreuvesVideo(event,'plateau')"><button type="button" class="ghost" onclick="document.getElementById('jmPlateauPhoto').click()">Photo sur le plateau</button><button type="button" class="ghost" onclick="document.getElementById('jmPlateauGalerie').click()">Choisir des photos du plateau</button><button type="button" class="ghost" onclick="document.getElementById('jmPlateauVideo').click()">Vidéo sur le plateau</button><div id="jmPlateauApercu" class="epave-preview-grid"></div><div id="jmVideoplateau" class="km-mention"></div></div><label>Véhicule livré / après déchargement</label>
+        <input type="file" id="dechargPhotos" accept="image/*" multiple onchange="jmPreuvesPhotos(event,'livraison')" style="display:none;">
         <button type="button" class="ghost" style="margin-top:0;" onclick="document.getElementById('dechargPhotos').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg> Photos après déchargement</button>
-        <div id="dechargPreviewWrap" style="display:none; margin-top:8px;">
+        <input type="file" id="jmLivraisonPhoto" accept="image/*" capture="environment" hidden onchange="jmPreuvesPhotos(event,'livraison')"><input type="file" id="jmLivraisonVideo" accept="video/*" capture="environment" hidden onchange="jmPreuvesVideo(event,'livraison')"><button type="button" class="ghost" onclick="document.getElementById('jmLivraisonPhoto').click()">Photo du véhicule livré</button><button type="button" class="ghost" onclick="document.getElementById('jmLivraisonVideo').click()">Vidéo du véhicule livré</button><div id="jmVideolivraison" class="km-mention"></div><button type="button" class="ghost" onclick="jmPreuvesPartager()">Partager les photos / vidéos avec le client</button><div class="km-mention">Les photos seront jointes au bon PDF. Les vidéos (court extrait, 20 Mo max. par étape) se partagent séparément ; elles restent stockées sur ce téléphone.</div><div id="dechargPreviewWrap" style="display:none; margin-top:8px;">
           <div id="dechargPreviewGrid" class="epave-preview-grid"></div>
-          <button type="button" class="ghost" style="margin-top:6px;" onclick="clearDechargPhotos()">Retirer toutes les photos</button>
+          <button type="button" class="ghost" style="margin-top:6px;" onclick="jmPreuvesEffacerLivraison()">Retirer toutes les photos</button>
         </div>
       </div>
     </div>
@@ -3669,6 +3670,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button class="primary" id="btnTerminer" style="margin-top:10px; background:var(--green); box-shadow:0 6px 20px rgba(63,138,95,0.32); font-size:17px; padding:17px;" onclick="ouvrirVerificationFin()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Terminer</button>
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Générer la facture (PDF + signature)</button>
+    <button type="button" class="primary" onclick="jmLivraisonOuvrir()">Livraison au garage — heure et signature</button>
     <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Bon d'intervention</button>
     <button class="ghost" onclick="openAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Demander un avis (QR à scanner)</button>
   </div>
@@ -3795,6 +3797,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <button class="msg-choice" onclick="fermerPlusTerrain(); jmRecapPartenaire()">🤝 Transmettre à un partenaire</button>
       <button class="msg-choice" onclick="openAssistant()">🤖 Assistant</button>
       <button class="msg-choice" onclick="jmOuvrirChatGPT()">💬 ChatGPT</button>
+      <button class="msg-choice" onclick="jmLivraisonOuvrir()">Livraison au garage</button>
       <button class="msg-choice" onclick="jmDepotDepuisIntervention()">🅿️ Mettre au dépôt</button>
       <button class="msg-choice" onclick="jmCessionDepuisIntervention()">📄 Cession d'épave</button>
       <button class="msg-choice" onclick="terrainTampon('arrivee')">🚚 Arrivé sur place</button>
@@ -9502,7 +9505,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v307';
+const APP_VERSION = 'jm-express-bon-v308';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -10009,6 +10012,9 @@ function lireRemisePro(){
       signature: lireSignatureDataUrl('sigCanvasRemisPar')
     },
     recuPar: {
+      date: document.getElementById('recuParDate').value||'',
+      lieu: document.getElementById('recuParLieu').value.trim(),
+      observations: document.getElementById('recuParNotes').value.trim(),
       nom: (document.getElementById('recuParNom').value || '').trim(),
       heure: document.getElementById('recuParHeure').value || '',
       signature: lireSignatureDataUrl('sigCanvasRecuPar')
@@ -12035,6 +12041,8 @@ async function chargerInterventionDepuisJournal(key){
   documentsData = d.documents ? d.documents.map(x => ({...x})) : [];
   renderDocumentsListe();
   const rp = d.remisePro;
+  jmLivraisonRestaurerFormulaire(rp);
+  jmPreuvesRestaurer(d);
   const tgR = document.getElementById('tgRemisePro');
   tgR.classList.toggle('on', !!rp);
   document.getElementById('blocRemisePro').style.display = rp ? 'block' : 'none';
@@ -12556,6 +12564,8 @@ async function lireMetaFactureDepuisFormulaire(c){
   if(SIG_STATE.sigCanvasDepot && SIG_STATE.sigCanvasDepot.hasContent){
     const s = await canvasSignatureToRgb('sigCanvasDepot'); meta.sigDepot = {width:s.width, height:s.height, b64:octetsVersBase64(s.deflatedRgb)};
   }
+  meta.receptionVehicule=c.remisePro?.recuPar||null;
+  meta.receptionSignature=await jmLivraisonSignaturePdf(c);
   return meta;
 }
 function octetsVersBase64(u8){ let s=''; for(let i=0;i<u8.length;i++) s += String.fromCharCode(u8[i]); return btoa(s); }
@@ -12818,7 +12828,8 @@ function construirePdfFacture(c, meta){
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
     pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
-    jmMultiPdf(pdf,c,reviewY+100,false);
+    const finDetails=jmMultiPdf(pdf,c,reviewY+100,false);
+    if(meta.receptionVehicule)jmLivraisonPdf(pdf,{...c,remisePro:{recuPar:meta.receptionVehicule}},finDetails,meta.receptionSignature);
     return pdf.build();
   }
 }
@@ -15450,7 +15461,7 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {...jmMultiLire('multi'), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+  lastCalc = {...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
@@ -15648,6 +15659,8 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
+  'jmPreuvesBrouillon',
+  'recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee',
   'multiTravailMode','multiTravailMinutes','multiTravailMotif','multiTravailKm','multiTravailTechniques','multiTravailMontant',
   'multiFrom2','multiTo2','multiKm2','multiAmount2','multiFrom3','multiTo3','multiKm3','multiAmount3','multiReason','multiAgreement',
   'multiWaitMinutes1','multiWaitReason1','multiWaitMinutes2','multiWaitReason2','multiWaitMinutes3','multiWaitReason3',
@@ -15703,6 +15716,7 @@ async function restaurerBrouillonSiPresent(){
       const el = document.getElementById(id);
       if(el) el.classList.toggle('on', !!etat[id]);
     });
+    try{jmPreuvesRestaurer(JSON.parse(etat.jmPreuvesBrouillon||'{}'));}catch(e){}
     if(typeof updateKmLabel === 'function') updateKmLabel();
     if(typeof majDonneurOrdreUI === 'function') majDonneurOrdreUI();
     if(typeof majAnnulationUI === 'function') majAnnulationUI();
@@ -15850,7 +15864,7 @@ async function enregistrer(){
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
-    if(dechargPhotosData.length > 0) entry.dechargPhotos = [...dechargPhotosData];
+    Object.assign(entry,jmPreuvesLire());
     if(etatLieuxVideoPrise) entry.etatLieuxVideo = true;
     const etatLieuxNotes = document.getElementById('etatLieuxNotes').value.trim();
     if(etatLieuxNotes) entry.etatLieuxNotes = etatLieuxNotes;
@@ -15898,7 +15912,9 @@ async function enregistrer(){
     ['tgIncident','tgIncidentRefus','tgRemisePro'].forEach(id => document.getElementById(id).classList.remove('on'));
     document.getElementById('blocIncident').style.display = 'none';
     document.getElementById('blocRemisePro').style.display = 'none';
-    ['incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
+    ['recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee','incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
+    jmLivraisonRestaurerFormulaire(null);
+    jmPreuvesRestaurer(null);
     majTracSummary();
     setTimeout(majResumeCompact, 50);
     ['ctFraisOfficiels','ctFraisPrestataire','ctKmRetour'].forEach(id => document.getElementById(id).value = '');
@@ -16407,7 +16423,7 @@ async function handleDechargPhotos(event){
   showToast('Compression des photos…');
   for(const f of files){
     try{
-      const compressed = await compressImage(f);
+      const compressed = await compressImageToBase64(f,1200,0.65);
       dechargPhotosData.push(compressed);
     }catch(e){ /* photo illisible : on passe à la suivante */ }
   }
@@ -16802,7 +16818,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -19140,7 +19156,8 @@ function construirePdfFactureV2(c, meta){
     pdf.drawImage('QrReview', 460, reviewY + 8, 60, 60);
     pdf.text(460, reviewY + 78, S.avisLien, {size:8, gray:0.4});
 
-    jmMultiPdf(pdf,c,reviewY+100,false);
+    const finDetails=jmMultiPdf(pdf,c,reviewY+100,false);
+    if(meta.receptionVehicule)jmLivraisonPdf(pdf,{...c,remisePro:{recuPar:meta.receptionVehicule}},finDetails,meta.receptionSignature);
     return pdf.build();
   }
 }
@@ -22594,5 +22611,226 @@ window.jmOuvrirChatGPT = async function(){
 
 
 <datalist id="jmTravailMotifs"><option value="Roue désolidarisée"><option value="Véhicule accidenté"><option value="Roues bloquées"><option value="Chargement impossible"><option value="Accès impossible"><option value="Risque de dommage"><option value="Refus du client"></datalist>
+<div class="modal-bg" id="jmLivraisonBg" onclick="if(event.target===this)jmLivraisonFermer()"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="jmLivraisonTitre"><h3 id="jmLivraisonTitre">Livraison au garage</h3><p id="jmLivraisonVehicule"></p><label>Garage / lieu de livraison</label><input id="jmLivraisonLieu"><label>Nom du réceptionnaire</label><input id="jmLivraisonNom" placeholder="Garage — nom de la personne"><div class="field-row"><div class="field"><label>Date de livraison</label><input id="jmLivraisonDate" type="date"></div><div class="field"><label>Heure de livraison</label><input id="jmLivraisonHeure" type="time"></div></div><button type="button" class="ghost" onclick="jmLivraisonMaintenant()">Maintenant</button><label>Observations (facultatif)</label><textarea id="jmLivraisonNotes" rows="2" placeholder="Ex : clés remises, réserve signalée"></textarea><p class="km-mention">En signant, le réceptionnaire confirme avoir reçu le véhicule indiqué, au lieu et à l’heure renseignés, avec les observations éventuelles ci-dessus. Cette signature ne vaut pas confirmation du paiement.</p><label>Signature du réceptionnaire (facultative)</label><input type="hidden" id="jmLivraisonSignatureSauvee"><div class="sig-wrap"><canvas id="jmLivraisonSig"></canvas></div><button type="button" class="ghost" onclick="clearSignature('jmLivraisonSig')">Effacer la signature</button><button type="button" class="primary" onclick="avecChargement(this,'Enregistrement…',()=>jmLivraisonEnregistrer())">Enregistrer la livraison</button><button type="button" class="ghost" onclick="jmLivraisonFermer()">Fermer</button></div></div>
+<script id="jm-v308-preuves-script">
+// v308 — preuves aux deux étapes. Les vidéos sont stockées sur ce téléphone.
+let JM_PHOTOS_PLATEAU=[],JM_VIDEOS_VEHICULE={},JM_PREUVES_GENERATION=0;
+function jmPreuvesLire(){return {photosPlateau:[...JM_PHOTOS_PLATEAU],dechargPhotos:[...dechargPhotosData],videosVehicule:{...JM_VIDEOS_VEHICULE}};}
+function jmPreuvesRestaurer(d){
+ JM_PREUVES_GENERATION++;d=d||{};JM_PHOTOS_PLATEAU=[...(d.photosPlateau||[])];dechargPhotosData=[...(d.dechargPhotos||[])];JM_VIDEOS_VEHICULE={...(d.videosVehicule||{})};
+ jmPreuvesRendre();renderDechargPreviews();
+ document.getElementById('jmPreuvesBrouillon').value=JSON.stringify(jmPreuvesLire());
+}
+function jmPreuvesRendre(){
+ const b=document.getElementById('jmPlateauApercu');if(b){b.innerHTML=JM_PHOTOS_PLATEAU.map((src,i)=>'<div class="epave-thumb"><img src="'+src+'" alt="Véhicule chargé"><button type="button" class="epave-remove" onclick="jmPreuvesRetirer('+i+')">×</button></div>').join('');}
+ for(const stage of ['plateau','livraison']){const el=document.getElementById('jmVideo'+stage);if(el)el.textContent=JM_VIDEOS_VEHICULE[stage]?'Vidéo jointe : '+JM_VIDEOS_VEHICULE[stage].nom+' (sur ce téléphone)':'';}
+}
+async function jmPreuvesSauver(){
+ const p=jmPreuvesLire();document.getElementById('jmPreuvesBrouillon').value=JSON.stringify(p);
+ if(typeof lastCalc!=='undefined'&&lastCalc)Object.assign(lastCalc,p);
+ if(typeof editingKey!=='undefined'&&editingKey){const d=JSON.parse((await window.storage.get(editingKey)).value);Object.assign(d,p);await window.storage.set(editingKey,JSON.stringify(d));}
+ await sauvegarderBrouillon();
+}
+async function jmPreuvesPhotos(event,stage){
+ const generation=JM_PREUVES_GENERATION;const input=event.target,files=Array.from(input.files||[]);const arr=stage==='plateau'?JM_PHOTOS_PLATEAU:dechargPhotosData;
+ try{
+  for(const f of files){if(arr.length>=4){showToast('4 photos par étape maximum ; retire une photo pour en ajouter une');break;}const photo=await compressImageToBase64(f,1200,0.65);if(generation!==JM_PREUVES_GENERATION)throw Error('Dossier changé');arr.push(photo);}
+  jmPreuvesRendre();renderDechargPreviews();await jmPreuvesSauver();showToast('Photos ajoutées au dossier et au bon');
+ }catch(e){showToast('Photos non enregistrées : vérifie l’espace disponible puis réessaie');}
+ finally{input.value='';}
+}
+async function jmPreuvesRetirer(i){JM_PHOTOS_PLATEAU.splice(i,1);jmPreuvesRendre();try{await jmPreuvesSauver();}catch(e){showToast('Suppression non enregistrée');}}
+function jmVideosOperation(mode,id,blob){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open('jm-express-medias',1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('videos'))req.result.createObjectStore('videos');};
+  req.onerror=()=>reject(req.error);
+  req.onsuccess=()=>{const db=req.result;let value;const tx=db.transaction('videos',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('videos');const op=mode==='get'?store.get(id):store.put(blob,id);op.onsuccess=()=>{value=op.result};tx.oncomplete=()=>{db.close();resolve(value)};tx.onerror=()=>{db.close();reject(tx.error)};tx.onabort=()=>{db.close();reject(tx.error||Error('Stockage annulé'))};};
+ });
+}
+async function jmPreuvesVideo(event,stage){
+ const generation=JM_PREUVES_GENERATION;const input=event.target,f=input.files?.[0];if(!f)return;
+ if(f.size>20*1024*1024){showToast('Vidéo trop volumineuse : choisis un court extrait de moins de 20 Mo');input.value='';return;}
+ try{
+  const id='video-'+Date.now()+'-'+Math.random().toString(36).slice(2);await jmVideosOperation('put',id,f);if(generation!==JM_PREUVES_GENERATION)throw Error('Dossier changé');
+  JM_VIDEOS_VEHICULE[stage]={id,nom:f.name||('video-'+stage+'.mp4'),type:f.type||'video/mp4',taille:f.size,date:new Date().toISOString()};
+  jmPreuvesRendre();await jmPreuvesSauver();showToast('Vidéo conservée sur ce téléphone — partage possible avec le client');
+ }catch(e){showToast('Vidéo non enregistrée : manque d’espace ou stockage indisponible');}
+ finally{input.value='';}
+}
+async function jmPreuvesPartager(key){
+ try{
+  const d=key?JSON.parse((await window.storage.get(key)).value):jmPreuvesLire();const files=[];
+  for(const [stage,photos] of [['plateau',d.photosPlateau||[]],['livraison',d.dechargPhotos||[]]])for(let i=0;i<photos.length;i++){const blob=await(await fetch(photos[i])).blob();files.push(new File([blob],stage+'-'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'}));}
+  for(const [stage,v] of Object.entries(d.videosVehicule||{})){const blob=await jmVideosOperation('get',v.id);if(!blob){showToast('Vidéo '+stage+' absente de ce téléphone : ouvre le dossier sur le téléphone qui l’a filmée');return;}files.push(new File([blob],stage+'-'+v.nom,{type:v.type}));}
+  if(!files.length){showToast('Ajoute d’abord une photo ou une vidéo');return;}
+  if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files,title:'Photos et vidéos du véhicule',text:'JM Express — véhicule sur le plateau et après livraison'});}
+  else{showToast('Partage de ces fichiers indisponible ici : utilise Safari sur le téléphone ou partage les originaux depuis Photos');}
+ }catch(e){if(e.name!=='AbortError')showToast('Impossible de préparer les photos et vidéos');}
+}
+async function jmPreuvesPdfPreparer(c){
+ const result=[];for(const [titre,photos] of [['VÉHICULE SUR LE PLATEAU',c.photosPlateau||[]],['VÉHICULE LIVRÉ / DÉCHARGÉ',c.dechargPhotos||[]]]){
+  for(let i=0;i<photos.length;i++){const image=await imageDataUrlToRgb(photos[i],1200);result.push({titre:titre+' — '+(i+1)+'/'+photos.length,image});}
+ }return result;
+}
+function jmPreuvesPdf(pdf,preuves){
+ for(let i=0;i<preuves.length;i++){
+  if(i%2===0)pdf.newPage();const y=i%2===0?50:425,p=preuves[i],img=p.image;
+  pdf.text(50,y,p.titre,{font:'F2',size:10});const scale=Math.min(495/img.width,310/img.height);const w=img.width*scale,h=img.height*scale;
+  pdf.addRgbImage('PreuveVehicule'+i,img.width,img.height,img.deflatedRgb);pdf.drawImage('PreuveVehicule'+i,50+(495-w)/2,y+20,w,h);
+ }
+}
+(function(){
+ const remove=removeDechargPhoto;
+ removeDechargPhoto=function(i){remove(i);jmPreuvesSauver().catch(()=>showToast('Suppression non enregistrée'));};
+ window.jmPreuvesEffacerLivraison=async function(){clearDechargPhotos();try{await jmPreuvesSauver();}catch(e){showToast('Suppression non enregistrée')}};
+ document.addEventListener('change',e=>{if(e.target?.id==='jmPreuvesBrouillon'){try{jmPreuvesRestaurer(JSON.parse(e.target.value||'{}'));}catch(err){}}});
+})();
+
+</script>
+<script id="jm-v308-livraison-script">
+// v308 — réception du véhicule indépendante du paiement et du calcul.
+let JM_LIVRAISON_CTX=null;
+function jmLivraisonMaintenant(){
+ const d=new Date(),pad=n=>String(n).padStart(2,'0');
+ document.getElementById('jmLivraisonDate').value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+ document.getElementById('jmLivraisonHeure').value=pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function jmLivraisonDestination(d){const a=d.remorquagesSupplementaires||[];return a.length?(a[a.length-1].to||d.to||''):(d.to||'');}
+function jmLivraisonRestaurerFormulaire(rp){
+ const r=rp?.recuPar||{};
+ Object.entries({recuParNom:r.nom,recuParHeure:r.heure,recuParDate:r.date,recuParLieu:r.lieu,recuParNotes:r.observations,recuParSignatureSauvee:r.signature,remisParSignatureSauvee:rp?.remisPar?.signature}).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.value=v||'';});
+ ['sigCanvasRecuPar','sigCanvasRemisPar'].forEach(id=>clearSignature(id));
+ // Effacement des anciennes toiles avant la restauration de la preuve sauvegardée.
+ document.getElementById('recuParSignatureSauvee').value=r.signature||'';
+ document.getElementById('remisParSignatureSauvee').value=rp?.remisPar?.signature||'';
+}
+function jmLivraisonSourceFormulaire(){
+ const c=typeof lastCalc!=='undefined'&&lastCalc?JSON.parse(JSON.stringify(lastCalc)):{};
+ c.plaque=c.plaque||document.getElementById('plaqueImmat').value.trim();
+ c.from=c.from||document.getElementById('addrFrom').value.trim();
+ c.to=c.to||document.getElementById('addrTo').value.trim();
+ Object.assign(c,jmPreuvesLire());
+ c.remisePro=lireRemisePro()||c.remisePro;
+ return c;
+}
+async function jmLivraisonOuvrir(key){
+ try{
+  const historique=!!key;
+  const cle=key||(typeof editingKey!=='undefined'?editingKey:null);
+  const d=historique?JSON.parse((await window.storage.get(key)).value):jmLivraisonSourceFormulaire();
+  if(!d.plaque&&!d.from){showToast('Ouvre ou renseigne d’abord le véhicule et sa prise en charge');return;}
+  if(d.travailParticulier?.mode==='inacheve'){showToast('Aucun véhicule livré : remorquage non réalisé');return;}
+  JM_LIVRAISON_CTX={key:cle||null,historique,d};
+  const r=d.remisePro?.recuPar||{};
+  document.getElementById('jmLivraisonVehicule').textContent=(d.plaque||'Véhicule')+' — '+(d.from||'');
+  document.getElementById('jmLivraisonLieu').value=r.lieu||jmLivraisonDestination(d);
+  document.getElementById('jmLivraisonNom').value=r.nom||'';
+  document.getElementById('jmLivraisonNotes').value=r.observations||'';
+  jmLivraisonMaintenant();
+  if(r.date)document.getElementById('jmLivraisonDate').value=r.date;
+  if(r.heure)document.getElementById('jmLivraisonHeure').value=r.heure;
+  clearSignature('jmLivraisonSig');
+  document.getElementById('jmLivraisonSignatureSauvee').value=r.signature||'';
+  if(typeof fermerPlusTerrain==='function')fermerPlusTerrain();
+  document.getElementById('jmLivraisonBg').classList.add('show');
+  document.getElementById('jmLivraisonBg').scrollTop=0;
+  setTimeout(()=>{if(JM_LIVRAISON_CTX)initSignatureCanvas('jmLivraisonSig');},60);
+ }catch(e){showToast('Impossible d’ouvrir la réception de ce véhicule');}
+}
+function jmLivraisonFermer(){document.getElementById('jmLivraisonBg').classList.remove('show');JM_LIVRAISON_CTX=null;}
+async function jmLivraisonEnregistrer(){
+ const ctx=JM_LIVRAISON_CTX;if(!ctx)return;
+ const v=id=>document.getElementById(id).value.trim();
+ const r={nom:v('jmLivraisonNom'),lieu:v('jmLivraisonLieu'),date:v('jmLivraisonDate'),heure:v('jmLivraisonHeure'),observations:v('jmLivraisonNotes'),signature:lireSignatureDataUrl('jmLivraisonSig')||v('jmLivraisonSignatureSauvee')};
+ if(!r.date||!r.heure||!r.lieu){showToast('Indique le lieu, la date et l’heure de livraison');return;}
+ if(r.signature&&!r.nom){showToast('Indique le nom de la personne qui signe');return;}
+ try{
+  // Relire uniquement pour conserver paiements, tarifs et factures déjà émis.
+  const d=ctx.key?JSON.parse((await window.storage.get(ctx.key)).value):ctx.d;
+  if(JM_LIVRAISON_CTX!==ctx)return;
+  d.remisePro={...(d.remisePro||{}),recuPar:r};
+  if(ctx.key)await window.storage.set(ctx.key,JSON.stringify(d));
+  if(!ctx.historique){
+   jmLivraisonRestaurerFormulaire(d.remisePro);
+   document.getElementById('tgRemisePro').classList.add('on');document.getElementById('blocRemisePro').style.display='block';
+   if(typeof lastCalc!=='undefined'&&lastCalc)lastCalc.remisePro=d.remisePro;
+   await sauvegarderBrouillon();
+   if(typeof majTracSummary==='function')majTracSummary();
+  }
+  jmLivraisonFermer();showToast('Livraison enregistrée à '+r.heure+(r.signature?' — réception signée':''));
+  if(ctx.historique&&typeof loadHistory==='function')await loadHistory();
+ }catch(e){showToast('Livraison non enregistrée : réessaie avant de fermer');}
+}
+function jmLivraisonTexte(c){
+ const r=c.remisePro?.recuPar;if(!r||!(r.date||r.heure||r.signature||r.nom))return '';
+ const date=/^\d{4}-\d{2}-\d{2}$/.test(r.date||'')?r.date.split('-').reverse().join('/'):r.date||'Date non précisée';
+ return [(r.signature?'Le réceptionnaire signataire confirme avoir reçu ce véhicule au lieu, à la date et à l’heure indiqués ci-dessous.':'Livraison enregistrée par le dépanneur — réception non signée.'),'Véhicule : '+(c.plaque||'non précisé'),'Lieu : '+(r.lieu||jmLivraisonDestination(c)||'non précisé'),'Livraison : '+date+(r.heure?' à '+r.heure:''),r.nom?'Réceptionnaire : '+r.nom:'',r.observations?'Observations : '+r.observations:''].filter(Boolean).join('\n');
+}
+async function jmLivraisonSignaturePdf(c){
+ const sig=c.remisePro?.recuPar?.signature;if(!sig)return null;
+ const r=await imageDataUrlToRgb(sig,1000);return {width:r.width,height:r.height,b64:octetsVersBase64(r.deflatedRgb)};
+}
+function jmLivraisonPdf(pdf,c,y,signature){
+ const texte=jmLivraisonTexte(c);if(!texte)return y;
+ const lignes=texte.split('\n').flatMap(l=>wrapText(l,95));
+ const h=45+lignes.length*13+(signature?84:0);
+ if(y+h>785){pdf.newPage();y=50;}
+ pdf.text(50,y+13,'LIVRAISON ET RÉCEPTION DU VÉHICULE',{font:'F2',size:10,rgb:[196,136,0]});y+=33;
+ for(const l of lignes){if(y>750){pdf.newPage();y=50;}pdf.text(50,y,l,{size:9,gray:0.25});y+=13;}
+ if(signature){if(y+85>785){pdf.newPage();y=50;}pdf.text(50,y+4,'Signature du réceptionnaire',{size:9,gray:0.3});pdf.rect(50,y+12,220,62,{mode:'S',gray:0.7});pdf.addRgbImage('ReceptionVehicule',signature.width,signature.height,base64VersOctets(signature.b64));pdf.drawImage('ReceptionVehicule',52,y+14,216,58);y+=87;}
+ return y+14;
+}
+function jmConstruireBonLivraison(c,clientName,signature,preuves=[]){
+ const pdf=MiniPDF(595,842);let y=50;
+ const texte=(t,opts={})=>{for(const l of wrapText(String(t),92)){if(y>760){pdf.newPage();y=50;}pdf.text(50,y,l,{size:9.5,...opts});y+=14;}};
+ pdf.text(393,44,'JM EXPRESS',{font:'F2',size:16});pdf.text(393,58,'AUTO DÉPANNAGE',{font:'F2',size:10});
+ texte(COMPANY.name,{font:'F2',size:15});texte(COMPANY.address);texte('Tél '+COMPANY.phone+' — '+COMPANY.email);y+=15;
+ texte('BON D’INTERVENTION',{font:'F2',size:20});y+=10;
+ try{const qr=makeQrMatrix(COMPANY.reviewUrl),n=qr.getModuleCount();pdf.addBitmapImage('AvisBon308',n,n,(x,z)=>qr.isDark(z,x));pdf.drawImage('AvisBon308',455,78,55,55);pdf.text(445,147,'Votre avis Google',{size:8,gray:0.4});}catch(e){}
+ if(c.numero)texte('Bon : '+c.numero);
+ texte('Intervention : '+new Date(c.date||Date.now()).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+ texte('Client : '+(clientName||c.clientNom||'Client'));texte('Véhicule : '+(c.plaque||'non précisé'));y+=10;
+ texte(typeLabelComplet(c)||'Prise en charge / transport de véhicule',{font:'F2'});texte('Prise en charge : '+(c.from||'non précisée'));texte('Destination : '+(jmLivraisonDestination(c)||'non précisée'));
+ texte('Ce bon décrit la prise en charge et les prestations du véhicule ci-dessus.');y+=10;
+ for(const l of lignesDocument(c,'fr',{nightStart:NIGHT_START,nightEnd:NIGHT_END,nuitPct:RATES.nuitPct,wePct:RATES.wePct})){texte(l.label+' : '+fmt(l.amount));}
+ y+=8;texte('TOTAL INTERVENTION : '+fmt(c.total),{font:'F2',size:12});
+ texte('Montant reçu : '+fmt(montantRecu(c))+' — Reste à payer : '+fmt(resteADevoir(c)));
+ texte('Virement : '+COMPANY.ibanDisplay+' — Communication : '+(c.numero||c.plaque||'intervention'));
+ texte('Ce bon ne tient pas lieu de facture. La livraison et la signature de réception ne valent pas confirmation du paiement.',{size:8.5,gray:0.4});y+=12;
+ y=jmLivraisonPdf(pdf,c,y,signature);
+ if(jmMultiTexte(c))y=jmMultiPdf(pdf,c,y,false);
+ if(Object.keys(c.videosVehicule||{}).length)texte('Vidéos du plateau / de la livraison disponibles en fichiers séparés.');
+ jmPreuvesPdf(pdf,preuves);
+ return pdf.build();
+}
+async function jmGenererBonLivraison(){
+ if(!lastCalc){showToast('Calcule d’abord une intervention');return;}
+ try{
+  const c=JSON.parse(JSON.stringify(lastCalc));Object.assign(c,jmPreuvesLire());const rp=lireRemisePro();if(rp)c.remisePro=rp;
+  const sig=await jmLivraisonSignaturePdf(c);
+  const nom=document.getElementById('invClientName').value.trim()||c.clientNom;
+  const preuves=await jmPreuvesPdfPreparer(c);
+  const bytes=jmConstruireBonLivraison(c,nom,sig,preuves);
+  await partagerPdf(bytes,'Bon_JM-Express_'+(c.numero||c.plaque||new Date().toISOString().slice(0,10)).replace(/[^a-zA-Z0-9_-]/g,'-')+'.pdf','Bon d’intervention','Bon d’intervention partagé','Bon d’intervention téléchargé');
+ }catch(e){console.error(e);showToast('Bon non généré : réessaie pour conserver la signature');}
+}
+// Signature existante : restaurer le tracé conservé sans le perdre à chaque ouverture.
+(function(){
+ const map={sigCanvasRecuPar:'recuParSignatureSauvee',sigCanvasRemisPar:'remisParSignatureSauvee',jmLivraisonSig:'jmLivraisonSignatureSauvee'};
+ const lire=lireSignatureDataUrl,init=initSignatureCanvas,clear=clearSignature;
+ const versions={};
+ lireSignatureDataUrl=function(id){return lire(id)||(map[id]?document.getElementById(map[id])?.value||'':'');};
+ clearSignature=function(id){if(map[id]){const e=document.getElementById(map[id]);if(e)e.value='';versions[id]=(versions[id]||0)+1;}return clear(id);};
+ initSignatureCanvas=function(id){
+  if(!map[id])return init(id);
+  const e=document.getElementById(map[id]),data=lireSignatureDataUrl(id);if(e)e.value=data;
+  const token=versions[id]=(versions[id]||0)+1;init(id);
+  if(data){const img=new Image();img.onload=()=>{if(versions[id]!==token||document.getElementById(map[id])?.value!==data||SIG_STATE[id]?.hasContent)return;const c=document.getElementById(id),r=c.getBoundingClientRect();SIG_STATE[id].ctx.drawImage(img,0,0,r.width,r.height);SIG_STATE[id].hasContent=true;};img.src=data;}
+ };
+ const oldBon=genererRecu;genererRecu=function(){return lastCalc&&(lastCalc.presentationDocs>=3||lastCalc.remisePro||lastCalc.photosPlateau?.length||lastCalc.dechargPhotos?.length||Object.keys(lastCalc.videosVehicule||{}).length)?jmGenererBonLivraison():oldBon.apply(this,arguments);};
+})();
+
+</script>
 </body>
 </html>
