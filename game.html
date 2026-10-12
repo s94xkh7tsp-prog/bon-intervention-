@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi JM — Jeu Passager</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0f1419;
+      --bg-panel: #1a2333;
+      --orange: #ff6b35;
+      --blue-electric: #00d4ff;
+      --green: #4ade80;
+      --text-main: #ffffff;
+      --text-muted: #a0aec0;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2333 100%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--bg-panel);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .logo-text .accent { color: var(--orange); }
+
+    .tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0;
+      padding: 12px;
+      background: rgba(0, 212, 255, 0.05);
+      border-radius: 12px;
+      border-left: 3px solid var(--blue-electric);
+    }
+
+    .status-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .status-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+    .status-value { font-size: 20px; font-weight: 700; color: var(--blue-electric); margin-top: 4px; }
+
+    .preface {
+      background: rgba(255, 107, 53, 0.1);
+      border-left: 3px solid var(--orange);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .preface p {
+      margin: 8px 0;
+    }
+
+    .preface .tone {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* Phase initiale : choix genre */
+    .gender-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .gender-btn {
+      padding: 14px 12px;
+      border: 2px solid rgba(0, 212, 255, 0.2);
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .gender-btn:hover {
+      border-color: var(--blue-electric);
+      background: rgba(0, 212, 255, 0.1);
+    }
+
+    .gender-btn.selected {
+      background: var(--blue-electric);
+      border-color: var(--blue-electric);
+      color: var(--bg-dark);
+    }
+
+    .gender-btn:nth-child(3),
+    .gender-btn:nth-child(4) {
+      grid-column: auto;
+    }
+
+    /* Questions */
+    .question-block {
+      margin: 24px 0;
+    }
+
+    .question-num {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--bg-dark);
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .question-text {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .answer-btn {
+      padding: 14px 16px;
+      border: 2px solid rgba(0, 212, 255, 0.2);
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border-radius: 12px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .answer-btn:hover {
+      border-color: var(--blue-electric);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .answer-btn.selected {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--bg-dark);
+      font-weight: 600;
+    }
+
+    .answer-btn.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    /* Actions */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: var(--bg-dark);
+    }
+
+    .btn-primary:hover { background: #ff5722; transform: translateY(-2px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--text-muted);
+      color: var(--text-muted);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--blue-electric);
+      color: var(--blue-electric);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.full {
+      grid-column: 1 / -1;
+    }
+
+    /* Résultat final */
+    .result-screen {
+      text-align: center;
+    }
+
+    .result-emoji {
+      font-size: 60px;
+      margin: 20px 0;
+      animation: bounce 0.6s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .result-score {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--blue-electric);
+      margin: 16px 0;
+    }
+
+    .result-message {
+      font-size: 16px;
+      margin: 12px 0 24px;
+      color: var(--text-muted);
+    }
+
+    .reward-box {
+      background: rgba(74, 222, 128, 0.1);
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .reward-title {
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+
+    .reward-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Vidéo & Accords */
+    .consent-section {
+      background: rgba(0, 212, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+      border-left: 3px solid var(--blue-electric);
+    }
+
+    .consent-title {
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      cursor: pointer;
+      accent-color: var(--orange);
+    }
+
+    .checkbox-label {
+      font-size: 13px;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Feedback */
+    .feedback-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+      margin: 12px 0;
+    }
+
+    .feedback-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--blue-electric);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    /* Loading & Error */
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 212, 255, 0.3);
+      border-top-color: var(--blue-electric);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fca5a5;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+
+    .success-box {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--green);
+      font-size: 14px;
+      margin: 12px 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container { padding: 16px; border-radius: 16px; }
+      .logo-text { font-size: 24px; }
+      .result-score { font-size: 40px; }
+      .result-emoji { font-size: 50px; }
+    }
+  </style>
+</head>
+<body><main class="container">
+<div class="header"><div class="logo-text">Défi <span class="accent">JM</span> 🚛</div><div class="tagline">Ta voiture sur le plateau, ton sourire à bord !</div></div>
+<section id="welcome"><div class="preface"><p>Ton véhicule s’offre un chauffeur… et toi, une petite aventure !</p><p>3 questions pendant le trajet, 2 après la livraison. Pas d’interrogatoire : juste un moment sympa, sans obligation.</p></div><p>Chaque réponse vaut 20 points, quelle que soit ton opinion. Tu peux passer une question ou arrêter quand tu veux. Aucun avis public n’est demandé.</p><p>Jeu réservé aux passagers, jamais au conducteur en circulation.</p><h3>Comment te présenter ? (facultatif)</h3><div class="gender-picker"><button data-gender="male" class="gender-btn">Homme</button><button data-gender="female" class="gender-btn">Femme</button><button data-gender="other" class="gender-btn">Non genré</button><button data-gender="" class="gender-btn selected">Passer</button></div><p id="rewardInfo"></p><button id="start" class="btn btn-primary full" disabled>C’est parti !</button></section>
+<section id="play" hidden><div class="status-bar"><span id="progress"></span><span id="points"></span></div><div class="question-block"><div class="question-text" id="question"></div><div class="answers" id="answers"></div></div><button id="skip" class="btn btn-secondary full">Passer cette question</button></section>
+<section id="waiting" hidden><h2>Petite pause, ta voiture roule encore 🚛</h2><p>Les deux dernières questions s’ouvriront quand JM confirmera le déchargement. Tu peux garder cette page ou y revenir avec le même lien.</p><button id="refresh" class="btn btn-primary full">Vérifier la livraison</button></section>
+<section id="finish" hidden><h2>Bien joué ! 🎉</h2><label for="feedback">Un petit mot sur le trajet ? (facultatif, privé)</label><textarea id="feedback" maxlength="500" class="feedback-textarea"></textarea><p>Ton avis et les autorisations ci-dessous ne changent jamais tes points.</p><label for="reward">Ta préférence</label><select id="reward"><option value="none">Pas de cadeau, merci</option><option value="discount">Une remise pour une prochaine demande</option><option value="dedication">Une dédicace vidéo avec JM</option></select><div class="consent-section"><label><input id="film" type="checkbox"> J’accepte d’être filmé pour la dédicace.</label><p>Tu peux choisir la remise sans être filmé.</p><label><input id="publish" type="checkbox"> J’autorise la publication de cette dédicace sur les réseaux que je coche :</label><div id="platforms"><label><input id="tiktok" type="checkbox"> TikTok</label><label><input id="facebook" type="checkbox"> Facebook</label><label><input id="snapchat" type="checkbox"> Snapchat</label></div><p>Tout est facultatif. Tu peux revenir sur ton accord auprès de JM. Aucune vidéo n’est filmée ou publiée automatiquement par le jeu.</p></div><button id="complete" class="btn btn-primary full">Terminer et envoyer mon résultat</button></section>
+<section id="result" hidden><div class="result-emoji">🏆</div><h2>Merci d’avoir joué !</h2><div id="score" class="result-score"></div><p id="gift"></p><p>Ton résultat est enregistré et JM peut le voir sur son téléphone.</p></section>
+<p id="errorBox" role="status" aria-live="polite" style="display:block"></p>
+</main><style>[hidden]{display:none!important}button,select,textarea{font:inherit}select{width:100%;padding:14px;background:#182735;color:white;border:1px solid #00d4ff;border-radius:10px}#platforms label{display:block;margin:12px 0}p{line-height:1.5}button:disabled{opacity:.6}#errorBox{color:#ffbd7f}input[type=checkbox]{width:22px;height:22px;vertical-align:middle}label{line-height:1.6}#welcome h3{margin-top:20px}</style>
+<script type="module" src="game-client.js"></script></body></html>

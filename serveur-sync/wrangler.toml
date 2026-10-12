@@ -1,0 +1,10 @@
+name = "jm-sync"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jm-sync"
+database_id = "A_REMPLIR_APRES_wrangler_d1_create"
+
+# Le code d'initialisation ne va PAS ici : `wrangler secret put SETUP_CODE`

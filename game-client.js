@@ -1,0 +1,26 @@
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.hash.slice(1));const sessionId=params.get('s');let api=null,state=null,gender=null,busy=false,timer=null,started=false;
+try{const u=new URL(params.get('api'));if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash)throw Error();api=u.href.replace(/\/$/,'');}catch{}
+function error(t){$('errorBox').textContent=t||'';}
+function show(id){for(const n of ['welcome','play','waiting','finish','result'])$(n).hidden=n!==id;}
+async function call(action,body){if(!api||!sessionId)throw Error('Ouvre le lien QR fourni par JM.');const url=api+'/api/game/'+action+(action==='session'?'?s='+encodeURIComponent(sessionId):'');const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);try{const r=await fetch(url,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',body:body?JSON.stringify({sessionId,...body}):undefined,signal:controller.signal});const j=await r.json();if(!r.ok)throw Error(j.error||'Serveur indisponible');return j.session;}catch(e){if(e.name==='AbortError')throw Error('Connexion trop lente. Réessaie sans fermer cette page.');throw e;}finally{clearTimeout(timeout);}}
+function render(){
+ clearTimeout(timer);if(!state)return;
+ if(state.completed){show('result');$('score').textContent=state.result.score+'/100';const r=state.result;$('gift').textContent=r.reward_type==='discount'&&r.discount_eur>0?'Remise disponible : '+r.discount_eur.toLocaleString('fr-BE')+' € sur une prochaine intervention, jusqu’au '+new Date(r.valid_until).toLocaleDateString('fr-BE')+'. À convenir avec JM lors de ta prochaine demande.':r.reward_type==='dedication'?'Dédicace choisie : JM verra tes autorisations. Elle reste à organiser ensemble.':'Merci pour ce moment partagé !';return;}
+ if(!started){show('welcome');$('start').disabled=false;$('rewardInfo').textContent=state.max_discount>0?'Une remise jusqu’à '+state.max_discount+' € peut être choisie à la fin, ou une dédicace à organiser avec JM.':'Tu peux choisir une dédicace à organiser avec JM. Aucune remise n’est activée pour cette partie.';return;}
+ const num=state.answers.length;
+ if(num===5){show('finish');$('reward').querySelector('[value="discount"]').disabled=state.max_discount<=0;return;}
+ if(num>=state.unlocked){show('waiting');if(!document.hidden)timer=setTimeout(refresh,5000);return;}
+ show('play');$('progress').textContent='Question '+(num+1)+'/5 — '+(num<3?'Sur le trajet':'Véhicule livré');$('points').textContent=state.total_points+' points';$('question').textContent=state.questions[num].text;$('answers').replaceChildren();
+ state.questions[num].answers.forEach((text,index)=>{const b=document.createElement('button');b.className='answer-btn';b.textContent=text;b.onclick=()=>answer(index);$('answers').appendChild(b);});
+}
+async function run(fn){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);error('');try{await fn();}catch(e){error(e.message||'Connexion perdue. Réessaie.');}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);render();}}
+async function refresh(){if(busy)return;try{state=await call('session');error('');render();}catch(e){error(e.message);if(!document.hidden)timer=setTimeout(refresh,10000);}}
+function answer(index){run(async()=>{const num=state.answers.length;state=await call(index===null?'skip':'answer',{questionNum:num,answerIndex:index});});}
+$('skip').onclick=()=>answer(null);$('refresh').onclick=()=>run(async()=>{state=await call('session');});$('start').onclick=()=>{started=true;render();};
+document.querySelectorAll('[data-gender]').forEach(b=>b.onclick=()=>{gender=b.dataset.gender||null;document.querySelectorAll('[data-gender]').forEach(x=>x.classList.toggle('selected',x===b));});
+function consentUI(){if(!$('film').checked){$('publish').checked=false;for(const n of ['tiktok','facebook','snapchat'])$(n).checked=false;}$('publish').disabled=!$('film').checked;for(const n of ['tiktok','facebook','snapchat']){if(!$('publish').checked)$(n).checked=false;$(n).disabled=!$('film').checked||!$('publish').checked;}}
+$('film').onchange=consentUI;$('publish').onchange=consentUI;consentUI();
+$('complete').onclick=()=>run(async()=>{state=await call('complete',{genderChoice:gender,feedback:$('feedback').value,rewardType:$('reward').value,filmConsent:$('film').checked,publicationConsent:$('publish').checked,platforms:Object.fromEntries(['tiktok','facebook','snapchat'].map(n=>[n,$(n).checked]))});});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(timer);else refresh();});
+if(api&&/^[a-f0-9]{64}$/.test(sessionId||''))refresh();else error('Ce lien de jeu est incomplet. Demande à JM de générer le QR code.');
