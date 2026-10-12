@@ -63,3 +63,24 @@ const jmDefiSauverOriginal=jmDefiSauverResultat;
 jmDefiSauverResultat=async function(key,s){await jmDefiSauverOriginal(key,s);try{await jmDefiClientRepere(key,s);}catch{/* Le résultat reste conservé même sans fiche de fidélité. */}};
 const jmDefiReconnaissanceOriginal=jmClientReconnaissance;
 jmClientReconnaissance=function(){const r=jmDefiReconnaissanceOriginal.apply(this,arguments);const n=jmClientTel(document.getElementById('telClient').value),c=CLIENTS.find(c=>n&&jmClientTel(c.tel)===n),b=document.getElementById('jmClientReconnu');if(b&&c&&jmClientFidele(c))for(const gift of c.defiRewards||[]){if(gift.used||new Date(gift.valid_until)<=new Date())continue;const p=jmDefiElt('p','🎮 Défi JM : remise disponible de '+gift.amount+' € jusqu’au '+new Date(gift.valid_until).toLocaleDateString('fr-BE')+' — à appliquer manuellement.',b);const btn=jmDefiElt('button','Marquer cette remise utilisée',b);btn.type='button';btn.className='ghost';btn.onclick=async()=>{try{const fresh=JSON.parse((await window.storage.get('clients')).value),fc=fresh.find(x=>x.id===c.id),reward=fc?.defiRewards?.find(x=>x.session_id===gift.session_id);if(!reward)return;reward.used=new Date().toISOString();await window.storage.set('clients',JSON.stringify(fresh));CLIENTS=fresh;jmClientReconnaissance();showToast('Remise marquée utilisée. Vérifie son montant sur la facture.');}catch{showToast('Impossible de marquer la remise utilisée');}};}return r;};
+
+/* Afficher seulement l'adresse publique ; ne jamais copier le jeton de synchronisation. */
+function jmDefiServeurAfficher(){
+ const anchor=document.getElementById('syncRole');if(!anchor)return;
+ let box=document.getElementById('jmSyncAdressePublique');
+ if(!box){
+  box=document.createElement('div');box.id='jmSyncAdressePublique';box.style.marginTop='12px';
+  const label=document.createElement('label');label.textContent='Adresse du serveur utilisé';box.appendChild(label);
+  const input=document.createElement('input');input.id='jmSyncAdresseLecture';input.type='text';input.readOnly=true;input.style.width='100%';input.setAttribute('aria-label','Adresse publique du serveur');box.appendChild(input);
+  const button=document.createElement('button');button.type='button';button.className='ghost';button.textContent='Copier l’adresse du serveur';button.style.marginTop='8px';
+  button.onclick=async function(){const adresse=input.value;if(!adresse)return;try{await navigator.clipboard.writeText(adresse);showToast('Adresse du serveur copiée');}catch{input.focus();input.select();showToast('Sélectionne Copier sur le texte affiché');}};
+  box.appendChild(button);anchor.parentNode.appendChild(box);
+ }
+ const adresse=typeof SYNC!=='undefined'?String(SYNC.url||''):'';
+ document.getElementById('jmSyncAdresseLecture').value=adresse;
+ box.style.display=adresse?'block':'none';
+}
+if(typeof syncMajEcranReglages==='function'){
+ const jmDefiAncienSyncEcran=syncMajEcranReglages;
+ syncMajEcranReglages=function(){const r=jmDefiAncienSyncEcran.apply(this,arguments);jmDefiServeurAfficher();return r;};
+}
