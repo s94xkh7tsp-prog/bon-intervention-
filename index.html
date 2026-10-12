@@ -2511,7 +2511,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="field">
       <label>Téléphone du client (optionnel)</label>
       <div class="input-with-btn">
-        <input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
+        <input type="hidden" id="jmClientChoisi"><input type="hidden" id="jmClientChoisiNom"><button type="button" class="ghost" onclick="openClients()">Chercher un client / client fidèle</button><div id="jmClientReconnu" class="km-mention" style="display:none"></div><input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel">
         <button type="button" class="loc-btn" onclick="jmEffacerAdresse('telClient')" title="Effacer" aria-label="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></button>
         <button type="button" class="loc-btn" onclick="smsClient()" title="SMS"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></button>
@@ -3437,7 +3437,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
-    <label>Remise ponctuelle (optionnel)</label>
+    <button type="button" class="ghost" onclick="jmClientRemiseOuvrir()">Choisir une remise fidélité</button><label>Remise ponctuelle (optionnel)</label>
     <div class="discount-row">
       <input type="number" id="remise" placeholder="0" min="0" inputmode="decimal">
       <div class="unit-toggle">
@@ -3671,7 +3671,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button class="ghost" onclick="copierRecap()">Copier le récap (WhatsApp)</button>
     <button class="ghost" onclick="openInvoice()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Générer la facture (PDF + signature)</button>
     <button type="button" class="primary" onclick="jmLivraisonOuvrir()">Livraison au garage — heure et signature</button>
-    <button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Bon d'intervention</button>
+    <button type="button" class="ghost" onclick="jmClientDepuisIntervention()">Enregistrer ce client avec son accord</button><button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Bon d'intervention</button>
     <button class="ghost" onclick="openAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Demander un avis (QR à scanner)</button>
   </div>
   </section>
@@ -4244,10 +4244,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <h3>Clients enregistrés</h3>
     <p class="route-hint">Enregistre une fois un client régulier (garage, société...) : ensuite sélectionne-le en un tap sur la facture, même sans connexion.</p>
 
-    <div id="clientsList" class="stagger"></div>
+    <label>Rechercher par nom ou téléphone</label><input id="jmClientRecherche" type="search" oninput="renderClientsList()" placeholder="Nom, prénom, téléphone"><button type="button" class="ghost" onclick="jmClientNouveau()">Nouvelle fiche client</button><input id="jmClientContactInput" type="file" accept=".vcf,text/vcard,text/x-vcard" hidden onchange="jmClientImporterFichier(event)"><button type="button" class="ghost" onclick="jmClientChoisirContact()">Reprendre un contact du téléphone</button><p class="km-mention">Sur iPhone : Contacts → partager un contact → enregistrer dans Fichiers, puis le sélectionner ici. Aucun import de tout le répertoire.</p><div id="clientsList" class="stagger"></div>
 
     <div class="grp" style="margin-top:18px;">
-      <div class="grp-title">Ajouter un client</div>
+      <div class="grp-title" id="jmClientFormTitre">Ajouter un client</div><label>Prénom (particulier)</label><input id="clientPrenom" autocomplete="given-name"><label class="check-row"><input id="clientFidele" type="checkbox">Client fidèle — remise à choisir lors de chaque intervention</label><label class="check-row"><input id="clientAccord" type="checkbox">Le client accepte la conservation de ses coordonnées pour le suivi et la fidélité</label>
       <div class="field">
         <label>Nom / société *</label>
         <input type="text" id="clientNom" placeholder="Nom / société" autocorrect="on" spellcheck="true">
@@ -9505,7 +9505,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v309';
+const APP_VERSION = 'jm-express-bon-v310';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11590,7 +11590,7 @@ function applyClient(id){
   closeClients();
 
   const rappels = [];
-  if(c.remise > 0){
+  if(c.remise > 0 && !c.fidele){
     document.getElementById('remise').value = c.remise;
     setRemiseUnit(c.remiseUnit || 'euro');
     rappels.push('remise ' + c.remise + (c.remiseUnit === 'pct' ? '%' : '€'));
@@ -12040,6 +12040,7 @@ async function chargerInterventionDepuisJournal(key){
   renderIncidentPreview();
   documentsData = d.documents ? d.documents.map(x => ({...x})) : [];
   renderDocumentsListe();
+  document.getElementById('jmClientChoisi').value=d.clientId||'';document.getElementById('jmClientChoisiNom').value=d.clientNom||'';jmClientReconnaissance();
   const rp = d.remisePro;
   jmLivraisonRestaurerFormulaire(rp);
   jmPreuvesRestaurer(d);
@@ -15461,7 +15462,7 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+  lastCalc = {clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
@@ -15659,6 +15660,7 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
+  'jmClientChoisi','jmClientChoisiNom',
   'jmPreuvesBrouillon',
   'recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee',
   'multiTravailMode','multiTravailMinutes','multiTravailMotif','multiTravailKm','multiTravailTechniques','multiTravailMontant',
@@ -15914,7 +15916,7 @@ async function enregistrer(){
     document.getElementById('blocRemisePro').style.display = 'none';
     ['recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee','incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
     jmLivraisonRestaurerFormulaire(null);
-    jmPreuvesRestaurer(null);
+    jmPreuvesRestaurer(null);jmClientOublier();jmClientReconnaissance();
     majTracSummary();
     setTimeout(majResumeCompact, 50);
     ['ctFraisOfficiels','ctFraisPrestataire','ctKmRetour'].forEach(id => document.getElementById(id).value = '');
@@ -16818,7 +16820,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Ouvrir / compléter le bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Ouvrir / compléter le bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge" onclick="jmClientDepuisIntervention('${it.key}')">★ Client</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -22921,6 +22923,143 @@ async function jmBonPartager(){
  }catch(e){if(e.name!=='AbortError')showToast('Bon non partagé : tes ajouts restent enregistrés');}
 }
 window.jmBonDepuisJournal=jmBonOuvrir;
+
+</script>
+<div class="modal-bg" id="jmRemiseBg" onclick="if(event.target===this)this.classList.remove('show')"><div class="modal"><h3>Remise fidélité de cette intervention</h3><p id="jmRemiseNom"></p><input id="jmRemiseClientId" type="hidden"><label>Montant de la remise</label><input id="jmRemiseMontant" type="number" min="0" step="0.01"><select id="jmRemiseUnite"><option value="euro">Euros</option><option value="pct">Pourcentage</option></select><p class="km-mention">Cette remise concerne uniquement l’intervention en cours. Aucune réduction automatique au prochain appel.</p><button type="button" class="primary" onclick="jmClientRemiseAppliquer()">Appliquer à cette intervention</button><button type="button" class="ghost" onclick="document.getElementById('jmRemiseBg').classList.remove('show')">Fermer</button></div></div>
+<script id="jm-v310-clients-script">
+// v310 — fidélité sur la base clients existante, remise choisie pour chaque mission.
+let JM_CLIENT_EDITION=null,JM_CLIENT_ORIGINE=null,JM_CLIENT_INTERVENTIONS=[];
+function jmClientNom(c){return [c.prenom,c.nom].filter(Boolean).join(' ').trim();}
+function jmClientTexte(t){return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+function jmClientTel(t){let n=String(t||'').replace(/\D/g,'');if(n.startsWith('00'))n=n.slice(2);if(n.startsWith('0'))n='32'+n.slice(1);return n;}
+function jmClientFidele(c){return !!(c?.fidele&&c.accordCoordonnees?.date);}
+function jmClientNombre(c){const tel=jmClientTel(c.tel),ids=new Set(c.interventionKeys||[]);return JM_CLIENT_INTERVENTIONS.filter(it=>it.d.clientId===c.id||ids.has(it.key)||(tel&&jmClientTel(it.d.telClient||it.d.clientTel)===tel)).length;}
+async function jmClientsChargerHistorique(){
+ try{const keys=(await window.storage.list('intervention:')).keys||[];const r=await Promise.all(keys.map(async key=>{try{const d=JSON.parse((await window.storage.get(key)).value);return {key,d:{clientId:d.clientId,telClient:d.telClient,clientTel:d.clientTel}}}catch(e){return null}}));JM_CLIENT_INTERVENTIONS=r.filter(Boolean);}catch(e){JM_CLIENT_INTERVENTIONS=[];}
+ renderClientsList();jmClientReconnaissance();
+}
+function jmClientsFormulaire(c){
+ c=c||{};JM_CLIENT_EDITION=c.id||null;
+ const vals={clientNom:c.nom,clientPrenom:c.prenom,clientAdresse:c.adresse,clientTel:c.tel,clientSociete:c.societe,clientVat:c.vat,clientRemise:c.remise,clientKmTarif:c.kmTarif,clientFacturation:c.facturation,clientDonneurType:c.donneurType,clientNotes:c.notes};
+ for(const [id,v] of Object.entries(vals)){const el=document.getElementById(id);if(el)el.value=v==null?'':v;}
+ document.getElementById('clientFidele').checked=!!c.fidele;document.getElementById('clientAccord').checked=!!c.accordCoordonnees?.date;
+ setClientRemiseUnit(c.remiseUnit||'euro');document.getElementById('jmClientFormTitre').textContent=c.id?'Modifier ce client':'Ajouter un client';
+}
+function jmClientNouveau(){JM_CLIENT_ORIGINE=null;jmClientsFormulaire(null);}
+function jmClientEditer(id){const c=CLIENTS.find(c=>c.id===id);if(!c)return;JM_CLIENT_ORIGINE=null;jmClientsFormulaire(c);document.getElementById('jmClientFormTitre').scrollIntoView({behavior:'smooth',block:'center'});}
+function jmClientRemplirDepuisIntervention(d,key){
+ const meta=d.factures?.[d.factures.length-1]?.meta||{};const tel=d.telClient||d.clientTel||'';
+ const existe=CLIENTS.find(c=>d.clientId===c.id||(jmClientTel(tel)&&jmClientTel(c.tel)===jmClientTel(tel)));
+ jmClientsFormulaire(existe||{nom:d.clientNom||d.nomClient||meta.clientName||'',tel,adresse:meta.clientAddress||d.clientAdresse||'',fidele:true});
+ JM_CLIENT_ORIGINE=key||null;
+ if(!existe)document.getElementById('clientAccord').checked=false;
+}
+async function jmClientDepuisIntervention(key){
+ try{await loadClients();openClients();const d=key?JSON.parse((await window.storage.get(key)).value):(typeof lastCalc!=='undefined'&&lastCalc?lastCalc:{});jmClientRemplirDepuisIntervention(d,key||null);}catch(e){showToast('Impossible de préparer cette fiche client');}
+}
+async function jmClientSauver(){
+ const v=id=>String(document.getElementById(id).value||'').trim(),nom=v('clientNom');if(!nom){showToast('Indique le nom du client');return;}
+ const fidele=document.getElementById('clientFidele').checked,accord=document.getElementById('clientAccord').checked;
+ if(fidele&&!accord){showToast('L’accord du client est nécessaire pour la fiche fidélité');return;}
+ const tel=v('clientTel'),prenom=v('clientPrenom'),adresse=v('clientAdresse');
+ const autre=CLIENTS.find(c=>c.id!==JM_CLIENT_EDITION&&((jmClientTel(tel)&&jmClientTel(c.tel)===jmClientTel(tel))||(jmClientTexte(jmClientNom(c))===jmClientTexte([prenom,nom].filter(Boolean).join(' '))&&jmClientTexte(c.adresse)===jmClientTexte(adresse))));
+ if(autre){showToast('Ce client existe déjà : ouvre « Modifier » sur sa fiche pour éviter un doublon');return;}
+ const ancien=CLIENTS.find(c=>c.id===JM_CLIENT_EDITION)||{};
+ const c={...ancien,id:ancien.id||('c'+Date.now()+'-'+Math.random().toString(36).slice(2,7)),nom,prenom,adresse,tel,societe:v('clientSociete'),vat:v('clientVat'),fidele,
+  accordCoordonnees:accord?(ancien.accordCoordonnees||{date:new Date().toISOString(),objet:'Coordonnées et suivi fidélité',source:'Accord confirmé par le dépanneur'}):null,
+  remise:jmMultiNombre(v('clientRemise')),remiseUnit:clientRemiseUnit,kmTarif:jmMultiNombre(v('clientKmTarif')),facturation:v('clientFacturation'),donneurType:v('clientDonneurType'),notes:v('clientNotes'),
+  interventionKeys:Array.from(new Set([...(ancien.interventionKeys||[]),...(JM_CLIENT_ORIGINE?[JM_CLIENT_ORIGINE]:[])]))};
+ // Ne stocker ni médias ni champs facultatifs vides dans une nouvelle fiche.
+ for(const k of Object.keys(c)){if(c[k]===''||c[k]==null||(Array.isArray(c[k])&&!c[k].length))delete c[k];}
+ const suivant=CLIENTS.filter(x=>x.id!==c.id);suivant.push(c);
+ try{
+  await window.storage.set('clients',JSON.stringify(suivant));CLIENTS=suivant;
+  jmClientsFormulaire(null);JM_CLIENT_ORIGINE=null;renderClientsList();jmClientReconnaissance();showToast('Client enregistré'+(jmClientFidele(c)?' — fidélité activée':''));
+ }catch(e){showToast('Client non enregistré : réessaie');}
+}
+function jmClientsListe(){
+ const box=document.getElementById('clientsList');box.replaceChildren();
+ const q=jmClientTexte(document.getElementById('jmClientRecherche').value),qt=/^[+\d\s().-]+$/.test(q)?jmClientTel(q):'';
+ const liste=CLIENTS.filter(c=>!q||jmClientTexte(jmClientNom(c)+' '+(c.societe||'')+' '+(c.tel||'')).includes(q)||(qt&&jmClientTel(c.tel).includes(qt)));
+ if(!liste.length){const p=document.createElement('p');p.className='empty';p.textContent=CLIENTS.length?'Aucun client correspondant':'Aucun client enregistré';box.appendChild(p);return;}
+ for(const c of liste){
+  const row=document.createElement('div');row.className='route-item';const info=document.createElement('div');info.className='info';const titre=document.createElement('strong');titre.textContent=jmClientNom(c);const texte=document.createElement('p');texte.className='meta';texte.textContent=[c.tel,c.adresse,c.societe].filter(Boolean).join(' · ');info.append(titre,texte);
+  if(jmClientFidele(c)){const badge=document.createElement('p');badge.className='km-mention';badge.textContent='★ Client fidèle — '+jmClientNombre(c)+' intervention(s) — remise à choisir';info.appendChild(badge);}
+  const actions=document.createElement('div');for(const [label,fn] of [['Choisir',()=>applyClient(c.id)],['Modifier',()=>jmClientEditer(c.id)],['Contact iPhone',()=>jmClientVcard(c.id)],['Supprimer',()=>deleteClient(c.id)]]){const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent=label;b.onclick=fn;actions.appendChild(b);}info.appendChild(actions);row.appendChild(info);box.appendChild(row);
+ }
+}
+function jmClientOublier(){
+ const id=document.getElementById('jmClientChoisi').value,c=CLIENTS.find(c=>c.id===id);
+ if(c)for(const [champ,val] of [['invClientName',jmClientNom(c)],['invClientAddress',c.adresse||''],['invClientCompany',c.societe||''],['invClientVat',c.vat||'']]){const el=document.getElementById(champ);if(el&&el.value===val)el.value='';}
+ document.getElementById('jmClientChoisi').value='';document.getElementById('jmClientChoisiNom').value='';
+}
+function jmClientReconnaissance(){
+ const b=document.getElementById('jmClientReconnu');if(!b)return;b.replaceChildren();
+ const n=jmClientTel(document.getElementById('telClient').value);const c=n?CLIENTS.find(c=>jmClientTel(c.tel)===n):null;
+ if(!c){b.style.display='none';return;}
+ b.style.display='block';const p=document.createElement('p');p.textContent=jmClientNom(c)+(jmClientFidele(c)?' — ★ Client fidèle':' — Client enregistré')+' — '+jmClientNombre(c)+' intervention(s)';b.appendChild(p);
+ const choisir=document.createElement('button');choisir.type='button';choisir.className='ghost';choisir.textContent='Utiliser cette fiche client';choisir.onclick=()=>applyClient(c.id);b.appendChild(choisir);
+ if(jmClientFidele(c)){const remise=document.createElement('button');remise.type='button';remise.className='ghost';remise.textContent='Choisir la remise fidélité';remise.onclick=()=>jmClientRemiseOuvrir(c.id);b.appendChild(remise);}
+}
+function jmClientRemiseOuvrir(id){
+ const c=CLIENTS.find(c=>c.id===id)||CLIENTS.find(c=>c.id===document.getElementById('jmClientChoisi').value);
+ if(!jmClientFidele(c)){showToast('Sélectionne un client fidèle avec son accord');return;}
+ document.getElementById('jmRemiseClientId').value=c.id;document.getElementById('jmRemiseNom').textContent=jmClientNom(c);document.getElementById('jmRemiseMontant').value='';document.getElementById('jmRemiseUnite').value='euro';document.getElementById('jmRemiseBg').classList.add('show');
+}
+function jmClientRemiseAppliquer(){
+ const c=CLIENTS.find(c=>c.id===document.getElementById('jmRemiseClientId').value);if(!jmClientFidele(c))return;
+ const montant=jmMultiNombre(document.getElementById('jmRemiseMontant').value),unit=document.getElementById('jmRemiseUnite').value;
+ if(unit==='pct'&&montant>100){showToast('Une remise ne peut pas dépasser 100 %');return;}
+ applyClient(c.id);document.getElementById('remise').value=montant;setRemiseUnit(unit);document.getElementById('jmRemiseBg').classList.remove('show');
+ invaliderTicketObsolete();planifierSauvegardeBrouillon();showToast('Remise de cette intervention : '+montant+(unit==='pct'?' %':' €')+' — appuie sur Calculer');
+}
+function jmClientVcardTexte(c){
+ const esc=v=>String(v||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
+ return ['BEGIN:VCARD','VERSION:3.0','N:'+esc(jmClientFidele(c)?'Client JM — '+c.nom:c.nom)+';'+esc(c.prenom)+';;;','FN:'+esc((jmClientFidele(c)?'Client JM — ':'')+jmClientNom(c)),c.tel?'TEL;TYPE=CELL:+'+jmClientTel(c.tel):'',c.adresse?'ADR;TYPE=HOME:;;'+esc(c.adresse)+';;;;':'',c.societe?'ORG:'+esc(c.societe):'','NOTE:'+esc('Client JM Express'+(jmClientFidele(c)?' — fidélité, remise à définir à chaque intervention.':'.')),'END:VCARD',''].filter(x=>x!=='').join('\r\n')+'\r\n';
+}
+async function jmClientVcard(id){
+ const c=CLIENTS.find(c=>c.id===id);if(!c)return;
+ if(!c.accordCoordonnees?.date){showToast('Confirme d’abord l’accord du client dans sa fiche');return;}
+ const file=new File([jmClientVcardTexte(c)],'Client_JM_Express.vcf',{type:'text/vcard'});
+ try{if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'Contact client JM Express'});
+ else{const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);}showToast('Ouvre le fichier contact pour l’ajouter aux Contacts de l’iPhone');}catch(e){if(e.name!=='AbortError')showToast('Contact non exporté');}
+}
+(function(){
+ renderClientsList=jmClientsListe;saveNewClient=jmClientSauver;
+ const ouvrir=openClients;openClients=function(){const r=ouvrir.apply(this,arguments);jmClientsChargerHistorique();return r;};
+ const appliquer=applyClient;applyClient=function(id){
+  const c=CLIENTS.find(c=>c.id===id);if(!c)return;
+  if(c.fidele&&document.getElementById('jmClientChoisi').value!==c.id){document.getElementById('remise').value='';setRemiseUnit('euro');}
+  const r=appliquer(id);document.getElementById('invClientName').value=jmClientNom(c);document.getElementById('jmClientChoisi').value=c.id;document.getElementById('jmClientChoisiNom').value=jmClientNom(c);
+  if(c.tel)document.getElementById('telClient').value=c.tel;planifierSauvegardeBrouillon();jmClientReconnaissance();return r;
+ };
+ document.addEventListener('input',e=>{if(e.target?.id==='telClient'){const id=document.getElementById('jmClientChoisi').value,c=CLIENTS.find(c=>c.id===id);if(c&&jmClientTel(c.tel)!==jmClientTel(e.target.value))jmClientOublier();jmClientReconnaissance();}});
+ const charger=loadClients;loadClients=async function(){const r=await charger.apply(this,arguments);jmClientReconnaissance();return r;};
+})();
+
+</script>
+<script id="jm-v310-contact-script">
+function jmClientVcardLire(texte){
+ const lignes=String(texte).replace(/\r?\n[ \t]/g,'').split(/\r?\n/);if(lignes.filter(l=>/^BEGIN:VCARD$/i.test(l.trim())).length!==1)throw Error('Choisis un seul contact');
+ const des=v=>String(v||'').replace(/\\n/gi,' ').replace(/\\([,;\\])/g,'$1').trim();
+ const parts=v=>v.split(/(?<!\\);/).map(des);let nom='',prenom='',fn='',tel='',adresse='';
+ for(const ligne of lignes){const colon=ligne.indexOf(':');if(colon<0)continue;const key=ligne.slice(0,colon).split(';')[0].split('.').pop().toUpperCase(),val=ligne.slice(colon+1);
+  if(key==='N'){const a=parts(val);nom=a[0]||'';prenom=a[1]||'';}
+  if(key==='FN')fn=des(val);
+  if(key==='TEL'&&!tel)tel=des(val).replace(/^tel:/i,'');
+  if(key==='ADR'&&!adresse){const a=parts(val);adresse=[a[2],a[5],a[3],a[6]].filter(Boolean).join(' ');}
+ }
+ nom=(nom||fn).replace(/^Client JM\s*[—-]?\s*/i,'').replace(/\s*[—-]\s*Client JM(?: Express)?$/i,'').trim();if(!nom)throw Error('Nom absent du contact');
+ return {nom:nom.slice(0,150),prenom:prenom.slice(0,100),tel:tel.slice(0,60),adresse:adresse.slice(0,300),fidele:true};
+}
+async function jmClientImporterFichier(event){
+ const f=event.target.files?.[0];if(!f)return;
+ try{if(f.size>128*1024)throw Error('Choisis la fiche d’un seul contact, sans photo');const c=jmClientVcardLire(await f.text());jmClientsFormulaire(c);JM_CLIENT_ORIGINE=null;document.getElementById('clientAccord').checked=false;showToast('Contact repris — confirme son accord puis enregistre la fiche');}catch(e){showToast(e.message||'Contact non importé');}finally{event.target.value='';}
+}
+async function jmClientChoisirContact(){
+ if(!navigator.contacts?.select){document.getElementById('jmClientContactInput').click();return;}
+ try{const c=(await navigator.contacts.select(['name','tel'],{multiple:false}))[0];if(!c)return;jmClientsFormulaire({nom:(c.name||[])[0]||'',tel:(c.tel||[])[0]||'',fidele:true});document.getElementById('clientAccord').checked=false;}catch(e){if(e.name!=='AbortError'){showToast('Sélection indisponible : importe un contact partagé en .vcf');document.getElementById('jmClientContactInput').click();}}
+}
 
 </script>
 </body>
