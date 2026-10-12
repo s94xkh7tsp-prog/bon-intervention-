@@ -9505,7 +9505,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v308';
+const APP_VERSION = 'jm-express-bon-v309';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16818,7 +16818,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Ouvrir / compléter le bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -22615,9 +22615,9 @@ window.jmOuvrirChatGPT = async function(){
 <script id="jm-v308-preuves-script">
 // v308 — preuves aux deux étapes. Les vidéos sont stockées sur ce téléphone.
 let JM_PHOTOS_PLATEAU=[],JM_VIDEOS_VEHICULE={},JM_PREUVES_GENERATION=0;
-function jmPreuvesLire(){return {photosPlateau:[...JM_PHOTOS_PLATEAU],dechargPhotos:[...dechargPhotosData],videosVehicule:{...JM_VIDEOS_VEHICULE}};}
+function jmPreuvesLire(){return {etatLieuxPhotos:[...etatLieuxPhotosData],photosPlateau:[...JM_PHOTOS_PLATEAU],dechargPhotos:[...dechargPhotosData],videosVehicule:{...JM_VIDEOS_VEHICULE}};}
 function jmPreuvesRestaurer(d){
- JM_PREUVES_GENERATION++;d=d||{};JM_PHOTOS_PLATEAU=[...(d.photosPlateau||[])];dechargPhotosData=[...(d.dechargPhotos||[])];JM_VIDEOS_VEHICULE={...(d.videosVehicule||{})};
+ JM_PREUVES_GENERATION++;d=d||{};etatLieuxPhotosData=[...(d.etatLieuxPhotos||[])];if(typeof renderEtatLieuxPreview==='function')renderEtatLieuxPreview();JM_PHOTOS_PLATEAU=[...(d.photosPlateau||[])];dechargPhotosData=[...(d.dechargPhotos||[])];JM_VIDEOS_VEHICULE={...(d.videosVehicule||{})};
  jmPreuvesRendre();renderDechargPreviews();
  document.getElementById('jmPreuvesBrouillon').value=JSON.stringify(jmPreuvesLire());
 }
@@ -22661,7 +22661,7 @@ async function jmPreuvesVideo(event,stage){
 async function jmPreuvesPartager(key){
  try{
   const d=key?JSON.parse((await window.storage.get(key)).value):jmPreuvesLire();const files=[];
-  for(const [stage,photos] of [['plateau',d.photosPlateau||[]],['livraison',d.dechargPhotos||[]]])for(let i=0;i<photos.length;i++){const blob=await(await fetch(photos[i])).blob();files.push(new File([blob],stage+'-'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'}));}
+  for(const [stage,photos] of [['avant',d.etatLieuxPhotos||[]],['plateau',d.photosPlateau||[]],['livraison',d.dechargPhotos||[]]])for(let i=0;i<photos.length;i++){const blob=await(await fetch(photos[i])).blob();files.push(new File([blob],stage+'-'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'}));}
   for(const [stage,v] of Object.entries(d.videosVehicule||{})){const blob=await jmVideosOperation('get',v.id);if(!blob){showToast('Vidéo '+stage+' absente de ce téléphone : ouvre le dossier sur le téléphone qui l’a filmée');return;}files.push(new File([blob],stage+'-'+v.nom,{type:v.type}));}
   if(!files.length){showToast('Ajoute d’abord une photo ou une vidéo');return;}
   if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files,title:'Photos et vidéos du véhicule',text:'JM Express — véhicule sur le plateau et après livraison'});}
@@ -22669,7 +22669,7 @@ async function jmPreuvesPartager(key){
  }catch(e){if(e.name!=='AbortError')showToast('Impossible de préparer les photos et vidéos');}
 }
 async function jmPreuvesPdfPreparer(c){
- const result=[];for(const [titre,photos] of [['VÉHICULE SUR LE PLATEAU',c.photosPlateau||[]],['VÉHICULE LIVRÉ / DÉCHARGÉ',c.dechargPhotos||[]]]){
+ const result=[];for(const [titre,photos] of [['AVANT CHARGEMENT',c.etatLieuxPhotos||[]],['VÉHICULE SUR LE PLATEAU',c.photosPlateau||[]],['VÉHICULE LIVRÉ / DÉCHARGÉ',c.dechargPhotos||[]]]){
   for(let i=0;i<photos.length;i++){const image=await imageDataUrlToRgb(photos[i],1200);result.push({titre:titre+' — '+(i+1)+'/'+photos.length,image});}
  }return result;
 }
@@ -22789,6 +22789,7 @@ function jmConstruireBonLivraison(c,clientName,signature,preuves=[]){
  texte('BON D’INTERVENTION',{font:'F2',size:20});y+=10;
  try{const qr=makeQrMatrix(COMPANY.reviewUrl),n=qr.getModuleCount();pdf.addBitmapImage('AvisBon308',n,n,(x,z)=>qr.isDark(z,x));pdf.drawImage('AvisBon308',455,78,55,55);pdf.text(445,147,'Votre avis Google',{size:8,gray:0.4});}catch(e){}
  if(c.numero)texte('Bon : '+c.numero);
+ if(c.bonComplement?.date)texte('Bon complété le '+new Date(c.bonComplement.date).toLocaleString('fr-BE')+' — version '+c.bonComplement.version,{size:8,gray:0.4});
  texte('Intervention : '+new Date(c.date||Date.now()).toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}));
  texte('Client : '+(clientName||c.clientNom||'Client'));texte('Véhicule : '+(c.plaque||'non précisé'));y+=10;
  texte(typeLabelComplet(c)||'Prise en charge / transport de véhicule',{font:'F2'});texte('Prise en charge : '+(c.from||'non précisée'));texte('Destination : '+(jmLivraisonDestination(c)||'non précisée'));
@@ -22830,6 +22831,96 @@ async function jmGenererBonLivraison(){
  };
  const oldBon=genererRecu;genererRecu=function(){return lastCalc&&(lastCalc.presentationDocs>=3||lastCalc.remisePro||lastCalc.photosPlateau?.length||lastCalc.dechargPhotos?.length||Object.keys(lastCalc.videosVehicule||{}).length)?jmGenererBonLivraison():oldBon.apply(this,arguments);};
 })();
+
+</script>
+<div class="modal-bg" id="jmBonBg" onclick="if(event.target===this)jmBonFermer()"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="jmBonTitre"><h3 id="jmBonTitre">Ouvrir / compléter le bon</h3><p id="jmBonReference"></p><p class="km-mention" id="jmBonEtat"></p><div class="field"><label>Avant chargement</label><input id="jmBonInputavant" type="file" accept="image/*" multiple hidden onchange="jmBonAjouterPhotos(event,'avant')"><button type="button" class="ghost" onclick="document.getElementById('jmBonInputavant').click()">Ajouter depuis mes Photos — avant chargement</button><div id="jmBonCompteavant" class="km-mention"></div><div id="jmBonPhotosavant" class="epave-preview-grid"></div></div><div class="field"><label>Sur le plateau</label><input id="jmBonInputplateau" type="file" accept="image/*" multiple hidden onchange="jmBonAjouterPhotos(event,'plateau')"><button type="button" class="ghost" onclick="document.getElementById('jmBonInputplateau').click()">Ajouter depuis mes Photos — sur le plateau</button><div id="jmBonCompteplateau" class="km-mention"></div><div id="jmBonPhotosplateau" class="epave-preview-grid"></div></div><div class="field"><label>Après livraison</label><input id="jmBonInputapres" type="file" accept="image/*" multiple hidden onchange="jmBonAjouterPhotos(event,'apres')"><button type="button" class="ghost" onclick="document.getElementById('jmBonInputapres').click()">Ajouter depuis mes Photos — après livraison</button><div id="jmBonCompteapres" class="km-mention"></div><div id="jmBonPhotosapres" class="epave-preview-grid"></div></div><button type="button" class="ghost" onclick="avecChargement(this,'Enregistrement…',()=>jmBonEnregistrer())">Enregistrer les ajouts</button><button type="button" class="primary" onclick="avecChargement(this,'Préparation du bon…',()=>jmBonPartager())">Enregistrer et renvoyer le bon PDF</button><button type="button" class="ghost" onclick="jmBonFermer()">Fermer</button><button type="button" class="ghost" onclick="jmBonAbandonner()">Abandonner les ajouts non enregistrés</button></div></div>
+<script id="jm-v309-bon-script">
+// v309 — compléter et renvoyer un bon archivé sans recalculer l'intervention.
+let JM_BON_CTX=null;
+const JM_BON_ETAPES={avant:{champ:'etatLieuxPhotos',titre:'Avant chargement'},plateau:{champ:'photosPlateau',titre:'Sur le plateau'},apres:{champ:'dechargPhotos',titre:'Après livraison'}};
+async function jmBonOuvrir(key){
+ try{
+  const d=JSON.parse((await window.storage.get(key)).value);
+  JM_BON_CTX={key,d:JSON.parse(JSON.stringify(d)),base:JSON.parse(JSON.stringify(d)),changements:new Set(),imports:0};
+  document.getElementById('jmBonReference').textContent=(d.numero||'Bon de cette intervention')+' — '+(d.plaque||'Véhicule')+' — '+fmt(d.total||0);
+  document.getElementById('jmBonEtat').textContent='Bon enregistré : tu peux le compléter même s’il a déjà été envoyé ou si l’intervention est terminée.';
+  document.getElementById('jmBonBg').classList.add('show');document.getElementById('jmBonBg').scrollTop=0;
+  jmBonAfficherPhotos();
+ }catch(e){showToast('Impossible de retrouver ce bon');}
+}
+function jmBonFermer(){
+ if(JM_BON_CTX&&(JM_BON_CTX.changements.size||JM_BON_CTX.imports)){showToast('Enregistre les photos ajoutées, ou utilise « Abandonner les ajouts »');return;}
+ document.getElementById('jmBonBg').classList.remove('show');JM_BON_CTX=null;
+}
+function jmBonAbandonner(){document.getElementById('jmBonBg').classList.remove('show');JM_BON_CTX=null;}
+function jmBonAfficherPhotos(){
+ const ctx=JM_BON_CTX;if(!ctx)return;
+ for(const [etape,def] of Object.entries(JM_BON_ETAPES)){
+  const box=document.getElementById('jmBonPhotos'+etape);box.replaceChildren();
+  const photos=ctx.d[def.champ]||[];
+  photos.forEach((src,i)=>{const item=document.createElement('div');item.className='epave-thumb';const img=document.createElement('img');img.src=src;img.alt=def.titre+' '+(i+1);const b=document.createElement('button');b.type='button';b.className='epave-remove';b.textContent='×';b.onclick=()=>jmBonRetirerPhoto(etape,i);item.append(img,b);box.appendChild(item);});
+  document.getElementById('jmBonCompte'+etape).textContent=photos.length+' photo(s)';
+ }
+}
+async function jmBonAjouterPhotos(event,etape){
+ const ctx=JM_BON_CTX,def=JM_BON_ETAPES[etape],input=event.target;
+ if(!ctx||!def)return;
+ ctx.imports++;
+ try{
+  for(const file of Array.from(input.files||[])){
+   if(JM_BON_CTX!==ctx)return;
+   const photos=ctx.d[def.champ]||(ctx.d[def.champ]=[]);
+   if(photos.length>=4){showToast('4 photos par étape maximum ; les anciennes photos sont conservées');break;}
+   const src=await compressImageToBase64(file,1200,0.65);
+   if(JM_BON_CTX!==ctx)return;
+   if(photos.length>=4){showToast('4 photos par étape maximum');break;}
+   photos.push(src);ctx.changements.add(etape);
+  }
+  jmBonAfficherPhotos();document.getElementById('jmBonEtat').textContent='Photos ajoutées : enregistre puis renvoie le bon complété.';
+ }catch(e){showToast('Photo non ajoutée : essaie une autre image');}
+ finally{ctx.imports--;input.value='';}
+}
+function jmBonRetirerPhoto(etape,i){
+ const ctx=JM_BON_CTX,def=JM_BON_ETAPES[etape];if(!ctx||!def)return;
+ (ctx.d[def.champ]||[]).splice(i,1);ctx.changements.add(etape);jmBonAfficherPhotos();
+ document.getElementById('jmBonEtat').textContent='Photos modifiées : enregistrement nécessaire.';
+}
+async function jmBonSauver(){
+ const ctx=JM_BON_CTX;if(!ctx)return null;
+ if(ctx.imports){showToast('Attends la fin de l’ajout des photos');return null;}
+ if(ctx.sauvegarde){showToast('Enregistrement en cours');return null;}ctx.sauvegarde=true;
+ try{
+  const actuel=JSON.parse((await window.storage.get(ctx.key)).value);
+  if(JM_BON_CTX!==ctx)return null;
+  for(const etape of ctx.changements){const champ=JM_BON_ETAPES[etape].champ;if(JSON.stringify(actuel[champ]||[])!==JSON.stringify(ctx.base[champ]||[])){showToast('Ces photos ont changé ailleurs : rouvre le bon avant d’enregistrer');return null;}}
+  if(ctx.changements.size){
+   for(const etape of ctx.changements){const champ=JM_BON_ETAPES[etape].champ;actuel[champ]=[...(ctx.d[champ]||[])];}
+   const version=(actuel.bonComplement?.version||0)+1;
+   actuel.bonComplement={version,date:new Date().toISOString()};
+   await window.storage.set(ctx.key,JSON.stringify(actuel));
+   // Conserver aussi la preuve dans un formulaire déjà ouvert sur le même dossier.
+   if(typeof editingKey!=='undefined'&&editingKey===ctx.key){
+    for(const etape of ctx.changements){const champ=JM_BON_ETAPES[etape].champ;if(champ==='etatLieuxPhotos'){etatLieuxPhotosData=[...actuel[champ]];if(typeof renderEtatLieuxPreview==='function')renderEtatLieuxPreview();}}
+    jmPreuvesRestaurer(actuel);if(typeof lastCalc!=='undefined'&&lastCalc)Object.assign(lastCalc,{etatLieuxPhotos:actuel.etatLieuxPhotos||[],...jmPreuvesLire(),bonComplement:actuel.bonComplement});
+   }
+  }
+  ctx.d=JSON.parse(JSON.stringify(actuel));ctx.base=JSON.parse(JSON.stringify(actuel));ctx.changements.clear();
+  document.getElementById('jmBonEtat').textContent='Bon enregistré — même numéro, prix et paiement conservés.';
+  return actuel;
+ }catch(e){showToast('Ajouts non enregistrés : réessaie avant de fermer');return null;}
+ finally{ctx.sauvegarde=false;}
+}
+async function jmBonEnregistrer(){const d=await jmBonSauver();if(d){showToast('Bon complété enregistré');if(typeof loadHistory==='function')await loadHistory();}}
+async function jmBonPartager(){
+ const ctx=JM_BON_CTX,d=await jmBonSauver();if(!ctx||!d)return;
+ try{
+  const [signature,preuves]=await Promise.all([jmLivraisonSignaturePdf(d),jmPreuvesPdfPreparer(d)]);
+  const nom=d.clientNom||d.factures?.[d.factures.length-1]?.meta?.clientName||'Client';
+  const pdf=jmConstruireBonLivraison(d,nom,signature,preuves);
+  await partagerPdf(pdf,'Bon_JM-Express_'+String(d.numero||d.plaque||'intervention').replace(/[^a-zA-Z0-9_-]/g,'-')+'.pdf','Bon d’intervention complété','Bon complété partagé','Bon complété téléchargé');
+ }catch(e){if(e.name!=='AbortError')showToast('Bon non partagé : tes ajouts restent enregistrés');}
+}
+window.jmBonDepuisJournal=jmBonOuvrir;
 
 </script>
 </body>
