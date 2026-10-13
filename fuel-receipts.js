@@ -65,6 +65,7 @@
     const id = uid(); let stored = false, saved = false;
     try {
       const r = await registry();
+      if (r.some(f => f.categorie === 'gasoil' && f.paye === date && Math.abs(Number(f.montant) - round(montant)) < .01) && !confirm('Un plein du même montant existe déjà à cette date. Enregistrer quand même ?')) return;
       if (pending) { await fileStore('put', id, pending); stored = true; }
       const station = $('fuelStation').value.trim(), reference = $('fuelReference').value.trim();
       r.push({id, categorie:'gasoil', libelle:'Gasoil' + (station ? ' — ' + station : '') + (litres ? ' ' + litres.toFixed(2) + ' L' : ''), montant:round(montant), echeance:date, paye:date, litres, prixL, lieu:PLEIN_LIEU, station, reference, justificatif:pending ? {id, name:pending.name, ext:pending.ext, size:pending.blob.size} : null});
@@ -77,7 +78,7 @@
   async function selected() { return (await registry()).map((f, i) => ({f, i})).filter(({f}) => f.categorie === 'gasoil' && String(f.paye).startsWith($('fuelYear').value)); }
   window.jmFuelList = async () => {
     const rows = await selected();
-    $('fuelList').innerHTML = rows.map(({f, i}) => '<div class="grp"><strong>' + esc(f.paye) + ' · ' + esc(f.station || f.libelle) + ' · ' + esc(fmt(f.montant)) + '</strong><p>' + esc(f.reference || '') + '</p>' + (f.justificatif ? '<p>' + esc(f.justificatif.name) + '</p><button class="ghost" data-view="' + i + '">Ouvrir / partager le ticket</button>' : '<p>Ticket manquant</p>') + '<button class="ghost" data-attach="' + i + '">' + (f.justificatif ? 'Remplacer le ticket' : 'Joindre le ticket') + '</button></div>').join('') || '<p>Aucun plein pour cette année.</p>';
+    $('fuelList').innerHTML = rows.map(({f, i}) => '<div class="grp"><strong>' + esc(f.paye) + ' · ' + esc(f.station || f.libelle) + ' · ' + esc(fmt(f.montant)) + '</strong><p>' + esc(f.reference || '') + '</p>' + (f.justificatif ? '<p>' + esc(f.justificatif.name) + '</p><button class="ghost" data-view="' + i + '">Ouvrir / partager le ticket</button>' : '<p>Ticket manquant</p>') + '<button class="ghost" data-attach="' + i + '">' + (f.justificatif ? 'Remplacer le ticket' : 'Joindre le ticket') + '</button><button class="ghost" data-edit="' + i + '">Corriger le plein</button></div>').join('') || '<p>Aucun plein pour cette année.</p>';
   };
   window.jmFuelOpen = async () => {
     if (typeof closeMenu === 'function') closeMenu(); if (typeof closeGestion === 'function') closeGestion();
@@ -105,12 +106,15 @@
     finally { importing = false; $('fuelSave').disabled = busy; }
   });
   $('fuelList').addEventListener('click', async e => {
+    const edit = e.target.closest('[data-edit]');
+    if (edit) return window.jmFuelEdit(Number(edit.dataset.edit));
     const a = e.target.closest('[data-attach]'), v = e.target.closest('[data-view]');
     if (a) { target = Number(a.dataset.attach); $('fuelFile').click(); }
     if (v) try { const r = await registry(), j = r[Number(v.dataset.view)].justificatif, file = await fileStore('get', j.id); if (!file) throw Error('Ticket absent de ce téléphone. Réimporte le fichier original.'); await share(new File([file.blob], file.name, {type:file.blob.type})); } catch (err) { if (err.name !== 'AbortError') showToast(err.message); }
   });
   // ZIP sans compression : conserve exactement les octets des PDF et photos.
-  function crc32(b) { let c = -1; for (const n of b) { c ^= n; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ ((c & 1) ? 0xedb88320 : 0); } return (c ^ -1) >>> 0; }
+  const crcTable=Uint32Array.from({length:256},(_,i)=>{let c=i;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);return c>>>0;});
+  function crc32(b) { let c = -1; for (const n of b) c=(c>>>8)^crcTable[(c^n)&255]; return (c ^ -1) >>> 0; }
   async function zip(entries) {
     const parts = [], central = []; let offset = 0;
     for (const [name, blob] of entries) {
@@ -151,4 +155,5 @@
     } catch (err) { showToast(err.message || 'Export impossible'); }
     finally { button.disabled = false; }
   };
+  window.JMFuel = {zip, crc32, registry, fileStore, pending:()=>pending};
 })();

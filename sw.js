@@ -1,11 +1,13 @@
-const CACHE_NAME = 'jm-express-bon-v312';
+const CACHE_NAME = 'jm-express-bon-v313';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
   './',
   './index.html',
   './manifest.json',
-  './fuel-receipts.js'
+  './fuel-receipts.js',
+  './navigation.js',
+  './operations.js'
 ];
 
 // Un visuel ou une icône manquante ne doit jamais empêcher une mise à jour.

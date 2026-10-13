@@ -9516,7 +9516,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v312';
+const APP_VERSION = 'jm-express-bon-v313';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -12250,7 +12250,7 @@ async function genererNoteCredit(){
     const file = new File([blob], fileName, {type:'application/pdf'});
 
     d.creditNotes = d.creditNotes || [];
-    d.creditNotes.push({number: ncNumber, amount: montant, date: new Date().toISOString(), reason: motif});
+    d.creditNotes.push({number: ncNumber, amount: montant, date: new Date().toISOString(), reason: motif, factureNumero: d.invoiceNumber, pdfBase64: octetsVersBase64(pdfBytes)});
     await window.storage.set(ncKeyEnCours, JSON.stringify(d));
 
     if(navigator.canShare && navigator.canShare({files:[file]})){
@@ -23089,5 +23089,7 @@ async function jmClientChoisirContact(){
 <button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
 </div></div>
 <script src="fuel-receipts.js"></script>
+<script src="operations.js"></script>
+<script src="navigation.js"></script>
 </body>
 </html>
