@@ -9,7 +9,7 @@
  #modalMenuBg .menu-grid{display:block!important}
  .jm-nav-intro{color:var(--grey);font-size:14px;line-height:1.5;margin:8px 0 18px}
  .jm-nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 22px}
- .jm-nav-card{position:relative;display:flex!important;flex-direction:column;align-items:flex-start;gap:8px;min-height:108px;width:100%;padding:16px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--ink)!important;color:var(--white)!important;text-align:left;white-space:normal;font:inherit;cursor:pointer;box-sizing:border-box;line-height:1.35}
+ .jm-nav-card{position:relative;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;grid-column:auto!important;gap:8px;min-height:108px;width:100%;padding:16px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--ink)!important;color:var(--white)!important;text-align:left!important;white-space:normal;font:inherit;cursor:pointer;box-sizing:border-box;line-height:1.35}
  .jm-nav-card .menu-ico{font-size:26px;width:auto;height:auto;flex:none}.jm-nav-card .menu-ico svg{width:25px;height:25px}
  .jm-nav-card .menu-lbl{font-size:16px;font-weight:750;display:block;flex:none}.jm-nav-card .menu-desc{font-size:12.5px;line-height:1.5;color:var(--grey);display:block;flex:none}
  .jm-nav-card:hover{border-color:var(--orange)!important}.jm-nav-card:focus-visible,.jm-nav-tab:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
@@ -20,7 +20,7 @@
  #tabbar .tab-btn{width:100%;min-width:0;min-height:58px;padding:7px 2px;font:inherit;background:transparent;border:0;color:var(--grey);cursor:pointer;box-sizing:border-box}
  #tabbar .tab-btn.active{color:var(--orange)}#tabbar .tab-lbl{font-size:11px;white-space:normal}#tabbar .jm-nav-terrain{color:var(--orange);background:rgba(232,115,12,.1);border-radius:14px}#tabbar .tab-ico{font-size:22px}
  #jmTerrainBg .modal{max-width:640px}#jmTerrainTitle{font-size:26px}#jmTerrainReference{font-size:18px;line-height:1.45;font-weight:700;overflow-wrap:anywhere}
- #jmTerrainSelect{min-height:50px;font-size:16px;width:100%}.jm-terrain-links{display:flex;flex-wrap:wrap;gap:10px}.jm-terrain-links a{padding:14px 20px;border:1px solid var(--line);border-radius:12px;color:var(--white);text-decoration:none;min-height:44px;box-sizing:border-box}
+ #jmOcrSuggestions label{display:flex;align-items:center;gap:12px;min-height:50px;padding:10px;margin:6px 0;border:1px solid var(--line);border-radius:12px;font:16px/1.4 inherit;text-transform:none;letter-spacing:normal;cursor:pointer}#jmOcrSuggestions input{width:24px;height:24px;flex:none}#jmTerrainSelect{min-height:50px;font-size:16px;width:100%}.jm-terrain-links{display:flex;flex-wrap:wrap;gap:10px}.jm-terrain-links a{padding:14px 20px;border:1px solid var(--line);border-radius:12px;color:var(--white);text-decoration:none;min-height:44px;box-sizing:border-box}
  #jmTerrainExtra textarea{min-height:120px;width:100%;box-sizing:border-box}.jm-terrain-note{font-size:13px;line-height:1.5;color:var(--grey)}
  @media(min-width:620px){#modalMenuBg .jm-nav-quick{grid-template-columns:repeat(3,minmax(0,1fr))}}
  @media(max-width:360px){.jm-nav-card{padding:12px!important}.jm-nav-card .menu-lbl{font-size:14px}.jm-nav-card .menu-desc{font-size:12px}}
