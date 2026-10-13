@@ -404,6 +404,7 @@
 </head>
 <body><main class="container">
 <div class="header"><div class="logo-text">Défi <span class="accent">JM</span> 🚛</div><div class="tagline">Ta voiture sur le plateau, ton sourire à bord !</div></div>
+<nav class="reading-controls" aria-label="Taille du texte"><span>👓 Taille du texte</span><div class="reading-buttons"><button type="button" data-reading="18" aria-pressed="true">Normal</button><button type="button" data-reading="22" aria-pressed="false">Grand</button><button type="button" data-reading="26" aria-pressed="false">Très grand</button></div></nav>
 <section id="welcome"><div class="preface"><p>Ton véhicule s’offre un chauffeur… et toi, une petite aventure !</p><p>3 questions pendant le trajet, 2 après la livraison. Pas d’interrogatoire : juste un moment sympa, sans obligation.</p></div><p>Chaque réponse vaut 20 points, quelle que soit ton opinion. Tu peux passer une question ou arrêter quand tu veux. Aucun avis public n’est demandé.</p><p>Jeu réservé aux passagers, jamais au conducteur en circulation.</p><h3>Comment te présenter ? (facultatif)</h3><div class="gender-picker"><button data-gender="male" class="gender-btn">Homme</button><button data-gender="female" class="gender-btn">Femme</button><button data-gender="other" class="gender-btn">Non genré</button><button data-gender="" class="gender-btn selected">Passer</button></div><p id="rewardInfo"></p><button id="start" class="btn btn-primary full" disabled>C’est parti !</button></section>
 <section id="play" hidden><div class="status-bar"><span id="progress"></span><span id="points"></span></div><div class="question-block"><div class="question-text" id="question"></div><div class="answers" id="answers"></div></div><button id="skip" class="btn btn-secondary full">Passer cette question</button></section>
 <section id="waiting" hidden><h2>Petite pause, ta voiture roule encore 🚛</h2><p>Les deux dernières questions s’ouvriront quand JM confirmera le déchargement. Tu peux garder cette page ou y revenir avec le même lien.</p><button id="refresh" class="btn btn-primary full">Vérifier la livraison</button></section>
@@ -411,4 +412,43 @@
 <section id="result" hidden><div class="result-emoji">🏆</div><h2>Merci d’avoir joué !</h2><div id="score" class="result-score"></div><p id="gift"></p><p>Ton résultat est enregistré et JM peut le voir sur son téléphone.</p></section>
 <p id="errorBox" role="status" aria-live="polite" style="display:block"></p>
 </main><style>[hidden]{display:none!important}button,select,textarea{font:inherit}select{width:100%;padding:14px;background:#182735;color:white;border:1px solid #00d4ff;border-radius:10px}#platforms label{display:block;margin:12px 0}p{line-height:1.5}button:disabled{opacity:.6}#errorBox{color:#ffbd7f}input[type=checkbox]{width:22px;height:22px;vertical-align:middle}label{line-height:1.6}#welcome h3{margin-top:20px}</style>
+<style>
+html{font-size:18px}
+body{align-items:flex-start;overflow-wrap:anywhere}
+.container{max-width:650px;min-width:0}
+:root{--text-muted:#d2dbe8}
+.reading-controls{margin-bottom:24px;padding:14px;background:#0f1419;border:1px solid #65768d;border-radius:14px}
+.reading-controls>span{display:block;margin-bottom:10px;font-weight:700;font-size:1rem}
+.reading-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.reading-buttons button{flex:1 1 100px;min-height:48px;padding:10px 8px;font-size:1rem;line-height:1.4;background:#1a2333;color:#fff;border:2px solid #65768d;border-radius:10px}
+.reading-buttons button[aria-pressed=true]{background:#00d4ff;color:#0f1419;border-color:#00d4ff;font-weight:700}
+.question-text{font-size:1.4rem;line-height:1.55;font-weight:700;color:#fff;margin-bottom:24px}
+.answer-btn{font-size:1.1rem;line-height:1.6;min-height:64px;padding:18px 16px;white-space:normal;overflow:visible;border-color:#65768d}
+.answers{gap:14px}
+.preface,.gender-btn,.btn,.tagline,.result-message,.reward-desc,.consent-title,.checkbox-label,.feedback-textarea,.error-box,.success-box{font-size:1rem;line-height:1.6}
+.btn{min-height:56px;text-transform:none;letter-spacing:normal}
+.btn.full{width:100%}
+.status-bar{flex-wrap:wrap;gap:12px;font-size:1rem}
+p{line-height:1.65;margin:12px 0}
+label{display:block;margin:12px 0;line-height:1.65}
+select,textarea{font-size:1rem;max-width:100%}
+select{white-space:normal}
+input[type=checkbox]{width:26px;height:26px}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@media(max-width:480px){.container{padding:16px}.gender-picker{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script>
+(function(){
+const buttons=Array.from(document.querySelectorAll('[data-reading]'));
+function setSize(size){
+document.documentElement.style.fontSize=size+'px';
+buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.reading===String(size)));});
+try{localStorage.setItem('jm-game-reading-size',String(size));}catch(e){}
+}
+let saved;try{saved=localStorage.getItem('jm-game-reading-size');}catch(e){}
+if(['18','22','26'].includes(saved))setSize(Number(saved));
+buttons.forEach(function(b){b.addEventListener('click',function(){setSize(Number(b.dataset.reading));});});
+})();
+</script>
 <script type="module" src="game-client.js"></script></body></html>
