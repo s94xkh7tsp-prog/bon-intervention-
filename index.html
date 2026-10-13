@@ -4817,7 +4817,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <div class="modal">
     <div class="eyebrow">Suivi de l'activité</div>
     <h1 class="page-title" style="font-size:24px;">📊 Gestion</h1>
-    <div class="jm-gestion-grille">
+    <div class="jm-gestion-grille"><button type="button" class="jm-gestion-carte" onclick="jmFuelOpen()"><span>🧾</span><strong>Tickets carburant</strong><em>Scans, pleins et export comptable</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('dashboard')"><span>📈</span><strong>Tableau de bord</strong><em>Chiffres, statistiques</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('resume')"><span>🗓️</span><strong>Résumé mensuel</strong><em>Le mois en un coup d'œil</em></button>
       <button type="button" class="jm-gestion-carte" onclick="jmGestionOuvrir('recettes')"><span>📒</span><strong>Recettes</strong><em>Livre de caisse, plafond</em></button>
@@ -5118,7 +5118,17 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     </div>
     <div id="pleinSurcout" class="km-mention" style="display:none; border-left-color:var(--orange); margin-top:10px;"></div>
 
-    <button class="primary" onclick="enregistrerPlein()">Enregistrer le plein</button>
+
+    <div class="field"><label for="fuelStation">Station / fournisseur</label><input id="fuelStation" type="text" maxlength="150" placeholder="Ex. TotalEnergies, Q8…"></div>
+    <div class="field"><label for="fuelReference">Référence du ticket (facultatif)</label><input id="fuelReference" type="text" maxlength="100"></div>
+    <div class="field"><label for="fuelExact">Montant exact du ticket (€)</label><input id="fuelExact" type="number" min="0.01" step="0.01" inputmode="decimal" oninput="jmFuelTotal()" placeholder="Facultatif : sinon litres × prix au litre"></div>
+    <div class="grp"><strong>🧾 Ticket de la pompe</strong>
+      <details><summary style="padding:12px 0;">Scanner avec Notes sur iPhone</summary><p>Notes → nouvelle note → pièce jointe → Scanner des documents. Ouvre ensuite le scan → Partager → Enregistrer dans Fichiers. Reviens ici et touche « Joindre le scan ».</p><p>Vérifie puis recopie les montants du ticket dans les champs. Le scan n’encode pas automatiquement les chiffres.</p></details>
+      <button type="button" class="ghost" onclick="jmFuelPick()">📎 Joindre le scan PDF / une photo</button>
+      <p id="fuelFileStatus" role="status">Aucun ticket joint</p>
+      <button type="button" class="ghost" onclick="jmFuelRemove()">Retirer la sélection</button>
+    </div>
+    <button class="primary" id="fuelSave" onclick="enregistrerPlein()">Enregistrer le plein et son ticket</button>
     <button class="ghost close-modal" onclick="fermerPlein()">Annuler</button>
   </div>
 </div>
@@ -9506,7 +9516,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v311';
+const APP_VERSION = 'jm-express-bon-v312';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -23065,5 +23075,19 @@ async function jmClientChoisirContact(){
 
 </script>
 <script src="game-driver.js"></script>
+
+<input id="fuelFile" type="file" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,.heic,.heif" style="display:none">
+<div class="modal-bg" id="fuelArchive"><div class="modal">
+<h1 class="page-title">🧾 Tickets carburant</h1>
+<p>Les pleins et leurs justificatifs sont rangés avec tes frais professionnels.</p>
+<button class="primary" onclick="document.getElementById('fuelArchive').classList.remove('show');ouvrirPlein()">⛽ Encoder un plein et joindre son ticket</button>
+<label for="fuelYear">Exercice</label><select id="fuelYear" onchange="jmFuelList()"></select>
+<div id="fuelList"></div>
+<button class="primary" id="fuelExport" onclick="jmFuelExport()">📦 Exporter les frais et les tickets pour le comptable</button>
+<button class="ghost" onclick="genererDocumentFrais(Number(document.getElementById('fuelYear').value))">Relevé PDF des frais</button>
+<p class="km-mention">Les scans restent sur ce téléphone : ils ne sont pas synchronisés et ne sont pas inclus dans la sauvegarde habituelle. Exporte le dossier ZIP et conserve-le dans Fichiers / iCloud Drive. Il contient le relevé CSV et les tickets originaux ; les factures clients s’exportent depuis Historique.</p>
+<button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
+</div></div>
+<script src="fuel-receipts.js"></script>
 </body>
 </html>
