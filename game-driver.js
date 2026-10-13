@@ -25,6 +25,7 @@ async function jmDefiOuvrir(key){
 function jmDefiLien(s){const url=new URL('game.html',location.href);url.search='';url.hash=new URLSearchParams({s:s.session_id,api:SYNC.url.replace(/\/$/,'')}).toString();return url.href;}
 async function jmDefiAfficher(ctx){
  if(JM_DEFI_CTX!==ctx)return;ctx.content.replaceChildren();const s=ctx.session;ctx.cap.disabled=true;ctx.select.disabled=true;
+ if(s.theme_title)jmDefiElt('p','Thème choisi : '+s.theme_title,ctx.content);
  ctx.message.textContent='Session valable jusqu’au '+new Date(s.expires_at).toLocaleString('fr-BE');
  if(!s.completed){
   const lien=jmDefiLien(s),qr=makeQrMatrix(lien),size=qr.getModuleCount(),scale=5,canvas=jmDefiElt('canvas',null,ctx.content);canvas.width=canvas.height=(size+8)*scale;canvas.style.cssText='display:block;width:min(100%,280px);height:auto;margin:16px auto;background:white';const g=canvas.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,canvas.width,canvas.height);g.fillStyle='#000';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(qr.isDark(r,c))g.fillRect((c+4)*scale,(r+4)*scale,scale,scale);
@@ -40,11 +41,12 @@ async function jmDefiAfficher(ctx){
   jmDefiElt('p',r.reward_type==='discount'?'Remise choisie : '+r.discount_eur.toLocaleString('fr-BE')+' € — valable jusqu’au '+new Date(r.valid_until).toLocaleDateString('fr-BE')+'. À appliquer manuellement sur une prochaine intervention.':r.reward_type==='dedication'?'Dédicace choisie : à organiser avec le client.':'Le client n’a pas choisi de cadeau.',ctx.content);
   if(r.feedback)jmDefiElt('p','Petit mot du client : '+r.feedback,ctx.content);
   jmDefiElt('p','Accord pour filmer : '+(r.film_consent?'oui':'non')+'. Publication : '+(r.publication_consent?Object.keys(r.platforms).filter(k=>r.platforms[k]).join(', '):'non')+'.',ctx.content);
+  const detail=jmDefiElt('details',null,ctx.content);jmDefiElt('summary','Voir les 5 réponses du client',detail);for(const a of s.answers||[]){const q=s.questions?.[a.questionNum];if(q){jmDefiElt('p',(a.questionNum+1)+'. '+q.text,detail);jmDefiElt('p',a.skipped?'Question passée':q.answers[a.answerIndex]||'Réponse indisponible',detail);}}
   await jmDefiSauverResultat(ctx.key,s);
   jmDefiElt('p','Résultat conservé avec ce bon. Aucun montant de facture n’a été changé.',ctx.content);
  }
 }
-async function jmDefiSauverResultat(key,s){const raw=await window.storage.get(key);if(!raw?.value)throw Error('Bon introuvable : résultat toujours disponible sur le serveur.');const d=JSON.parse(raw.value);const value={session_id:s.session_id,result:s.result};if(JSON.stringify(d.defiJM)===JSON.stringify(value))return;d.defiJM=value;await window.storage.set(key,JSON.stringify(d));}
+async function jmDefiSauverResultat(key,s){const raw=await window.storage.get(key);if(!raw?.value)throw Error('Bon introuvable : résultat toujours disponible sur le serveur.');const d=JSON.parse(raw.value);const value={session_id:s.session_id,result:s.result};if(s.theme_title){value.theme=s.theme;value.theme_title=s.theme_title;value.answers=s.answers;value.questions=s.questions;}if(JSON.stringify(d.defiJM)===JSON.stringify(value))return;d.defiJM=value;await window.storage.set(key,JSON.stringify(d));}
 async function jmDefiActualiser(ctx){if(JM_DEFI_CTX!==ctx||!ctx.key)return;const j=await jmDefiApi('results?interventionKey='+encodeURIComponent(ctx.key));if(JM_DEFI_CTX!==ctx)return;ctx.session=j.session;if(j.expired&&!j.session.completed){clearTimeout(JM_DEFI_TIMER);ctx.message.textContent='Cette partie a expiré. Ferme puis ouvre le jeu pour créer une nouvelle partie.';return;}await jmDefiAfficher(ctx);}
 function jmDefiPlanifier(ctx){clearTimeout(JM_DEFI_TIMER);if(JM_DEFI_CTX!==ctx||ctx.session?.completed||document.hidden)return;JM_DEFI_TIMER=setTimeout(async()=>{try{if(!JM_DEFI_BUSY)await jmDefiOperation(()=>jmDefiActualiser(ctx));}finally{jmDefiPlanifier(ctx);}},5000);}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(JM_DEFI_TIMER);else if(JM_DEFI_CTX)jmDefiPlanifier(JM_DEFI_CTX);});
@@ -84,3 +86,4 @@ if(typeof syncMajEcranReglages==='function'){
  const jmDefiAncienSyncEcran=syncMajEcranReglages;
  syncMajEcranReglages=function(){const r=jmDefiAncienSyncEcran.apply(this,arguments);jmDefiServeurAfficher();return r;};
 }
+

@@ -1,3 +1,4 @@
+import {wrapGameThemes} from './game-themes.js';
 import {gameRoute} from './game-api.js';
 // =====================================================================
 //  JM Express — Worker de synchronisation (v1)
@@ -36,7 +37,7 @@ async function appareilDepuisJeton(req, env){
   return d;
 }
 
-export default {
+const syncWorker = {
   async fetch(req, env){
     if(req.method === 'OPTIONS') return new Response(null, {headers: CORS});
     const url = new URL(req.url);
@@ -285,3 +286,5 @@ async function localiserOSM(q, manquant){
   return {demande: q, manquant, type, confiance: (dispersion || q.routeDeduite) ? 'a_confirmer' : (q.direction ? 'elevee' : 'moyenne'), position: {lat: Math.round(pos.lat * 1e6) / 1e6, lon: Math.round(pos.lon * 1e6) / 1e6},
     repere: type === 'sortie' ? ('Sortie ' + ((c.tags || {}).ref || '') + ((c.tags || {}).name ? ' — ' + c.tags.name : '')) : ('Borne ' + q.borne), commune, sortiesProches: voisines, candidats: pts.length, source: 'OpenStreetMap'};
 }
+
+export default wrapGameThemes(syncWorker,ACCOUNT);
