@@ -1,4 +1,4 @@
-/* v314 — Accès rapide et Terrain ; fonctions métier existantes conservées. */
+/* v315 — Accès rapide et Terrain ; fonctions métier existantes conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
@@ -59,18 +59,24 @@
   ['dashboard','resume','recettes','publicite'].forEach(n=>mapped.delete(n));
   if(mapped.size){const extra=section('Autres outils',root);for(const b of mapped.values())extra.append(b);}
   const box=modal.querySelector('.modal');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Accès rapide');
-  const oldOpen=openMenu;openMenu=function(){oldOpen();modal.scrollTop=0;badges();q.querySelector('button')?.focus();};
+  const oldOpen=openMenu;openMenu=function(){if(!closeOverlays())return;oldOpen();modal.scrollTop=0;badges();q.querySelector('button')?.focus();};
  }
  function navButton(text,icon,fn){const b=document.createElement('button');b.type='button';b.className='tab-btn jm-nav-tab';const i=document.createElement('span');i.className='tab-ico';i.innerHTML=svg(icon);const l=document.createElement('span');l.className='tab-lbl';l.textContent=text;b.append(i,l);b.onclick=fn;return b;}
- function newIntervention(){
-  if($('lockScreen')&&getComputedStyle($('lockScreen')).display!=='none')return;
+ function closeOverlays(){
+  if($('lockScreen')&&getComputedStyle($('lockScreen')).display!=='none')return false;
+  if($('modalInvoiceBg')?.classList.contains('show')&&typeof closeInvoice==='function')closeInvoice();
+  if($('modalNoteCreditBg')?.classList.contains('show')&&typeof closeNoteCredit==='function')closeNoteCredit();
+  if($('jmLivraisonBg')?.classList.contains('show')&&typeof jmLivraisonFermer==='function')jmLivraisonFermer();
   if(typeof jmCloseServicePicker==='function')jmCloseServicePicker();
   closeMenu();if($('jmTerrainBg')?.classList.contains('show'))closeTerrain();
   document.querySelectorAll('.photo-lightbox').forEach(e=>e.remove());
   document.querySelectorAll('.modal-bg.show').forEach(e=>e.classList.remove('show'));
-  if(typeof fermerPresentationServices==='function')fermerPresentationServices();document.body.style.overflow='';showTab('tabNouveau');
+  if(typeof fermerPresentationServices==='function')fermerPresentationServices();document.body.style.overflow='';
+  return true;
  }
- function buildTabs(){const bar=$('tabbar');const home=navButton('Accueil','home',()=>showTab('tabAccueil'));home.dataset.tab='tabAccueil';home.classList.add('active');const history=navButton('Historique','history',()=>showTab('tabHistorique'));history.dataset.tab='tabHistorique';
+ function navigate(tab){if(closeOverlays())showTab(tab);}
+ function newIntervention(){navigate('tabNouveau');}
+ function buildTabs(){const bar=$('tabbar');const home=navButton('Accueil','home',()=>navigate('tabAccueil'));home.dataset.tab='tabAccueil';home.classList.add('active');const history=navButton('Historique','history',()=>navigate('tabHistorique'));history.dataset.tab='tabHistorique';
   const add=navButton('Nouvelle intervention','plus',newIntervention);add.id='jmNewTab';add.dataset.tab='tabNouveau';add.classList.add('jm-nav-new');
   const terrain=navButton('Terrain','truck',()=>jmTerrainOuvrir());terrain.id='jmTerrainTab';terrain.setAttribute('aria-haspopup','dialog');terrain.setAttribute('aria-expanded','false');
   bar.replaceChildren(home,history,add,terrain,navButton('Menu','menu',()=>openMenu()));
@@ -81,8 +87,8 @@
   const a=$('jmTerrainActions');button('Navigation','pin','Prise en charge ou dépose',()=>run('gps'),a);button('Appeler le client','phone','Ouvrir le téléphone',()=>run('call'),a);button('Message client','message','Préparer un message',()=>run('message'),a);button('Photos / vidéos','camera','Avant, plateau, livraison',()=>run('photos'),a);button('Départ','play','Enregistrer l’heure',()=>run('depart'),a);button('Arrivé sur place','pin','Enregistrer l’heure',()=>run('arrivee'),a);button('Véhicule chargé','truck','Enregistrer l’heure',()=>run('chargement'),a);button('Livraison','flag','Lieu, heure et signature',()=>run('livraison'),a);button('Terminer','check','Vérifier puis clôturer la mission',()=>run('finish'),a);button('Défi JM','game','QR et réponses du client',()=>run('game'),a);button('Plus d’actions','more','Ouvrir les options de la mission',()=>run('more'),a);
  }
  async function record(){if(!terrainKey)throw Error('Choisis une intervention enregistrée.');return JSON.parse((await window.storage.get(terrainKey)).value);}
- async function renderTerrain(){const status=$('jmTerrainStatus');try{const d=await record();$('jmTerrainReference').textContent=(d.numero||'Intervention')+' — '+(d.plaque||'Plaque non renseignée');status.textContent=[d.clientNom,d.from,d.to?'→ '+d.to:'',estAFaire(d)?'À poursuivre':'Terminée'].filter(Boolean).join(' · ');for(const b of $('jmTerrainActions').querySelectorAll('button'))b.disabled=false;}catch(_){$('jmTerrainReference').textContent='Aucune intervention sélectionnée';status.textContent='Enregistre ta mission, ou choisis un dossier dans la liste.';for(const b of $('jmTerrainActions').querySelectorAll('button'))b.disabled=true;}}
- window.jmTerrainOuvrir=async function(){try{closeMenu();previousFocus=document.activeElement;let all=await toutesLesInterventions();const editing=typeof editingKey!=='undefined'&&currentTab==='tabNouveau'?editingKey:null;terrainKey=editing||(typeof DISPATCH_ACTIVE_KEY!=='undefined'?DISPATCH_ACTIVE_KEY:null);const pending=all.filter(it=>estAFaire(it.data));if(!terrainKey&&pending.length===1)terrainKey=pending[0].key;const choices=all.filter(it=>estAFaire(it.data)||it.key===terrainKey);if(!choices.some(it=>it.key===terrainKey))terrainKey=null;
+ async function renderTerrain(){const status=$('jmTerrainStatus');try{const d=await record();$('jmTerrainReference').textContent=(d.numero||'Intervention')+' — '+(d.plaque||'Plaque non renseignée');status.textContent=[d.clientNom,d.from,d.to?'→ '+d.to:'',estAFaire(d)?'À poursuivre':'Terminée'].filter(Boolean).join(' · ');for(const b of $('jmTerrainActions').querySelectorAll('button'))b.disabled=false;}catch(e){$('jmTerrainReference').textContent=terrainKey?'Dossier indisponible':'Aucune intervention sélectionnée';const empty=!terrainKey&&$('jmTerrainSelect').options.length<=1;status.textContent=terrainKey?'Impossible de lire ce dossier. Ferme puis rouvre Terrain ; aucune donnée n’a été supprimée.':empty?'Aucune mission à faire enregistrée. Les interventions terminées restent dans Historique.':'Choisis une mission à faire dans la liste.';for(const b of $('jmTerrainActions').querySelectorAll('button'))b.disabled=true;if(empty){const extra=$('jmTerrainExtra');extra.replaceChildren();button('Nouvelle intervention','plus','Créer puis enregistrer une mission',newIntervention,extra);button('Voir l’historique','history','Retrouver les interventions terminées',()=>navigate('tabHistorique'),extra);}}}
+ window.jmTerrainOuvrir=async function(){try{if(!closeOverlays())return;previousFocus=document.activeElement;let all=await toutesLesInterventions();const editing=typeof editingKey!=='undefined'&&currentTab==='tabNouveau'?editingKey:null;terrainKey=editing||(typeof DISPATCH_ACTIVE_KEY!=='undefined'?DISPATCH_ACTIVE_KEY:null);const pending=all.filter(it=>estAFaire(it.data));if(!terrainKey&&pending.length===1)terrainKey=pending[0].key;const choices=all.filter(it=>estAFaire(it.data)||it.key===terrainKey);if(!choices.some(it=>it.key===terrainKey))terrainKey=null;
   $('jmTerrainSelect').replaceChildren(new Option('Choisir une intervention…',''));choices.forEach(it=>$('jmTerrainSelect').append(new Option((it.data.numero||'Bon')+' — '+(it.data.plaque||it.data.clientNom||'Véhicule'),it.key)));$('jmTerrainSelect').value=terrainKey||'';$('jmTerrainExtra').replaceChildren();await renderTerrain();$('jmTerrainBg').classList.add('show');$('jmTerrainBg').scrollTop=0;$('jmTerrainTab').setAttribute('aria-expanded','true');$('jmTerrainSelect').focus();}catch(_){showToast('Impossible de lire les interventions.');}};
  function info(text){$('jmTerrainStatus').textContent=text;}
  function link(text,href,parent){const a=document.createElement('a');a.textContent=text;a.href=href;parent.append(a);return a;}
