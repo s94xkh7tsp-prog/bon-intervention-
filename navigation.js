@@ -1,7 +1,9 @@
-/* v317 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
+/* v318 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
+ const onSiteServices=['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+ const onSite=()=>onSiteServices.includes($('type')?.value) && document.querySelector('#deposeMode .toggle.on')?.dataset.m!=='depose';
  function calculationWarnings(){
   const items=[];const km=$('km'),type=$('type')?.value;
   if(!type)items.push({id:'type',text:'Choisis le type d’intervention.',blocking:true});
@@ -10,8 +12,18 @@
    else if(!raw)items.push({id:'km',text:'La distance est vide : le calcul utilisera 0 km.',blocking:false});
   }
   if(['changement_batterie','moto_batterie'].includes(type) && !Number($('battPrice')?.value))items.push({id:'battPrice',text:'Le prix d’achat de la batterie est vide ou à 0 : aucun achat ni marge ne sera ajouté.',blocking:false});
-  if($('tgRetour')?.classList.contains('on') && !$('addrTo')?.value.trim())items.push({id:'addrTo',text:'Le retour à vide est activé sans adresse de dépose : sa distance ne peut pas être vérifiée automatiquement.',blocking:false});
+  if(!onSite() && $('tgRetour')?.classList.contains('on') && !$('addrTo')?.value.trim())items.push({id:'addrTo',text:'Le retour à vide est activé sans adresse de dépose : sa distance ne peut pas être vérifiée automatiquement.',blocking:false});
   return items;
+ }
+ function showCalculatedAmount(total){
+  $('jmCalculationResult')?.remove();
+  const bg=document.createElement('div');bg.id='jmCalculationResult';bg.className='modal-bg show';bg.setAttribute('role','dialog');bg.setAttribute('aria-modal','true');bg.setAttribute('aria-labelledby','jmCalculationResultTitle');
+  const panel=document.createElement('div');panel.className='modal';const title=document.createElement('h2');title.id='jmCalculationResultTitle';title.textContent='Montant calculé';
+  const amount=document.createElement('p');amount.className='jm-calculation-amount';amount.textContent=total.textContent;
+  const service=document.createElement('p');service.textContent=onSite()?'Intervention sur place — à l’adresse indiquée.':'Calcul selon les informations renseignées.';
+  panel.append(title,amount,service);
+  if(onSite() && $('tgRetour')?.classList.contains('on') && typeof lastCalc!=='undefined' && !lastCalc?.kmRetourVerifie){const note=document.createElement('p');note.textContent='Retour à vide non vérifié : '+($('kmRetourVide')?.value||'0')+' km. Vérifie cette distance dans le détail avant d’enregistrer.';panel.append(note);}
+  const close=document.createElement('button');close.type='button';close.className='primary';close.textContent='Voir le détail et enregistrer';close.onclick=()=>{bg.remove();total.scrollIntoView({behavior:'smooth',block:'center'});};panel.append(close);bg.append(panel);document.body.append(bg);close.focus();
  }
  function confirmCalculation(items){
   return new Promise(resolve=>{
@@ -38,11 +50,13 @@
     document.body.classList.add('jm-calculation-result');
     setTimeout(()=>total.scrollIntoView({behavior:'smooth',block:'center'}),100);
     showToast('Montant calculé : '+total.textContent);
+    showCalculatedAmount(total);
    }
    return result;
   }catch(error){
    console.error('[JM calcul]',error);
    showToast('Calcul non terminé : '+(error?.message||'réessaie après avoir vérifié les champs'));
+   alert('Le calcul n’a pas pu se terminer. '+(error?.message||'Vérifie les champs puis réessaie.'));
    throw error;
   }
  };
@@ -53,6 +67,7 @@
  let terrainKey=null, terrainBusy=false, previousFocus=null;
  const style=document.createElement('style');
  style.textContent=`
+ #jmCalculationResult{z-index:13550!important;align-items:center!important;padding:20px!important;box-sizing:border-box}#jmCalculationResult .modal{max-height:85dvh;box-sizing:border-box}#jmCalculationResult .jm-calculation-amount{font-size:42px;font-weight:800;color:var(--orange);margin:18px 0}#jmCalculationResult button{width:100%;min-height:50px}
  #jmCalculationCheck{z-index:13550!important;align-items:center!important;box-sizing:border-box;padding:20px!important}
  #jmCalculationCheck .modal{max-height:85dvh;box-sizing:border-box}#jmCalculationCheck li{margin:12px 0;line-height:1.5}#jmCalculationCheck button{width:100%;margin-top:12px;min-height:48px}
  body.jm-calculation-result #barreActionsContextuelle{display:none!important}

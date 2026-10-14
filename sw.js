@@ -1,5 +1,5 @@
 // v315 — fermeture des fenêtres lors du changement d’onglet.
-const CACHE_NAME = 'jm-express-bon-v317';
+const CACHE_NAME = 'jm-express-bon-v318';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
