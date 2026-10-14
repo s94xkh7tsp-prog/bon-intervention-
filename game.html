@@ -62,6 +62,13 @@ html[data-appearance=light] .game-footer{color:#405963;border-color:#a4b6bb}
 html[data-appearance=light] button:focus-visible,html[data-appearance=light] select:focus-visible,html[data-appearance=light] textarea:focus-visible,html[data-appearance=light] input:focus-visible,html[data-appearance=light] a:focus-visible{outline-color:#173c47}
 .appearance-controls{margin-bottom:12px}
 </style>
+<style>
+/* Téléphones étroits, paysage et zones protégées (encoches). */
+button,select,textarea{min-width:0}svg{max-width:100%}.theme-picker legend{max-width:100%}.brand-wordmark{min-width:0}.status-bar>*{min-width:0}
+@supports(padding:max(0px)){body{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom));padding-top:max(12px,env(safe-area-inset-top))}}
+@media(max-width:360px){.container{padding:14px}.header{margin:-14px -14px 20px;padding:22px 14px}.brand-logo{gap:8px}.brand-mark{width:44px;height:44px}.brand-wordmark{font-size:1rem}.reading-controls{padding:10px}.reading-buttons button{flex-basis:90px}.gender-picker{grid-template-columns:1fr}.actions{grid-template-columns:1fr}}
+@media(orientation:landscape) and (max-height:500px){.header{padding-top:18px;padding-bottom:20px}.brand-logo{margin-bottom:16px}}
+</style>
 </head>
 <body><main class="container">
 <header class="header"><div class="brand-logo" role="img" aria-label="JM Express Auto Dépannage"><svg class="brand-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="18" fill="#ffad3c"/><path d="M13 41h30l7-4v-9h-9l-5-8H25M14 34h22M19 27h11" stroke="#14242d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="43" r="5" fill="#14242d"/><circle cx="43" cy="43" r="5" fill="#14242d"/><path d="m43 29 5 5h-8v-5z" fill="#14242d"/></svg><div class="brand-wordmark">JM<span>EXPRESS</span><small>AUTO DÉPANNAGE</small></div></div><div class="game-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 6h10c3 0 6 14 2 14l-4-4H9l-4 4C1 20 4 6 7 6Z"/><path d="M6 10h6m-3-3v6m7-3h.1m2 3h.1" stroke-linecap="round"/></svg>LE JEU PASSAGER</div><h1 class="logo-text">Défi <span class="accent">JM</span></h1><p class="tagline">Ta voiture sur le plateau.<br>Ton sourire à bord !</p><svg class="hero-road" viewBox="0 0 110 16" fill="none" aria-hidden="true"><path d="M0 8h110" stroke="currentColor" stroke-width="2" stroke-dasharray="6 7"/><path d="m48 3 12 5-12 5z" fill="#ffad3c"/></svg></header>
