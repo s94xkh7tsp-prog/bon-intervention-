@@ -1,4 +1,4 @@
-/* v320 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
+/* v321 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
@@ -37,6 +37,22 @@
    bg.append(panel);document.body.append(bg);edit.focus();
   });
  }
+ // v321 — diagnostic : aucune mesure de distance ne peut bloquer le calcul, et un calcul sans résultat est toujours expliqué.
+ const toastLog=[];
+ if(typeof showToast==='function'){const _t=showToast;showToast=function(msg){toastLog.push(String(msg));if(toastLog.length>6)toastLog.shift();return _t.apply(this,arguments);};}
+ if(typeof rvMesurer==='function'){const _rv=rvMesurer;rvMesurer=function(ctx,forcer){const p=_rv.apply(this,arguments);if(!p||typeof p.then!=='function')return p;
+  return Promise.race([p,new Promise(res=>setTimeout(()=>{if(ctx?.mesure?.enCours){ctx.mesure.enCours=null;try{rvFallback(ctx,'mesure trop longue');}catch(_){}}res();},15000))]);};}
+ function showCalculationFailure(reason){
+  $('jmCalculationResult')?.remove();
+  const bg=document.createElement('div');bg.id='jmCalculationResult';bg.className='modal-bg show';bg.setAttribute('role','dialog');bg.setAttribute('aria-modal','true');
+  const panel=document.createElement('div');panel.className='modal';const title=document.createElement('h2');title.textContent='Aucun montant calculé';
+  const why=document.createElement('p');why.textContent=reason||toastLog[toastLog.length-1]||'Le calcul s’est arrêté sans message.';
+  const diag=document.createElement('pre');diag.style.cssText='white-space:pre-wrap;font-size:12px;opacity:.8';
+  const v=id=>($(id)?.value??'∅');
+  diag.textContent=[APP_VERSION,'type='+v('type'),'km='+v('km')+(($('km')?.validity?.badInput)?' (illisible)':''),'de='+v('addrFrom'),'vers='+v('addrTo'),'retour='+($('tgRetour')?.classList.contains('on')?'oui '+v('kmRetourVide'):'non'),'ticket='+($('ticket')?.classList.contains('show')?'oui':'non'),'total='+(typeof lastCalc!=='undefined'&&lastCalc?lastCalc.total:'∅'),'messages='+toastLog.join(' | ')].join('\n');
+  const close=document.createElement('button');close.type='button';close.className='primary';close.textContent='Fermer';close.onclick=()=>bg.remove();
+  panel.append(title,why,diag,close);bg.append(panel);document.body.append(bg);close.focus();
+ }
  // Present the existing calculation; never alter its input or tariff result.
  const calculateWithReturn=calculerAvecRetour;
  calculerAvecRetour=async function(){
@@ -51,12 +67,12 @@
     setTimeout(()=>total.scrollIntoView({behavior:'smooth',block:'center'}),100);
     showToast('Montant calculé : '+total.textContent);
     showCalculatedAmount(total);
-   }
+   } else showCalculationFailure();
    return result;
   }catch(error){
    console.error('[JM calcul]',error);
    showToast('Calcul non terminé : '+(error?.message||'réessaie après avoir vérifié les champs'));
-   alert('Le calcul n’a pas pu se terminer. '+(error?.message||'Vérifie les champs puis réessaie.'));
+   showCalculationFailure('Erreur : '+(error?.message||error));
    throw error;
   }
  };
