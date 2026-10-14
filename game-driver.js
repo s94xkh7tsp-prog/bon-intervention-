@@ -40,6 +40,7 @@ async function jmDefiAfficher(ctx){
   const r=s.result;jmDefiElt('h3','🏆 Résultat : '+r.score+'/100',ctx.content);
   jmDefiElt('p',r.reward_type==='discount'?'Remise choisie : '+r.discount_eur.toLocaleString('fr-BE')+' € — valable jusqu’au '+new Date(r.valid_until).toLocaleDateString('fr-BE')+'. À appliquer manuellement sur une prochaine intervention.':r.reward_type==='dedication'?'Dédicace choisie : à organiser avec le client.':'Le client n’a pas choisi de cadeau.',ctx.content);
   if(r.feedback)jmDefiElt('p','Petit mot du client : '+r.feedback,ctx.content);
+  if(r.last_challenge){const challenge=r.last_challenge,labels={none:'Passé',selfie:'Selfie avec le dépanneur',video:'Dédicace filmée',facebook_referral:'Parrainage de la page Facebook'};jmDefiElt('p','Dernier défi : '+(labels[challenge.choice]||'Choix inconnu')+(challenge.choice==='none'?'':' — proposé, à organiser avec le client.'),ctx.content);jmDefiElt('p','Accord photo / vidéo : '+(challenge.capture_consent?'oui':'non')+'. Publication de ce défi sur Facebook : '+(challenge.publication_consent?'autorisée':'non autorisée')+'.',ctx.content);}
   jmDefiElt('p','Accord pour filmer : '+(r.film_consent?'oui':'non')+'. Publication : '+(r.publication_consent?Object.keys(r.platforms).filter(k=>r.platforms[k]).join(', '):'non')+'.',ctx.content);
   const detail=jmDefiElt('details',null,ctx.content);jmDefiElt('summary','Voir les 5 réponses du client',detail);for(const a of s.answers||[]){const q=s.questions?.[a.questionNum];if(q){jmDefiElt('p',(a.questionNum+1)+'. '+q.text,detail);jmDefiElt('p',a.skipped?'Question passée':q.answers[a.answerIndex]||'Réponse indisponible',detail);}}
   await jmDefiSauverResultat(ctx.key,s);
@@ -86,4 +87,5 @@ if(typeof syncMajEcranReglages==='function'){
  const jmDefiAncienSyncEcran=syncMajEcranReglages;
  syncMajEcranReglages=function(){const r=jmDefiAncienSyncEcran.apply(this,arguments);jmDefiServeurAfficher();return r;};
 }
+
 

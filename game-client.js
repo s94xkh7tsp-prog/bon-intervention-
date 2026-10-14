@@ -1,15 +1,15 @@
 const $=id=>document.getElementById(id);
-const params=new URLSearchParams(location.hash.slice(1));const sessionId=params.get('s');let api=null,state=null,gender=null,busy=false,timer=null,started=false,selectedTheme='mixed';
+const params=new URLSearchParams(location.hash.slice(1));const sessionId=params.get('s');let api=null,state=null,gender=null,busy=false,timer=null,started=false,selectedTheme='mixed',lastStep=false;
 try{const u=new URL(params.get('api'));if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash)throw Error();api=u.href.replace(/\/$/,'');}catch{}
 function error(t){$('errorBox').textContent=t||'';}
-function show(id){for(const n of ['welcome','play','waiting','finish','result'])$(n).hidden=n!==id;}
+function show(id){for(const n of ['welcome','play','waiting','finish','lastChallenge','result'])$(n).hidden=n!==id;}
 async function call(action,body){if(!api||!sessionId)throw Error('Ouvre le lien QR fourni par JM.');const url=api+'/api/game/'+action+(action==='session'?'?s='+encodeURIComponent(sessionId):'');const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);try{const r=await fetch(url,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',body:body?JSON.stringify({sessionId,...body}):undefined,signal:controller.signal});const j=await r.json();if(!r.ok)throw Error(j.error||'Serveur indisponible');return j.session;}catch(e){if(e.name==='AbortError')throw Error('Connexion trop lente. Réessaie sans fermer cette page.');throw e;}finally{clearTimeout(timeout);}}
 function render(){
  clearTimeout(timer);if(!state)return;
  if(state.completed){show('result');$('score').textContent=state.result.score+'/100';const r=state.result;$('gift').textContent=r.reward_type==='discount'&&r.discount_eur>0?'Remise disponible : '+r.discount_eur.toLocaleString('fr-BE')+' € sur une prochaine intervention, jusqu’au '+new Date(r.valid_until).toLocaleDateString('fr-BE')+'. À convenir avec JM lors de ta prochaine demande.':r.reward_type==='dedication'?'Dédicace choisie : JM verra tes autorisations. Elle reste à organiser ensemble.':'Merci pour ce moment partagé !';return;}
  if(!started){show('welcome');$('themePicker').hidden=state.answers.length>0;document.querySelectorAll('[data-theme]').forEach(b=>{b.disabled=!state.themes_available&&b.dataset.theme!=='mixed';b.setAttribute('aria-pressed',String(b.dataset.theme===selectedTheme));});$('themeNotice').textContent=state.themes_available?'':'Le mélange reste disponible. Les autres thèmes seront activés après la mise à jour du serveur JM.';$('start').disabled=false;$('rewardInfo').textContent=state.max_discount>0?'Une remise jusqu’à '+state.max_discount+' € peut être choisie à la fin, ou une dédicace à organiser avec JM.':'Tu peux choisir une dédicace à organiser avec JM. Aucune remise n’est activée pour cette partie.';return;}
  const num=state.answers.length;
- if(num===5){show('finish');$('reward').querySelector('[value="discount"]').disabled=state.max_discount<=0;return;}
+ if(num===5){if(lastStep){show('lastChallenge');lastConsentUI();return;}show('finish');$('reward').querySelector('[value="discount"]').disabled=state.max_discount<=0;return;}
  if(num>=state.unlocked){show('waiting');if(!document.hidden)timer=setTimeout(refresh,5000);return;}
  show('play');$('playTheme').textContent=state.theme_title||'🎲 Surprends-moi !';$('progress').textContent='Question '+(num+1)+'/5 — '+(num<3?'Sur le trajet':'Véhicule livré');$('points').textContent=state.total_points+' points';$('question').textContent=state.questions[num].text;$('answers').replaceChildren();
  state.questions[num].answers.forEach((text,index)=>{const b=document.createElement('button');b.className='answer-btn';b.textContent=text;b.onclick=()=>answer(index);$('answers').appendChild(b);});
@@ -22,6 +22,25 @@ document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{selectedThem
 document.querySelectorAll('[data-gender]').forEach(b=>b.onclick=()=>{gender=b.dataset.gender||null;document.querySelectorAll('[data-gender]').forEach(x=>x.classList.toggle('selected',x===b));});
 function consentUI(){if(!$('film').checked){$('publish').checked=false;for(const n of ['tiktok','facebook','snapchat'])$(n).checked=false;}$('publish').disabled=!$('film').checked;for(const n of ['tiktok','facebook','snapchat']){if(!$('publish').checked)$(n).checked=false;$(n).disabled=!$('film').checked||!$('publish').checked;}}
 $('film').onchange=consentUI;$('publish').onchange=consentUI;consentUI();
-$('complete').onclick=()=>run(async()=>{state=await call('complete',{genderChoice:gender,feedback:$('feedback').value,rewardType:$('reward').value,filmConsent:$('film').checked,publicationConsent:$('publish').checked,platforms:Object.fromEntries(['tiktok','facebook','snapchat'].map(n=>[n,$(n).checked]))});});
+function lastConsentUI(){
+ const choice=$('lastChoice').value,capture=['selfie','video'].includes(choice),available=state?.last_challenge_available===true;
+ $('lastCaptureLabel').hidden=!capture;$('lastCapture').disabled=!capture;
+ if(!capture)$('lastCapture').checked=false;
+ $('lastPublish').disabled=choice==='none'||(capture&&!$('lastCapture').checked);
+ if($('lastPublish').disabled)$('lastPublish').checked=false;
+ $('lastSend').disabled=!available&&choice!=='none';
+ $('lastNotice').textContent=available?'Le choix sera enregistré pour JM. Rien ne sera publié automatiquement.':'Ce serveur n’a pas encore activé le dernier défi. Tu peux passer et recevoir ton résultat.';
+}
+$('lastChoice').onchange=()=>{$('lastCapture').checked=false;$('lastPublish').checked=false;lastConsentUI();};
+$('lastCapture').onchange=lastConsentUI;
+$('complete').onclick=()=>{if(busy)return;error('');lastStep=true;render();};
+$('lastBack').onclick=()=>{if(busy)return;lastStep=false;render();};
+function finishGame(skip){return run(async()=>{
+ const choice=skip?'none':$('lastChoice').value;
+ if(choice!=='none'&&state.last_challenge_available!==true)throw Error('Le serveur doit être mis à jour pour enregistrer ce défi. Tu peux passer.');
+ state=await call('complete',{genderChoice:gender,feedback:$('feedback').value,rewardType:$('reward').value,filmConsent:$('film').checked,publicationConsent:$('publish').checked,platforms:Object.fromEntries(['tiktok','facebook','snapchat'].map(n=>[n,$(n).checked])),lastChallenge:choice,lastCaptureConsent:!skip&&$('lastCapture').checked,lastPublicationConsent:!skip&&$('lastPublish').checked});
+});}
+$('lastSend').onclick=()=>finishGame(false);$('lastSkip').onclick=()=>finishGame(true);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(timer);else refresh();});
 if(api&&/^[a-f0-9]{64}$/.test(sessionId||''))refresh();else error('Ce lien de jeu est incomplet. Demande à JM de générer le QR code.');
+
