@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-express-bon-v313.1';
+const CACHE_NAME = 'jm-express-bon-v314';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
@@ -22,6 +22,23 @@ const APP_SHELL_OPTIONAL = [
   './game-questions.js'
 ];
 
+// Lazy download after the user has seen the first-use size notice.
+const OCR_CACHE='jm-ocr-v6-fra-v1';
+const OCR_ASSETS={
+ 'pdf.min.mjs':'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs',
+ 'pdf.worker.min.mjs':'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs',
+ 'tesseract.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js',
+ 'worker.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
+ 'core/tesseract-core-lstm.wasm.js':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-lstm.wasm.js',
+ 'core/tesseract-core-simd-lstm.wasm.js':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm.js',
+ 'core/tesseract-core-lstm.wasm':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-lstm.wasm',
+ 'core/tesseract-core-simd-lstm.wasm':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm',
+ 'lang/fra.traineddata.gz':'https://cdn.jsdelivr.net/npm/@tesseract.js-data/fra@1.0.0/4.0.0_best_int/fra.traineddata.gz'
+};
+const ocrRoot=new URL('./ocr/',self.registration.scope).href;
+let ocrPreparing;
+async function ocrAsset(name){const cache=await caches.open(OCR_CACHE),key=ocrRoot+name,cached=await cache.match(key);if(cached)return cached;const res=await fetch(OCR_ASSETS[name],{mode:'cors',credentials:'omit'});if(!res.ok)throw Error('Lecteur non téléchargé : '+name);await cache.put(key,res.clone());return res;}
+self.addEventListener('message',event=>{if(event.data?.type!=='JM_PREPARE_OCR')return;const port=event.ports[0];event.waitUntil((async()=>{try{if(!ocrPreparing)ocrPreparing=(async()=>{for(const name of Object.keys(OCR_ASSETS))await ocrAsset(name);})();await ocrPreparing;port?.postMessage({ok:true});}catch(e){port?.postMessage({ok:false,error:'Téléchargement du lecteur incomplet. Réessaie avec une connexion stable. '+e.message});}finally{ocrPreparing=null;}})());});
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -51,7 +68,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((names) =>
-      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+      Promise.all(names.filter((n) => n !== CACHE_NAME && !n.startsWith('jm-ocr-')).map((n) => caches.delete(n)))
     )
   );
   self.clients.claim();
@@ -62,6 +79,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+  if(url.href.startsWith(ocrRoot)){const name=url.href.slice(ocrRoot.length);if(OCR_ASSETS[name])event.respondWith(ocrAsset(name).catch(()=>new Response('Lecteur hors ligne absent : ouvre une lecture avec une connexion Internet.',{status:503})));return;}
   const isAppShell = url.origin === self.location.origin;
 
   if(url.pathname.includes('/api/game/')) return;

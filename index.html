@@ -4949,117 +4949,117 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="eyebrow">Accès rapide</div>
     <h1 class="page-title" style="font-size:26px;">Menu</h1>
     <div class="menu-grid">
-      <div class="menu-item" onclick="closeMenu(); openRdv();">
+      <div class="menu-item" data-menu-id="rdv" onclick="closeMenu(); openRdv();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Rendez-vous</span>
         <span class="menu-desc">Programmer une intervention</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openRachat();">
+      <div class="menu-item" data-menu-id="rachat" onclick="closeMenu(); openRachat();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6.5 17l1.2-5.2A2 2 0 0 1 9.6 10h4.8a2 2 0 0 1 1.9 1.8L17.5 17"/><circle cx="8" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/><path d="M12 3v4M10 5h4"/></svg></span>
         <span class="menu-lbl">Rachat / épave</span>
         <span class="menu-desc">Fiches véhicules, avis</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openPub();">
+      <div class="menu-item" data-menu-id="publicite" onclick="closeMenu(); openPub();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
         <span class="menu-lbl">Publicité</span>
         <span class="menu-desc">Origine clients, campagnes</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openRecettes();">
+      <div class="menu-item" data-menu-id="recettes" onclick="closeMenu(); openRecettes();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5M8 8h4"/></svg></span>
         <span class="menu-lbl">Recettes</span>
         <span class="menu-desc">Livre de caisse, plafond 25 000 €</span>
       </div>
-      <div class="menu-item" onclick="openATraiter()">
+      <div class="menu-item" data-menu-id="a-traiter" onclick="openATraiter()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></span>
         <span class="menu-lbl">À traiter</span>
         <span class="menu-desc">En cours, RDV, impayés, devis, avis</span>
       </div>
-      <div class="menu-item" onclick="openAssistant()">
+      <div class="menu-item" data-menu-id="assistant" onclick="openAssistant()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></span>
         <span class="menu-lbl">Assistant</span>
         <span class="menu-desc">Client, repère autoroute, véhicule, garages</span>
       </div>
-      <div class="menu-item" onclick="openEstimation()">
+      <div class="menu-item" data-menu-id="estimation" onclick="openEstimation()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M9 9.5c.5-.9 1.3-1.3 2.3-1.3M8 12h5M8 14h5"/></svg></span>
         <span class="menu-lbl">Estimer un véhicule</span>
         <span class="menu-desc">Valeur de rachat via ChatGPT</span>
       </div>
-      <div class="menu-item" onclick="jmChangerTelephone()">
+      <div class="menu-item" data-menu-id="telephone" onclick="jmChangerTelephone()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
         <span class="menu-lbl">Changer de téléphone</span>
         <span class="menu-desc">Transfert sans rien perdre</span>
       </div>
-      <div class="menu-item" onclick="jmEncoderPasse()">
+      <div class="menu-item" data-menu-id="passee" onclick="jmEncoderPasse()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span>
         <span class="menu-lbl">Intervention passée</span>
         <span class="menu-desc">Encoder après coup</span>
       </div>
-      <div class="menu-item" onclick="openGestion()">
+      <div class="menu-item" data-menu-id="gestion" onclick="openGestion()">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
         <span class="menu-lbl">Gestion</span>
         <span class="menu-desc">Tableau de bord, résumé, recettes, publicité</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openDepot();">
+      <div class="menu-item" data-menu-id="depot" onclick="closeMenu(); openDepot();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg></span>
         <span class="menu-lbl">Dépôt</span>
         <span class="menu-desc">Gardiennage, restitution</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openPaiement();">
+      <div class="menu-item" data-menu-id="paiement" onclick="closeMenu(); openPaiement();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg></span>
         <span class="menu-lbl">QR de paiement</span>
         <span class="menu-desc">Faire payer sur place</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openAvis();">
+      <div class="menu-item" data-menu-id="avis" onclick="closeMenu(); openAvis();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg></span>
         <span class="menu-lbl">Demander un avis</span>
         <span class="menu-desc">QR à faire scanner</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openClients();">
+      <div class="menu-item" data-menu-id="clients" onclick="closeMenu(); openClients();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg></span>
         <span class="menu-lbl">Clients</span>
         <span class="menu-desc">Carnet d'adresses</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openRoutes();">
+      <div class="menu-item" data-menu-id="trajets" onclick="closeMenu(); openRoutes();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 5h11v6H6"/><path d="M4 21h8"/></svg></span>
         <span class="menu-lbl">Trajets fréquents</span>
         <span class="menu-desc">Distances enregistrées</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirRechercheGlobale();">
+      <div class="menu-item" data-menu-id="recherche" onclick="closeMenu(); ouvrirRechercheGlobale();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg></span>
         <span class="menu-lbl">Recherche</span>
         <span class="menu-desc">Plaque, client, adresse…</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirListeBdc();">
+      <div class="menu-item" data-menu-id="bdc" onclick="closeMenu(); ouvrirListeBdc();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
         <span class="menu-lbl">Bons de commande</span>
         <span class="menu-desc">Créés depuis tes factures</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirResumeMensuel();">
+      <div class="menu-item" data-menu-id="resume" onclick="closeMenu(); ouvrirResumeMensuel();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
         <span class="menu-lbl">Résumé mensuel</span>
         <span class="menu-desc">Bilan du mois</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirPlein();">
+      <div class="menu-item" data-menu-id="plein" onclick="closeMenu(); ouvrirPlein();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v16M4 21h11M5 11h9"/><path d="M14 8h2.5a2 2 0 0 1 2 2v7a1.7 1.7 0 0 0 3.4 0V9l-2-3"/></svg></span>
         <span class="menu-lbl">Plein de gasoil</span>
         <span class="menu-desc">Litres, prix, autoroute</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirDemandesWa();">
+      <div class="menu-item" data-menu-id="whatsapp" onclick="closeMenu(); ouvrirDemandesWa();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></span>
         <span class="menu-lbl">Demandes WhatsApp</span>
         <span class="menu-desc">Mode simulé</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
+      <div class="menu-item" data-menu-id="frais" onclick="closeMenu(); ouvrirChoixAnneeFrais();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>
         <span class="menu-lbl">Frais pro (PDF)</span>
         <span class="menu-desc">Pour le comptable</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openDashboard();">
+      <div class="menu-item" data-menu-id="dashboard" onclick="closeMenu(); openDashboard();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
         <span class="menu-lbl">Tableau de bord</span>
         <span class="menu-desc">Chiffres et tendances</span>
       </div>
-      <div class="menu-item" onclick="closeMenu(); openSettings();">
+      <div class="menu-item" data-menu-id="reglages" onclick="closeMenu(); openSettings();">
         <span class="menu-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M4.2 6.5l2.6 1.5M17.2 16l2.6 1.5M4.2 17.5l2.6-1.5M17.2 8l2.6-1.5"/></svg></span>
         <span class="menu-lbl">Réglages</span>
         <span class="menu-desc">Tarifs et préférences</span>
@@ -9516,7 +9516,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v313';
+const APP_VERSION = 'jm-express-bon-v314';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -9614,7 +9614,7 @@ async function appliquerMiseAJour(){
     }
     if(window.caches){
       const noms = await caches.keys();
-      await Promise.all(noms.filter(n => n !== APP_VERSION).map(n => caches.delete(n)));
+      await Promise.all(noms.filter(n => n !== APP_VERSION && !n.startsWith('jm-ocr-')).map(n => caches.delete(n)));
     }
   }catch(e){ /* on recharge quand même */ }
   location.reload();
@@ -12250,7 +12250,7 @@ async function genererNoteCredit(){
     const file = new File([blob], fileName, {type:'application/pdf'});
 
     d.creditNotes = d.creditNotes || [];
-    d.creditNotes.push({number: ncNumber, amount: montant, date: new Date().toISOString(), reason: motif, factureNumero: d.invoiceNumber, pdfBase64: octetsVersBase64(pdfBytes)});
+    d.creditNotes.push({number: ncNumber, amount: montant, date: new Date().toISOString(), reason: motif, factureNumero: d.invoiceNumber, pdfId: await jmConserverPdf('credit', ncNumber, pdfBytes)});
     await window.storage.set(ncKeyEnCours, JSON.stringify(d));
 
     if(navigator.canShare && navigator.canShare({files:[file]})){
@@ -12592,6 +12592,7 @@ async function genererFacture(){
     if(FACTURE_CORRIGEE_CTX){ meta.corrigeFacture = FACTURE_CORRIGEE_CTX.corrigeFacture; meta.suiteNoteCredit = FACTURE_CORRIGEE_CTX.noteCredit; }
     meta.invoiceNumber = await nextInvoiceNumber();
     const pdfBytes = construirePdfFacture(c, meta);
+    await jmConserverPdf('invoice', meta.invoiceNumber, pdfBytes);
     await partagerPdf(pdfBytes, meta.invoiceNumber + '.pdf', 'Facture ' + meta.invoiceNumber, 'Facture générée', 'Facture téléchargée');
     if(factureEnCoursKey){
       try{
