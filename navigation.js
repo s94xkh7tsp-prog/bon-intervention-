@@ -1,12 +1,37 @@
-/* v316 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
+/* v317 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
+ function calculationWarnings(){
+  const items=[];const km=$('km'),type=$('type')?.value;
+  if(!type)items.push({id:'type',text:'Choisis le type d’intervention.',blocking:true});
+  if(km){const raw=km.value.trim(),n=Number(raw.replace(',','.'));
+   if(km.validity?.badInput||raw && (!Number.isFinite(n)||n<0))items.push({id:'km',text:'La distance doit être un nombre positif ou égal à 0.',blocking:true});
+   else if(!raw)items.push({id:'km',text:'La distance est vide : le calcul utilisera 0 km.',blocking:false});
+  }
+  if(['changement_batterie','moto_batterie'].includes(type) && !Number($('battPrice')?.value))items.push({id:'battPrice',text:'Le prix d’achat de la batterie est vide ou à 0 : aucun achat ni marge ne sera ajouté.',blocking:false});
+  if($('tgRetour')?.classList.contains('on') && !$('addrTo')?.value.trim())items.push({id:'addrTo',text:'Le retour à vide est activé sans adresse de dépose : sa distance ne peut pas être vérifiée automatiquement.',blocking:false});
+  return items;
+ }
+ function confirmCalculation(items){
+  return new Promise(resolve=>{
+   const bg=document.createElement('div');bg.id='jmCalculationCheck';bg.className='modal-bg show';bg.setAttribute('role','dialog');bg.setAttribute('aria-modal','true');bg.setAttribute('aria-labelledby','jmCalculationCheckTitle');
+   const panel=document.createElement('div');panel.className='modal';
+   const title=document.createElement('h2');title.id='jmCalculationCheckTitle';title.textContent='À vérifier avant le calcul';panel.append(title);
+   const list=document.createElement('ul');for(const item of items){const li=document.createElement('li');li.textContent=item.text;list.append(li);}panel.append(list);
+   const finish=value=>{bg.remove();resolve(value);};
+   const edit=document.createElement('button');edit.type='button';edit.className='primary';edit.textContent='Compléter les champs';edit.onclick=()=>{finish(false);const field=$(items[0].id);field?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});};panel.append(edit);
+   if(!items.some(i=>i.blocking)){const go=document.createElement('button');go.type='button';go.className='ghost';go.textContent='Calculer avec ces informations';go.onclick=()=>finish(true);panel.append(go);}
+   bg.append(panel);document.body.append(bg);edit.focus();
+  });
+ }
  // Present the existing calculation; never alter its input or tariff result.
  const calculateWithReturn=calculerAvecRetour;
  calculerAvecRetour=async function(){
   document.body.classList.remove('jm-calculation-result');
   try{
+   const warnings=calculationWarnings();
+   if(warnings.length && !await confirmCalculation(warnings))return;
    const result=await calculateWithReturn.apply(this,arguments);
    const ticket=$('ticket'),total=$('tkTotal');
    if(ticket?.classList.contains('show') && total && typeof lastCalc!=='undefined' && Number.isFinite(Number(lastCalc?.total))){
@@ -28,6 +53,8 @@
  let terrainKey=null, terrainBusy=false, previousFocus=null;
  const style=document.createElement('style');
  style.textContent=`
+ #jmCalculationCheck{z-index:13550!important;align-items:center!important;box-sizing:border-box;padding:20px!important}
+ #jmCalculationCheck .modal{max-height:85dvh;box-sizing:border-box}#jmCalculationCheck li{margin:12px 0;line-height:1.5}#jmCalculationCheck button{width:100%;margin-top:12px;min-height:48px}
  body.jm-calculation-result #barreActionsContextuelle{display:none!important}
  #modalRetourLDBg{z-index:13500!important;padding:12px 12px calc(12px + env(safe-area-inset-bottom))!important;align-items:center!important;box-sizing:border-box}
  #modalRetourLDBg .modal{max-height:calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));box-sizing:border-box}
