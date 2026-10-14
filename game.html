@@ -5,440 +5,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Défi JM — Jeu Passager</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg-dark: #0f1419;
-      --bg-panel: #1a2333;
-      --orange: #ff6b35;
-      --blue-electric: #00d4ff;
-      --green: #4ade80;
-      --text-main: #ffffff;
-      --text-muted: #a0aec0;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2333 100%);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      line-height: 1.6;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 500px;
-      background: var(--bg-panel);
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid rgba(0, 212, 255, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .logo-text {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .logo-text .accent { color: var(--orange); }
-
-    .tagline {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 16px 0;
-      padding: 12px;
-      background: rgba(0, 212, 255, 0.05);
-      border-radius: 12px;
-      border-left: 3px solid var(--blue-electric);
-    }
-
-    .status-item {
-      text-align: center;
-      flex: 1;
-    }
-
-    .status-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-    .status-value { font-size: 20px; font-weight: 700; color: var(--blue-electric); margin-top: 4px; }
-
-    .preface {
-      background: rgba(255, 107, 53, 0.1);
-      border-left: 3px solid var(--orange);
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .preface p {
-      margin: 8px 0;
-    }
-
-    .preface .tone {
-      color: var(--orange);
-      font-weight: 600;
-    }
-
-    /* Phase initiale : choix genre */
-    .gender-picker {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .gender-btn {
-      padding: 14px 12px;
-      border: 2px solid rgba(0, 212, 255, 0.2);
-      background: var(--bg-dark);
-      color: var(--text-main);
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-
-    .gender-btn:hover {
-      border-color: var(--blue-electric);
-      background: rgba(0, 212, 255, 0.1);
-    }
-
-    .gender-btn.selected {
-      background: var(--blue-electric);
-      border-color: var(--blue-electric);
-      color: var(--bg-dark);
-    }
-
-    .gender-btn:nth-child(3),
-    .gender-btn:nth-child(4) {
-      grid-column: auto;
-    }
-
-    /* Questions */
-    .question-block {
-      margin: 24px 0;
-    }
-
-    .question-num {
-      display: inline-block;
-      background: var(--orange);
-      color: var(--bg-dark);
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      margin-bottom: 12px;
-    }
-
-    .question-text {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      line-height: 1.4;
-    }
-
-    .answers {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .answer-btn {
-      padding: 14px 16px;
-      border: 2px solid rgba(0, 212, 255, 0.2);
-      background: var(--bg-dark);
-      color: var(--text-main);
-      border-radius: 12px;
-      text-align: left;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .answer-btn:hover {
-      border-color: var(--blue-electric);
-      background: rgba(0, 212, 255, 0.05);
-    }
-
-    .answer-btn.selected {
-      background: var(--green);
-      border-color: var(--green);
-      color: var(--bg-dark);
-      font-weight: 600;
-    }
-
-    .answer-btn.wrong {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #fca5a5;
-    }
-
-    /* Actions */
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .btn {
-      padding: 12px 16px;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-primary {
-      background: var(--orange);
-      color: var(--bg-dark);
-    }
-
-    .btn-primary:hover { background: #ff5722; transform: translateY(-2px); }
-    .btn-primary:active { transform: translateY(0); }
-
-    .btn-secondary {
-      background: transparent;
-      border: 2px solid var(--text-muted);
-      color: var(--text-muted);
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--blue-electric);
-      color: var(--blue-electric);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn.full {
-      grid-column: 1 / -1;
-    }
-
-    /* Résultat final */
-    .result-screen {
-      text-align: center;
-    }
-
-    .result-emoji {
-      font-size: 60px;
-      margin: 20px 0;
-      animation: bounce 0.6s ease-in-out;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .result-score {
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--blue-electric);
-      margin: 16px 0;
-    }
-
-    .result-message {
-      font-size: 16px;
-      margin: 12px 0 24px;
-      color: var(--text-muted);
-    }
-
-    .reward-box {
-      background: rgba(74, 222, 128, 0.1);
-      border: 2px solid var(--green);
-      border-radius: 12px;
-      padding: 16px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .reward-title {
-      font-weight: 700;
-      color: var(--green);
-      margin-bottom: 8px;
-    }
-
-    .reward-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    /* Vidéo & Accords */
-    .consent-section {
-      background: rgba(0, 212, 255, 0.05);
-      border-radius: 12px;
-      padding: 16px;
-      margin: 20px 0;
-      border-left: 3px solid var(--blue-electric);
-    }
-
-    .consent-title {
-      font-weight: 600;
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .checkbox-wrapper {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .checkbox-wrapper input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      margin-top: 2px;
-      cursor: pointer;
-      accent-color: var(--orange);
-    }
-
-    .checkbox-label {
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-    }
-
-    /* Feedback */
-    .feedback-textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid rgba(0, 212, 255, 0.2);
-      background: var(--bg-dark);
-      color: var(--text-main);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 14px;
-      resize: vertical;
-      min-height: 80px;
-      margin: 12px 0;
-    }
-
-    .feedback-textarea::placeholder {
-      color: var(--text-muted);
-    }
-
-    .feedback-textarea:focus {
-      outline: none;
-      border-color: var(--blue-electric);
-      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-    }
-
-    /* Loading & Error */
-    .loader {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(0, 212, 255, 0.3);
-      border-top-color: var(--blue-electric);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-box {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid #ef4444;
-      border-radius: 8px;
-      padding: 12px;
-      color: #fca5a5;
-      font-size: 14px;
-      margin: 12px 0;
-    }
-
-    .success-box {
-      background: rgba(74, 222, 128, 0.1);
-      border: 1px solid var(--green);
-      border-radius: 8px;
-      padding: 12px;
-      color: var(--green);
-      font-size: 14px;
-      margin: 12px 0;
-    }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      .container { padding: 16px; border-radius: 16px; }
-      .logo-text { font-size: 24px; }
-      .result-score { font-size: 40px; }
-      .result-emoji { font-size: 50px; }
-    }
-  </style>
+  
+<style>
+:root{--bg-dark:#101c24;--bg-panel:#172730;--orange:#ffad3c;--blue-electric:#8fe5ec;--green:#a7e6bd;--text-main:#f7f7f2;--text-muted:#cad4d7;color-scheme:dark;font-size:18px}
+*{box-sizing:border-box}body{margin:0;padding:24px 14px 36px;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#25424a 0,transparent 60%),#0c171e;color:var(--text-main);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;overflow-wrap:anywhere}
+.container{width:100%;max-width:620px;margin:auto;background:var(--bg-panel);border:1px solid #38515b;border-radius:28px;overflow:hidden;box-shadow:0 20px 70px #0004;padding:24px}
+.header{text-align:center;margin:-24px -24px 24px;padding:28px 24px 30px;background:linear-gradient(145deg,#223941,#172830);border-bottom:1px solid #45606b;position:relative}
+.brand-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:26px}.brand-mark{width:52px;height:52px;flex-shrink:0;color:var(--orange)}.brand-wordmark{text-align:left;font-size:1.25rem;font-weight:900;line-height:1;letter-spacing:-.04em}.brand-wordmark span{color:var(--orange)}.brand-wordmark small{display:block;font-size:.56rem;line-height:1.5;letter-spacing:.15em;font-weight:650;color:var(--text-muted);margin-top:7px}
+.game-eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid #57727a;border-radius:100px;padding:5px 12px;font-size:.72rem;letter-spacing:.06em;font-weight:700;color:#d1e6e8}.game-eyebrow svg{width:18px;height:18px;color:var(--orange)}
+.logo-text{font-size:clamp(2.3rem,9vw,3.2rem);line-height:1.12;letter-spacing:-.055em;font-weight:900;margin:16px 0 12px}.logo-text .accent{color:var(--orange)}.tagline{max-width:25em;margin:0 auto;color:#d5e1e3;font-size:1rem;line-height:1.6;font-style:normal}.hero-road{display:block;width:110px;height:16px;color:#69828a;margin:22px auto 0}
+h2{font-size:1.55rem;line-height:1.35;letter-spacing:-.025em;margin:16px 0}h3{font-size:1.1rem;line-height:1.45}p{margin:14px 0;line-height:1.65}label{display:block;margin:14px 0;line-height:1.65}
+.reading-controls{padding:12px 14px;background:#102027;border:1px solid #49616a;border-radius:16px;margin-bottom:26px}.reading-controls>span{display:flex;align-items:center;gap:8px;font-size:.86rem;font-weight:650;margin-bottom:10px;color:var(--text-muted)}.reading-controls svg{width:20px;height:20px;flex-shrink:0}.reading-buttons{display:flex;flex-wrap:wrap;gap:6px}.reading-buttons button{flex:1 1 110px;min-height:48px;background:transparent;border:1px solid #58717b;border-radius:10px;color:white;padding:8px;font-size:.95rem}.reading-buttons button[aria-pressed=true]{background:#d9f0ee;border-color:#d9f0ee;color:#14292e;font-weight:750}
+button,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.6;cursor:not-allowed}button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.preface{padding:16px 18px;border-radius:16px;background:#263839;border:1px solid #647466;border-left:4px solid var(--orange);font-size:1rem;margin:0 0 22px}.preface p:first-child{font-weight:750;color:#fff0d8;margin-top:0}.preface p:last-child{margin-bottom:0}
+.btn{min-height:56px;padding:14px 18px;font-size:1rem;font-weight:750;line-height:1.5;white-space:normal;border-radius:14px;border:1px solid transparent;transition:background .15s}.btn.full{width:100%;margin-top:12px}.btn-primary{background:var(--orange);color:#162128;box-shadow:0 4px 0 #bc7520}.btn-primary:hover{background:#ffbe63}.btn-secondary{background:#13232c;border-color:#70858d;color:#e6ecee}.btn-secondary:hover{background:#233c46}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.theme-picker{min-width:0;border:0;padding:0;margin:30px 0}.theme-picker legend{font-size:1.3rem;font-weight:800;letter-spacing:-.025em;padding:0}.theme-picker>p{color:var(--text-muted)}.theme-btn{display:block;width:100%;border:1px solid #617883;border-radius:16px;background:#102027;color:white;margin:12px 0;padding:18px;text-align:left;font-size:1rem;line-height:1.6;white-space:normal}.theme-btn strong,.theme-btn span{display:block}.theme-btn strong{font-size:1.04rem;font-weight:750}.theme-btn span{color:var(--text-muted);margin-top:6px}.theme-btn[aria-pressed=true]{border:2px solid var(--orange);padding:17px;background:#3b3024}.theme-btn[aria-pressed=true] strong{color:#ffce85}.theme-btn:not(:disabled):hover{border-color:var(--orange)}
+.gender-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 24px}.gender-btn{padding:12px;min-height:52px;border:1px solid #617883;border-radius:12px;background:#102027;color:white;font-size:1rem;white-space:normal}.gender-btn.selected{background:#d9f0ee;color:#14292e;border-color:#d9f0ee}
+.status-bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;background:#102027;border:1px solid #49616a;border-radius:14px;padding:14px;margin:18px 0;color:var(--blue-electric);font-weight:700}.play-theme{font-size:1rem;color:var(--text-muted);margin:16px 0}.question-block{margin:24px 0}.question-text{font-size:1.4rem;line-height:1.5;font-weight:750;margin-bottom:24px}.answers{display:flex;flex-direction:column;gap:12px}.answer-btn{width:100%;text-align:left;min-height:64px;padding:18px 16px;white-space:normal;font-size:1.1rem;line-height:1.6;border:1px solid #617883;border-radius:14px;background:#102027;color:#fff}.answer-btn:hover{border-color:var(--orange)}.answer-btn.selected{background:var(--green);color:#122b1c;font-weight:700}.answer-btn.wrong{border-color:#ed8181;background:#3b2227;color:#ffd0d0}
+select,textarea{width:100%;max-width:100%;min-height:54px;border:1px solid #70858d;border-radius:12px;background:#102027;color:white;padding:14px;font-size:1rem}.feedback-textarea{min-height:110px;resize:vertical}.consent-section{border:1px solid #49616a;background:#102027;border-radius:16px;padding:16px;margin:24px 0}.consent-section p{color:var(--text-muted);font-size:.95rem}.consent-section label{margin:16px 0}input[type=checkbox]{width:26px;height:26px;vertical-align:middle;accent-color:var(--orange);margin-right:8px}#platforms label{margin:12px 0}
+#result{text-align:center;background:linear-gradient(160deg,#233e41,#172c34);border:1px solid #648077;border-radius:22px;padding:24px 18px;margin-top:8px}.result-emoji{margin:0 auto 16px;width:80px;height:80px;display:grid;place-items:center;border-radius:50%;color:var(--orange);background:#ffb74818;border:1px solid #b78341}.result-emoji svg{width:44px;height:44px}.result-kicker{font-size:.72rem;letter-spacing:.09em;font-weight:750;color:#d9e8de}.result-score{font-size:clamp(2.7rem,12vw,4rem);font-weight:900;letter-spacing:-.055em;line-height:1.2;color:#ffce85;margin:22px 0}.score-caption{font-size:.85rem;color:#d4dfe0;margin:-10px 0 22px}#gift{padding:18px;border-radius:14px;border:1px solid #a38758;background:#ffd3910c;text-align:left;color:#fff0d8}#result .result-note{font-size:.95rem;color:#d1dedf}
+#errorBox{color:#ffcdac;line-height:1.6}#errorBox:empty{display:none!important}.game-footer{margin-top:28px;padding-top:18px;border-top:1px solid #3d535e;text-align:center;color:#bdcdd1;font-size:.78rem;line-height:1.6}.game-footer strong{color:var(--orange);font-weight:750;letter-spacing:.08em}.game-footer p{margin:6px 0}
+[hidden]{display:none!important}@media(max-width:480px){body{padding:12px 8px 24px}.container{padding:18px;border-radius:22px}.header{margin:-18px -18px 22px;padding:24px 18px}.brand-wordmark{font-size:1.15rem}.brand-logo{margin-bottom:22px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body><main class="container">
-<div class="header"><div class="logo-text">Défi <span class="accent">JM</span> 🚛</div><div class="tagline">Ta voiture sur le plateau, ton sourire à bord !</div></div>
-<nav class="reading-controls" aria-label="Taille du texte"><span>👓 Taille du texte</span><div class="reading-buttons"><button type="button" data-reading="18" aria-pressed="true">Normal</button><button type="button" data-reading="22" aria-pressed="false">Grand</button><button type="button" data-reading="26" aria-pressed="false">Très grand</button></div></nav>
+<header class="header"><div class="brand-logo" role="img" aria-label="JM Express Auto Dépannage"><svg class="brand-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="18" fill="#ffad3c"/><path d="M13 41h30l7-4v-9h-9l-5-8H25M14 34h22M19 27h11" stroke="#14242d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="43" r="5" fill="#14242d"/><circle cx="43" cy="43" r="5" fill="#14242d"/><path d="m43 29 5 5h-8v-5z" fill="#14242d"/></svg><div class="brand-wordmark">JM<span>EXPRESS</span><small>AUTO DÉPANNAGE</small></div></div><div class="game-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 6h10c3 0 6 14 2 14l-4-4H9l-4 4C1 20 4 6 7 6Z"/><path d="M6 10h6m-3-3v6m7-3h.1m2 3h.1" stroke-linecap="round"/></svg>LE JEU PASSAGER</div><h1 class="logo-text">Défi <span class="accent">JM</span></h1><p class="tagline">Ta voiture sur le plateau.<br>Ton sourire à bord !</p><svg class="hero-road" viewBox="0 0 110 16" fill="none" aria-hidden="true"><path d="M0 8h110" stroke="currentColor" stroke-width="2" stroke-dasharray="6 7"/><path d="m48 3 12 5-12 5z" fill="#ffad3c"/></svg></header>
+<nav class="reading-controls" aria-label="Taille du texte"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 19 5-14 5 14M6 14h6m4 5 3-9 3 9m-5-3h4" stroke-linecap="round"/></svg>Un texte à ta taille</span><div class="reading-buttons"><button type="button" data-reading="18" aria-pressed="true">Normal</button><button type="button" data-reading="22" aria-pressed="false">Grand</button><button type="button" data-reading="26" aria-pressed="false">Très grand</button></div></nav>
 <section id="welcome"><div class="preface"><p>Ton véhicule s’offre un chauffeur… et toi, une petite aventure !</p><p>3 questions pendant le trajet, 2 après la livraison. Pas d’interrogatoire : juste un moment sympa, sans obligation.</p></div><p>Chaque réponse vaut 20 points, quelle que soit ton opinion. Tu peux passer une question ou arrêter quand tu veux. Aucun avis public n’est demandé. Le dernier défi est lui aussi facultatif.</p><p>Jeu réservé aux passagers, jamais au conducteur en circulation.</p><fieldset id="themePicker" class="theme-picker"><legend>Choisis ton ambiance</legend><p>Quel thème te tente ? Tu peux passer chaque question. Ton choix et ton ressenti ne changent pas les points.</p><div role="group" aria-label="Thème des questions"><button type="button" class="theme-btn" data-theme="calm" aria-pressed="false"><strong>😮‍💨 Panne dehors, calme dedans</strong><span>Les premières inquiétudes et ce qui aide à souffler.</span></button><button type="button" class="theme-btn" data-theme="comedy" aria-pressed="false"><strong>😂 Ma voiture fait son cinéma</strong><span>Les caprices du véhicule, version comédie.</span></button><button type="button" class="theme-btn" data-theme="mind" aria-pressed="false"><strong>🧠 Mon cerveau en mode warning</strong><span>Les pensées qui s’invitent quand le moteur fait pause.</span></button><button type="button" class="theme-btn" data-theme="jm" aria-pressed="false"><strong>🚛 Dans les coulisses de JM</strong><span>Le chargement, le trajet et la remise au garage.</span></button><button type="button" class="theme-btn" data-theme="mixed" aria-pressed="true"><strong>🎲 Surprends-moi !</strong><span>Un mélange de questions pour varier les sourires.</span></button></div><p id="themeNotice" role="status"></p></fieldset><h3>Comment te présenter ? (facultatif)</h3><div class="gender-picker"><button data-gender="male" class="gender-btn">Homme</button><button data-gender="female" class="gender-btn">Femme</button><button data-gender="other" class="gender-btn">Non genré</button><button data-gender="" class="gender-btn selected">Passer</button></div><p id="rewardInfo"></p><button id="start" class="btn btn-primary full" disabled>C’est parti !</button></section>
 <section id="play" hidden><div class="status-bar"><span id="progress"></span><span id="points"></span></div><h2 id="playTheme" class="play-theme"></h2><div class="question-block"><div class="question-text" id="question"></div><div class="answers" id="answers"></div></div><button id="skip" class="btn btn-secondary full">Passer cette question</button></section>
 <section id="waiting" hidden><h2>Petite pause, ta voiture roule encore 🚛</h2><p>Les deux dernières questions s’ouvriront quand JM confirmera le déchargement. Tu peux garder cette page ou y revenir avec le même lien.</p><button id="refresh" class="btn btn-primary full">Vérifier la livraison</button></section>
 <section id="finish" hidden><h2>Bien joué ! 🎉</h2><label for="feedback">Un petit mot sur le trajet ? (facultatif, privé)</label><textarea id="feedback" maxlength="500" class="feedback-textarea"></textarea><p>Ton avis et les autorisations ci-dessous ne changent jamais tes points.</p><label for="reward">Ta préférence</label><select id="reward"><option value="none">Pas de cadeau, merci</option><option value="discount">Une remise pour une prochaine demande</option><option value="dedication">Une dédicace vidéo avec JM</option></select><div class="consent-section"><label><input id="film" type="checkbox"> J’accepte d’être filmé pour la dédicace.</label><p>Tu peux choisir la remise sans être filmé.</p><label><input id="publish" type="checkbox"> J’autorise la publication de cette dédicace sur les réseaux que je coche :</label><div id="platforms"><label><input id="tiktok" type="checkbox"> TikTok</label><label><input id="facebook" type="checkbox"> Facebook</label><label><input id="snapchat" type="checkbox"> Snapchat</label></div><p>Tout est facultatif. Tu peux revenir sur ton accord auprès de JM. Aucune vidéo n’est filmée ou publiée automatiquement par le jeu.</p></div><button id="complete" class="btn btn-primary full">Continuer vers le dernier défi facultatif</button></section>
 <section id="lastChallenge" hidden><h2>Un dernier défi… ou directement le résultat ?</h2><p>Facultatif, sans effet sur tes points ni ton cadeau. Ta voiture a fait son show ; à toi de choisir le petit souvenir !</p><label for="lastChoice">Ton dernier défi</label><select id="lastChoice"><option value="none">Je passe, place au résultat !</option><option value="selfie">Un selfie avec le dépanneur</option><option value="video">Une dédicace filmée avec JM</option><option value="facebook_referral">Parrainer la page Facebook de JM Express</option></select><div class="consent-section"><label id="lastCaptureLabel"><input id="lastCapture" type="checkbox"> J’accepte la prise de photo ou la vidéo choisie, à organiser avec JM.</label><label><input id="lastPublish" type="checkbox"> J’autorise la publication de ce dernier défi sur la page Facebook de JM Express.</label><p>Ces accords concernent uniquement ce dernier défi. Aucune photo, vidéo ou publication n’est réalisée automatiquement. Tu peux retirer ton accord auprès de JM.</p></div><p id="lastNotice" role="status"></p><button id="lastSend" class="btn btn-primary full">Envoyer mon choix et voir le résultat</button><button id="lastSkip" class="btn btn-secondary full">Passer et voir le résultat</button><button id="lastBack" class="btn btn-secondary full">Revenir à ma préférence et mes accords</button></section>
-<section id="result" hidden><div class="result-emoji">🏆</div><h2>Merci d’avoir joué !</h2><div id="score" class="result-score"></div><p id="gift"></p><p>Ton résultat est enregistré et JM peut le voir sur son téléphone.</p></section>
+<section id="result" hidden><div class="result-emoji"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 7h20v12a10 10 0 0 1-20 0V7ZM14 10H7v6a8 8 0 0 0 8 8M34 10h7v6a8 8 0 0 1-8 8M24 29v9M16 41h16M19 38h10"/></svg></div><p class="result-kicker">MISSION SOURIRE : ACCOMPLIE</p><h2>Merci d’avoir joué !</h2><div id="score" class="result-score"></div><p class="score-caption">Ton score de participation</p><p id="gift"></p><p class="result-note">Ton résultat est enregistré.<br>JM peut le retrouver sur son téléphone.</p></section>
 <p id="errorBox" role="status" aria-live="polite" style="display:block"></p>
-</main><style>[hidden]{display:none!important}button,select,textarea{font:inherit}select{width:100%;padding:14px;background:#182735;color:white;border:1px solid #00d4ff;border-radius:10px}#platforms label{display:block;margin:12px 0}p{line-height:1.5}button:disabled{opacity:.6}#errorBox{color:#ffbd7f}input[type=checkbox]{width:22px;height:22px;vertical-align:middle}label{line-height:1.6}#welcome h3{margin-top:20px}</style>
-<style>
-html{font-size:18px}
-body{align-items:flex-start;overflow-wrap:anywhere}
-.container{max-width:650px;min-width:0}
-:root{--text-muted:#d2dbe8}
-.reading-controls{margin-bottom:24px;padding:14px;background:#0f1419;border:1px solid #65768d;border-radius:14px}
-.reading-controls>span{display:block;margin-bottom:10px;font-weight:700;font-size:1rem}
-.reading-buttons{display:flex;flex-wrap:wrap;gap:8px}
-.reading-buttons button{flex:1 1 100px;min-height:48px;padding:10px 8px;font-size:1rem;line-height:1.4;background:#1a2333;color:#fff;border:2px solid #65768d;border-radius:10px}
-.reading-buttons button[aria-pressed=true]{background:#00d4ff;color:#0f1419;border-color:#00d4ff;font-weight:700}
-.question-text{font-size:1.4rem;line-height:1.55;font-weight:700;color:#fff;margin-bottom:24px}
-.answer-btn{font-size:1.1rem;line-height:1.6;min-height:64px;padding:18px 16px;white-space:normal;overflow:visible;border-color:#65768d}
-.answers{gap:14px}
-.preface,.gender-btn,.btn,.tagline,.result-message,.reward-desc,.consent-title,.checkbox-label,.feedback-textarea,.error-box,.success-box{font-size:1rem;line-height:1.6}
-.btn{min-height:56px;text-transform:none;letter-spacing:normal}
-.btn.full{width:100%}
-.status-bar{flex-wrap:wrap;gap:12px;font-size:1rem}
-p{line-height:1.65;margin:12px 0}
-label{display:block;margin:12px 0;line-height:1.65}
-select,textarea{font-size:1rem;max-width:100%}
-select{white-space:normal}
-input[type=checkbox]{width:26px;height:26px}
-button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:4px}
-@media(max-width:480px){.container{padding:16px}.gender-picker{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-</style>
+<footer class="game-footer"><strong>JM EXPRESS</strong><p>La panne fait une pause.<br>Le sourire reprend la route.</p></footer></main>
+
 <script>
 (function(){
 const buttons=Array.from(document.querySelectorAll('[data-reading]'));
@@ -452,6 +53,7 @@ if(['18','22','26'].includes(saved))setSize(Number(saved));
 buttons.forEach(function(b){b.addEventListener('click',function(){setSize(Number(b.dataset.reading));});});
 })();
 </script>
-<style>.theme-picker{min-width:0;border:1px solid #65768d;border-radius:14px;padding:16px;margin:24px 0}.theme-picker legend{font-weight:700;font-size:1.2rem;padding:0 6px}.theme-btn{display:block;width:100%;text-align:left;white-space:normal;color:#fff;background:#0f1419;border:2px solid #65768d;border-radius:12px;margin:12px 0;padding:16px;font-size:1rem;line-height:1.6}.theme-btn strong,.theme-btn span{display:block}.theme-btn span{color:#d2dbe8;margin-top:4px}.theme-btn[aria-pressed=true]{border-color:#00d4ff;background:#123342}.theme-btn[aria-pressed=true] strong{color:#7ceaff}.theme-btn:disabled{opacity:.55}.play-theme{font-size:1rem;line-height:1.6;color:#d2dbe8}</style>
+
 <script type="module" src="game-client.js"></script></body></html>
+
 
