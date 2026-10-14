@@ -1214,7 +1214,7 @@ const GAME_QUESTIONS = [
 const catalog = new Map(GAME_QUESTIONS.map(q=>[q.id,q]));
 const response=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'}});
 function pick(phase,n){const a=GAME_QUESTIONS.filter(q=>q.phase===phase);const out=[];while(out.length<n){const v=new Uint32Array(1);crypto.getRandomValues(v);out.push(a.splice(v[0]%a.length,1)[0].id);}return out;}
-function publicState(s){return {session_id:s.id,expires_at:s.expires_at,unlocked:s.unlocked,answers:s.answers.map(a=>({questionNum:a.num,answerIndex:a.index,skipped:a.skipped})),total_points:s.answers.reduce((n,a)=>n+a.points,0),questions:s.questions.slice(0,s.unlocked).map(id=>catalog.get(id)),completed:!!s.result,result:s.result||null,max_discount:s.max_discount};}
+function publicState(s){return {session_id:s.id,expires_at:s.expires_at,unlocked:s.unlocked,answers:s.answers.map(a=>({questionNum:a.num,answerIndex:a.index,skipped:a.skipped})),total_points:s.answers.reduce((n,a)=>n+a.points,0),questions:s.questions.slice(0,s.unlocked).map(id=>catalog.get(id)),completed:!!s.result,result:s.result||null,max_discount:s.max_discount,last_challenge_available:true};}
 function fail(message,status=400){throw Object.assign(new Error(message),{status});}
 async function gameRoute(req,env,account,authenticate){
  const u=new URL(req.url), p=u.pathname;
@@ -1277,8 +1277,14 @@ async function gameRoute(req,env,account,authenticate){
    const reward=['discount','dedication','none'].includes(b.rewardType)?b.rewardType:'none';
    const filmed=b.filmConsent===true;
    const platforms={};for(const name of ['tiktok','facebook','snapchat'])platforms[name]=filmed&&b.publicationConsent===true&&b.platforms?.[name]===true;
+   const choice=b.lastChallenge===undefined?'none':b.lastChallenge;
+   if(!['none','selfie','video','facebook_referral'].includes(choice))fail('Dernier défi invalide');
+   const capture=['selfie','video'].includes(choice)&&b.lastCaptureConsent===true;
+   const publication=choice!=='none'&&b.lastPublicationConsent===true;
+   if(publication&&['selfie','video'].includes(choice)&&!capture)fail('Un accord pour la photo ou la vidéo est nécessaire avant la publication');
+   const lastChallenge={choice,capture_consent:capture,publication_consent:publication,publication_platform:publication?'facebook':null,status:choice==='none'?'skipped':'requested'};
    const score=s.answers.reduce((n,a)=>n+a.points,0);
-   s.result={score,feedback:String(b.feedback||'').slice(0,500),gender,reward_type:reward,discount_eur:reward==='discount'?Math.round(s.max_discount*score)/100:0,film_consent:filmed,publication_consent:Object.values(platforms).some(Boolean),platforms,completed_at:new Date().toISOString(),valid_until:new Date(Date.now()+90*86400000).toISOString()};
+   s.result={score,last_challenge:lastChallenge,feedback:String(b.feedback||'').slice(0,500),gender,reward_type:reward,discount_eur:reward==='discount'?Math.round(s.max_discount*score)/100:0,film_consent:filmed,publication_consent:Object.values(platforms).some(Boolean),platforms,completed_at:new Date().toISOString(),valid_until:new Date(Date.now()+90*86400000).toISOString()};
   }
   // Mise à jour conditionnelle atomique : retries/doubles clics ne doublent pas les points.
   const result=await env.DB.prepare('UPDATE jm_game_sessions SET data=?, revision=revision+1 WHERE account=? AND id=? AND revision=?').bind(JSON.stringify(s),account,s.id,row.revision).run();
@@ -1573,3 +1579,4 @@ async function localiserOSM(q, manquant){
   return {demande: q, manquant, type, confiance: (dispersion || q.routeDeduite) ? 'a_confirmer' : (q.direction ? 'elevee' : 'moyenne'), position: {lat: Math.round(pos.lat * 1e6) / 1e6, lon: Math.round(pos.lon * 1e6) / 1e6},
     repere: type === 'sortie' ? ('Sortie ' + ((c.tags || {}).ref || '') + ((c.tags || {}).name ? ' — ' + c.tags.name : '')) : ('Borne ' + q.borne), commune, sortiesProches: voisines, candidats: pts.length, source: 'OpenStreetMap'};
 }
+
