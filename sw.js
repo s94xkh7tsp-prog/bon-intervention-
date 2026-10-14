@@ -1,3 +1,4 @@
+// v314 — bouton central : contraste explicite des libellés.
 const CACHE_NAME = 'jm-express-bon-v314';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.

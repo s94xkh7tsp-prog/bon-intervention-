@@ -18,7 +18,7 @@
  .jm-nav-card:disabled{opacity:.45;cursor:default}.jm-nav-featured{border-color:var(--orange)!important;background:linear-gradient(140deg,rgba(232,115,12,.18),var(--ink))!important}
  .jm-nav-section{font-size:17px;color:var(--white);font-weight:750;margin:22px 0 6px;padding-left:10px;border-left:4px solid var(--orange)}
  .jm-nav-count{position:absolute;right:10px;top:10px;border-radius:20px;padding:3px 8px;background:var(--orange);color:#151b20;font-size:12px;font-weight:800}
- #tabbar{z-index:70;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0;padding-bottom:env(safe-area-inset-bottom)}
+ #tabbar{z-index:13000;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0;padding-bottom:env(safe-area-inset-bottom)}
  #tabbar .tab-btn{width:100%;min-width:0;min-height:58px;padding:7px 2px;font:inherit;background:transparent;border:0;color:var(--grey);cursor:pointer;box-sizing:border-box}
  #tabbar .tab-btn.active{color:var(--orange)}#tabbar .tab-lbl{font-size:11px;white-space:normal}#tabbar .jm-nav-terrain{color:var(--orange);background:rgba(232,115,12,.1);border-radius:14px}#tabbar .tab-ico{font-size:22px}
  #jmTerrainBg .modal{max-width:640px}#jmTerrainTitle{font-size:26px}#jmTerrainReference{font-size:18px;line-height:1.45;font-weight:700;overflow-wrap:anywhere}
@@ -27,8 +27,9 @@
  @media(min-width:620px){#modalMenuBg .jm-nav-quick{grid-template-columns:repeat(3,minmax(0,1fr))}}
  @media(max-width:360px){.jm-nav-card{padding:12px!important}.jm-nav-card .menu-lbl{font-size:14px}.jm-nav-card .menu-desc{font-size:12px}}
  @media(prefers-reduced-motion:reduce){.jm-nav-card{transition:none!important}}
+ #lockScreen,#splash{z-index:14000!important}.services-modal,.jm-service-picker-bg{padding-bottom:calc(95px + env(safe-area-inset-bottom))!important}
  #tabbar .jm-nav-new{background:var(--orange);color:#121c23!important;border-radius:18px;margin-top:-10px;min-height:68px;box-shadow:0 3px 14px #0004;font-weight:800}#tabbar .tab-ico svg{width:24px;height:24px}
- #jmHomeNew{display:flex;gap:14px;align-items:center;min-height:68px;margin:0 0 14px;padding:18px;background:var(--orange);color:#121c23;border-radius:18px}#jmHomeNew .gb-txt{font-size:20px;font-weight:800}#jmHomeNew .gb-ico{color:inherit}
+ #jmNewTab .tab-lbl,#jmNewTab .tab-ico{color:#121c23!important}#jmNewTab .tab-lbl{font-size:10px!important;line-height:1.2}#jmHomeNew{display:flex;gap:14px;align-items:center;min-height:68px;margin:0 0 14px;padding:18px;background:var(--orange);color:#121c23;border-radius:18px}#jmHomeNew .gb-txt{font-size:20px;font-weight:800}#jmHomeNew .gb-ico{color:inherit}
  .modal-bg{padding-bottom:calc(90px + env(safe-area-inset-bottom))!important}#modalMenuBg .jm-nav-card .menu-ico svg{width:24px;height:24px}#modalMenuBg .jm-nav-card .menu-lbl,#modalMenuBg .jm-nav-card .menu-desc{align-self:flex-start!important}
  `; document.head.append(style);
  const icons={"plus": "<path d=\"M12 5v14M5 12h14\"/>", "home": "<path d=\"m3 10 9-7 9 7v10H3zM9 20v-7h6v7\"/>", "history": "<path d=\"M3 11a9 9 0 1 1 3 7M3 4v7h7M12 7v5l3 2\"/>", "truck": "<path d=\"M3 5h11v12H3zM14 10h4l3 4v3h-7\"/><circle cx=\"6\" cy=\"18\" r=\"2\"/><circle cx=\"18\" cy=\"18\" r=\"2\"/>", "menu": "<path d=\"M4 6h16M4 12h16M4 18h16\"/>", "wrench": "<path d=\"M15 7.5a3.5 3.5 0 1 0-4.6 3.3L4 17.2V20h2.8l6.4-6.4A3.5 3.5 0 0 0 15 7.5z\"/>", "money": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M15 9.5a3.5 3.5 0 1 0 0 5M9 12h4\"/>", "document": "<path d=\"M5 3h10l4 4v14H5zM14 3v5h5M8 12h8M8 16h8\"/>", "fuel": "<path d=\"M4 21V4h9v17M3 21h11M6 7h5M13 11h3v6a2 2 0 0 0 4 0V8l-3-3\"/>", "box": "<path d=\"m3 7 9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10\"/>", "save": "<path d=\"M3 3h16l2 2v16H3zM7 3v6h10V3M7 21v-7h10v7\"/>", "pin": "<path d=\"M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 14 0z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>", "phone": "<path d=\"m4 3 4 1 1 4-2 2a15 15 0 0 0 7 7l2-2 4 1 1 4c-8 3-20-9-17-17z\"/>", "message": "<path d=\"M3 4h18v13H8l-5 4zM7 8h10M7 12h7\"/>", "camera": "<path d=\"M3 7h4l2-3h6l2 3h4v14H3z\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/>", "play": "<path d=\"m8 4 12 8-12 8z\"/>", "check": "<path d=\"m4 12 5 5L20 6\"/>", "flag": "<path d=\"M5 21V3h14l-3 5 3 5H5\"/>", "game": "<path d=\"M7 7h10c4 0 6 14 2 14l-4-4H9l-4 4c-4 0-2-14 2-14zM6 11h6M9 8v6M16 11h.01M18 14h.01\"/>", "more": "<circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/>", "share": "<path d=\"M12 16V3m-5 5 5-5 5 5M5 13v8h14v-8\"/>", "video": "<rect x=\"3\" y=\"5\" width=\"12\" height=\"14\" rx=\"2\"/><path d=\"m15 10 6-4v12l-6-4\"/>"};
@@ -62,7 +63,10 @@
  }
  function navButton(text,icon,fn){const b=document.createElement('button');b.type='button';b.className='tab-btn jm-nav-tab';const i=document.createElement('span');i.className='tab-ico';i.innerHTML=svg(icon);const l=document.createElement('span');l.className='tab-lbl';l.textContent=text;b.append(i,l);b.onclick=fn;return b;}
  function newIntervention(){
+  if($('lockScreen')&&getComputedStyle($('lockScreen')).display!=='none')return;
+  if(typeof jmCloseServicePicker==='function')jmCloseServicePicker();
   closeMenu();if($('jmTerrainBg')?.classList.contains('show'))closeTerrain();
+  document.querySelectorAll('.photo-lightbox').forEach(e=>e.remove());
   document.querySelectorAll('.modal-bg.show').forEach(e=>e.classList.remove('show'));
   if(typeof fermerPresentationServices==='function')fermerPresentationServices();document.body.style.overflow='';showTab('tabNouveau');
  }
