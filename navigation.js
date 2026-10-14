@@ -1,12 +1,37 @@
-/* v315 — Accès rapide et Terrain ; fonctions métier existantes conservées. */
+/* v316 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
+ // Present the existing calculation; never alter its input or tariff result.
+ const calculateWithReturn=calculerAvecRetour;
+ calculerAvecRetour=async function(){
+  document.body.classList.remove('jm-calculation-result');
+  try{
+   const result=await calculateWithReturn.apply(this,arguments);
+   const ticket=$('ticket'),total=$('tkTotal');
+   if(ticket?.classList.contains('show') && total && typeof lastCalc!=='undefined' && Number.isFinite(Number(lastCalc?.total))){
+    document.body.classList.add('jm-calculation-result');
+    setTimeout(()=>total.scrollIntoView({behavior:'smooth',block:'center'}),100);
+    showToast('Montant calculé : '+total.textContent);
+   }
+   return result;
+  }catch(error){
+   console.error('[JM calcul]',error);
+   showToast('Calcul non terminé : '+(error?.message||'réessaie après avoir vérifié les champs'));
+   throw error;
+  }
+ };
+ document.addEventListener('input',()=>document.body.classList.remove('jm-calculation-result'));
+ document.addEventListener('change',()=>document.body.classList.remove('jm-calculation-result'));
  // Disable the legacy label-based regrouping before DOMContentLoaded.
  const sourceMenu=document.querySelector('#modalMenuBg .menu-grid');if(sourceMenu)sourceMenu.dataset.jmRange='1';
  let terrainKey=null, terrainBusy=false, previousFocus=null;
  const style=document.createElement('style');
  style.textContent=`
+ body.jm-calculation-result #barreActionsContextuelle{display:none!important}
+ #modalRetourLDBg{z-index:13500!important;padding:12px 12px calc(12px + env(safe-area-inset-bottom))!important;align-items:center!important;box-sizing:border-box}
+ #modalRetourLDBg .modal{max-height:calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));box-sizing:border-box}
+ #tkTotal{scroll-margin-top:110px;scroll-margin-bottom:110px}
  #modalMenuBg .modal{max-width:720px;padding:24px 20px;background:var(--panel)}
  #modalMenuBg .menu-grid{display:block!important}
  .jm-nav-intro{color:var(--grey);font-size:14px;line-height:1.5;margin:8px 0 18px}
