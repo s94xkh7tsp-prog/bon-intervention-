@@ -53,6 +53,75 @@
   const close=document.createElement('button');close.type='button';close.className='primary';close.textContent='Fermer';close.onclick=()=>bg.remove();
   panel.append(title,why,diag,close);bg.append(panel);document.body.append(bg);close.focus();
  }
+ // v323 — VSP : l'option « Remorquage VSP » règle le type de véhicule (intervention ET devis), et le quitter remet « Voiture ».
+ function vspSync(selId,getType,setType){
+  const sel=$(selId);if(!sel)return;
+  sel.addEventListener('change',()=>{const vsp=sel.selectedOptions[0]?.dataset.vehicleType==='vsp';
+   if(vsp&&getType()!=='vsp')setType('vsp');else if(!vsp&&sel.dataset.jmWasVsp==='1'&&getType()==='vsp')setType('normale');
+   sel.dataset.jmWasVsp=vsp?'1':'';});
+ }
+ vspSync('type',()=>typeof VEHICLE_TYPE!=='undefined'?VEHICLE_TYPE:'',t=>{if(typeof setVehicleType==='function')setVehicleType(t);});
+ vspSync('qqType',()=>typeof QQ_VEHICLE_TYPE!=='undefined'?QQ_VEHICLE_TYPE:'',t=>{if(typeof setQqVehicleType==='function')setQqVehicleType(t);});
+ // v323 — Copie : jamais d'erreur silencieuse ; repli si le presse-papiers refuse.
+ try{
+  const cb=navigator.clipboard;
+  if(cb&&typeof cb.writeText==='function'){
+   const w=cb.writeText.bind(cb);
+   const fallback=text=>{const ta=document.createElement('textarea');ta.value=String(text);ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.append(ta);ta.select();ta.setSelectionRange(0,ta.value.length);let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();if(!ok&&typeof showToast==='function')showToast('Copie impossible : appuie longuement pour copier le texte');return ok;};
+   cb.writeText=text=>w(text).catch(()=>{fallback(text);});
+  }
+ }catch(_){}
+ // v323 — Nouvelle intervention VIERGE : rien de l'intervention précédente (plus d'options, garages, attentes, frais…) n'est repris.
+ const IGNORE_DIRTY=new Set(['type','addrDepart','interventionDate','interventionTime']);
+ const pristine=(()=>{const root=$('tabNouveau');if(!root)return null;const f=[],t=[];
+  root.querySelectorAll('input,textarea,select').forEach(e=>{if(e.type==='file')return;f.push([e,e.type==='checkbox'||e.type==='radio'?e.checked:(e.tagName==='SELECT'?e.selectedIndex:e.value)]);});
+  root.querySelectorAll('.toggle').forEach(e=>t.push([e,e.classList.contains('on')]));return {f,t};})();
+ window.jmDirtyFields=()=>pristine?pristine.f.filter(([e,v])=>!IGNORE_DIRTY.has(e.id)&&e.type!=='hidden'&&String(e.type==='checkbox'||e.type==='radio'?e.checked:(e.tagName==='SELECT'?e.selectedIndex:e.value)).trim()!==String(v).trim()).map(([e,v])=>(e.id||e.name||e.className)+':'+v+'→'+(e.tagName==='SELECT'?e.selectedIndex:e.value)):[];
+ function formDirty(){if(!pristine)return false;
+  for(const [e,v] of pristine.f){if(IGNORE_DIRTY.has(e.id)||e.type==='hidden')continue;const cur=e.type==='checkbox'||e.type==='radio'?e.checked:(e.tagName==='SELECT'?e.selectedIndex:e.value);if(cur!==v && String(cur).trim()!==String(v).trim())return true;}
+  return false;}
+ window.jmNouvelleInterventionVierge=async function(silencieux){
+  if(typeof editingKey!=='undefined'&&editingKey){editingKey=null;try{VERSION_EDITION=null;majBandeauVersion();}catch(_){}const b=$('editBanner');if(b)b.style.display='none';}
+  if(pristine){for(const [e,v] of pristine.f){if(e.type==='checkbox'||e.type==='radio')e.checked=v;else if(e.tagName==='SELECT')e.selectedIndex=v;else e.value=v;}
+   for(const [e,on] of pristine.t)e.classList.toggle('on',on);}
+  document.querySelectorAll('#tabNouveau .extraCheck').forEach(c=>{c.checked=false;});
+  try{jmResetFormulaireIntervention();}catch(e){console.error('[JM reset]',e);}
+  for(const f of [()=>jmDeposeMode('surplace'),()=>setMateriel('longerons'),()=>updateExtrasSummary(),()=>updateAdvancedSummary(),()=>majBarreActionsContextuelle()]){try{f();}catch(_){}}
+  try{if(typeof RV_CTX!=='undefined'){RV_CTX.form.longueDistance=false;RV_CTX.form.ldChoixFait=false;}}catch(_){}
+  try{await effacerBrouillon();}catch(_){}
+  document.body.classList.remove('jm-calculation-result');$('jmCalculationResult')?.remove();
+  if(!silencieux&&typeof showToast==='function')showToast('Nouvelle intervention : formulaire vidé');
+ };
+ function demanderNouvelle(){
+  return new Promise(resolve=>{$('jmNouvelleChoix')?.remove();
+   const bg=document.createElement('div');bg.id='jmNouvelleChoix';bg.className='modal-bg show';bg.setAttribute('role','dialog');bg.setAttribute('aria-modal','true');
+   const panel=document.createElement('div');panel.className='modal';const h=document.createElement('h2');h.textContent='Une saisie est en cours';
+   const p=document.createElement('p');p.textContent='Commencer une nouvelle intervention vide, ou reprendre ce qui est déjà rempli ?';
+   const done=v=>{bg.remove();resolve(v);};
+   const neuf=document.createElement('button');neuf.type='button';neuf.className='primary';neuf.textContent='🧹 Nouvelle intervention (tout vider)';neuf.onclick=()=>done(true);
+   const garder=document.createElement('button');garder.type='button';garder.className='ghost';garder.textContent='Reprendre la saisie en cours';garder.onclick=()=>done(false);
+   [neuf,garder].forEach(b=>{b.style.width='100%';b.style.minHeight='50px';b.style.marginTop='10px';});
+   panel.append(h,p,neuf,garder);bg.append(panel);document.body.append(bg);neuf.focus();});
+ }
+ // Bouton central « Nouvelle intervention » : proposer de vider si une ancienne saisie traîne.
+ document.addEventListener('click',async ev=>{
+  const fab=ev.target?.closest?.('.tab-fab');if(!fab)return;
+  if(typeof editingKey!=='undefined'&&editingKey)return;
+  if(typeof currentTab!=='undefined'&&currentTab==='tabNouveau'&&!formDirty())return;
+  if(!formDirty())return;
+  ev.preventDefault();ev.stopImmediatePropagation();
+  const neuf=await demanderNouvelle();
+  if(neuf)await jmNouvelleInterventionVierge();
+  showTab('tabNouveau');
+ },true);
+ // Annuler une modification, partir d'un service ou d'un devis : formulaire vidé d'abord.
+ if(typeof annulerEdition==='function'){const _ae=annulerEdition;annulerEdition=function(){const r=_ae.apply(this,arguments);jmNouvelleInterventionVierge(true);return r;};}
+ if(typeof window.jmSvcNouvelle==='function'){const _sn=window.jmSvcNouvelle;window.jmSvcNouvelle=async function(){if(typeof editingKey!=='undefined'&&editingKey&&!confirm('Une intervention est en cours de modification.\nL\'abandonner pour préparer une nouvelle intervention ?'))return;await jmNouvelleInterventionVierge(true);return _sn.apply(this,arguments);};}
+ if(typeof devisVersIntervention==='function'){const _dv=devisVersIntervention;devisVersIntervention=async function(){if(typeof editingKey!=='undefined'&&editingKey&&!confirm('Une intervention est en cours de modification.\nL\'abandonner pour reprendre ce devis ?'))return;const v=typeof lireParamsDevis==='function'?lireParamsDevis():null;await jmNouvelleInterventionVierge(true);if(v&&typeof lireParamsDevis==='function'){const _l=lireParamsDevis;lireParamsDevis=()=>v;try{return await _dv.apply(this,arguments);}finally{lireParamsDevis=_l;}}return _dv.apply(this,arguments);};}
+ // Bouton visible en haut du formulaire.
+ (()=>{const tab=$('tabNouveau');if(!tab||$('jmBtnVierge'))return;const b=document.createElement('button');b.type='button';b.id='jmBtnVierge';b.className='ghost';b.textContent='🧹 Nouvelle intervention vierge';b.style.cssText='width:100%;min-height:46px;margin:6px 0 12px';
+  b.onclick=async()=>{if(formDirty()&&!confirm('Vider tout le formulaire (adresses, options, garages, frais…) ?'))return;await jmNouvelleInterventionVierge();window.scrollTo({top:0,behavior:'smooth'});};
+  const prog=$('jmProgression');(prog&&prog.parentNode===tab)?prog.after(b):tab.prepend(b);})();
  // Present the existing calculation; never alter its input or tariff result.
  const calculateWithReturn=calculerAvecRetour;
  calculerAvecRetour=async function(){
@@ -158,7 +227,7 @@
   return true;
  }
  function navigate(tab){if(closeOverlays())showTab(tab);}
- function newIntervention(){navigate('tabNouveau');}
+ async function newIntervention(){if(!(typeof editingKey!=='undefined'&&editingKey)&&formDirty()&&await demanderNouvelle())await jmNouvelleInterventionVierge();navigate('tabNouveau');}
  function buildTabs(){const bar=$('tabbar');const home=navButton('Accueil','home',()=>navigate('tabAccueil'));home.dataset.tab='tabAccueil';home.classList.add('active');const history=navButton('Historique','history',()=>navigate('tabHistorique'));history.dataset.tab='tabHistorique';
   const add=navButton('Nouvelle intervention','plus',newIntervention);add.id='jmNewTab';add.dataset.tab='tabNouveau';add.classList.add('jm-nav-new');
   const terrain=navButton('Terrain','truck',()=>jmTerrainOuvrir());terrain.id='jmTerrainTab';terrain.setAttribute('aria-haspopup','dialog');terrain.setAttribute('aria-expanded','false');

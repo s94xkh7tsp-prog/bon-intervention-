@@ -9525,7 +9525,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v322';
+const APP_VERSION = 'jm-express-bon-v323';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -15835,6 +15835,98 @@ function ouvrirFicheHistorique(key){
   }, 350);
 }
 
+// v323 : remise à zéro complète du formulaire (après enregistrement, et pour une nouvelle intervention vierge).
+function jmResetFormulaireIntervention(){
+  clearReceiptPhoto();
+  clearEpavePhotos();
+  clearEtatLieuxState();
+  setVehicleType('normale');
+  document.getElementById('tgCamion').classList.remove('on');
+  document.getElementById('tgGardiennage').classList.remove('on');
+  document.getElementById('joursGardiennage').value = '';
+  document.getElementById('tgAttente').classList.remove('on');
+  document.getElementById('tgRevolut').classList.remove('on');
+  document.getElementById('tgPayconiq').classList.remove('on');
+  document.getElementById('tgRevlink').classList.remove('on');
+  document.getElementById('acompteMontant').value='';
+  toggleAcompteUI(false);
+  majApercuRevolut();
+  majApercuPayconiq();
+  majApercuRevlink();
+  document.getElementById('minutesAttente').value = '';
+  document.getElementById('kmTarifExceptionnel').value = '';
+  document.getElementById('ctRepasseMontant').value = '';
+  document.getElementById('prixAnnonce').value = '';
+  document.getElementById('telClient').value = '';
+  document.getElementById('donneurOrdre').value = '';
+  document.getElementById('donneurNom').value = '';
+  document.getElementById('refDossier').value = '';
+  majDonneurOrdreUI();
+  ecrireChecklist(null);
+  clearDechargPhotos();
+  document.getElementById('origineClient').value = '';
+  document.getElementById('vehPoids').value = '';
+  document.getElementById('vehHauteur').value = '';
+  document.getElementById('tgSousSol').classList.remove('on');
+  document.getElementById('alerteCapacite').style.display = 'none';
+  incidentPhotosData = [];
+  documentsData = [];
+  renderIncidentPreview();
+  renderDocumentsListe();
+  ['tgIncident','tgIncidentRefus','tgRemisePro'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('blocIncident').style.display = 'none';
+  document.getElementById('blocRemisePro').style.display = 'none';
+  ['recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee','incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
+  jmLivraisonRestaurerFormulaire(null);
+  jmPreuvesRestaurer(null);jmClientOublier();jmClientReconnaissance();
+  majTracSummary();
+  setTimeout(majResumeCompact, 50);
+  ['ctFraisOfficiels','ctFraisPrestataire','ctKmRetour'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tgCtFraisAvances').classList.remove('on');
+  document.getElementById('tgSuppInforme').classList.remove('on');
+  document.getElementById('blocSuppDetail').style.display = 'none';
+  document.getElementById('blocSupplement').style.display = 'none';
+  document.getElementById('suppHeure').value = '';
+  document.getElementById('suppMontant').value = '';
+  DIFFICULTE_ENLISE = '';
+  OPERATIONS_ENLISE = [];
+  ['leger','modere','difficile','complexe'].forEach(n => {
+    const el = document.getElementById('diff' + n.charAt(0).toUpperCase() + n.slice(1));
+    if(el) el.classList.remove('on');
+  });
+  renderOperationsEnlise();
+  jmMultiRestaurer('multi',{});
+  document.getElementById('fraisLibelle').value = '';
+  document.getElementById('fraisMontant').value = '';
+  document.getElementById('annulationMontant').value = '';
+  document.getElementById('tgAnnulation').classList.remove('on');
+  majAnnulationUI();
+  effacerHoraires();
+  document.getElementById('plaqueImmat').value = '';
+  document.getElementById('tgNuit').classList.remove('on');
+  document.getElementById('tgWe').classList.remove('on');
+  document.getElementById('tgAuto').classList.remove('on');
+  document.getElementById('tgRetour').classList.remove('on');
+  rvReset(RV_CTX.form);
+  setOrigineVehicule('ailleurs');
+  document.getElementById('addrDepart').value = '';
+  document.getElementById('addrFrom').value = '';
+  document.getElementById('addrTo').value = '';
+  document.getElementById('km').value = '';
+  document.getElementById('remise').value = '';
+  checkAccesVehicule('addrFrom');
+  checkAccesVehicule('addrTo');
+  prefillDepartAddress();
+  prefillInterventionDate();
+  majorationsForceesManuellement = {nuit:false, we:false};
+  autoMajorations();
+  updateGardiennageField();
+  updateAttenteField();
+  updateKmLabel();
+  document.getElementById('ticket').classList.remove('show');
+  lastCalc = null;
+}
+
 async function enregistrer(){
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   // v215 : le formulaire peut avoir été modifié après le dernier calcul (ex. plaque).
@@ -15896,94 +15988,7 @@ async function enregistrer(){
     showToast(editingKey ? 'Intervention modifiée' : 'Intervention enregistrée');
     editingKey = null; VERSION_EDITION = null; majBandeauVersion();
     document.getElementById('editBanner').style.display = 'none';
-    clearReceiptPhoto();
-    clearEpavePhotos();
-    clearEtatLieuxState();
-    setVehicleType('normale');
-    document.getElementById('tgCamion').classList.remove('on');
-    document.getElementById('tgGardiennage').classList.remove('on');
-    document.getElementById('joursGardiennage').value = '';
-    document.getElementById('tgAttente').classList.remove('on');
-    document.getElementById('tgRevolut').classList.remove('on');
-    document.getElementById('tgPayconiq').classList.remove('on');
-    document.getElementById('tgRevlink').classList.remove('on');
-    document.getElementById('acompteMontant').value='';
-    toggleAcompteUI(false);
-    majApercuRevolut();
-    majApercuPayconiq();
-    majApercuRevlink();
-    document.getElementById('minutesAttente').value = '';
-    document.getElementById('kmTarifExceptionnel').value = '';
-    document.getElementById('ctRepasseMontant').value = '';
-    document.getElementById('prixAnnonce').value = '';
-    document.getElementById('telClient').value = '';
-    document.getElementById('donneurOrdre').value = '';
-    document.getElementById('donneurNom').value = '';
-    document.getElementById('refDossier').value = '';
-    majDonneurOrdreUI();
-    ecrireChecklist(null);
-    clearDechargPhotos();
-    document.getElementById('origineClient').value = '';
-    document.getElementById('vehPoids').value = '';
-    document.getElementById('vehHauteur').value = '';
-    document.getElementById('tgSousSol').classList.remove('on');
-    document.getElementById('alerteCapacite').style.display = 'none';
-    incidentPhotosData = [];
-    documentsData = [];
-    renderIncidentPreview();
-    renderDocumentsListe();
-    ['tgIncident','tgIncidentRefus','tgRemisePro'].forEach(id => document.getElementById(id).classList.remove('on'));
-    document.getElementById('blocIncident').style.display = 'none';
-    document.getElementById('blocRemisePro').style.display = 'none';
-    ['recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee','incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure'].forEach(id => document.getElementById(id).value = '');
-    jmLivraisonRestaurerFormulaire(null);
-    jmPreuvesRestaurer(null);jmClientOublier();jmClientReconnaissance();
-    majTracSummary();
-    setTimeout(majResumeCompact, 50);
-    ['ctFraisOfficiels','ctFraisPrestataire','ctKmRetour'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('tgCtFraisAvances').classList.remove('on');
-    document.getElementById('tgSuppInforme').classList.remove('on');
-    document.getElementById('blocSuppDetail').style.display = 'none';
-    document.getElementById('blocSupplement').style.display = 'none';
-    document.getElementById('suppHeure').value = '';
-    document.getElementById('suppMontant').value = '';
-    DIFFICULTE_ENLISE = '';
-    OPERATIONS_ENLISE = [];
-    ['leger','modere','difficile','complexe'].forEach(n => {
-      const el = document.getElementById('diff' + n.charAt(0).toUpperCase() + n.slice(1));
-      if(el) el.classList.remove('on');
-    });
-    renderOperationsEnlise();
-    jmMultiRestaurer('multi',{});
-    document.getElementById('fraisLibelle').value = '';
-    document.getElementById('fraisMontant').value = '';
-    document.getElementById('annulationMontant').value = '';
-    document.getElementById('tgAnnulation').classList.remove('on');
-    majAnnulationUI();
-    effacerHoraires();
-    document.getElementById('plaqueImmat').value = '';
-    document.getElementById('tgNuit').classList.remove('on');
-    document.getElementById('tgWe').classList.remove('on');
-    document.getElementById('tgAuto').classList.remove('on');
-    document.getElementById('tgRetour').classList.remove('on');
-    rvReset(RV_CTX.form);
-    setOrigineVehicule('ailleurs');
-    document.getElementById('addrDepart').value = '';
-    document.getElementById('addrFrom').value = '';
-    document.getElementById('addrTo').value = '';
-    document.getElementById('km').value = '';
-    document.getElementById('remise').value = '';
-    checkAccesVehicule('addrFrom');
-    checkAccesVehicule('addrTo');
-    prefillDepartAddress();
-    prefillInterventionDate();
-    majorationsForceesManuellement = {nuit:false, we:false};
-    autoMajorations();
-    updateGardiennageField();
-    updateAttenteField();
-    updateKmLabel();
-    document.getElementById('ticket').classList.remove('show');
-    lastCalc = null;
+    jmResetFormulaireIntervention();
     loadHistory();
     await effacerBrouillon();
     if(idNouvellementCree) afficherSuccesCreation(idNouvellementCree);
@@ -23098,8 +23103,8 @@ async function jmClientChoisirContact(){
 <p class="km-mention">Les scans restent sur ce téléphone : ils ne sont pas synchronisés et ne sont pas inclus dans la sauvegarde habituelle. Exporte le dossier ZIP et conserve-le dans Fichiers / iCloud Drive. Il contient le relevé CSV et les tickets originaux ; les factures clients s’exportent depuis Historique.</p>
 <button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
 </div></div>
-<script src="fuel-receipts.js?v=322"></script>
-<script src="operations.js?v=322"></script>
-<script src="navigation.js?v=322"></script>
+<script src="fuel-receipts.js?v=323"></script>
+<script src="operations.js?v=323"></script>
+<script src="navigation.js?v=323"></script>
 </body>
 </html>
