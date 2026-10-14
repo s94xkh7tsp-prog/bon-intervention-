@@ -27,9 +27,45 @@ select,textarea{width:100%;max-width:100%;min-height:54px;border:1px solid #7085
 #errorBox{color:#ffcdac;line-height:1.6}#errorBox:empty{display:none!important}.game-footer{margin-top:28px;padding-top:18px;border-top:1px solid #3d535e;text-align:center;color:#bdcdd1;font-size:.78rem;line-height:1.6}.game-footer strong{color:var(--orange);font-weight:750;letter-spacing:.08em}.game-footer p{margin:6px 0}
 [hidden]{display:none!important}@media(max-width:480px){body{padding:12px 8px 24px}.container{padding:18px;border-radius:22px}.header{margin:-18px -18px 22px;padding:24px 18px}.brand-wordmark{font-size:1.15rem}.brand-logo{margin-bottom:22px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
+<style>
+html[data-appearance=light]{color-scheme:light;--bg-dark:#fff;--bg-panel:#fff;--orange:#a85200;--blue-electric:#165965;--green:#165a30;--text-main:#172830;--text-muted:#405963}
+html[data-appearance=light] body{background:#e9eeee;color:#172830}
+html[data-appearance=light] .container{background:#fff;border-color:#a4b6bb;box-shadow:0 16px 50px #17363a18}
+html[data-appearance=light] .header{background:linear-gradient(145deg,#fff4df,#ecf4f3);border-color:#a4b6bb}
+html[data-appearance=light] .brand-wordmark small,html[data-appearance=light] .tagline{color:#405963}
+html[data-appearance=light] .game-eyebrow{border-color:#8ca5ac;color:#334f59;background:#fff9}
+html[data-appearance=light] .hero-road{color:#647c85}
+html[data-appearance=light] .reading-controls{background:#f2f6f6;border-color:#a4b6bb}
+html[data-appearance=light] .reading-buttons button{color:#172830;border-color:#78949e}
+html[data-appearance=light] .reading-buttons button[aria-pressed=true]{background:#183c47;color:#fff;border-color:#183c47}
+html[data-appearance=light] .preface{background:#fff5e5;border-color:#c2a174;border-left-color:#b06100}
+html[data-appearance=light] .preface p:first-child{color:#593600}
+html[data-appearance=light] .btn-primary{background:#ffad3c;color:#162128;box-shadow:0 4px 0 #b87a22}
+html[data-appearance=light] .btn-secondary{background:#f2f6f6;color:#172830;border-color:#78949e}
+html[data-appearance=light] .btn-secondary:hover{background:#e0eeee}
+html[data-appearance=light] .theme-btn,html[data-appearance=light] .gender-btn,html[data-appearance=light] .answer-btn{background:#fff;color:#172830;border-color:#78949e}
+html[data-appearance=light] .theme-btn[aria-pressed=true]{background:#fff1d9;border-color:#a85200}
+html[data-appearance=light] .theme-btn[aria-pressed=true] strong{color:#723b00}
+html[data-appearance=light] .gender-btn.selected{background:#183c47;color:#fff;border-color:#183c47}
+html[data-appearance=light] .answer-btn.selected{background:#d9f2df;color:#163e24;border-color:#327449}
+html[data-appearance=light] .answer-btn.wrong{background:#fff0f0;color:#8d2020;border-color:#bd4444}
+html[data-appearance=light] .status-bar{background:#edf5f5;border-color:#8ca5ac;color:#164d5a}
+html[data-appearance=light] select,html[data-appearance=light] textarea{background:#fff;color:#172830;border-color:#78949e}
+html[data-appearance=light] .consent-section{background:#f2f6f6;border-color:#a4b6bb}
+html[data-appearance=light] #result{background:linear-gradient(160deg,#f8f4e9,#eef6f4);border-color:#8ca59a}
+html[data-appearance=light] .result-emoji{color:#895000;background:#ffe5ac;border-color:#b78341}
+html[data-appearance=light] .result-kicker,html[data-appearance=light] .score-caption,html[data-appearance=light] #result .result-note{color:#405963}
+html[data-appearance=light] .result-score{color:#754300}
+html[data-appearance=light] #gift{background:#fffaf0;border-color:#b19669;color:#49361a}
+html[data-appearance=light] #errorBox{color:#8d3300}
+html[data-appearance=light] .game-footer{color:#405963;border-color:#a4b6bb}
+html[data-appearance=light] button:focus-visible,html[data-appearance=light] select:focus-visible,html[data-appearance=light] textarea:focus-visible,html[data-appearance=light] input:focus-visible,html[data-appearance=light] a:focus-visible{outline-color:#173c47}
+.appearance-controls{margin-bottom:12px}
+</style>
 </head>
 <body><main class="container">
 <header class="header"><div class="brand-logo" role="img" aria-label="JM Express Auto Dépannage"><svg class="brand-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="18" fill="#ffad3c"/><path d="M13 41h30l7-4v-9h-9l-5-8H25M14 34h22M19 27h11" stroke="#14242d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="43" r="5" fill="#14242d"/><circle cx="43" cy="43" r="5" fill="#14242d"/><path d="m43 29 5 5h-8v-5z" fill="#14242d"/></svg><div class="brand-wordmark">JM<span>EXPRESS</span><small>AUTO DÉPANNAGE</small></div></div><div class="game-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 6h10c3 0 6 14 2 14l-4-4H9l-4 4C1 20 4 6 7 6Z"/><path d="M6 10h6m-3-3v6m7-3h.1m2 3h.1" stroke-linecap="round"/></svg>LE JEU PASSAGER</div><h1 class="logo-text">Défi <span class="accent">JM</span></h1><p class="tagline">Ta voiture sur le plateau.<br>Ton sourire à bord !</p><svg class="hero-road" viewBox="0 0 110 16" fill="none" aria-hidden="true"><path d="M0 8h110" stroke="currentColor" stroke-width="2" stroke-dasharray="6 7"/><path d="m48 3 12 5-12 5z" fill="#ffad3c"/></svg></header>
+<nav class="reading-controls appearance-controls" aria-label="Affichage du jeu"><span>Confort de lecture</span><div class="reading-buttons"><button type="button" data-appearance="auto" aria-pressed="true">Automatique</button><button type="button" data-appearance="light" aria-pressed="false">Jour</button><button type="button" data-appearance="dark" aria-pressed="false">Nuit</button></div></nav>
 <nav class="reading-controls" aria-label="Taille du texte"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 19 5-14 5 14M6 14h6m4 5 3-9 3 9m-5-3h4" stroke-linecap="round"/></svg>Un texte à ta taille</span><div class="reading-buttons"><button type="button" data-reading="18" aria-pressed="true">Normal</button><button type="button" data-reading="22" aria-pressed="false">Grand</button><button type="button" data-reading="26" aria-pressed="false">Très grand</button></div></nav>
 <section id="welcome"><div class="preface"><p>Ton véhicule s’offre un chauffeur… et toi, une petite aventure !</p><p>3 questions pendant le trajet, 2 après la livraison. Pas d’interrogatoire : juste un moment sympa, sans obligation.</p></div><p>Chaque réponse vaut 20 points, quelle que soit ton opinion. Tu peux passer une question ou arrêter quand tu veux. Aucun avis public n’est demandé. Le dernier défi est lui aussi facultatif.</p><p>Jeu réservé aux passagers, jamais au conducteur en circulation.</p><fieldset id="themePicker" class="theme-picker"><legend>Choisis ton ambiance</legend><p>Quel thème te tente ? Tu peux passer chaque question. Ton choix et ton ressenti ne changent pas les points.</p><div role="group" aria-label="Thème des questions"><button type="button" class="theme-btn" data-theme="calm" aria-pressed="false"><strong>😮‍💨 Panne dehors, calme dedans</strong><span>Les premières inquiétudes et ce qui aide à souffler.</span></button><button type="button" class="theme-btn" data-theme="comedy" aria-pressed="false"><strong>😂 Ma voiture fait son cinéma</strong><span>Les caprices du véhicule, version comédie.</span></button><button type="button" class="theme-btn" data-theme="mind" aria-pressed="false"><strong>🧠 Mon cerveau en mode warning</strong><span>Les pensées qui s’invitent quand le moteur fait pause.</span></button><button type="button" class="theme-btn" data-theme="jm" aria-pressed="false"><strong>🚛 Dans les coulisses de JM</strong><span>Le chargement, le trajet et la remise au garage.</span></button><button type="button" class="theme-btn" data-theme="mixed" aria-pressed="true"><strong>🎲 Surprends-moi !</strong><span>Un mélange de questions pour varier les sourires.</span></button></div><p id="themeNotice" role="status"></p></fieldset><h3>Comment te présenter ? (facultatif)</h3><div class="gender-picker"><button data-gender="male" class="gender-btn">Homme</button><button data-gender="female" class="gender-btn">Femme</button><button data-gender="other" class="gender-btn">Non genré</button><button data-gender="" class="gender-btn selected">Passer</button></div><p id="rewardInfo"></p><button id="start" class="btn btn-primary full" disabled>C’est parti !</button></section>
 <section id="play" hidden><div class="status-bar"><span id="progress"></span><span id="points"></span></div><h2 id="playTheme" class="play-theme"></h2><div class="question-block"><div class="question-text" id="question"></div><div class="answers" id="answers"></div></div><button id="skip" class="btn btn-secondary full">Passer cette question</button></section>
@@ -54,6 +90,21 @@ buttons.forEach(function(b){b.addEventListener('click',function(){setSize(Number
 })();
 </script>
 
+<script>
+(function(){
+const buttons=Array.from(document.querySelectorAll('[data-appearance]'));
+const system=window.matchMedia('(prefers-color-scheme: dark)');
+let preference='auto';try{const saved=localStorage.getItem('jm-game-appearance');if(['auto','light','dark'].includes(saved))preference=saved;}catch(e){}
+function apply(){
+ document.documentElement.dataset.appearance=preference==='auto'?(system.matches?'dark':'light'):preference;
+ buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.appearance===preference)));
+}
+buttons.forEach(b=>b.addEventListener('click',()=>{preference=b.dataset.appearance;try{localStorage.setItem('jm-game-appearance',preference);}catch(e){}apply();}));
+if(system.addEventListener)system.addEventListener('change',apply);else if(system.addListener)system.addListener(apply);
+apply();
+})();
+</script>
 <script type="module" src="game-client.js"></script></body></html>
+
 
 
