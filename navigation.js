@@ -185,6 +185,31 @@
   if(!to&&from&&!base){$('addrTo').value=from;$('addrTo').dispatchEvent(new Event('input',{bubbles:true}));setOrigineVehicule('base');showToast('Adresse reprise comme lieu de dépose — départ depuis la base');}
  }
  $('type')?.addEventListener('change',()=>{if(isMateriel()&&!(typeof editingKey!=='undefined'&&editingKey)&&!$('addrFrom')?.value.trim()&&typeof setOrigineVehicule==='function')setOrigineVehicule('base');});
+ // v325 — Saisie non enregistrée retrouvée au démarrage : demander avant de la reprendre, pour qu'aucun trajet, attente ou frais d'une ancienne intervention n'entre dans une nouvelle.
+ (function brouillonAuDemarrage(){
+  const ATTENTE_MAX=30000;
+  const etatDraft=async()=>{try{return JSON.parse((await window.storage.get('formDraft')).value)||null;}catch(_){return null;}};
+  const contenuSignificatif=e=>!!e&&['addrFrom','addrTo','km','multiFrom2','multiTo2','multiTravailMode','multiWaitMinutes1','fraisMontant','multiReason'].some(k=>String(e[k]??'').trim()!==''&&String(e[k]??'')!=='0');
+  const run=async()=>{
+   const t0=Date.now();
+   while(Date.now()-t0<ATTENTE_MAX){
+    await new Promise(r=>setTimeout(r,400));
+    if(typeof editingKey!=='undefined'&&editingKey)return;
+    const e=await etatDraft(); if(!contenuSignificatif(e))return;
+    const restauree=currentTab==='tabNouveau'&&$('addrFrom')&&$('addrFrom').value===(e.addrFrom||'')&&$('type')&&$('type').value===(e.type||'');
+    if(!restauree)continue;
+    if(document.querySelector('.modal-bg.show'))continue;   // attendre que les autres fenêtres (code PIN, mise à jour…) soient fermées
+    const opt=[...($('type')?.options||[])].find(o=>o.value===e.type);
+    const service=opt?String(opt.textContent).replace(/^[^\p{L}\p{N}]+/u,'').trim():'';
+    const trajet=[e.addrFrom?'« '+String(e.addrFrom).slice(0,60)+' »':'',e.addrTo?'→ « '+String(e.addrTo).slice(0,60)+' »':''].filter(Boolean).join(' ');
+    const extra=[(e.multiFrom2||e.multiTo2)?'trajets supplémentaires':'',e.multiWaitMinutes1?'attente au dépôt':'',e.multiTravailMode?'prestation particulière':'',e.fraisMontant?'frais':''].filter(Boolean).join(', ');
+    const r=await ask({title:'Saisie non enregistrée retrouvée',text:'Cette saisie n’a pas été enregistrée'+(service?' ('+service+')':'')+(trajet?' : '+trajet:'')+(extra?'. Elle contient aussi : '+extra+'.':'.')+' Tu veux la reprendre, ou commencer une intervention vierge ?',buttons:[['reprendre','↩️ Reprendre cette saisie','ghost'],['vide','🧹 Nouvelle intervention vierge','primary']]});
+    if(r.key==='vide')await jmNouvelleInterventionVierge(true);
+    return;
+   }
+  };
+  if(document.readyState==='complete')setTimeout(run,800);else window.addEventListener('load',()=>setTimeout(run,800));
+ })();
  // Present the existing calculation; never alter its input or tariff result.
  const calculateWithReturn=calculerAvecRetour;
  calculerAvecRetour=async function(){
