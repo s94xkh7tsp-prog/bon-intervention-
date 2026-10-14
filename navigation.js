@@ -1,4 +1,4 @@
-/* v321 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
+/* v322 — Calcul visible et choix du retour accessible ; fonctions métier conservées. */
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);

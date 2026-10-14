@@ -1,14 +1,14 @@
 // v315 — fermeture des fenêtres lors du changement d’onglet.
-const CACHE_NAME = 'jm-express-bon-v321';
+const CACHE_NAME = 'jm-express-bon-v322';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
   './',
   './index.html',
   './manifest.json',
-  './fuel-receipts.js?v=321',
-  './navigation.js?v=321',
-  './operations.js?v=321'
+  './fuel-receipts.js?v=322',
+  './navigation.js?v=322',
+  './operations.js?v=322'
 ];
 
 // Un visuel ou une icône manquante ne doit jamais empêcher une mise à jour.
