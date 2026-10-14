@@ -39,7 +39,8 @@
  }
  // v321 — diagnostic : aucune mesure de distance ne peut bloquer le calcul, et un calcul sans résultat est toujours expliqué.
  const toastLog=[];
- if(typeof showToast==='function'){const _t=showToast;showToast=function(msg){toastLog.push(String(msg));if(toastLog.length>6)toastLog.shift();return _t.apply(this,arguments);};}
+ if(typeof showToast==='function'){const st=document.createElement('style');st.textContent='.toast{bottom:calc(env(safe-area-inset-bottom,0px) + 215px)!important;z-index:13700!important;max-width:calc(100vw - 32px);text-align:center;line-height:1.35}';document.head.append(st);
+  showToast=function(msg){toastLog.push(String(msg));if(toastLog.length>6)toastLog.shift();const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(window.__jmToastT);window.__jmToastT=setTimeout(()=>t.classList.remove('show'),Math.min(6500,2200+String(msg).length*45));};}
  if(typeof rvMesurer==='function'){const _rv=rvMesurer;rvMesurer=function(ctx,forcer){const p=_rv.apply(this,arguments);if(!p||typeof p.then!=='function')return p;
   return Promise.race([p,new Promise(res=>setTimeout(()=>{if(ctx?.mesure?.enCours){ctx.mesure.enCours=null;try{rvFallback(ctx,'mesure trop longue');}catch(_){}}res();},15000))]);};}
  function showCalculationFailure(reason){
@@ -122,12 +123,80 @@
  (()=>{const tab=$('tabNouveau');if(!tab||$('jmBtnVierge'))return;const b=document.createElement('button');b.type='button';b.id='jmBtnVierge';b.className='ghost';b.textContent='🧹 Nouvelle intervention vierge';b.style.cssText='width:100%;min-height:46px;margin:6px 0 12px';
   b.onclick=async()=>{if(formDirty()&&!confirm('Vider tout le formulaire (adresses, options, garages, frais…) ?'))return;await jmNouvelleInterventionVierge();window.scrollTo({top:0,behavior:'smooth'});};
   const prog=$('jmProgression');(prog&&prog.parentNode===tab)?prog.after(b):tab.prepend(b);})();
+ // v324 — Distance automatique : toujours une réaction visible, une aide si une adresse manque, un secours si le service de cartes est lent.
+ let geoRun=null,inAuto=false,lastRun=null,skipKmWarning=false;
+ if(typeof mesurerDistanceRoutiere==='function'){const _m=mesurerDistanceRoutiere;mesurerDistanceRoutiere=async function(){try{const km=await _m.apply(this,arguments);if(geoRun&&geoRun.ok===undefined)geoRun.ok=true;return km;}catch(e){if(geoRun&&geoRun.ok===undefined){geoRun.ok=false;geoRun.error=e;}throw e;}};}
+ (()=>{const f=window.fetch;if(typeof f!=='function')return;const P='https://router.project-osrm.org/route/v1/driving/';
+  window.fetch=function(input,init){const url=typeof input==='string'?input:(input&&input.url)||'';if(!url.startsWith(P)||(init&&init.signal))return f.apply(window,arguments);
+   const alt=()=>f.call(window,'https://routing.openstreetmap.de/routed-car/route/v1/driving/'+url.slice(P.length),init);
+   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
+   return f.call(window,url,{...(init||{}),signal:ctl.signal}).then(r=>{clearTimeout(timer);return r.ok?r:alt();}).catch(()=>{clearTimeout(timer);return alt();});};})();
+ function banner(on,text){let b=$('jmMesureBanner');if(!on){b?.remove();return;}if(!b){b=document.createElement('div');b.id='jmMesureBanner';b.setAttribute('role','status');b.style.cssText='position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:13600;background:#162129;color:#fff;border:1px solid #ff9500;border-radius:14px;padding:14px 16px;font-weight:700;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.45)';document.body.append(b);}b.textContent=text;}
+ function addrNeeds(){const need=[];if(!$('type')?.value)return need;const sp=onSite();
+  if(!$('addrFrom')?.value.trim())need.push(['addrFrom','Adresse d’intervention (où est le véhicule)']);
+  if(!sp&&!$('addrTo')?.value.trim())need.push(['addrTo','Adresse de dépose (garage / lieu)']);return need;}
+ function explain(run){
+  if(run.error?.lieu)return {kind:'lieu'};
+  const need=addrNeeds();if(need.length)return {kind:'manque',need,text:'Il manque '+need.map(n=>n[1].toLowerCase()).join(' et ')+' pour mesurer la distance automatiquement.'};
+  if(!navigator.onLine)return {kind:'erreur',text:'Pas de connexion Internet : la distance ne peut pas être mesurée. Saisis les km à la main.'};
+  const m=String(run.error?.message||'');let text;
+  if(/^Adresse introuvable : /.test(m))text='Adresse introuvable : « '+m.replace('Adresse introuvable : ','')+' ». Ajoute la commune ou le code postal (ex. « Rue X 12, La Louvière 7100 »).';
+  else if(/Itinéraire introuvable/.test(m))text='Aucun itinéraire routier trouvé entre ces adresses. Vérifie-les ou saisis les km à la main.';
+  else if(/Failed to fetch|Load failed|NetworkError|TypeError|abort/i.test(m))text='Le service de cartes ne répond pas (connexion faible ou serveur saturé). Réessaie dans un instant ou saisis les km à la main.';
+  else text=m||(toastLog.filter(t=>!/^Calcul de la distance/.test(t)).pop())||'La distance n’a pas pu être mesurée.';
+  return {kind:'erreur',text};
+ }
+ function ask({title,text,fields=[],detail,buttons}){return new Promise(resolve=>{$('jmDistModal')?.remove();
+  const bg=document.createElement('div');bg.id='jmDistModal';bg.className='modal-bg show';bg.setAttribute('role','dialog');bg.setAttribute('aria-modal','true');bg.style.zIndex='13650';
+  const panel=document.createElement('div');panel.className='modal';const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=text;panel.append(h,p);
+  const inputs={};for(const [id,label,val] of fields){const l=document.createElement('label');l.textContent=label;l.style.cssText='display:block;margin:12px 0 4px;font-size:13px;opacity:.85';const i=document.createElement('textarea');i.rows=2;i.value=val||'';i.className='addr-input';i.style.cssText='width:100%;font-size:16px';inputs[id]=i;panel.append(l,i);}
+  if(detail){const d=document.createElement('pre');d.textContent=detail;d.style.cssText='white-space:pre-wrap;font-size:11px;opacity:.7;margin-top:12px';panel.append(d);}
+  let first=null;for(const [key,label,cls] of buttons){const b=document.createElement('button');b.type='button';b.className=cls||'ghost';b.textContent=label;b.style.cssText='width:100%;min-height:50px;margin-top:10px';b.onclick=()=>{const values={};for(const k in inputs)values[k]=inputs[k].value.trim();bg.remove();resolve({key,values});};panel.append(b);first=first||b;}
+  bg.append(panel);document.body.append(bg);(Object.values(inputs)[0]||first)?.focus();});}
+ async function measureOnce(){inAuto=true;try{await calculerDistance();}finally{inAuto=false;}return lastRun||{ok:false,error:null};}
+ async function handleFailure(run,{allowGo}){
+  for(let round=0;round<4;round++){
+   const ex=explain(run);if(ex.kind==='lieu')return 'stop';
+   const buttons=[['retry',ex.kind==='manque'?'📍 Mesurer la distance':'🔄 Réessayer','primary'],['manual','✏️ Saisir les km à la main','ghost']];
+   if(allowGo)buttons.push(['go','Calculer quand même avec 0 km','ghost']);buttons.push(['close','Fermer','ghost']);
+   const r=await ask({title:'Distance non calculée',text:ex.text,fields:(ex.need||[]).map(([id,label])=>[id,label,$(id)?.value||'']),detail:ex.kind==='erreur'&&typeof jmGeoJournal==='function'?jmGeoJournal():'',buttons});
+   if(r.key==='manual'){const k=$('km');k?.scrollIntoView({behavior:'smooth',block:'center'});k?.focus({preventScroll:true});return 'stop';}
+   if(r.key==='go')return 'go';if(r.key==='close')return 'stop';
+   for(const id in r.values){const el=$(id);if(el&&r.values[id]&&el.value.trim()!==r.values[id]){el.value=r.values[id];el.dispatchEvent(new Event('input',{bubbles:true}));}}
+   run=await measureOnce();if(run.ok===true)return 'ok';
+  }
+  return 'stop';
+ }
+ if(typeof calculerDistance==='function'){const _cd=calculerDistance;
+  calculerDistance=async function(){
+   if(!inAuto)materielNormaliser();
+   const run={ok:undefined,error:null};geoRun=run;const auto=inAuto;if(!auto)banner(true,'📍 Mesure de la distance…');else banner(true,'📍 Mesure de la distance…');
+   try{await _cd.apply(this,arguments);}catch(e){if(run.ok===undefined){run.ok=false;run.error=e;}}
+   finally{banner(false);}
+   lastRun=run;
+   if(!auto&&run.ok!==true&&!(typeof jmTravailLire==='function'&&jmTravailLire('multi').travailParticulier.mode==='inacheve'))await handleFailure(run,{allowGo:false});
+  };}
+ // v324 — Dépôt de longerons / matériel à une adresse précise : une seule adresse à indiquer (le lieu de dépose), départ = la base, aucune autre question.
+ const isMateriel=()=>$('type')?.value==='transport_materiel';
+ function materielNormaliser(){
+  if(!isMateriel()||(typeof editingKey!=='undefined'&&editingKey))return;
+  const from=$('addrFrom')?.value.trim(),to=$('addrTo')?.value.trim();
+  const base=typeof ORIGINE_VEHICULE!=='undefined'&&ORIGINE_VEHICULE==='base';
+  if(!to&&from&&!base){$('addrTo').value=from;$('addrTo').dispatchEvent(new Event('input',{bubbles:true}));setOrigineVehicule('base');showToast('Adresse reprise comme lieu de dépose — départ depuis la base');}
+ }
+ $('type')?.addEventListener('change',()=>{if(isMateriel()&&!(typeof editingKey!=='undefined'&&editingKey)&&!$('addrFrom')?.value.trim()&&typeof setOrigineVehicule==='function')setOrigineVehicule('base');});
  // Present the existing calculation; never alter its input or tariff result.
  const calculateWithReturn=calculerAvecRetour;
  calculerAvecRetour=async function(){
   document.body.classList.remove('jm-calculation-result');
   try{
-   const warnings=calculationWarnings();
+   skipKmWarning=false;
+   if(!inAuto)materielNormaliser();
+   if(!inAuto&&$('km')&&$('km').value.trim()===''&&!(typeof jmTravailLire==='function'&&jmTravailLire('multi').travailParticulier.mode==='inacheve')){
+    const run=await measureOnce();
+    if(run.ok!==true){const c=await handleFailure(run,{allowGo:true});if(c==='stop')return;skipKmWarning=c==='go';}
+   }
+   const warnings=calculationWarnings().filter(w=>!(skipKmWarning&&w.id==='km'));
    if(warnings.length && !await confirmCalculation(warnings))return;
    const result=await calculateWithReturn.apply(this,arguments);
    const ticket=$('ticket'),total=$('tkTotal');
