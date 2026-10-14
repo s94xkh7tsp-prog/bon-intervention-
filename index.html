@@ -9094,7 +9094,12 @@ const RV_CTX = {
 };
 const rvEl = (ctx, k) => document.getElementById(ctx[k]);
 function rvActif(ctx){ const t = rvEl(ctx,'toggle'); return !!(t && t.classList.contains('on')); }
-function rvLireTo(ctx){ const e = rvEl(ctx,'to'); let v = e ? (e.value || '').trim() : ''; const p=ctx.nom==='devis'?'qqMulti':'multi';const a=jmMultiLire(p).remorquagesSupplementaires;if(a.length)v=a[a.length-1].to||'';return (v && v !== '—') ? v : ''; }
+// v320 : prestations faites sur place (pas de dépose) — le retour part de l'adresse d'intervention.
+const TYPES_SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+function rvSurPlace(ctx){ const t = rvEl(ctx,'type'); return !!(t && TYPES_SUR_PLACE.includes(t.value)); }
+function rvLireTo(ctx){ const e = rvEl(ctx,'to'); let v = e ? (e.value || '').trim() : ''; const p=ctx.nom==='devis'?'qqMulti':'multi';const a=jmMultiLire(p).remorquagesSupplementaires;if(a.length)v=a[a.length-1].to||'';
+  if((!v || v === '—') && rvSurPlace(ctx)){ const f = document.getElementById(ctx.nom==='devis'?'qqFrom':'addrFrom'); v = f ? (f.value || '').trim() : ''; }
+  return (v && v !== '—') ? v : ''; }
 function rvCle(ctx){ return cleAdresses('', rvLireTo(ctx), BASE_ADDRESS); }
 function rvKmAller(ctx){ const e = rvEl(ctx,'km'); return e ? (parseFloat(e.value) || 0) : 0; }
 function rvTauxKm(ctx){
@@ -9141,7 +9146,7 @@ async function rvMesurer(ctx, forcer){
   if(!to){
     ctx.mesure = {km: null, verifie: false, cle: null, enCours: null, manuel: ctx.mesure.manuel};
     if(!ctx.mesure.manuel || !champ.value){ champ.value = rvKmAller(ctx) || ''; }
-    if(etat) etat.innerHTML = '<span style="color:var(--orange); font-weight:600;">⚠️ Adresse de dépose manquante</span> — impossible de mesurer le retour vers la base. Valeur provisoire = distance aller (' + fmtKm(champ.value) + ' km), modifiable.';
+    if(etat) etat.innerHTML = '<span style="color:var(--orange); font-weight:600;">⚠️ ' + (rvSurPlace(ctx) ? 'Adresse d\'intervention manquante' : 'Adresse de dépose manquante') + '</span> — impossible de mesurer le retour vers la base. Valeur provisoire = distance aller (' + fmtKm(champ.value) + ' km), modifiable.';
     rvMajAlerteDoubleRetour(ctx);
     return;
   }
@@ -9316,6 +9321,7 @@ function ldSeuil(){
 function ldProposer(ctx, calc){
   if(!calc || ctx.ldChoixFait) return false;
   if(calc.formuleA) return false;   // v225 : pas de tarif retour séparé en Formule A
+  if(calc.estRemorquage === false) return false; // v320 : prestation sur place au tarif déplacement — aucun choix à proposer
   if(!calc.retour || !(calc.kmRetourFacture > ldSeuil())) return false;
   return (typeof RATES.km_retour_longue_distance === 'number') && RATES.km_retour_longue_distance > 0;
 }
@@ -9516,7 +9522,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v319';
+const APP_VERSION = 'jm-express-bon-v320';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -23089,8 +23095,8 @@ async function jmClientChoisirContact(){
 <p class="km-mention">Les scans restent sur ce téléphone : ils ne sont pas synchronisés et ne sont pas inclus dans la sauvegarde habituelle. Exporte le dossier ZIP et conserve-le dans Fichiers / iCloud Drive. Il contient le relevé CSV et les tickets originaux ; les factures clients s’exportent depuis Historique.</p>
 <button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
 </div></div>
-<script src="fuel-receipts.js?v=319"></script>
-<script src="operations.js?v=319"></script>
-<script src="navigation.js?v=319"></script>
+<script src="fuel-receipts.js?v=320"></script>
+<script src="operations.js?v=320"></script>
+<script src="navigation.js?v=320"></script>
 </body>
 </html>
