@@ -17,24 +17,34 @@ async function jmDefiOuvrir(key){
  const ctx={box,select,key:chosen,session:null};JM_DEFI_CTX=ctx;
  ctx.message=jmDefiElt('p','Chargement des interventions…',box);ctx.message.setAttribute('role','status');
  const capLabel=jmDefiElt('label','Remise maximale proposée (€) — 0 pour désactiver',box);const cap=jmDefiElt('input',null,box);cap.type='number';cap.min='0';cap.max='100';cap.step='1';cap.value=localStorage.getItem('jm_defi-cap')||'0';ctx.cap=cap;
- jmDefiBouton('Créer / retrouver le QR du client',async c=>{c.key=c.select.value;if(!c.key)throw Error('Enregistre d’abord ton intervention pour lui associer une partie.');const max=Number(c.cap.value);if(!Number.isFinite(max)||max<0||max>100)throw Error('Choisis un montant de 0 à 100 €.');const j=await jmDefiApi('create',{interventionKey:c.key,maxDiscount:max});if(JM_DEFI_CTX!==c)return;localStorage.setItem('jm_defi-cap',String(max));c.session=j.session;await jmDefiAfficher(c);jmDefiPlanifier(c);},box);
+ jmDefiBouton('Créer / retrouver le QR du client',async c=>{c.demo=false;c.key=c.select.value;if(!c.key)throw Error('Enregistre d’abord ton intervention pour lui associer une partie.');const max=Number(c.cap.value);if(!Number.isFinite(max)||max<0||max>100)throw Error('Choisis un montant de 0 à 100 €.');const j=await jmDefiApi('create',{interventionKey:c.key,maxDiscount:max});if(JM_DEFI_CTX!==c)return;localStorage.setItem('jm_defi-cap',String(max));c.session=j.session;await jmDefiAfficher(c);jmDefiPlanifier(c);},box);
+ ctx.testButton=jmDefiBouton('Tester le jeu sans intervention',async c=>{
+  c.demo=true;c.key='jm-defi-test:'+crypto.randomUUID();c.cap.value='0';
+  const created=await jmDefiApi('create',{interventionKey:c.key,maxDiscount:0});
+  if(JM_DEFI_CTX!==c)return;c.session=created.session;
+  const unlocked=await jmDefiApi('unlock',{sessionId:c.session.session_id,interventionKey:c.key,delivered:true});
+  if(JM_DEFI_CTX!==c)return;c.session=unlocked.session;
+  await jmDefiAfficher(c);jmDefiPlanifier(c);
+ },box);
+ jmDefiElt('p','Pour essayer avec ton numéro personnel : crée un test, puis partage le lien par SMS ou WhatsApp à toi-même. Aucune intervention ni facture ne sera créée.',box);
  ctx.content=jmDefiElt('div',null,box);jmDefiBouton('Fermer',()=>jmDefiFermer(),box);
- select.onchange=()=>{clearTimeout(JM_DEFI_TIMER);ctx.key=select.value;ctx.session=null;ctx.content.replaceChildren();ctx.message.textContent='';};
+ select.onchange=()=>{clearTimeout(JM_DEFI_TIMER);ctx.key=select.value;ctx.demo=false;ctx.session=null;ctx.content.replaceChildren();ctx.message.textContent='';};
  try{const keys=(await window.storage.list('intervention:')).keys||[];const entries=await Promise.all(keys.map(async k=>{try{return {key:k,d:JSON.parse((await window.storage.get(k)).value)}}catch{return null}}));if(JM_DEFI_CTX!==ctx)return;for(const e of entries.filter(Boolean).sort((a,b)=>String(b.d.date||'').localeCompare(String(a.d.date||'')))){const option=jmDefiElt('option',(e.d.numero?'Bon '+e.d.numero+' — ':'')+(e.d.plaque||e.d.clientNom||e.d.from||'Intervention'),select);option.value=e.key;}if(chosen&&keys.includes(chosen))select.value=chosen;ctx.key=select.value;ctx.message.textContent=keys.length?'Choisis le bon concerné, puis crée ou retrouve sa partie.':'Aucune intervention enregistrée. Enregistre ton bon, puis ouvre le Défi JM.';}catch{ctx.message.textContent='Impossible de lire les interventions.';}
 }
 function jmDefiLien(s){const url=new URL('game.html',location.href);url.search='';url.hash=new URLSearchParams({s:s.session_id,api:SYNC.url.replace(/\/$/,'')}).toString();return url.href;}
 async function jmDefiAfficher(ctx){
  if(JM_DEFI_CTX!==ctx)return;ctx.content.replaceChildren();const s=ctx.session;ctx.cap.disabled=true;ctx.select.disabled=true;
  if(s.theme_title)jmDefiElt('p','Thème choisi : '+s.theme_title,ctx.content);
- ctx.message.textContent='Session valable jusqu’au '+new Date(s.expires_at).toLocaleString('fr-BE');
+ ctx.message.textContent=(ctx.demo?'TEST PERSONNEL — aucune intervention ni facture. ':'')+'Session valable jusqu’au '+new Date(s.expires_at).toLocaleString('fr-BE');
  if(!s.completed){
   const lien=jmDefiLien(s),qr=makeQrMatrix(lien),size=qr.getModuleCount(),scale=5,canvas=jmDefiElt('canvas',null,ctx.content);canvas.width=canvas.height=(size+8)*scale;canvas.style.cssText='display:block;width:min(100%,280px);height:auto;margin:16px auto;background:white';const g=canvas.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,canvas.width,canvas.height);g.fillStyle='#000';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(qr.isDark(r,c))g.fillRect((c+4)*scale,(r+4)*scale,scale,scale);
   const input=jmDefiElt('input',null,ctx.content);input.value=lien;input.readOnly=true;input.setAttribute('aria-label','Lien du jeu client');
+  const ouvrir=jmDefiElt('a',ctx.demo?'Ouvrir le jeu pour mon test':'Ouvrir le jeu client',ctx.content);ouvrir.href=lien;ouvrir.target='_blank';ouvrir.rel='noopener';ouvrir.className='ghost';ouvrir.style.cssText='display:block;text-align:center;margin:12px 0';
   jmDefiBouton('Copier le lien',async()=>{await navigator.clipboard.writeText(lien);showToast('Lien du jeu copié');},ctx.content);
   jmDefiBouton('Partager le lien',async()=>{if(navigator.share)await navigator.share({title:'Défi JM',text:'Le petit jeu de ton trajet avec JM Express',url:lien});else{input.select();showToast('Copie le lien affiché');}},ctx.content);
   jmDefiElt('p',s.answers.length+'/5 réponses — '+s.total_points+' points',ctx.content);
   if(s.unlocked<5)jmDefiBouton('📦 Véhicule déchargé : ouvrir les 2 dernières questions',async c=>{const j=await jmDefiApi('unlock',{sessionId:s.session_id,interventionKey:c.key,delivered:true});if(JM_DEFI_CTX!==c)return;c.session=j.session;await jmDefiAfficher(c);},ctx.content);
-  else jmDefiElt('p','Livraison confirmée pour le jeu. Le client peut répondre aux deux dernières questions.',ctx.content);
+  else jmDefiElt('p',ctx.demo?'Test : les cinq questions sont accessibles.':'Livraison confirmée pour le jeu. Le client peut répondre aux deux dernières questions.',ctx.content);
   jmDefiBouton('Actualiser le résultat',c=>jmDefiActualiser(c),ctx.content);
  }else{
   const r=s.result;jmDefiElt('h3','🏆 Résultat : '+r.score+'/100',ctx.content);
@@ -43,8 +53,8 @@ async function jmDefiAfficher(ctx){
   if(r.last_challenge){const challenge=r.last_challenge,labels={none:'Passé',selfie:'Selfie avec le dépanneur',video:'Dédicace filmée',facebook_referral:'Parrainage de la page Facebook'};jmDefiElt('p','Dernier défi : '+(labels[challenge.choice]||'Choix inconnu')+(challenge.choice==='none'?'':' — proposé, à organiser avec le client.'),ctx.content);jmDefiElt('p','Accord photo / vidéo : '+(challenge.capture_consent?'oui':'non')+'. Publication de ce défi sur Facebook : '+(challenge.publication_consent?'autorisée':'non autorisée')+'.',ctx.content);}
   jmDefiElt('p','Accord pour filmer : '+(r.film_consent?'oui':'non')+'. Publication : '+(r.publication_consent?Object.keys(r.platforms).filter(k=>r.platforms[k]).join(', '):'non')+'.',ctx.content);
   const detail=jmDefiElt('details',null,ctx.content);jmDefiElt('summary','Voir les 5 réponses du client',detail);for(const a of s.answers||[]){const q=s.questions?.[a.questionNum];if(q){jmDefiElt('p',(a.questionNum+1)+'. '+q.text,detail);jmDefiElt('p',a.skipped?'Question passée':q.answers[a.answerIndex]||'Réponse indisponible',detail);}}
-  await jmDefiSauverResultat(ctx.key,s);
-  jmDefiElt('p','Résultat conservé avec ce bon. Aucun montant de facture n’a été changé.',ctx.content);
+  if(ctx.demo)jmDefiElt('p','Résultat du test uniquement. Aucun bon, facture ou cadeau réel n’a été enregistré.',ctx.content);
+  else{await jmDefiSauverResultat(ctx.key,s);jmDefiElt('p','Résultat conservé avec ce bon. Aucun montant de facture n’a été changé.',ctx.content);}
  }
 }
 async function jmDefiSauverResultat(key,s){const raw=await window.storage.get(key);if(!raw?.value)throw Error('Bon introuvable : résultat toujours disponible sur le serveur.');const d=JSON.parse(raw.value);const value={session_id:s.session_id,result:s.result};if(s.theme_title){value.theme=s.theme;value.theme_title=s.theme_title;value.answers=s.answers;value.questions=s.questions;}if(JSON.stringify(d.defiJM)===JSON.stringify(value))return;d.defiJM=value;await window.storage.set(key,JSON.stringify(d));}
@@ -87,5 +97,6 @@ if(typeof syncMajEcranReglages==='function'){
  const jmDefiAncienSyncEcran=syncMajEcranReglages;
  syncMajEcranReglages=function(){const r=jmDefiAncienSyncEcran.apply(this,arguments);jmDefiServeurAfficher();return r;};
 }
+
 
 

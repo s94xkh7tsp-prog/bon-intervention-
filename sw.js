@@ -1,14 +1,14 @@
 // v315 — fermeture des fenêtres lors du changement d’onglet.
-const CACHE_NAME = 'jm-express-bon-v325';
+const CACHE_NAME = 'jm-express-bon-v326';
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
 const APP_SHELL_REQUIRED = [
   './',
   './index.html',
   './manifest.json',
-  './fuel-receipts.js?v=325',
-  './navigation.js?v=325',
-  './operations.js?v=325'
+  './fuel-receipts.js?v=326',
+  './navigation.js?v=326',
+  './operations.js?v=326'
 ];
 
 // Un visuel ou une icône manquante ne doit jamais empêcher une mise à jour.
@@ -17,7 +17,7 @@ const APP_SHELL_OPTIONAL = [
   './icon-512.png',
   './apple-touch-icon.png',
   './services-hero.png',
-  './game-driver.js',
+  './game-driver.js?v=326',
   './game.html',
   './game-client.js',
   './game-questions.js'
@@ -133,3 +133,4 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
