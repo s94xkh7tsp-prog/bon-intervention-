@@ -9516,7 +9516,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v318';
+const APP_VERSION = 'jm-express-bon-v319';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -23089,8 +23089,8 @@ async function jmClientChoisirContact(){
 <p class="km-mention">Les scans restent sur ce téléphone : ils ne sont pas synchronisés et ne sont pas inclus dans la sauvegarde habituelle. Exporte le dossier ZIP et conserve-le dans Fichiers / iCloud Drive. Il contient le relevé CSV et les tickets originaux ; les factures clients s’exportent depuis Historique.</p>
 <button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
 </div></div>
-<script src="fuel-receipts.js"></script>
-<script src="operations.js"></script>
-<script src="navigation.js"></script>
+<script src="fuel-receipts.js?v=319"></script>
+<script src="operations.js?v=319"></script>
+<script src="navigation.js?v=319"></script>
 </body>
 </html>
