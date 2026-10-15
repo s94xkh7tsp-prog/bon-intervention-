@@ -10998,6 +10998,7 @@ function openQuickQuote(){
   const sel = document.getElementById('qqType');
   if(sel.options.length === 0){
     sel.innerHTML = document.getElementById('type').innerHTML;
+    qqGrouperCT(sel);
   }
   document.getElementById('qqNightHoursLabel').textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
   document.getElementById('modalQuickQuoteBg').classList.add('show');
@@ -11007,6 +11008,23 @@ function openQuickQuote(){
   qqSurTypeChange();
   document.getElementById('qqResult').textContent = '—';
   document.getElementById('qqDetail').innerHTML = '';
+}
+// Devis rapide : contrôle technique rangé sous deux rubriques distinctes.
+// Les valeurs des options ne changent pas (ct_passage, ct_repassage, ct_accidente).
+function qqGrouperCT(sel){
+  const trouver = v => [...sel.options].find(o => o.value === v && !o.dataset.vehicleType);
+  const passage = trouver('ct_passage'), repassage = trouver('ct_repassage'), accidente = trouver('ct_accidente');
+  if(!accidente) return;
+  const apres = accidente.nextElementSibling;
+  const normal = document.createElement('optgroup');
+  normal.label = 'Contrôle technique normal';
+  const accGroupe = document.createElement('optgroup');
+  accGroupe.label = 'Passage contrôle technique pour véhicule accidenté';
+  if(passage) normal.appendChild(passage);
+  if(repassage) normal.appendChild(repassage);
+  accGroupe.appendChild(accidente);
+  sel.insertBefore(normal, apres);
+  sel.insertBefore(accGroupe, apres);
 }
 function closeQuickQuote(){ document.getElementById('modalQuickQuoteBg').classList.remove('show'); }
 
