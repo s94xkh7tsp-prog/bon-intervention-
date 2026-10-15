@@ -17,7 +17,7 @@ const APP_SHELL_OPTIONAL = [
   './icon-512.png',
   './apple-touch-icon.png',
   './services-hero.png',
-  './game-driver.js?v=326',
+  './game-driver.js',
   './game.html',
   './game-client.js',
   './game-questions.js'
@@ -133,4 +133,3 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
-

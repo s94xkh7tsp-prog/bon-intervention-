@@ -296,7 +296,6 @@
   quickPending=button('En cours / à faire','wrench','Retrouver les missions à poursuivre',closeThen(()=>openFeuilleDeRoute()),q,'en-cours');
   const move=(name,parent,newName)=>{const b=mapped.get(name);if(!b){console.warn('[JM Menu] Élément attendu absent : '+name);return;}if(newName)b.querySelector('.menu-lbl').textContent=newName;const fn=b.onclick;b.onclick=()=>{closeMenu();fn?.call(b);};parent.append(b);mapped.delete(name);};
   move('rdv',q);quickUnpaid=button('Impayés','money','Consulter les paiements en attente',closeThen(()=>ouvrirImpayes()),q,'impayes');move('clients',q);move('passee',q,'Encoder une intervention passée');
-  button('Défi JM — jeu client','game','Créer le QR ou tester sur ton téléphone',closeThen(()=>jmDefiOuvrir()),q,'defi-jm');
   const docs=section('Documents & paiements',root);button('Historique & factures','document','Bons, factures et exports',closeThen(()=>showTab('tabHistorique')),docs,'historique');button('Devis','document','Préparer une estimation',closeThen(()=>openQuickQuote()),docs,'devis');['paiement','bdc','avis'].forEach(n=>move(n,docs));
   const compta=section('Comptabilité & gestion',root);button('Tickets carburant','fuel','Joindre les scans et exporter les frais',closeThen(()=>jmFuelOpen()),compta,'tickets');button('Dossier trimestriel','box','Factures, frais et justificatifs',closeThen(()=>jmComptaOuvrir()),compta,'comptabilite');['gestion','frais','plein'].forEach(n=>move(n,compta));
   const terrain=section('Véhicules & terrain',root);button('Actions terrain','truck','GPS, client, photos et étapes',closeThen(()=>jmTerrainOuvrir()),terrain,'terrain');['trajets','rachat','depot','estimation'].forEach(n=>move(n,terrain));
@@ -360,4 +359,3 @@
  function init(){buildMenu();buildTabs();buildTerrain();document.querySelectorAll('button').forEach(b=>{if(b.textContent.trim()==='🎮 Défi JM — proposer / retrouver une partie')b.remove();});document.querySelectorAll('.gb-txt').forEach(e=>{if(e.textContent==='Passée')e.textContent='Intervention passée';});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('jmTerrainBg').classList.contains('show'))closeTerrain();});}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
-

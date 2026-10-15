@@ -1643,6 +1643,18 @@ body.sur-accueil .accueil-grid .gros-bouton:nth-child(6)::after{background:var(-
 
 /* Devis — violet */
 #modalQuickQuoteBg .modal{border:1px solid rgba(168,77,255,.58);box-shadow:0 22px 58px rgba(72,35,120,.22)}
+/* v326 — borner le devis à l'espace restant entre la zone sûre et la navigation. */
+#modalQuickQuoteBg{
+  box-sizing:border-box;height:100vh;height:100dvh;
+  align-items:flex-start;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 0 calc(100px + env(safe-area-inset-bottom,0px))!important;
+  overflow:hidden;
+}
+#modalQuickQuoteBg > .modal{
+  box-sizing:border-box;min-height:0;max-height:100%;flex:0 1 auto;
+  overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;
+  border-radius:22px;scroll-behavior:auto;
+}
 #modalQuickQuoteBg .modal::before{content:"";display:block;height:3px;margin:-20px -20px 16px;background:linear-gradient(90deg,var(--jm-purple),var(--jm-magenta),var(--orange))}
 #modalQuickQuoteBg .primary{background:linear-gradient(135deg,#8E35F3,var(--jm-purple));border-color:#C77BFF;box-shadow:0 9px 24px rgba(168,77,255,.25)}
 #modalQuickQuoteBg select:focus,#modalQuickQuoteBg input:focus{border-color:var(--jm-purple);box-shadow:0 0 0 3px rgba(168,77,255,.14)}
@@ -10989,6 +11001,7 @@ function openQuickQuote(){
   }
   document.getElementById('qqNightHoursLabel').textContent = formatHourShort(NIGHT_START) + '-' + formatHourShort(NIGHT_END);
   document.getElementById('modalQuickQuoteBg').classList.add('show');
+  document.querySelector('#modalQuickQuoteBg > .modal').scrollTop = 0;
   setQqVehicleType('normale');
   qqRemplirExtras();
   qqSurTypeChange();
@@ -23089,7 +23102,7 @@ async function jmClientChoisirContact(){
 }
 
 </script>
-<script src="game-driver.js?v=326"></script>
+<script src="game-driver.js"></script>
 
 <input id="fuelFile" type="file" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,.heic,.heif" style="display:none">
 <div class="modal-bg" id="fuelArchive"><div class="modal">
@@ -23108,4 +23121,3 @@ async function jmClientChoisirContact(){
 <script src="navigation.js?v=326"></script>
 </body>
 </html>
-
