@@ -15,7 +15,8 @@
 <title>JM Express — Bon d'intervention</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
     /* Palette JOUR JM Express : gris très clair, cartes blanches, contour acier clair, orange signature */
@@ -2656,6 +2657,17 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <option value="Parking P2 (Aéroport de Charleroi)">
       <option value="Parking P3 (Aéroport de Charleroi)">
       <option value="Parking P4 (Aéroport de Charleroi)">
+      <option value="AIBV Gosselies (Wallonie)">
+      <option value="AIBV Montignies-sur-Sambre (Wallonie)">
+      <option value="AIBV La Louvière (Wallonie)">
+      <option value="AIBV Braine-le-Comte (Wallonie)">
+      <option value="AIBV Fleurus (Wallonie)">
+      <option value="AIBV Mariembourg (Wallonie)">
+      <option value="AIBV Asse-Mollem (Flandre)">
+      <option value="AIBV Halle (Flandre)">
+      <option value="AIBV Zemst (Flandre)">
+      <option value="AIBV Londerzeel (Flandre)">
+      <option value="AIBV Zellik (Flandre)">
       <option value="Parking P5 (Aéroport de Charleroi)">
       <option value="Aéroport de Bruxelles-National (Zaventem)">
       <option value="Kiss and Ride (Brussels Airport Zaventem)">
@@ -17887,8 +17899,9 @@ document.addEventListener('focusout', (e) => {
     const reste = Math.max(0, 600 - (Date.now() - debut));
     setTimeout(cacher, reste);
   };
-  if(document.readyState === 'complete') quandPret();
-  else window.addEventListener('load', quandPret);
+  // Le splash part dès que le DOM est prêt (sans attendre polices, images et ressources externes).
+  if(document.readyState !== 'loading') quandPret();
+  else document.addEventListener('DOMContentLoaded', quandPret);
   setTimeout(cacher, 4000);
 })();
 
