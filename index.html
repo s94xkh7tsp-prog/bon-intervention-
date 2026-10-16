@@ -4186,11 +4186,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
         <div class="grp">
           <div class="grp-title">Sauvegarde de secours</div>
-          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Toutes tes données (tarifs, historique, clients, photos) sont stockées uniquement sur ce téléphone. Cette sauvegarde te permet de tout récupérer si tu perds ou changes d'appareil.</p>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Tes données sont stockées sur ce téléphone. Deux sauvegardes ZIP séparées : <b>Données</b> (interventions, clients, tarifs, réglages, photos et signatures des bons, tickets carburant, PDF émis, photos Rachat) et <b>Vidéos</b>. Garde les deux pour pouvoir tout récupérer.</p>
           <div class="km-mention" style="margin:0 0 12px 0;">⚠️ Ce n'est <b>pas</b> un document de facturation : c'est un fichier technique, illisible tel quel (texte blanc sur fond noir), qui sert uniquement à restaurer l'appli. Pour tes documents comptables, va dans <b>Historique</b> → Exporter en Excel ou en PDF.</div>
-          <button class="ghost" style="margin-bottom:8px; border-color:rgba(232,115,12,0.35); color:var(--orange);" onclick="exporterSauvegardeParMail()">📧 Envoyer la sauvegarde par mail (contact@jmexpressautodepannage.be)</button>
-          <button class="ghost" style="margin-bottom:8px;" onclick="exporterSauvegarde()">🔐 Enregistrer la sauvegarde sur le téléphone</button>
-          <input type="file" id="restoreFile" accept="application/json" style="display:none;" onchange="restaurerSauvegarde(event)">
+          <button class="ghost" style="margin-bottom:8px; border-color:rgba(232,115,12,0.35); color:var(--orange);" onclick="exporterSauvegarde()">💾 Créer une sauvegarde (ZIP Données / Vidéos)</button>
+          <input type="file" id="restoreFile" accept=".json,.zip,application/json,application/zip" style="display:none;" onchange="restaurerSauvegarde(event)">
           <button class="ghost" onclick="document.getElementById('restoreFile').click()">📥 Restaurer depuis une sauvegarde</button>
         </div>
 
@@ -4802,7 +4801,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <div class="grp-title">Sur l'ancien téléphone (celui-ci)</div>
       <div class="km-mention" style="margin-bottom:8px;">1. Tout envoyer au serveur — état : <strong id="telSync"></strong></div>
       <button class="ghost" style="margin:0 0 10px;" onclick="jmTelSynchroniser()">🔄 Synchroniser maintenant</button>
-      <div class="km-mention" style="margin-bottom:8px;">2. Sauvegarde de sécurité par mail (tout le contenu de l'appli)</div>
+      <div class="km-mention" style="margin-bottom:8px;">2. Sauvegarde de sécurité : ZIP Données + ZIP Vidéos (à garder dans Fichiers ou à envoyer par mail)</div>
       <button class="ghost" style="margin:0 0 10px;" onclick="exporterSauvegardeParMail()">✉️ Envoyer la sauvegarde par mail</button>
       <div class="km-mention" style="margin-bottom:6px;">3. Photos du module Rachat (elles restent sur ce téléphone) : un dossier PDF par véhicule</div>
       <div id="telRachats"></div>
@@ -7023,6 +7022,9 @@ let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
 
+// v329 — affichage sûr des données saisies, importées ou synchronisées dans innerHTML / onclick.
+function jmTxt(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function jmJs(s){ return jmTxt(JSON.stringify(String(s == null ? '' : s)).slice(1, -1).replace(/'/g, "\\'")); }
 window.storage = {
   async get(key){
     const v = localStorage.getItem('jm_'+key);
@@ -9549,7 +9551,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v326';
+const APP_VERSION = 'jm-express-bon-v329';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -9638,18 +9640,34 @@ async function verifierMiseAJour(){
 }
 
 async function appliquerMiseAJour(){
+  // v329 — la saisie en cours est écrite avant tout, et on ne supprime plus aucun cache depuis la page :
+  // l'ancien code effaçait justement le cache de la nouvelle version (nom différent d'APP_VERSION).
   const btn = document.querySelector('#majBanniere .maj-btn');
-  if(btn) btn.textContent = 'Chargement…';
+  if(btn){ if(btn.dataset.enCours) return; btn.dataset.enCours = '1'; btn.textContent = 'Chargement…'; }
+  let brouillonOk = true;
+  try{ if(typeof sauvegarderBrouillonImmediat === 'function') brouillonOk = await sauvegarderBrouillonImmediat(); }catch(e){ brouillonOk = false; }
+  if(!brouillonOk && !confirm('La saisie en cours n\'a pas pu être sauvegardée. Mettre à jour quand même ? (elle serait perdue)')){
+    if(btn){ delete btn.dataset.enCours; btn.textContent = 'Mettre à jour'; }
+    return;
+  }
   try{
     if('serviceWorker' in navigator){
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.update().catch(() => {})));
+      const reg = await navigator.serviceWorker.getRegistration();
+      if(reg){
+        await Promise.race([reg.update().catch(() => {}), new Promise(r => setTimeout(r, 8000))]);
+        const nouveau = reg.installing || reg.waiting;
+        if(nouveau && nouveau.state !== 'activated'){
+          // Attendre (max 15 s) que la nouvelle version soit entièrement installée et active.
+          await new Promise(ok => {
+            const fin = () => ok();
+            const t = setTimeout(fin, 15000);
+            nouveau.addEventListener('statechange', () => { if(nouveau.state === 'activated' || nouveau.state === 'redundant'){ clearTimeout(t); fin(); } });
+          });
+          if(nouveau.state === 'redundant') showToast('Mise à jour non installée (réseau ?) — la version actuelle reste utilisable');
+        }
+      }
     }
-    if(window.caches){
-      const noms = await caches.keys();
-      await Promise.all(noms.filter(n => n !== APP_VERSION && !n.startsWith('jm-ocr-')).map(n => caches.delete(n)));
-    }
-  }catch(e){ /* on recharge quand même */ }
+  }catch(e){ /* on recharge quand même : la version active reste en cache */ }
   location.reload();
 }
 
@@ -11492,13 +11510,13 @@ function renderRoutesList(){
     return;
   }
   container.innerHTML = ROUTES.map(r => `
-    <div class="route-item" onclick="applyRoute('${r.id}')">
+    <div class="route-item" onclick="applyRoute('${jmJs(r.id)}')">
       <div class="info">
-        <div class="name">${r.name}</div>
-        <div class="meta">${r.from} → ${r.to}</div>
+        <div class="name">${jmTxt(r.name)}</div>
+        <div class="meta">${jmTxt(r.from)} → ${jmTxt(r.to)}</div>
       </div>
-      <div class="km">${r.km} km</div>
-      <div class="del" onclick="event.stopPropagation(); deleteRoute('${r.id}')">✕</div>
+      <div class="km">${jmTxt(r.km)} km</div>
+      <div class="del" onclick="event.stopPropagation(); deleteRoute('${jmJs(r.id)}')">✕</div>
     </div>
   `).join('');
 }
@@ -11582,13 +11600,13 @@ function renderClientsList(){
       c.facturation ? (LBL_F[c.facturation] || c.facturation) : ''
     ].filter(Boolean).join(' · ');
     return `
-    <div class="route-item" onclick="applyClient('${c.id}')">
+    <div class="route-item" onclick="applyClient('${jmJs(c.id)}')">
       <div class="info">
-        <div class="name">${c.nom}</div>
-        <div class="meta">${c.adresse || ''}${c.societe ? ' · ' + c.societe : ''}${remiseTxt}</div>
-        ${proTxt ? `<div class="meta" style="color:var(--orange);">🏢 ${proTxt}</div>` : ''}
+        <div class="name">${jmTxt(c.nom)}</div>
+        <div class="meta">${jmTxt(c.adresse || '')}${c.societe ? ' · ' + jmTxt(c.societe) : ''}${jmTxt(remiseTxt)}</div>
+        ${proTxt ? `<div class="meta" style="color:var(--orange);">🏢 ${jmTxt(proTxt)}</div>` : ''}
       </div>
-      <div class="del" onclick="event.stopPropagation(); deleteClient('${c.id}')">✕</div>
+      <div class="del" onclick="event.stopPropagation(); deleteClient('${jmJs(c.id)}')">✕</div>
     </div>
   `;
   }).join('');
@@ -13380,10 +13398,13 @@ async function restaurerSauvegarde(event){
     const ok = confirm(`Restaurer la sauvegarde du ${dateLabel} (${nbKeys} éléments) ? Cela remplacera les données actuelles portant le même nom (tarifs, interventions, réglages).`);
     if(!ok){ event.target.value = ''; return; }
 
-    await Promise.all(Object.entries(backup.data).map(([key, value]) =>
-      window.storage.set(key, value).catch(()=>{})
-    ));
-    showToast('Sauvegarde restaurée');
+    // v329 — secours si operations.js n'est pas chargé : écriture une par une, bilan exact.
+    let ecrits = 0; const echecs = [];
+    for(const [key, value] of Object.entries(backup.data)){
+      if(key === 'formDraft' || typeof value !== 'string') continue;   // jamais d'ancien brouillon réinjecté
+      try{ await window.storage.set(key, value); ecrits++; }catch(e){ echecs.push(key); }
+    }
+    showToast(echecs.length ? '⚠️ Restauration incomplète : ' + ecrits + ' élément(s) écrit(s), ' + echecs.length + ' en échec (stockage plein ?)' : 'Sauvegarde restaurée : ' + ecrits + ' élément(s)');
     event.target.value = '';
   }catch(e){
     showToast('Erreur lors de la restauration — fichier illisible');
@@ -15744,12 +15765,25 @@ const TOGGLES_BROUILLON = [
 ];
 
 let brouillonTimer = null;
+let brouillonEnAttente = false;   // v329 — une saisie n'est pas encore écrite (fenêtre des 500 ms)
+let brouillonEchec = false;
 function planifierSauvegardeBrouillon(){
   clearTimeout(brouillonTimer);
+  brouillonEnAttente = true;
   brouillonTimer = setTimeout(sauvegarderBrouillon, 500);
 }
+// v329 — écriture immédiate (passage en arrière-plan, fermeture, mise à jour).
+// iPhone ne déclenche pas toujours beforeunload : on s'appuie sur pagehide et visibilitychange.
+async function sauvegarderBrouillonImmediat(){
+  if(!brouillonEnAttente) return true;
+  clearTimeout(brouillonTimer);
+  return sauvegarderBrouillon();
+}
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') sauvegarderBrouillonImmediat(); });
+window.addEventListener('pagehide', () => { sauvegarderBrouillonImmediat(); });
 
 async function sauvegarderBrouillon(){
+  brouillonEnAttente = false;
   try{
     const etat = {};
     CHAMPS_BROUILLON.forEach(id => {
@@ -15761,12 +15795,24 @@ async function sauvegarderBrouillon(){
       if(el) etat[id] = el.classList.contains('on');
     });
     const nonVide = CHAMPS_BROUILLON.some(id => etat[id]) || TOGGLES_BROUILLON.some(id => etat[id]);
-    if(nonVide) await window.storage.set('formDraft', JSON.stringify(etat));
+    if(nonVide){
+      const txt = JSON.stringify(etat);
+      await window.storage.set('formDraft', txt);
+      if(localStorage.getItem('jm_formDraft') !== txt) throw new Error('relecture');
+    }
     else await effacerBrouillon();
-  }catch(e){ /* la saisie continue même si l'enregistrement du brouillon échoue */ }
+    if(brouillonEchec){ brouillonEchec = false; showToast('Brouillon de nouveau enregistré'); }
+    return true;
+  }catch(e){
+    // La saisie continue, mais on prévient : une coupure de l'appli ferait perdre cette saisie.
+    if(!brouillonEchec) showToast('⚠️ Saisie en cours non sauvegardée (stockage plein ?) — enregistre l\'intervention ou libère de l\'espace');
+    brouillonEchec = true;
+    return false;
+  }
 }
 
 async function effacerBrouillon(){
+  clearTimeout(brouillonTimer); brouillonEnAttente = false;   // v329 — pas de brouillon réécrit après l'enregistrement
   try{ await window.storage.delete('formDraft'); }catch(e){}
 }
 
@@ -16160,7 +16206,7 @@ function afficherInterventionEnCours(aFaire){
   carte.innerHTML = `
     <div class="ec-num">${d.numero ? d.numero + ' · ' : ''}${dt} à ${heure}</div>
     <div class="ec-type">${typeLabelComplet(d)}</div>
-    <div class="ec-adr">${ico(ICO.pin,13)} ${d.from || '—'}${(d.to && d.to !== '—') ? '<br>' + ico(ICO.drapeau,13) + ' ' + d.to : (typeof jmEstSurPlace === 'function' && jmEstSurPlace(d) ? ' · sur place' : '')}</div>
+    <div class="ec-adr">${ico(ICO.pin,13)} ${jmTxt(d.from || '—')}${(d.to && d.to !== '—') ? '<br>' + ico(ICO.drapeau,13) + ' ' + jmTxt(d.to) : (typeof jmEstSurPlace === 'function' && jmEstSurPlace(d) ? ' · sur place' : '')}</div>
     <div class="ec-montant">${fmt(d.total || 0)}</div>
     ${renderProgressionStepper(d)}
     <div class="ec-nav-label">${ico(ICO.pin,12)} Étape 1 — aller chercher le véhicule</div>
@@ -16242,10 +16288,10 @@ async function executerRechercheGlobale(){
       const dt = new Date(d.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit'});
       const st = statutPaiement(d);
       const pastille = st === 'paye' ? '✅' : (st === 'partiel' ? '◐' : '⏳');
-      return `<div class="hist-item" style="margin-bottom:8px;" onclick="ouvrirDepuisRecherche('${it.key}')">
+      return `<div class="hist-item" style="margin-bottom:8px;" onclick="ouvrirDepuisRecherche('${jmJs(it.key)}')">
         <div class="info">
-          <div class="type">${pastille} ${typeLabelComplet(d)}</div>
-          <div class="meta">${dt}${d.plaque ? ' · ' + d.plaque : ''} · ${d.from} → ${d.to}</div>
+          <div class="type">${pastille} ${jmTxt(typeLabelComplet(d))}</div>
+          <div class="meta">${dt}${d.plaque ? ' · ' + jmTxt(d.plaque) : ''} · ${jmTxt(d.from)} → ${jmTxt(d.to)}</div>
         </div>
         <div class="amt">${fmt(d.total||0)}</div>
       </div>`;
@@ -17895,14 +17941,26 @@ document.addEventListener('focusout', (e) => {
     setTimeout(() => splash.remove(), 350);
   };
   const debut = Date.now();
+  // v329 — le splash part quand le DOM est prêt ET que l'appli est utilisable
+  // (verrouillage initialisé, tarifs chargés : signal « jm-pret » envoyé par le démarrage).
+  let domPret = document.readyState !== 'loading', appPrete = !!window.JM_PRET;
   const quandPret = () => {
+    if(!domPret || !appPrete) return;
     const reste = Math.max(0, 600 - (Date.now() - debut));
     setTimeout(cacher, reste);
   };
-  // Le splash part dès que le DOM est prêt (sans attendre polices, images et ressources externes).
-  if(document.readyState !== 'loading') quandPret();
-  else document.addEventListener('DOMContentLoaded', quandPret);
-  setTimeout(cacher, 4000);
+  document.addEventListener('DOMContentLoaded', () => { domPret = true; quandPret(); });
+  document.addEventListener('jm-pret', () => { appPrete = true; quandPret(); });
+  quandPret();
+  // Démarrage anormalement long : message de récupération au lieu d'un écran figé.
+  setTimeout(() => {
+    if(appPrete || window.BOOT_ECHEC || !document.body.contains(splash)) return;
+    const z = document.createElement('div');
+    z.style.cssText = 'position:absolute;left:0;right:0;bottom:60px;text-align:center;padding:0 24px;color:#fff;font-size:14px;line-height:1.4';
+    z.innerHTML = 'Démarrage plus long que prévu…<br><br><span id="splashContinuer" style="background:#f2900f;color:#fff;padding:12px 22px;border-radius:22px;font-weight:700;display:inline-block;margin:4px">Continuer</span> <span onclick="location.reload()" style="border:1px solid #fff;color:#fff;padding:11px 20px;border-radius:22px;display:inline-block;margin:4px">Recharger</span>';
+    splash.appendChild(z);
+    document.getElementById('splashContinuer').onclick = () => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 350); };
+  }, 6000);
 })();
 
 (function(){
@@ -18029,6 +18087,7 @@ async function chargerStatsMoteur(){
     await loadClients();
     await loadAccessNotes();
     await loadRates().then(updateKmLabel);
+    window.JM_PRET = true; document.dispatchEvent(new Event('jm-pret'));   // v329 — PIN + tarifs prêts : le splash peut partir
     await chargerStatsMoteur();
     await loadHistory();
     await loadRoutes();
@@ -18124,10 +18183,14 @@ function syncSignatureCle(key){ return syncSignatureValeur(localStorage.getItem(
     const r = await orig.set(key, value);
     if(syncCleSuivie(key) && !SYNC.applique){
       if(syncCleReglage(key) && syncEstSecours()) return r;       // le secours n'envoie jamais un réglage
-      const m = syncMeta(key) || {rev:0, srv:0};
-      m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false; m.localSig = syncSignatureCle(key);
-      syncSetMeta(key, m);
-      syncEnqueue(key, 'set');
+      // v329 — la donnée est déjà écrite : un stockage plein au moment de noter la synchro ne doit pas
+      // faire croire à un échec d'enregistrement (le scan de synchro la rattrapera).
+      try{
+        const m = syncMeta(key) || {rev:0, srv:0};
+        m.rev = (m.rev || 0) + 1; m.updatedAt = new Date().toISOString(); m.deviceId = SYNC.deviceId || 'local'; m.deleted = false; m.localSig = syncSignatureCle(key);
+        syncSetMeta(key, m);
+        syncEnqueue(key, 'set');
+      }catch(e){ console.warn('[JM Sync] suivi non enregistré', key, e); if(!SYNC.alerteQuota){ SYNC.alerteQuota = true; showToast('⚠️ Stockage presque plein : enregistré sur ce téléphone, synchronisation retardée'); } }
     }
     return r;
   };
@@ -18182,14 +18245,26 @@ function syncScannerModificationsLocales(){
 
 // --- Réseau ---
 async function syncApi(chemin, corps, methode){
-  const res = await fetch(SYNC.url.replace(/\/$/, '') + chemin, {
-    method: methode || (corps ? 'POST' : 'GET'),
-    headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + SYNC.jeton},
-    body: corps ? JSON.stringify(corps) : undefined
-  });
-  if(res.status === 401 || res.status === 403){ const e = new Error('revoque'); e.revoque = true; throw e; }
-  if(!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  // v329 — délai limite : une requête bloquée (réseau faible) ne laisse plus « Synchronisation… »
+  // affiché indéfiniment ni SYNC.enCours coincé. La file d'attente reste intacte : un renvoi
+  // après expiration est sans risque (le serveur accepte la même fiche du même téléphone).
+  const delai = chemin === '/push' ? 45000 : (/^\/ia\//.test(chemin) ? 60000 : 20000);
+  const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+  const minuteur = setTimeout(() => { try{ ctrl && ctrl.abort(); }catch(e){} }, delai);
+  try{
+    const res = await fetch(SYNC.url.replace(/\/$/, '') + chemin, {
+      method: methode || (corps ? 'POST' : 'GET'),
+      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + SYNC.jeton},
+      body: corps ? JSON.stringify(corps) : undefined,
+      signal: ctrl ? ctrl.signal : undefined
+    });
+    if(res.status === 401 || res.status === 403){ const e = new Error('revoque'); e.revoque = true; throw e; }
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  }catch(e){
+    if(e && e.name === 'AbortError') throw new Error('serveur trop lent (délai dépassé) — nouvel essai plus tard');
+    throw e;
+  }finally{ clearTimeout(minuteur); }
 }
 let SYNC_TIMER = null;
 function syncPlanifier(delai){ clearTimeout(SYNC_TIMER); SYNC_TIMER = setTimeout(() => synchroniser(), delai || 0); }
@@ -18264,6 +18339,10 @@ async function syncPousser(){
   });
   aRenvoyer.forEach(k => { SYNC.outbox.push({key:k, op: syncMeta(k) && syncMeta(k).deleted ? 'delete' : 'set', at: Date.now()}); });
   syncSauverEtat();
+  // v329 — garde-fou : si le serveur n'a traité aucune fiche du lot, on s'arrête (elles restent en file)
+  // au lieu de renvoyer le même lot en boucle.
+  const traites = (rep.results || []).length;
+  if(!traites && SYNC.outbox.length) throw new Error('serveur : aucune fiche acceptée, nouvel essai plus tard');
   if(SYNC.outbox.length) await syncPousser();   // lots suivants (et renvois)
 }
 
@@ -18446,7 +18525,7 @@ function syncMajEcranReglages(){
   const nb = syncListeConflits().length;
   b('syncConflits').innerHTML = nb ? '<div class="km-mention" style="border-left-color:var(--orange);">⚠️ ' + nb + ' conflit(s) de synchronisation à trancher</div>' + syncListeConflits().map(k => { const c = SYNC.conflits[k]; const d = c.local || c.distant || {}; return `<div class="pay-badge attente" style="margin:6px 6px 0 0;" onclick="syncOuvrirConflit('${k}')">⚠️ ${d.numero || k}</div>`; }).join('') : '';
   const ap = b('syncAppareils');
-  if(ap) ap.innerHTML = (SYNC.appareils || []).map(d => `<div class="ticket-row" style="border:0; padding:6px 0;"><span class="l">${d.revoked ? '⛔ ' : '📱 '}${d.nom} <span style="color:var(--grey); font-size:11px;">· ${d.id}${d.id === SYNC.deviceId ? ' (celui-ci)' : ''}</span></span>${(!d.revoked && d.id !== SYNC.deviceId) ? `<span class="v"><button type="button" class="ghost" style="padding:6px 10px; font-size:12px;" onclick="syncRevoquer('${d.id}')">Révoquer</button></span>` : `<span class="v" style="color:var(--grey); font-size:11px;">${d.revoked ? 'révoqué' : ''}</span>`}</div>`).join('') || '<div class="km-mention">Aucun autre appareil.</div>';
+  if(ap) ap.innerHTML = (SYNC.appareils || []).map(d => `<div class="ticket-row" style="border:0; padding:6px 0;"><span class="l">${d.revoked ? '⛔ ' : '📱 '}${jmTxt(d.nom)} <span style="color:var(--grey); font-size:11px;">· ${jmTxt(d.id)}${d.id === SYNC.deviceId ? ' (celui-ci)' : ''}</span></span>${(!d.revoked && d.id !== SYNC.deviceId) ? `<span class="v"><button type="button" class="ghost" style="padding:6px 10px; font-size:12px;" onclick="syncRevoquer('${jmJs(d.id)}')">Révoquer</button></span>` : `<span class="v" style="color:var(--grey); font-size:11px;">${d.revoked ? 'révoqué' : ''}</span>`}</div>`).join('') || '<div class="km-mention">Aucun autre appareil.</div>';
 }
 // --- Indicateur discret (feuille de route) ---
 let BATTERIE_AVERTIE=false;
@@ -21250,7 +21329,8 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     let last = null; try{ last = (await window.storage.get('lastBackupDate')).value; }catch(e){}
     const quand = s => s ? new Date(s).toLocaleString('fr-BE', {weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : 'jamais';
     const s = typeof jmEtatSynchro === 'function' ? jmEtatSynchro() : null, att = (typeof SYNC !== 'undefined' && SYNC.outbox) ? SYNC.outbox.length : 0, verif = localStorage.getItem('jm_backupVerif');
-    $('sauvEtat').innerHTML = 'Dernière sauvegarde complète : <strong>' + quand(last && /^\d/.test(last) ? last : (last ? Number(last) : null)) + '</strong><br>Synchronisation : ' + (s ? s[1] : 'non configurée') + (att ? ' · ' + att + ' élément(s) en attente' : '') + '<br>Dernière vérification : ' + quand(verif);
+    let lastV = null; try{ lastV = (await window.storage.get('lastVideoBackupDate')).value; }catch(e){}
+    $('sauvEtat').innerHTML = 'Dernière sauvegarde Données transmise : <strong>' + quand(last && /^\d/.test(last) ? last : (last ? Number(last) : null)) + '</strong> · Vidéos : ' + quand(lastV) + '<br>Dernier fichier de sauvegarde contrôlé : ' + quand(localStorage.getItem('jm_backupFichierVerifie')) + '<br>Synchronisation : ' + (s ? s[1] : 'non configurée') + (att ? ' · ' + att + ' élément(s) en attente' : '') + '<br>Dernière vérification des données de ce téléphone : ' + quand(verif);
   };
   window.jmSauvegardeVerifier = async function(){
     let ks = []; try{ ks = (await window.storage.list()).keys || []; }catch(e){}
@@ -21261,7 +21341,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     const nInter = Object.keys(data).filter(k => k.startsWith('intervention:')).length;
     const ok = identiques && !illisibles;
     if(ok) localStorage.setItem('jm_backupVerif', new Date().toISOString());
-    $('sauvVerif').innerHTML = ok ? '✓ Sauvegarde vérifiée : ' + ks.length + ' éléments (' + nInter + ' interventions), ' + (texte.length / 1048576).toFixed(2) + ' Mo, entièrement relisible. Rien n\'a été modifié.' : '⚠️ ' + illisibles + ' élément(s) illisible(s) : envoie le diagnostic avant de changer de téléphone.';
+    $('sauvVerif').innerHTML = ok ? '✓ Données de ce téléphone relisibles : ' + ks.length + ' éléments (' + nInter + ' interventions), ' + (texte.length / 1048576).toFixed(2) + ' Mo. Rien n\'a été modifié. (Pour contrôler un fichier ZIP déjà enregistré : « Contrôler un fichier de sauvegarde ».)' : '⚠️ ' + illisibles + ' élément(s) illisible(s) : envoie le diagnostic avant de changer de téléphone.';
     jmSauvegardeEtat();
   };
   if(typeof openSettings === 'function'){ const _o = openSettings; openSettings = function(){ const r = _o.apply(this, arguments); try{ jmDiagAfficher(); jmSauvegardeEtat(); }catch(e){}
@@ -23133,7 +23213,7 @@ async function jmClientChoisirContact(){
 }
 
 </script>
-<script src="game-driver.js"></script>
+<script src="game-driver.js?v=329"></script>
 
 <input id="fuelFile" type="file" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,.heic,.heif" style="display:none">
 <div class="modal-bg" id="fuelArchive"><div class="modal">
@@ -23144,11 +23224,11 @@ async function jmClientChoisirContact(){
 <div id="fuelList"></div>
 <button class="primary" id="fuelExport" onclick="jmFuelExport()">📦 Exporter les frais et les tickets pour le comptable</button>
 <button class="ghost" onclick="genererDocumentFrais(Number(document.getElementById('fuelYear').value))">Relevé PDF des frais</button>
-<p class="km-mention">Les scans restent sur ce téléphone : ils ne sont pas synchronisés et ne sont pas inclus dans la sauvegarde habituelle. Exporte le dossier ZIP et conserve-le dans Fichiers / iCloud Drive. Il contient le relevé CSV et les tickets originaux ; les factures clients s’exportent depuis Historique.</p>
+<p class="km-mention">Les tickets restent sur ce téléphone et ne sont pas synchronisés avec l’autre téléphone. Ils sont inclus dans la sauvegarde ZIP « Données » (Réglages → Sauvegarde) ; conserve ce ZIP dans Fichiers / iCloud Drive. Les factures clients s’exportent depuis Historique.</p>
 <button class="ghost close-modal" onclick="document.getElementById('fuelArchive').classList.remove('show')">Fermer</button>
 </div></div>
-<script src="fuel-receipts.js?v=326"></script>
-<script src="operations.js?v=326"></script>
-<script src="navigation.js?v=326"></script>
+<script src="fuel-receipts.js?v=329"></script>
+<script src="operations.js?v=329"></script>
+<script src="navigation.js?v=329"></script>
 </body>
 </html>
