@@ -9663,7 +9663,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v331';
+const APP_VERSION = 'jm-express-bon-v332';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -23442,6 +23442,89 @@ async function jmClientChoisirContact(){
     const btn = p.querySelector('button.primary'); (btn || p.lastElementChild).insertAdjacentElement('afterend', d);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ajouterBoutons); else ajouterBoutons();
+})();
+</script>
+<script id="jm-v332-script">
+// v332 — Auto5 / Midas reconnus même mal écrits ou mal dictés (« Midas Gossy », « garage midas gosselies », « auto 5 couillet »)
+// → toujours l'adresse officielle de la liste ; anciennes corrections erronées pour ces enseignes effacées.
+(function(){
+  const $ = id => document.getElementById(id);
+  const N = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const VIDES = new Set(['garage','garages','centre','center','chez','le','la','les','de','du','des','d','a','au','aux','l','jusqu','jusque','vers','pour','station','magasin','auto','depuis','en','et','sur','dans']);
+  let G = null;
+  function liste(){
+    if(G) return G;
+    const dl = $('adressesBelgique');
+    G = (dl ? Array.from(dl.options).map(o => o.value) : []).map(v => { const m = v.match(/^(Auto5|Midas)\s+(.+?)\s*\(([^()]+\d{4}[^()]*)\)\s*$/); if(!m) return null;
+      const nom = m[2].replace(/[()]/g, ' '), adr = m[3], commune = adr.replace(/^.*\b\d{4}\s+/, '');
+      return {marque: m[1], label: v, adresse: adr, nom: m[2].replace(/\s*\(.*\)$/, ''), mots: Array.from(new Set(N(nom + ' ' + commune).split(' ').filter(w => w.length > 2 && !VIDES.has(w))))}; }).filter(Boolean);
+    return G;
+  }
+  function lev(a, b){ const m = a.length, n = b.length; if(!m) return n; if(!n) return m; let p = Array.from({length: n + 1}, (_, j) => j); for(let i = 1; i <= m; i++){ const q = [i]; for(let j = 1; j <= n; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = q; } return p[n]; }
+  function proche(w, t){
+    if(w === t) return 1;
+    let k = 0; while(k < w.length && k < t.length && w[k] === t[k]) k++;
+    if(k >= 4 || (k >= 3 && (w.length <= 5 || t.length <= 5))) return 0.9;   // « gossy » ~ « gosselies », « couil » ~ « couillet »
+    return 1 - lev(w, t) / Math.max(w.length, t.length);
+  }
+  function marqueDe(n){ return /\bmidas\b/.test(n) ? 'Midas' : /\bauto ?5\b|\bauto cinq\b|\bautocinq\b|\bauto five\b/.test(n) ? 'Auto5' : null; }
+  // texte libre → garage de la liste (ou null si rien de sûr)
+  window.jmGarageEnseigne = function(texte){
+    const n = N(texte), marque = marqueDe(n); if(!marque) return null;
+    const mots = n.replace(/\bmidas\b|\bauto ?5\b|\bauto cinq\b|\bautocinq\b|\bauto five\b/g, ' ').split(' ').filter(w => w.length > 2 && !VIDES.has(w) && !/^\d{4}$/.test(w));
+    const cp = (n.match(/\b(\d{4})\b/) || [])[1];
+    const L = liste().filter(g => g.marque === marque && (!cp || g.adresse.includes(cp)));
+    if(!mots.length) return cp && L.length === 1 ? L[0] : null;
+    const notes = L.map(g => ({g, s: Math.max(...mots.map(w => Math.max(...g.mots.map(t => proche(w, t)))))})).sort((a, b) => b.s - a.s);
+    if(!notes.length || notes[0].s < 0.75) return null;
+    const ex = notes.filter(x => x.s >= notes[0].s - 0.001);
+    const memeCommune = ex.every(x => x.g.adresse.replace(/^.*\b\d{4}\s+/, '') === ex[0].g.adresse.replace(/^.*\b\d{4}\s+/, ''));
+    return ex.length === 1 || memeCommune ? ex[0].g : null;
+  };
+  // 1) Calcul de distance : l'enseigne passe avant la mémoire, les alias et la carte
+  if(typeof geocodeAddress === 'function'){
+    const _g = geocodeAddress;
+    geocodeAddress = async function(address){
+      const g = jmGarageEnseigne(address);
+      if(g){ (window.JM_GEO_RESOLUS = window.JM_GEO_RESOLUS || []).push({texte: String(address).trim(), nom: g.label, pays: 'be'}); return _g.call(this, g.label); }
+      return _g.apply(this, arguments);
+    };
+  }
+  // 2) Fenêtre « Lieu à confirmer / introuvable » : le garage de la liste proposé en premier
+  if(typeof jmChercherLieu === 'function'){
+    const _c = jmChercherLieu;
+    window.jmChercherLieu = async function(texte){
+      const g = jmGarageEnseigne(texte); let L = []; try{ L = await _c.apply(this, arguments); }catch(e){}
+      if(!g) return L;
+      let pos = null; try{ pos = await geocodeAddress(g.label); }catch(e){}
+      return pos ? [{nom: g.marque + ' ' + g.nom, libelle: g.label, lat: pos.lat, lon: pos.lon, pays: 'be', cp: (g.adresse.match(/\b\d{4}\b/) || [''])[0], exact: true, score: 1, src: 'Liste Auto5 / Midas'}].concat(L) : L;
+    };
+  }
+  // 3) Devis vocal : « Midas Gossy » réécrit « Midas Gosselies » avant l'analyse
+  if(typeof jmVocalTraiter === 'function'){
+    const _v = jmVocalTraiter;
+    window.jmVocalTraiter = function(t){
+      let s = String(t || '');
+      s = s.replace(/\b(midas|auto\s?5|auto\s?cinq)\b((?:\s+(?!midas\b|auto\b)[A-Za-zÀ-ÿ'’-]+){1,3})/gi, (tout, m, suite) => {
+        const ws = suite.trim().split(/\s+/);
+        for(let k = 1; k <= Math.min(3, ws.length); k++){
+          const g = jmGarageEnseigne(m + ' ' + ws.slice(0, k).join(' '));
+          if(g) return g.marque + ' ' + g.nom + (k < ws.length ? ' ' + ws.slice(k).join(' ') : '');
+        }
+        return tout;
+      });
+      if(s !== t && $('vocalTexte')) $('vocalTexte').value = s;
+      return _v.call(this, s);
+    };
+  }
+  // 4) Nettoyage unique : corrections mémorisées pour « midas … » / « auto5 … » (souvent fausses avant cette version)
+  try{
+    if(localStorage.getItem('jm_v332_nettoye') !== '1'){
+      ['jm_alias','jm_geoCache'].forEach(k => { const o = JSON.parse(localStorage.getItem(k) || '{}'); let n = 0;
+        Object.keys(o).forEach(c => { if(/\bmidas\b|\bauto ?5\b|\bauto cinq\b/.test(N(c))){ delete o[c]; n++; } }); if(n) localStorage.setItem(k, JSON.stringify(o)); });
+      localStorage.setItem('jm_v332_nettoye', '1');
+    }
+  }catch(e){}
 })();
 </script>
 </body>
