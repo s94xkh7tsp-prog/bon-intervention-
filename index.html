@@ -3288,9 +3288,25 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     </div>
 
         <div id="annulationBox" style="display:none; margin-top:10px;">
+        <label>Motif de l'annulation</label>
+        <select id="annulationMotifSel" onchange="majAnnulationMotif()" style="margin-bottom:8px;">
+          <option value="">— Choisir —</option>
+          <option>Client absent / injoignable sur place</option>
+          <option>Véhicule déjà reparti ou redémarré</option>
+          <option>Client a annulé avant le départ</option>
+          <option>Client a annulé en cours de route</option>
+          <option>Pris en charge par son assistance</option>
+          <option>Véhicule impossible à charger / accès</option>
+          <option>Prix refusé sur place</option>
+          <option value="autre">Autre motif…</option>
+        </select>
+        <input type="text" id="annulationMotif" placeholder="Précise le motif (apparaît sur le ticket et la facture)" maxlength="140" style="display:none; margin-bottom:8px;" oninput="invaliderTicketObsolete()">
+        <div class="toggles" style="margin-bottom:8px;"><div class="toggle" id="tgAnnulationGratuit" onclick="toggle('tgAnnulationGratuit'); majAnnulationUI()">Sans frais (0 €)</div></div>
+        <div id="annulationMontantBox">
         <label>Montant facturé pour le déplacement</label>
         <input type="number" id="annulationMontant" placeholder="Ex : 45" min="0" step="5" inputmode="decimal" oninput="invaliderTicketObsolete()">
-        <div class="km-mention">Client absent, véhicule déjà reparti, intervention annulée sur place… Seul ce montant est facturé (le forfait de la prestation ne s'applique pas).</div>
+        </div>
+        <div class="km-mention">Client absent, véhicule déjà reparti, intervention annulée sur place… Seul ce montant est facturé (le forfait de la prestation ne s'applique pas). « Sans frais » enregistre l'intervention annulée à 0 € pour garder la trace.</div>
       </div>
 
         <div class="field" id="ctRepasseField" style="display:none;">
@@ -3779,7 +3795,8 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="ticket-row" id="rowManut" style="display:none;"><span class="l" id="tkManutLbl">Manutention</span><span class="v" id="tkManut">—</span></div>
     <div class="ticket-row" id="rowFrais" style="display:none;"><span class="l" id="tkFraisLbl">Frais</span><span class="v" id="tkFrais">—</span></div>
     <div class="ticket-addr" id="rowEnliseDetail" style="display:none; margin-top:8px;"><span class="tag">Désembourbement</span><br><span id="tkEnliseDetail">—</span></div>
-    <div class="ticket-row" id="rowAnnulation" style="display:none;"><span class="l">🚫 Déplacement inutile</span><span class="v" id="tkAnnulation">—</span></div>
+    <div class="ticket-row" id="rowAnnulation" style="display:none;"><span class="l" id="tkAnnulationLbl">🚫 Déplacement inutile</span><span class="v" id="tkAnnulation">—</span></div>
+    <div class="ticket-addr" id="rowAnnulationMotif" style="display:none; margin-top:8px; border-left:3px solid var(--red); padding-left:8px;"><span class="tag" style="color:var(--red);">Intervention annulée</span><br><span id="tkAnnulationMotif">—</span></div>
     <div class="ticket-addr" id="rowDonneur" style="display:none; margin-top:8px;"><span class="tag">Donneur d'ordre</span><br><span id="tkDonneur">—</span></div>
     <div class="ticket-addr" id="rowHoraires" style="display:none; margin-top:8px;"><span class="tag">Horaires</span><br><span id="tkHoraires">—</span></div>
     <div id="extrasRows"></div>
@@ -3809,6 +3826,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <button type="button" class="primary" onclick="jmLivraisonOuvrir()">Livraison au garage — heure et signature</button>
     <button type="button" class="ghost" onclick="jmClientDepuisIntervention()">Enregistrer ce client avec son accord</button><button class="ghost" onclick="genererRecu()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg> Bon d'intervention</button>
     <button class="ghost" onclick="openAvis()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="m12 3 2.7 5.8 6.3.8-4.6 4.4 1.2 6.2L12 17.3 6.4 20.2l1.2-6.2L3 9.6l6.3-.8z"/></svg> Demander un avis (QR à scanner)</button>
+    <button class="ghost" style="border-color:rgba(255,77,79,.5); color:#ff6b6d;" id="btnAnnulerIntervention" onclick="terrainAnnulation()">🚫 Annuler cette intervention (motif, avec ou sans frais)</button>
   </div>
   </section>
 
@@ -9663,7 +9681,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v333';
+const APP_VERSION = 'jm-express-bon-v334';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -9999,7 +10017,7 @@ function majPlusOptionsSummary(){
   const frais = parseFloat((document.getElementById('fraisMontant') || {}).value) || 0;
   if(frais > 0) parts.push('frais ' + fmt(frais));
   const tgAnn = document.getElementById('tgAnnulation');
-  if(tgAnn && tgAnn.classList.contains('on')) parts.push('déplacement inutile');
+  if(tgAnn && tgAnn.classList.contains('on')) parts.push('annulation' + (typeof lireAnnulationMotif === 'function' && lireAnnulationMotif() ? ' : ' + lireAnnulationMotif() : ''));
   const ct = parseFloat((document.getElementById('ctRepasseMontant') || {}).value) || 0;
   if(ct > 0) parts.push('2ᵉ passage CT');
   const orig = document.getElementById('origineClient');
@@ -12268,9 +12286,11 @@ async function chargerInterventionDepuisJournal(key){
   // Une annulation n'est restaurée que si elle est explicitement active ET possède un montant > 0.
   const annulationMontantCharge = Number(d.annulationMontant) || 0;
   const annulationExplicitementActive = (d.annulation === true || d.annulation === 1 || d.annulation === 'true' || d.annulation === '1');
-  const annulationChargeeValide = annulationExplicitementActive && annulationMontantCharge > 0;
-  document.getElementById('annulationMontant').value = annulationChargeeValide ? annulationMontantCharge : '';
-  document.getElementById('tgAnnulation').classList.toggle('on', annulationChargeeValide);
+  const annulationChargeeValide = annulationExplicitementActive && (annulationMontantCharge > 0 || d.annulationGratuite === true || (d.annulationMotif || '').trim());
+  document.getElementById('annulationMontant').value = annulationChargeeValide && annulationMontantCharge > 0 ? annulationMontantCharge : '';
+  document.getElementById('tgAnnulation').classList.toggle('on', !!annulationChargeeValide);
+  document.getElementById('tgAnnulationGratuit').classList.toggle('on', !!(annulationChargeeValide && d.annulationGratuite === true));
+  ecrireAnnulationMotif(annulationChargeeValide ? d.annulationMotif : '');
   majAnnulationUI();
   ecrireHoraires(d.horaires);
   updateGardiennageField();
@@ -12694,7 +12714,7 @@ function lignesDocument(c, lang, meta){
   const L = [];
   const add = (label, amount, type) => { if(amount) L.push({label, amount, type: type || 'ligne'}); };
   if(c.annulation){
-    add(S.annulation, c.annulationMontant || 0, 'annulation');
+    L.push({label: S.annulation + (c.annulationMotif ? ' — ' + c.annulationMotif : '') + (!(c.annulationMontant > 0) ? ' (sans frais)' : ''), amount: c.annulationMontant || 0, type: 'annulation'});
     add(S.fraisDivers + (c.fraisLibelle ? ' — ' + c.fraisLibelle : ''), c.fraisMontant || 0);
   } else {
     add(c.travailParticulier?.mode==='inacheve'?'Intervention sans transport':(c.formuleA ? (S.priseEnCharge || S.forfaitBase) : S.forfaitBase), c.base, 'forfait');
@@ -15532,10 +15552,12 @@ function calculer(){
   const manutMinutes = operationsEnlise.reduce((s,o) => s + (o.minutes||0), 0);
   const manutSupp = operationsEnlise.reduce((s,o) => s + (o.supp||0), 0);
   let annulation = document.getElementById('tgAnnulation').classList.contains('on');
-  let annulationMontant = annulation ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
+  const annulationGratuite = annulation && document.getElementById('tgAnnulationGratuit').classList.contains('on');
+  const annulationMotif = annulation ? lireAnnulationMotif() : '';
+  let annulationMontant = (annulation && !annulationGratuite) ? (parseFloat(document.getElementById('annulationMontant').value) || 0) : 0;
   // v221 : une annulation active sans montant est un état invalide (notamment après chargement/synchro).
-  // On revient au calcul normal au lieu de produire silencieusement 0,00 €.
-  if(annulation && !(annulationMontant > 0)){
+  // v334 : sauf annulation « sans frais » ou avec motif (annulation volontaire à 0 €).
+  if(annulation && !(annulationMontant > 0) && !annulationGratuite && !annulationMotif){
     annulation = false;
     annulationMontant = 0;
     document.getElementById('tgAnnulation').classList.remove('on');
@@ -15664,7 +15686,7 @@ function calculer(){
   lastCalc = {clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
-    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, annulationMotif, annulationGratuite, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
   const acompteCalc = lastCalc.acompteForm;
   if(acompteCalc && acompteCalc.montant > 0){
     const recuAcompte = Math.min(total, acompteCalc.montant);
@@ -15741,10 +15763,13 @@ function calculer(){
   } else rowF.style.display = 'none';
 
   const rowAnn = document.getElementById('rowAnnulation');
+  const rowAnnM = document.getElementById('rowAnnulationMotif');
   if(annulation){
+    document.getElementById('tkAnnulationLbl').textContent = annulationGratuite || !(annulationMontant > 0) ? '🚫 Intervention annulée — sans frais' : '🚫 Déplacement inutile';
     document.getElementById('tkAnnulation').textContent = fmt(annulationMontant);
     rowAnn.style.display = 'flex';
-  } else rowAnn.style.display = 'none';
+    if(rowAnnM){ rowAnnM.style.display = annulationMotif ? 'block' : 'none'; document.getElementById('tkAnnulationMotif').textContent = annulationMotif; }
+  } else { rowAnn.style.display = 'none'; if(rowAnnM) rowAnnM.style.display = 'none'; }
 
   const LABELS_DONNEUR = {assurance:'Assurance', assistance:"Société d'assistance", garage:'Garage / concession',
                           police:'Police / autorité', leasing:'Société de leasing', autre:'Autre professionnel'};
@@ -15866,7 +15891,7 @@ const CHAMPS_BROUILLON = [
   'multiFrom2','multiTo2','multiKm2','multiAmount2','multiFrom3','multiTo3','multiKm3','multiAmount3','multiReason','multiAgreement',
   'multiWaitMinutes1','multiWaitReason1','multiWaitMinutes2','multiWaitReason2','multiWaitMinutes3','multiWaitReason3',
   'type','plaqueImmat','addrDepart','addrFrom','addrTo','km','kmRetourVide','remise',
-  'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant',
+  'prixAnnonce','telClient','fraisLibelle','fraisMontant','annulationMontant','annulationMotif',
   'origineClient','vehPoids','vehHauteur','suppHeure','suppMontant',
   'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
   'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
@@ -16102,6 +16127,8 @@ function jmResetFormulaireIntervention(){
   document.getElementById('fraisLibelle').value = '';
   document.getElementById('fraisMontant').value = '';
   document.getElementById('annulationMontant').value = '';
+  document.getElementById('tgAnnulationGratuit').classList.remove('on');
+  ecrireAnnulationMotif('');
   document.getElementById('tgAnnulation').classList.remove('on');
   majAnnulationUI();
   effacerHoraires();
@@ -16800,7 +16827,33 @@ function smsClient(){
 function majAnnulationUI(){
   const actif = document.getElementById('tgAnnulation').classList.contains('on');
   document.getElementById('annulationBox').style.display = actif ? 'block' : 'none';
+  const gratuit = document.getElementById('tgAnnulationGratuit');
+  const boxM = document.getElementById('annulationMontantBox');
+  if(gratuit && boxM) boxM.style.display = gratuit.classList.contains('on') ? 'none' : 'block';
+  const btn = document.getElementById('btnAnnulerIntervention');
+  if(btn) btn.textContent = actif ? '🚫 Intervention annulée — modifier le motif' : '🚫 Annuler cette intervention (motif, avec ou sans frais)';
   invaliderTicketObsolete();
+}
+function majAnnulationMotif(){
+  const sel = document.getElementById('annulationMotifSel'), txt = document.getElementById('annulationMotif');
+  if(!sel || !txt) return;
+  if(sel.value === 'autre'){ txt.style.display = 'block'; txt.focus(); }
+  else { txt.style.display = 'none'; txt.value = sel.value; }
+  invaliderTicketObsolete();
+}
+function lireAnnulationMotif(){
+  const sel = document.getElementById('annulationMotifSel'), txt = document.getElementById('annulationMotif');
+  if(!sel) return '';
+  return ((sel.value === 'autre' ? (txt && txt.value) : sel.value) || '').trim();
+}
+function ecrireAnnulationMotif(m){
+  const sel = document.getElementById('annulationMotifSel'), txt = document.getElementById('annulationMotif');
+  if(!sel || !txt) return;
+  m = (m || '').trim();
+  const opt = [...sel.options].find(o => o.value && o.value !== 'autre' && o.value === m);
+  if(!m){ sel.value = ''; txt.value = ''; txt.style.display = 'none'; }
+  else if(opt){ sel.value = m; txt.value = m; txt.style.display = 'none'; }
+  else { sel.value = 'autre'; txt.value = m; txt.style.display = 'block'; }
 }
 
 const ETAPES_HORAIRES = [
@@ -18151,7 +18204,7 @@ function lireFormulairePourMoteur(){
     donneesCT: lireDonneesCT(type),
     difficulteEnlise: DIFFICULTE_ENLISE,
     operationsEnlise: OPERATIONS_ENLISE,
-    annulation: on('tgAnnulation'), annulationMontant: val('annulationMontant'),
+    annulation: on('tgAnnulation'), annulationMontant: val('annulationMontant'), annulationMotif: lireAnnulationMotif(), annulationGratuite: on('tgAnnulationGratuit'),
     sansMoteur: on('tgSansMoteur'), pasRoues: on('tgPasRoues'),
     vehicleType: VEHICLE_TYPE,
     kmTarifExceptionnel: val('kmTarifExceptionnel'),
