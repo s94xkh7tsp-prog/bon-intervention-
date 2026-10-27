@@ -1,7 +1,7 @@
 // v329 — cache distinct par livraison, réponses vérifiées, nettoyage limité à JM Express,
 // retour rapide au document en cache quand le réseau tarde.
 const CACHE_PREFIX = 'jm-express-bon-';
-const CACHE_NAME = 'jm-express-bon-v334';
+const CACHE_NAME = 'jm-express-bon-v335';
 const NAV_TIMEOUT_MS = 4000;
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.

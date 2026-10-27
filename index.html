@@ -3478,6 +3478,28 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       </div>
     </div>
 
+    <div class="field" id="paiementRecuBloc">
+      <div class="toggles" style="margin-bottom:8px;">
+        <div class="toggle" id="tgPaiementRecu" onclick="togglePaiementRecuUI()">💳 Paiement reçu (espèces, carte, virement…)</div>
+      </div>
+      <div id="paiementRecuFields" style="display:none; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--panel2);">
+        <div class="toggles" style="margin-bottom:8px; flex-wrap:wrap;">
+          <div class="toggle" onclick="prMoyenRapide('Espèces')">💶 Espèces</div>
+          <div class="toggle" onclick="prMoyenRapide('Bancontact')">💳 Carte / Bancontact</div>
+          <div class="toggle" onclick="prMoyenRapide('Virement')">🏦 Virement</div>
+          <div class="toggle" onclick="prMoyenRapide('Payconiq')">🔲 Payconiq</div>
+          <div class="toggle" onclick="prMoyenRapide('Autre')">Autre</div>
+        </div>
+        <div class="field-row" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:8px;"><label>Moyen</label><select id="prMoyen"><option value="Espèces">Espèces</option><option value="Bancontact">Carte / Bancontact</option><option value="Virement">Virement</option><option value="Payconiq">Payconiq / Bancontact Pro</option><option value="Tap to Pay">Tap to Pay (Revolut)</option><option value="Lien Revolut">Lien/QR Revolut</option><option value="Carte">Carte (autre)</option><option value="Autre">Autre</option></select></div>
+          <div class="field" style="margin-bottom:8px;"><label>Montant (€)</label><input type="number" id="prMontant" min="0" step="0.01" inputmode="decimal" placeholder="Reste dû par défaut"></div>
+        </div>
+        <button type="button" class="ghost" style="margin-top:0;" onclick="ajouterPaiementRecu()">+ Ajouter ce paiement</button>
+        <div id="listePaiementRecu" style="margin-top:8px;"></div>
+        <div class="km-mention" id="paiementRecuApercu" style="margin:0;border-left-color:var(--green);">Un seul moyen ou plusieurs (ex. 350 € espèces + 200 € carte). Sans montant = tout le reste dû. Le détail apparaît sur le ticket, la facture et le reçu.</div>
+      </div>
+    </div>
+
     <div class="field">
       <div class="toggles" style="margin-bottom:0;">
         <div class="toggle" id="tgRevolut" onclick="toggle('tgRevolut'); majApercuRevolut()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 19h2"/></svg> Tap to Pay (Revolut)</div>
@@ -3796,6 +3818,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="ticket-row" id="rowFrais" style="display:none;"><span class="l" id="tkFraisLbl">Frais</span><span class="v" id="tkFrais">—</span></div>
     <div class="ticket-addr" id="rowEnliseDetail" style="display:none; margin-top:8px;"><span class="tag">Désembourbement</span><br><span id="tkEnliseDetail">—</span></div>
     <div class="ticket-row" id="rowAnnulation" style="display:none;"><span class="l" id="tkAnnulationLbl">🚫 Déplacement inutile</span><span class="v" id="tkAnnulation">—</span></div>
+    <div class="ticket-addr" id="rowPaiementRecu" style="display:none; margin-top:8px;"><span class="tag">Paiement reçu</span><br><span id="tkPaiementRecu">—</span></div>
     <div class="ticket-addr" id="rowAnnulationMotif" style="display:none; margin-top:8px; border-left:3px solid var(--red); padding-left:8px;"><span class="tag" style="color:var(--red);">Intervention annulée</span><br><span id="tkAnnulationMotif">—</span></div>
     <div class="ticket-addr" id="rowDonneur" style="display:none; margin-top:8px;"><span class="tag">Donneur d'ordre</span><br><span id="tkDonneur">—</span></div>
     <div class="ticket-addr" id="rowHoraires" style="display:none; margin-top:8px;"><span class="tag">Horaires</span><br><span id="tkHoraires">—</span></div>
@@ -9681,7 +9704,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v334';
+const APP_VERSION = 'jm-express-bon-v335';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -10017,6 +10040,7 @@ function majPlusOptionsSummary(){
   const frais = parseFloat((document.getElementById('fraisMontant') || {}).value) || 0;
   if(frais > 0) parts.push('frais ' + fmt(frais));
   const tgAnn = document.getElementById('tgAnnulation');
+  if(typeof lirePaiementRecuForm==='function' && lirePaiementRecuForm()) parts.push('payé ' + lirePaiementRecuForm().map(r=>r.moyen).join(' + '));
   if(tgAnn && tgAnn.classList.contains('on')) parts.push('annulation' + (typeof lireAnnulationMotif === 'function' && lireAnnulationMotif() ? ' : ' + lireAnnulationMotif() : ''));
   const ct = parseFloat((document.getElementById('ctRepasseMontant') || {}).value) || 0;
   if(ct > 0) parts.push('2ᵉ passage CT');
@@ -12314,6 +12338,7 @@ async function chargerInterventionDepuisJournal(key){
     document.getElementById('acompteMontant').value = '';
     toggleAcompteUI(false);
   }
+  ecrirePaiementRecuForm(d);
 
   ecrireMateriel(d.type === 'transport_materiel' ? d.materiel : null);
   editingKey = key;
@@ -15686,12 +15711,14 @@ function calculer(){
   lastCalc = {clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
-    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, annulationMotif, annulationGratuite, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
+    ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), paiementRecuForm: lirePaiementRecuForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, annulationMotif, annulationGratuite, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
   const acompteCalc = lastCalc.acompteForm;
   if(acompteCalc && acompteCalc.montant > 0){
     const recuAcompte = Math.min(total, acompteCalc.montant);
     lastCalc.paiement = {statut: recuAcompte >= total ? 'paye' : 'partiel', recu: recuAcompte, moyen: acompteCalc.moyen, acompte:{montant:recuAcompte,moyen:acompteCalc.moyen,date:new Date().toISOString()}, date:new Date().toISOString()};
   }
+  appliquerPaiementRecu(lastCalc, lastCalc.paiementRecuForm);
+  if(typeof renderPaiementRecu==='function') renderPaiementRecu();
   lastCalc.moteurVersion = versionCalcul;
   lastCalc.materiel = (lastCalc.type === 'transport_materiel') ? lireMateriel() : null;
   if(DERNIER_RESULTAT_MOTEUR){
@@ -15762,6 +15789,12 @@ function calculer(){
     rowF.style.display = 'flex';
   } else rowF.style.display = 'none';
 
+  const rowPay = document.getElementById('rowPaiementRecu');
+  if(rowPay){
+    const enc = lastCalc && lastCalc.paiement && Array.isArray(lastCalc.paiement.repartition) ? lastCalc.paiement.repartition : [];
+    if(enc.length){ rowPay.style.display='block'; document.getElementById('tkPaiementRecu').innerHTML = enc.map(r=>r.moyen + (r.acompte?' (acompte)':'') + ' : ' + fmt(r.montant)).join('<br>') + (lastCalc.paiement.statut==='paye' ? '<br><strong style="color:var(--green);">Soldé</strong>' : '<br><strong style="color:var(--orange);">Reste ' + fmt(Math.max(0,total-lastCalc.paiement.recu)) + '</strong>'); }
+    else rowPay.style.display='none';
+  }
   const rowAnn = document.getElementById('rowAnnulation');
   const rowAnnM = document.getElementById('rowAnnulationMotif');
   if(annulation){
@@ -16078,6 +16111,7 @@ function jmResetFormulaireIntervention(){
   document.getElementById('tgRevlink').classList.remove('on');
   document.getElementById('acompteMontant').value='';
   toggleAcompteUI(false);
+  PAIEMENT_RECU=[]; togglePaiementRecuUI(false);
   majApercuRevolut();
   majApercuPayconiq();
   majApercuRevlink();
@@ -16205,7 +16239,8 @@ async function enregistrer(){
       entry.paiement = {...(entry.paiement||{}), statut: recu >= (entry.total||Infinity) ? 'paye' : 'partiel', recu, moyen: acompte.moyen, acompte:{montant:recu,moyen:acompte.moyen,date:dateAcompte}, date:dateAcompte};
       entry.paye = recu >= (entry.total||Infinity);
     }
-    delete entry.acompteForm;
+    appliquerPaiementRecu(entry, entry.paiementRecuForm || lirePaiementRecuForm());
+    delete entry.acompteForm; delete entry.paiementRecuForm;
     if(receiptPhotoData) entry.receiptPhoto = receiptPhotoData;
     if(epavePhotosData.length > 0) entry.epavePhotos = [...epavePhotosData];
     if(etatLieuxPhotosData.length > 0) entry.etatLieuxPhotos = [...etatLieuxPhotosData];
@@ -16758,6 +16793,77 @@ function majAcompteApercu(){
   if(!a){ el.textContent='L’acompte sera déduit du solde à encaisser, jamais du prix de l’intervention.'; return; }
   const reste=Math.max(0,total-a.montant);
   el.innerHTML=total>0?'Acompte <strong>'+fmt(a.montant)+'</strong> · Total <strong>'+fmt(total)+'</strong> · Reste <strong>'+fmt(reste)+'</strong>':'Acompte <strong>'+fmt(a.montant)+'</strong> enregistré — il sera déduit du solde après calcul.';
+}
+/* v335 — Paiement reçu encodé directement dans l'intervention (Plus d'options) */
+let PAIEMENT_RECU = [];   // [{moyen, montant}]
+function togglePaiementRecuUI(force){
+  const tg=document.getElementById('tgPaiementRecu'), box=document.getElementById('paiementRecuFields');
+  if(!tg||!box) return;
+  const on = typeof force==='boolean' ? force : !tg.classList.contains('on');
+  tg.classList.toggle('on', on); box.style.display = on ? 'block' : 'none';
+  if(on && PAIEMENT_RECU.length===0 && lastCalc && Number(lastCalc.total)>0){
+    const resteAuto = Math.max(0, Number(lastCalc.total) - ((lireAcompteForm()||{}).montant||0));
+    document.getElementById('prMontant').placeholder = 'Reste dû : ' + fmt(resteAuto);
+  }
+  renderPaiementRecu();
+  if(typeof majResumeCompact==='function') majResumeCompact();
+}
+function prMoyenRapide(m){ const sel=document.getElementById('prMoyen'); if(sel) sel.value=m; ajouterPaiementRecu(); }
+function prResteDu(){
+  const total = lastCalc && Number(lastCalc.total) || 0;
+  const ac = (lireAcompteForm()||{}).montant || 0;
+  const deja = PAIEMENT_RECU.reduce((s,r)=>s+r.montant,0);
+  return Math.max(0, Math.round((total - ac - deja)*100)/100);
+}
+function ajouterPaiementRecu(){
+  const moyen=document.getElementById('prMoyen').value;
+  let montant=parseFloat(document.getElementById('prMontant').value)||0;
+  if(!(montant>0)){
+    montant = prResteDu();
+    if(!(montant>0)){ showToast(lastCalc && Number(lastCalc.total)>0 ? 'Tout est déjà encaissé' : 'Calcule d\'abord le prix, ou indique un montant'); return; }
+  }
+  PAIEMENT_RECU.push({moyen, montant: Math.round(montant*100)/100});
+  document.getElementById('prMontant').value='';
+  renderPaiementRecu(); invaliderTicketObsolete && invaliderTicketObsolete();
+}
+function retirerPaiementRecu(i){ PAIEMENT_RECU.splice(i,1); renderPaiementRecu(); }
+function renderPaiementRecu(){
+  const box=document.getElementById('listePaiementRecu'); if(!box) return;
+  const total = lastCalc && Number(lastCalc.total) || 0, ac=(lireAcompteForm()||{}).montant||0;
+  const somme = PAIEMENT_RECU.reduce((s,r)=>s+r.montant,0);
+  box.innerHTML = PAIEMENT_RECU.map((r,i)=>`<div class="hist-item" style="padding:10px 12px; margin-bottom:6px;"><div class="info"><div style="font-size:13.5px; font-weight:600; color:var(--white);">${r.moyen}</div></div><div style="display:flex; align-items:center; gap:8px;"><span style="font-weight:700; color:var(--orange);">${fmt(r.montant)}</span><div class="loc-btn" style="width:32px; height:32px; min-height:32px;" onclick="retirerPaiementRecu(${i})">✕</div></div></div>`).join('');
+  const ap=document.getElementById('paiementRecuApercu'); if(!ap) return;
+  if(!PAIEMENT_RECU.length){ ap.style.borderLeftColor='var(--green)'; ap.innerHTML='Un seul moyen ou plusieurs (ex. 350 € espèces + 200 € carte). Sans montant = tout le reste dû. Le détail apparaît sur le ticket, la facture et le reçu.'; return; }
+  const reste = Math.max(0, total - ac - somme);
+  ap.style.borderLeftColor = reste>0.004 ? 'var(--orange)' : 'var(--green)';
+  ap.innerHTML = 'Reçu <strong>'+fmt(somme)+'</strong>' + (ac>0 ? ' + acompte <strong>'+fmt(ac)+'</strong>' : '') + (total>0 ? ' · Total <strong>'+fmt(total)+'</strong> · ' + (reste>0.004 ? 'Reste <strong>'+fmt(reste)+'</strong>' : '<strong>Soldé</strong>') : '');
+}
+function lirePaiementRecuForm(){
+  const tg=document.getElementById('tgPaiementRecu');
+  if(!tg||!tg.classList.contains('on')||!PAIEMENT_RECU.length) return null;
+  return PAIEMENT_RECU.map(r=>({...r}));
+}
+function ecrirePaiementRecuForm(d){
+  PAIEMENT_RECU = [];
+  const p = d && d.paiement;
+  if(p && Array.isArray(p.repartition) && p.repartition.length){
+    PAIEMENT_RECU = p.repartition.filter(r=>!r.acompte).map(r=>({moyen:r.moyen, montant:Number(r.montant)||0}));
+  } else if(p && Number(p.recu)>0 && !(p.acompte && Number(p.acompte.montant)>=Number(p.recu))){
+    const ac = p.acompte ? Number(p.acompte.montant)||0 : 0;
+    if(Number(p.recu)-ac>0.004) PAIEMENT_RECU=[{moyen:(p.moyen||'Espèces').split(' + ').pop(), montant:Math.round((Number(p.recu)-ac)*100)/100}];
+  }
+  togglePaiementRecuUI(PAIEMENT_RECU.length>0);
+}
+// Applique acompte + paiements reçus à l'enregistrement : remplit d.paiement comme la fenêtre Paiement.
+function appliquerPaiementRecu(entry, lignes){
+  if(!lignes||!lignes.length) return;
+  const total = Number(entry.total)||0;
+  const ac = entry.paiement && entry.paiement.acompte && Number(entry.paiement.acompte.montant)>0 ? entry.paiement.acompte : null;
+  const repartition = (ac ? [{moyen:ac.moyen||'Espèces', montant:Number(ac.montant), acompte:true}] : []).concat(lignes);
+  const recu = Math.round(repartition.reduce((s,r)=>s+r.montant,0)*100)/100;
+  const statut = total>0 && recu>=total-0.005 ? 'paye' : (recu>0 ? 'partiel' : 'attente');
+  entry.paiement = {...(entry.paiement||{}), statut, recu:Math.min(recu,total||recu), moyen:repartition.map(r=>r.moyen).join(' + '), repartition, date:new Date().toISOString(), acompte: ac};
+  entry.paye = statut==='paye';
 }
 function terrainAcompte(){
   fermerPlusTerrain();
