@@ -5380,7 +5380,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
     <div class="field">
       <div class="toggles" style="margin-bottom:0;">
-        <div class="toggle" id="tgPaiementMixte" onclick="togglePaiementMixte()">Paiement en plusieurs moyens</div>
+        <div class="toggle" id="tgPaiementMixte" onclick="togglePaiementMixte()">💶 Espèces + 🏦 virement (plusieurs moyens)</div>
       </div>
       <div id="blocMixte" style="display:none; margin-top:10px;">
         <div id="listeRepartition"></div>
@@ -5404,7 +5404,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           </div>
         </div>
         <button type="button" class="ghost" style="margin-top:10px;" onclick="ajouterRepartition()">Ajouter ce montant</button>
-        <div class="km-mention" id="mentionMixte" style="margin-top:8px;">Ajoute chaque moyen séparément — par exemple 100 € en espèces puis 50 € par virement.</div>
+        <div class="km-mention" id="mentionMixte" style="margin-top:8px;">Ajoute chaque moyen séparément — par exemple 350 € en espèces puis 200 € par virement. Le détail apparaît sur la facture et le reçu.</div>
       </div>
     </div>
 
@@ -9663,7 +9663,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v332';
+const APP_VERSION = 'jm-express-bon-v333';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -12649,6 +12649,7 @@ async function genererRecu(){
       pdf.text(455, y + 40, fmt(recuPaiement>0?recuPaiement:restePaiement), {font:'F2', size:13, rgb:[196,136,0]});
       y += 74;
     }
+    lignesEncaissementPdf(c).forEach(l => { pdf.text(50, y, l.label + ' : ' + fmt(l.montant), {size:8.5, gray:0.4}); y += 12; });
 
     pdf.text(50, y, 'Ce document est un reçu de paiement. Il ne tient pas lieu de facture', {size:9, gray:0.4}); y += 12;
     pdf.text(50, y, 'et ne peut pas être présenté à une assurance ou à une comptabilité.', {size:9, gray:0.4}); y += 12;
@@ -12969,6 +12970,7 @@ function construirePdfFacture(c, meta){
       pdf.text(56, y, 'Reste à payer', {font:'F2', size:10.5});
       pdf.text(455, y, fmt(Math.max(0,c.total-c.paiement.acompte.montant)), {font:'F2', size:11, rgb:[196,136,0]});
     }
+    lignesEncaissementPdf(c).forEach(l => { y += 16; pdf.text(56, y, l.label, {size:9.5, gray:0.3}); pdf.text(455, y, fmt(l.montant), {size:10}); });
     y += 34;
 
     pdf.text(50, y, S.franchise, {size:8.5, gray:0.4});
@@ -17082,6 +17084,13 @@ async function voirPhoto(key, field){
 }
 
 const MOYENS_PAIEMENT = ['Espèces', 'Virement', 'Bancontact', 'Carte', 'Autre'];
+// Détail des encaissements (ex. 350 € espèces + 200 € virement) pour facture / reçu
+function lignesEncaissementPdf(c){
+  const p = c && c.paiement;
+  if(!p || !Array.isArray(p.repartition) || p.repartition.length < 2) return [];
+  return p.repartition.map(r => ({label: 'Reçu ' + ((r.moyen||'') === 'Espèces' ? 'en espèces' : 'par ' + (r.moyen||'autre moyen').toLowerCase()) + (r.acompte ? ' (acompte)' : ''), montant: Number(r.montant)||0}));
+}
+
 
 function statutPaiement(d){
   const p = d.paiement;
@@ -17091,12 +17100,22 @@ function statutPaiement(d){
 
 let REPARTITION = [];
 
+let ACOMPTE_PAIEMENT_EN_COURS = null;   // acompte déjà encodé sur l'intervention ouverte
 function togglePaiementMixte(){
   const tg = document.getElementById('tgPaiementMixte');
   tg.classList.toggle('on');
   const actif = tg.classList.contains('on');
   document.getElementById('blocMixte').style.display = actif ? 'block' : 'none';
   document.getElementById('payRecu').disabled = actif;
+  if(actif && REPARTITION.length === 0){
+    // Pré-remplit avec ce qui est déjà reçu : l'acompte (ex. 350 € espèces) ou le montant partiel saisi.
+    const ac = ACOMPTE_PAIEMENT_EN_COURS;
+    const deja = parseFloat(document.getElementById('payRecu').value) || 0;
+    if(ac && ac.montant > 0) REPARTITION.push({moyen: ac.moyen || 'Espèces', montant: Math.round(ac.montant*100)/100, acompte:true});
+    else if(deja > 0) REPARTITION.push({moyen: document.getElementById('payMoyen').value || 'Espèces', montant: Math.round(deja*100)/100});
+    const sel = document.getElementById('mixteMoyen');
+    if(sel && REPARTITION.length) sel.value = REPARTITION[0].moyen === 'Espèces' ? 'Virement' : 'Espèces';
+  }
   if(actif) renderRepartition();
   majResteDu();
 }
@@ -17129,7 +17148,7 @@ function renderRepartition(){
   box.innerHTML = REPARTITION.map((r, i) => `
     <div class="hist-item" style="padding:10px 12px; margin-bottom:6px;">
       <div class="info">
-        <div style="font-size:13.5px; font-weight:600; color:var(--white);">${r.moyen}</div>
+        <div style="font-size:13.5px; font-weight:600; color:var(--white);">${r.moyen}${r.acompte ? ' <span style="font-size:11px; opacity:.7; font-weight:500;">· acompte</span>' : ''}</div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
         <span style="font-weight:700; color:var(--orange);">${fmt(r.montant)}</span>
@@ -17187,6 +17206,7 @@ async function ouvrirPaiement(key){
     document.getElementById('payTotalInterv').dataset.total = d.total || 0;
     REPARTITION = (d.paiement && Array.isArray(d.paiement.repartition))
       ? d.paiement.repartition.map(r => ({...r})) : [];
+    ACOMPTE_PAIEMENT_EN_COURS = (d.paiement && d.paiement.acompte && d.paiement.acompte.montant > 0) ? {...d.paiement.acompte} : null;
     const tgm = document.getElementById('tgPaiementMixte');
     tgm.classList.toggle('on', REPARTITION.length > 0);
     document.getElementById('blocMixte').style.display = REPARTITION.length ? 'block' : 'none';
@@ -17359,7 +17379,8 @@ function majResteDu(){
   const total = parseFloat(document.getElementById('payTotalInterv').dataset.total) || 0;
   const st = statutPaiementSelectionne();
   let recu = 0;
-  if(st === 'paye') recu = total;
+  if(typeof REPARTITION !== 'undefined' && REPARTITION.length) recu = totalRepartition();
+  else if(st === 'paye') recu = total;
   else if(st === 'partiel') recu = parseFloat(document.getElementById('payRecu').value) || 0;
   const reste = Math.max(0, total - recu);
   const el = document.getElementById('payResteDu');
@@ -17372,8 +17393,13 @@ async function enregistrerPaiement(){
   try{
     const res = await window.storage.get(paiementKeyEnCours);
     const d = JSON.parse(res.value);
-    const st = statutPaiementSelectionne();
+    let st = statutPaiementSelectionne();
     const total = d.total || 0;
+    if(REPARTITION.length){
+      const sRep = totalRepartition();
+      if(sRep >= total - 0.005) st = 'paye';            // espèces + virement couvrent le total → payé
+      else if(sRep > 0) st = 'partiel';
+    }
     let recu = 0;
     if(st === 'paye') recu = total;
     else if(st === 'partiel') recu = Math.min(total, parseFloat(document.getElementById('payRecu').value) || 0);
@@ -19352,7 +19378,12 @@ function construirePdfFactureV2(c, meta){
       pdf.text(56, y, 'Acompte déjà reçu (' + (c.paiement.acompte.moyen || 'moyen non précisé') + ')', {size:9.5, gray:0.3});
       pdf.text(455, y, '- ' + fmt(acV2), {size:10});
     }
-    y += acV2 ? 20 : 42;
+    const encV2 = lignesEncaissementPdf(c);
+    if(encV2.length){
+      y += acV2 ? 18 : 42;
+      encV2.forEach((l, i) => { if(i) y += 14; pdf.text(56, y, l.label, {size:9.5, gray:0.3}); pdf.text(455, y, fmt(l.montant), {size:10}); });
+      y += 22;
+    } else y += acV2 ? 20 : 42;
     if(payeV2){
       pdf.rect(50, y-12, 495, 22, {mode:'f', rgb:[227,245,235]});
       pdf.text(58, y+3, 'PAYÉ' + (c.paiement && c.paiement.moyen ? ' — ' + c.paiement.moyen : ''), {font:'F2', size:11, rgb:[18,136,74]});
@@ -19490,6 +19521,7 @@ async function genererRecuV2(){
       pdf.text(455, y + 40, fmt(recuPaiement>0?recuPaiement:restePaiement), {font:'F2', size:13, rgb: payeRV2 ? [18,136,74] : (recuPaiement>0 ? [23,32,39] : [201,58,60])});
       y += 74;
     }
+    lignesEncaissementPdf(c).forEach(l => { pdf.text(50, y, l.label + ' : ' + fmt(l.montant), {size:8.5, gray:0.4}); y += 12; });
 
     pdf.text(50, y, 'Ce document est un reçu de paiement. Il ne tient pas lieu de facture', {size:9, gray:0.4}); y += 12;
     pdf.text(50, y, 'et ne peut pas être présenté à une assurance ou à une comptabilité.', {size:9, gray:0.4}); y += 12;
