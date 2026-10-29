@@ -2467,6 +2467,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <option value="test_batt">Test batterie / alternateur</option>
         <option value="diag">Diagnostic électronique (valise OBD)</option>
         <option value="erreur_carburant">Erreur de carburant (vidange sur place)</option>
+        <option value="panne_seche">Panne sèche — apport d'essence / gasoil (sur place)</option>
         <option value="desembourbement">Désembourbement / treuillage</option>
         <option value="ct_passage">Contrôle technique — passage</option>
         <option value="ct_repassage">Contrôle technique — repassage / revisite</option>
@@ -4013,6 +4014,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           <div class="rate-row"><label>Test batterie / alternateur</label><input type="number" id="r_test_batt"></div>
           <div class="rate-row"><label>Diagnostic électronique (OBD)</label><input type="number" id="r_diag"></div>
           <div class="rate-row"><label>Erreur de carburant (vidange sur place)</label><input type="number" id="r_erreur_carburant"></div>
+          <div class="rate-row"><label>Panne sèche — apport d'essence / gasoil (sur place)</label><input type="number" id="r_panne_seche"></div>
           <div class="rate-row"><label>Ouverture de véhicule (forfait, hors déplacement)</label><input type="number" id="r_ouverture_vehicule"></div>
           <div class="rate-row"><label>Supplément ouverture keyless / haut de gamme</label><input type="number" id="r_ouverture_keyless"></div>
           <div class="rate-row"><label>Désembourbement / treuillage</label><input type="number" id="r_desembourbement"></div>
@@ -7100,7 +7102,7 @@ const TYPE_LABELS = {
   ouverture_vehicule:"Ouverture de véhicule (clés enfermées / perdues)", ouverture_keyless:"Supplément ouverture keyless / haut de gamme",
   transport_materiel:"Transport de matériel",
   pneu_chg:"Changement de pneu", pneu_rep:"Réparation de pneu", demarrage:"Démarrage batterie",
-  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", desembourbement:"Désembourbement / treuillage", ct_passage:"Contrôle technique — passage", ct_repassage:"Contrôle technique — repassage / revisite", ct_accidente:"Contrôle technique — véhicule accidenté (transport)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
+  test_batt:"Test batterie / alternateur", diag:"Diagnostic électronique (valise OBD)", erreur_carburant:"Erreur de carburant (vidange sur place)", panne_seche:"Panne sèche — apport d'essence / gasoil (sur place)", desembourbement:"Désembourbement / treuillage", ct_passage:"Contrôle technique — passage", ct_repassage:"Contrôle technique — repassage / revisite", ct_accidente:"Contrôle technique — véhicule accidenté (transport)", transfert:"Transfert véhicule", depannage:"Dépannage / remorquage général",
   changement_batterie:"Changement de batterie (achat + montage)",
   moto_remorquage:"Remorquage / chargement moto", moto_batterie:"Changement de batterie moto (achat + montage)",
   levee_saisie:"Transfert de levée de saisie (police → CT → entrepôt)",
@@ -7110,7 +7112,7 @@ const TYPE_LABELS = {
 
 const DEFAULT_RATES = {
   manutention15min:20, manutentionIncluse:0, interventionSansTransport:90, minimumSansTransport:90,
-  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:75, depannage:90,
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, panne_seche:0, desembourbement:140, transfert:75, depannage:90,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
@@ -7141,7 +7143,7 @@ const DEFAULT_RATES = {
 //  interventions calculées avant la v225. Ni les Réglages ni la synchro n'y touchent.
 // ===================================================================
 const TARIFS_V224 = Object.freeze({
-  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, desembourbement:140, transfert:55, depannage:65,
+  pneu_chg:70, pneu_rep:75, demarrage:70, test_batt:45, diag:65, erreur_carburant:149, panne_seche:0, desembourbement:140, transfert:55, depannage:65,
   changement_batterie:50, moto_remorquage:60, moto_batterie:35, levee_saisie:750,
   epave_demolition:90, epaveSansRouesFee:30,
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
@@ -9277,7 +9279,7 @@ const RV_CTX = {
 const rvEl = (ctx, k) => document.getElementById(ctx[k]);
 function rvActif(ctx){ const t = rvEl(ctx,'toggle'); return !!(t && t.classList.contains('on')); }
 // v320 : prestations faites sur place (pas de dépose) — le retour part de l'adresse d'intervention.
-const TYPES_SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+const TYPES_SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','panne_seche','ouverture_vehicule'];
 function rvSurPlace(ctx){ const t = rvEl(ctx,'type'); return !!(t && TYPES_SUR_PLACE.includes(t.value)); }
 function rvLireTo(ctx){ const e = rvEl(ctx,'to'); let v = e ? (e.value || '').trim() : ''; const p=ctx.nom==='devis'?'qqMulti':'multi';const a=jmMultiLire(p).remorquagesSupplementaires;if(a.length)v=a[a.length-1].to||'';
   if((!v || v === '—') && rvSurPlace(ctx)){ const f = document.getElementById(ctx.nom==='devis'?'qqFrom':'addrFrom'); v = f ? (f.value || '').trim() : ''; }
@@ -10880,7 +10882,7 @@ const TYPE_LABELS_NL = {
   ouverture_vehicule:"Openen voertuig (sleutels opgesloten / verloren)", ouverture_keyless:"Toeslag openen keyless / premium",
   transport_materiel:"Transport van materiaal",
   pneu_chg:"Bandenwissel", pneu_rep:"Bandenreparatie", demarrage:"Batterij starten",
-  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", desembourbement:"Losmaken / takelen uit modder", ct_passage:"Technische keuring — aanbieding", ct_repassage:"Technische keuring — herkeuring", ct_accidente:"Technische keuring — beschadigd voertuig (transport)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
+  test_batt:"Batterij-/dynamotest", diag:"Elektronische diagnose (OBD)", erreur_carburant:"Verkeerde brandstof (ter plaatse afgetapt)", panne_seche:"Pech door leeg tankje — brandstof bijvullen (ter plaatse)", desembourbement:"Losmaken / takelen uit modder", ct_passage:"Technische keuring — aanbieding", ct_repassage:"Technische keuring — herkeuring", ct_accidente:"Technische keuring — beschadigd voertuig (transport)", transfert:"Voertuigtransfer", depannage:"Pechverhelping / algemeen slepen",
   changement_batterie:"Batterij vervangen (aankoop + montage)",
   moto_remorquage:"Motor slepen/laden", moto_batterie:"Motorbatterij vervangen (aankoop + montage)",
   levee_saisie:"Overbrenging na inbeslagname (politie → keuring → opslag)",
@@ -10892,7 +10894,7 @@ const TYPE_LABELS_EN = {
   ouverture_vehicule:"Vehicle opening (keys locked in / lost)", ouverture_keyless:"Keyless / premium opening supplement",
   transport_materiel:"Material transport",
   pneu_chg:"Tire change", pneu_rep:"Tire repair", demarrage:"Battery jump-start",
-  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", desembourbement:"Winching out / bogged vehicle recovery", ct_passage:"Roadworthiness test — presentation", ct_repassage:"Roadworthiness test — re-test", ct_accidente:"Roadworthiness test — damaged vehicle (transport)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
+  test_batt:"Battery/alternator test", diag:"Electronic diagnostics (OBD)", erreur_carburant:"Wrong fuel (drained on site)", panne_seche:"Out of fuel — fuel delivered on site", desembourbement:"Winching out / bogged vehicle recovery", ct_passage:"Roadworthiness test — presentation", ct_repassage:"Roadworthiness test — re-test", ct_accidente:"Roadworthiness test — damaged vehicle (transport)", transfert:"Vehicle transfer", depannage:"Roadside assistance / general towing",
   changement_batterie:"Battery replacement (purchase + installation)",
   moto_remorquage:"Motorcycle towing/loading", moto_batterie:"Motorcycle battery replacement (purchase + installation)",
   levee_saisie:"Seizure release transfer (police → inspection → storage)",
@@ -15030,7 +15032,7 @@ const WA_PRESTATIONS = [
   [/remorqu|d[ée]pann|tract|emmener|tirer|accident|percut|collision/i, 'depannage'],
   [/batterie|d[ée]marre pas|ne d[ée]marre/i, 'changement_batterie'],
   [/pneu|crev/i, 'pneu_chg'],
-  [/carburant|mauvais plein|erreur de plein/i, 'erreur_carburant'],
+  [/panne s[eè]che|plus d'(essence|carburant|gasoil|diesel)|en panne d'(essence|gasoil|carburant|diesel)|sans (essence|gasoil|carburant)/i, 'panne_seche'], [/carburant|mauvais plein|erreur de plein/i, 'erreur_carburant'],
   [/embourb|enlis|boue|foss[ée]|treuil/i, 'desembourbement'],
   [/contr[ôo]le technique|\bCT\b/i, 'ct_passage'],
   [/transfert|convoyage/i, 'transfert']
@@ -19068,7 +19070,7 @@ try{ const m = location.hash.match(/#pair=([A-Z0-9-]+)/i); if(m){ setTimeout(() 
     pneu_chg:['🛞','#ffb11a','Pneu / roue','assistance'], pneu_rep:['🛞','#ffb11a','Pneu / roue','assistance'],
     demarrage:['🔋','#168bff','Batterie / alternateur','assistance'], test_batt:['🔋','#168bff','Batterie / alternateur','assistance'],
     changement_batterie:['🔋','#168bff','Batterie / alternateur','assistance'], moto_batterie:['🔋','#168bff','Batterie / alternateur','assistance'],
-    diag:['🧰','#a84dff','Diagnostic','assistance'], erreur_carburant:['⛽','#17c7d9','Carburant','assistance'],
+    diag:['🧰','#a84dff','Diagnostic','assistance'], erreur_carburant:['⛽','#17c7d9','Carburant','assistance'], panne_seche:['⛽','#17c7d9','Panne sèche','assistance'],
     ouverture_keyless:['🔑','#168bff','Ouverture de véhicule','assistance'],
     desembourbement:['🪝','#ff7a1a','Treuillage / sortie','speciales'],
     deblocage_boite:['🔓','#ff7a1a','Intervention spéciale','speciales'], deblocage_frein:['🔓','#ff7a1a','Intervention spéciale','speciales'],
@@ -19756,7 +19758,7 @@ async function genererRecuV2(){
   }
   // Historique : chaque fiche porte la couleur de sa famille de service.
   const FAMC = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', moto_remorquage:'#a84dff', moto_batterie:'#168bff', changement_batterie:'#168bff', demarrage:'#168bff', test_batt:'#168bff',
-    pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', diag:'#a84dff', erreur_carburant:'#17c7d9', ouverture_vehicule:'#168bff', desembourbement:'#ff7a1a', epave_demolition:'#00b894', levee_saisie:'#a84dff', ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766'};
+    pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', diag:'#a84dff', erreur_carburant:'#17c7d9', panne_seche:'#17c7d9', ouverture_vehicule:'#168bff', desembourbement:'#ff7a1a', epave_demolition:'#00b894', levee_saisie:'#a84dff', ct_passage:'#20c766', ct_repassage:'#20c766', ct_accidente:'#20c766'};
   async function colorerHistorique(){
     const items = document.querySelectorAll('.hist-item[data-key]');
     for(const el of items){ if(el.dataset.jmFam) continue; try{ const d = JSON.parse((await window.storage.get(el.dataset.key)).value); let col = FAMC[d.type] || '#ff9500'; if(d.type === 'depannage' && d.vehicleType === 'vsp') col = '#17c7d9'; el.style.setProperty('--fam', col); el.dataset.jmFam = d.type || 'autre'; }catch(e){} }
@@ -19779,13 +19781,13 @@ async function genererRecuV2(){
     transport:{t:'Transport véhicule', d:'Transfert · moto', c:'#20c766', s:[{v:'transfert'},{v:'moto_remorquage'}]},
     ct:{t:'Contrôle technique', d:'Passage · repassage · véhicule accidenté', c:'#20c766', s:[{v:'ct_passage'},{v:'ct_repassage'},{v:'ct_accidente'}]},
     materiel:{t:'Transport matériel', d:'Longerons · toiture légère · autre matériel', c:'#5e8194', s:[{v:'transport_materiel', mat:'longerons', lib:'Longerons / fers'},{v:'transport_materiel', mat:'toiture', lib:'Toiture légère (PVC, tôles)'},{v:'transport_materiel', mat:'autre', lib:'Autre matériel'}]},
-    assistance:{t:'Assistance sur place', d:'Batterie · ouverture · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'ouverture_vehicule'},{v:'diag'},{v:'erreur_carburant'}]},
+    assistance:{t:'Assistance sur place', d:'Batterie · ouverture · diagnostic · carburant', c:'#168bff', s:[{v:'demarrage'},{v:'test_batt'},{v:'changement_batterie'},{v:'moto_batterie'},{v:'ouverture_vehicule'},{v:'diag'},{v:'erreur_carburant'},{v:'panne_seche'}]},
     pneus:{t:'Pneus', d:'Changement de roue · réparation', c:'#ffb11a', s:[{v:'pneu_chg'},{v:'pneu_rep'}]},
     bloque:{t:'Véhicule bloqué', d:'Boîte auto · frein à main · point mort', c:'#ff7a1a', s:[{v:'depannage', x:'deblocage_boite'},{v:'depannage', x:'deblocage_frein'},{v:'depannage', x:'roulettes'}]},
     speciales:{t:'Interventions spéciales', d:'Treuillage · levée de saisie · épave', c:'#a84dff', s:[{v:'desembourbement'},{v:'levee_saisie'},{v:'epave_demolition'}]}
   };
   const ICO = {depannage:'🚨', transfert:'🚚', transport_materiel:'🏗️', vsp:'🚙', moto_remorquage:'🏍️', demarrage:'🔋', test_batt:'🔋', changement_batterie:'🔋', moto_batterie:'🔋',
-    diag:'🧰', erreur_carburant:'⛽', ouverture_vehicule:'🔑', pneu_chg:'🛞', pneu_rep:'🛞', desembourbement:'🪝', levee_saisie:'🚓', epave_demolition:'♻️', ct_passage:'📋', ct_repassage:'📋', ct_accidente:'📋',
+    diag:'🧰', erreur_carburant:'⛽', panne_seche:'⛽', ouverture_vehicule:'🔑', pneu_chg:'🛞', pneu_rep:'🛞', desembourbement:'🪝', levee_saisie:'🚓', epave_demolition:'♻️', ct_passage:'📋', ct_repassage:'📋', ct_accidente:'📋',
     deblocage_boite:'⚙️', deblocage_frein:'⚙️', roulettes:'🛒'};
   const COUL = {depannage:'#ff4d4f', transfert:'#20c766', transport_materiel:'#5e8194', vsp:'#17c7d9', moto_remorquage:'#a84dff', demarrage:'#168bff', test_batt:'#168bff', changement_batterie:'#168bff',
     moto_batterie:'#168bff', ouverture_vehicule:'#168bff', diag:'#a84dff', erreur_carburant:'#17c7d9', pneu_chg:'#ffb11a', pneu_rep:'#ffb11a', desembourbement:'#ff7a1a', levee_saisie:'#a84dff', epave_demolition:'#00b894',
@@ -19954,7 +19956,7 @@ async function genererRecuV2(){
     const _t = tamponnerHoraire;
     tamponnerHoraire = function(cle){ if(!$('hr_' + cle) && typeof initHorairesUI === 'function'){ try{ initHorairesUI(); }catch(e){} } if(!$('hr_' + cle)) return; return _t.apply(this, arguments); };
   }
-  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','panne_seche','ouverture_vehicule'];
   let MODE = 'surplace', DEPOSE_MEMO = '';
   const typeActuel = () => ($('type') || {}).value || '';
   const estSurPlace = () => SUR_PLACE.includes(typeActuel()) && MODE === 'surplace';
@@ -20021,7 +20023,7 @@ async function genererRecuV2(){
   //  hors majoration nuit / week-end. Moteur tarifaire inchangé.
   // ===================================================================
   const $ = id => document.getElementById(id);
-  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','panne_seche','ouverture_vehicule'];
   const num = id => { const v = parseFloat(String(($(id) || {}).value || '').replace(',', '.')); return Number.isFinite(v) && v > 0 ? v : 0; };
   const r2 = x => Math.round(x * 100) / 100;
   function surPlaceActif(){ const t = ($('type') || {}).value; const on = document.querySelector('#deposeMode .toggle.on'); return SUR_PLACE.includes(t) && (!on || on.dataset.m === 'surplace'); }
@@ -20476,7 +20478,7 @@ async function genererRecuV2(){
   //  Utilise les champs existants du formulaire : aucun calcul modifié.
   // ===================================================================
   const $ = id => document.getElementById(id);
-  const BATT = ['demarrage','test_batt','changement_batterie','moto_batterie'], PNEU = ['pneu_chg','pneu_rep'], CARBU = ['erreur_carburant'], OUV = ['ouverture_vehicule'], DIAG = ['diag'];
+  const BATT = ['demarrage','test_batt','changement_batterie','moto_batterie'], PNEU = ['pneu_chg','pneu_rep'], CARBU = ['erreur_carburant','panne_seche'], OUV = ['ouverture_vehicule'], DIAG = ['diag'];
   const type = () => (document.getElementById('type') || {}).value || '';
   const sauf = (...listes) => () => !listes.some(l => l.includes(type())), pour = (...listes) => () => listes.some(l => l.includes(type()));
   const Q = [
@@ -20921,7 +20923,7 @@ async function genererRecuV2(){
   // ===================================================================
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','panne_seche','ouverture_vehicule'];
   window.jmEstSurPlace = d => !!d && (d.surPlace === true || (SUR_PLACE.includes(d.type) && !(d.to && d.to !== '—')));
   window.jmTrajetTexte = function(d){
     const aDep = d.to && d.to !== '—';
@@ -21102,7 +21104,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   // ===================================================================
   const $ = id => document.getElementById(id);
   const v = id => (($(id) || {}).value || '').trim();
-  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','ouverture_vehicule'];
+  const SUR_PLACE = ['pneu_chg','pneu_rep','demarrage','test_batt','changement_batterie','moto_batterie','diag','erreur_carburant','panne_seche','ouverture_vehicule'];
   let CLE = null, GARDER = false;
   const propre = t => String(t || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
   function libService(){ const s = $('type'); return s ? propre((s.options[s.selectedIndex] || {}).textContent) : '—'; }
@@ -21323,7 +21325,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     [/test(er)? (de )?(la )?batterie|testeur|alternateur/, {v:'test_batt'}], [/(change|remplace|nouvelle|poser une).{0,15}batterie/, {v:'changement_batterie'}],
     [/batterie|demarr|booster|cables?|plus de jus/, {v:'demarrage'}], [/repar.{0,20}(pneu|roue|crevaison)|(pneu|roue|crevaison).{0,20}repar/, {v:'pneu_rep'}],
     [/crev|pneu|roue/, {v:'pneu_chg'}], [/ouvr|ouverture|cles? (enferme|perdu|oubli)|clef/, {v:'ouverture_vehicule'}],
-    [/carburant|essence dans|diesel dans|gasoil dans|mauvais plein/, {v:'erreur_carburant'}], [/embourb|enlise|treuil|fosse|boue/, {v:'desembourbement'}],
+    [/panne s[eè]che|plus d'(essence|carburant|gasoil|diesel)|en panne d'(essence|gasoil|carburant|diesel)|sans (essence|gasoil|carburant)/, {v:'panne_seche'}], [/carburant|essence dans|diesel dans|gasoil dans|mauvais plein/, {v:'erreur_carburant'}], [/embourb|enlise|treuil|fosse|boue/, {v:'desembourbement'}],
     [/(controle technique|\bct\b).{0,40}(repass|revisite|contre.?visite)|(repass|revisite).{0,30}(controle|\bct\b)/, {v:'ct_repassage'}],
     [/(controle technique|\bct\b).{0,40}accident/, {v:'ct_accidente'}], [/controle technique|\bct\b/, {v:'ct_passage'}],
     [/epave|demolition|a la casse/, {v:'epave_demolition'}], [/materiel|longeron|toiture|toles?|poutre/, {v:'transport_materiel'}],
@@ -21365,7 +21367,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
     r.nuit = typeof estDansPlageNuit === 'function' ? estDansPlageNuit(quand) : false;
     r.we = typeof estWeekEndOuFerie === 'function' ? estWeekEndOuFerie(quand) : [0, 6].includes(quand.getDay());
     if(/\bferie\b|jour ferie/.test(t)) r.we = true;
-    const surPlace = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'].includes(r.service.v);
+    const surPlace = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','panne_seche','diag'].includes(r.service.v);
     // Départ : premier « depuis / de / du / d' » qui n'introduit pas le véhicule ; arrivée : après « jusqu'à, vers, pour aller à, déposer à… »
     const md = texte.match(DEST), gauche = md ? texte.slice(0, md.index) : texte, droite = md ? texte.slice(md.index + md[0].length) : '';
     const BRUIT = new Set("j ai j'ai il y a un une client cliente monsieur madame en panne pour le la les l' des du d'un d'une c'est combien euh alors donc bonjour voila voilà demande qui besoin faut remorquage remorquer depannage depanner dépannage dépanner demarrage démarrage demarrer démarrer batterie plat booster crevaison creve crevé crevee crevée pneu roue changement reparation réparation ouverture cles clés cle clé enfermees enfermées carburant essence diesel transfert transporter vsp voiture sans permis vehicule véhicule moto scooter controle contrôle technique ct epave épave treuillage desembourbement désembourbement embourbe embourbé test devis prix intervention urgence accident accidente accidenté immobilise immobilisé ne demarre démarre pas plus mon ma son sa".split(' '));
@@ -21462,7 +21464,7 @@ window.jmEffacerAdresse = function(id){ const f = document.getElementById(id); i
   if(typeof mesurerDistanceDevis === 'function'){
     const _m = mesurerDistanceDevis;
     mesurerDistanceDevis = async function(){
-      const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'];
+      const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','panne_seche','diag'];
       const from = ($('qqFrom').value || '').trim(), to = ($('qqTo').value || '').trim();
       if(!SUR.includes(($('qqType') || {}).value) || to || !from) return _m.apply(this, arguments);
       if(!navigator.onLine){ showToast('Hors ligne : entre le km manuellement'); return; }
@@ -22493,7 +22495,7 @@ window.jmOuvrirChatGPT = async function(){
         const c = await claude(String(texte).trim(), 'phrase'), ph = c && c.phrase;
         const dep = ph && ph.depart && ph.depart.requetes && ph.depart.requetes[0], arr = ph && ph.arrivee && ph.arrivee.requetes && ph.arrivee.requetes[0];
         const pays = o => o && o.pays && PAYS[o.pays] ? ', ' + PAYS[o.pays] : '';
-        const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','diag'];
+        const SUR = ['demarrage','test_batt','changement_batterie','moto_batterie','pneu_chg','pneu_rep','ouverture_vehicule','erreur_carburant','panne_seche','diag'];
         if(dep && !arr && !SUR.includes(($('qqType') || {}).value) && !$('qqTo').value.trim()){
           $('modalLieuBg').classList.remove('show'); $('qqFrom').value = dep + pays(ph.depart); $('qqFrom').dispatchEvent(new Event('input', {bubbles:true}));
           const msg = 'Claude a lu le départ, ' + dep + ', mais pas de destination. Précise-la dans le devis.';
