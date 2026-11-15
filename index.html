@@ -3197,6 +3197,14 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <div class="toggle" id="tgCamion" onclick="toggle('tgCamion'); updateKmLabel(); updateAdvancedSummary()" style="display:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M2 7h11v9H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.7"/><circle cx="17" cy="18" r="1.7"/></svg> 🚚 Trajet en camion (au lieu du véhicule perso)</div>
     </div>
 
+    <div class="toggles" id="blocChoixAttente" style="margin:4px 0 12px;">
+  <div class="toggle" id="tgAttente" onclick="toggle('tgAttente'); updateAttenteField(); updateAdvancedSummary()">⏱️ Temps d'attente sur place</div>
+    </div>
+    <div class="field" id="attenteField" style="display:none; margin-bottom:12px;">
+      <label>Minutes d'attente sur place (client en attente de confirmation d'assistance, client absent, procédure...)</label>
+      <input type="number" id="minutesAttente" placeholder="0" min="0" step="15" inputmode="numeric" oninput="invaliderTicketObsolete(); updateAdvancedSummary()">
+    </div>
+
     <div class="field">
       <label>Prix annoncé au client (optionnel)</label>
       <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
@@ -3597,15 +3605,10 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
 
         <div class="toggles" style="margin-bottom:8px;">
           <div class="toggle" id="tgGardiennage" onclick="toggle('tgGardiennage'); updateGardiennageField(); updateAdvancedSummary()">🏚️ Gardiennage (jours suppl.)</div>
-          <div class="toggle" id="tgAttente" onclick="toggle('tgAttente'); updateAttenteField(); updateAdvancedSummary()">⏱️ Temps d'attente</div>
         </div>
         <div class="field" id="gardiennageField" style="display:none; margin-bottom:12px;">
           <label>Jours de gardiennage supplémentaires (au-delà des jours gratuits)</label>
           <input type="number" id="joursGardiennage" placeholder="0" min="0" inputmode="numeric" oninput="updateAdvancedSummary()">
-        </div>
-        <div class="field" id="attenteField" style="display:none; margin-bottom:12px;">
-          <label>Minutes d'attente sur place (client absent, procédure...)</label>
-          <input type="number" id="minutesAttente" placeholder="0" min="0" step="15" inputmode="numeric" oninput="updateAdvancedSummary()">
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Tarif km exceptionnel (geste commercial)</label>
@@ -20080,7 +20083,7 @@ async function genererRecuV2(){
       const c2 = {...c, fraisMontant: f.fraisUtilisateur || 0, fraisLibelle: f.libelleUtilisateur || '', total: r2((c.total || 0) - f.total)};
       const args = [...arguments]; args[0] = c2; const L = _l.apply(this, args);
       const ajout = [];
-      if(f.piece) ajout.push({label: f.libellePiece + ' (prix d\'achat ' + fmt(f.prixAchat) + (f.margeEur !== undefined ? ' + marge ' + fmt(f.margeEur) : ' + ' + f.marge + ' %') + ')', amount: f.piece, type: 'ligne'});
+      if(f.piece) ajout.push({label: f.libellePiece, amount: f.piece, type: 'ligne'}); // v339 : marge non détaillée sur la facture (montant total seulement)
       if(f.temps) ajout.push({label: 'Temps chez le fournisseur (' + f.minutes + ' min)', amount: f.temps, type: 'ligne'});
       const i = L.findIndex(l => l.type === 'remise' || l.type === 'arrondi');
       if(i < 0) L.push(...ajout); else L.splice(i, 0, ...ajout);
