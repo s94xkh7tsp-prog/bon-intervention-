@@ -17203,7 +17203,7 @@ async function loadHistory(){
       }
       const rechargerBadge = `<div class="pay-badge recharger" onclick="chargerInterventionDepuisJournal('${it.key}')">${ico(ICO.crayon,13)} Modifier</div>`;
       const noteCreditBadge = d.invoiceNumber
-        ? `<div class="pay-badge" style="background:rgba(201,74,50,0.10); color:var(--red);" onclick="ouvrirNoteCredit('${it.key}')">🧾 Note de crédit</div>`
+        ? `<div class="pay-badge" role="button" style="flex:1 1 100%; justify-content:center; padding:10px 12px; font-size:14px; font-weight:800; background:rgba(201,74,50,0.14); color:var(--red); border:2px solid var(--red);" onclick="ouvrirNoteCredit('${it.key}')">🧾 Émettre une note de crédit pour annuler la facture ${d.invoiceNumber}</div>`
         : '';
       const statutBadge = estAFaire(d)
         ? `<div class="pay-badge afaire" onclick="toggleStatut('${it.key}')">${ico(ICO.camion,13)} À faire</div>`
