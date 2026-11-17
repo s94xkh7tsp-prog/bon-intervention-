@@ -9725,7 +9725,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v344';
+const APP_VERSION = 'jm-express-bon-v345';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16240,7 +16240,7 @@ function jmResetFormulaireIntervention(){
 }
 
 // v343 : rappel retour à la base quand un trajet fournisseur a été saisi (pneus)
-function rappelRetourBaseFournisseur(){
+async function rappelRetourBaseFournisseur(){
   try{
     const t = (document.getElementById('type') || {}).value;
     const fourn = document.getElementById('tgFourn');
@@ -16249,14 +16249,21 @@ function rappelRetourBaseFournisseur(){
     if(retour.classList.contains('on')) return;
     // Mission terminée : une seule question, posée au moment d'enregistrer.
     const ok = window.confirm('Mission terminée : tu rentres à la base ?\n\nOK = oui, ajouter le retour à la base\nAnnuler = non, je ne rentre pas maintenant');
-    if(ok){ retour.classList.add('on'); if(typeof rvSurToggle === 'function' && typeof RV_CTX !== 'undefined') rvSurToggle(RV_CTX.form); return; }
+    if(ok){
+      retour.classList.add('on');
+      if(typeof rvSurToggle === 'function' && typeof RV_CTX !== 'undefined') rvSurToggle(RV_CTX.form);
+      // v345 : attendre la mesure du retour (itinéraire) avant de calculer et d'enregistrer
+      const enCours = (typeof RV_CTX !== 'undefined' && RV_CTX.form && RV_CTX.form.mesure) ? RV_CTX.form.mesure.enCours : null;
+      if(enCours) { try{ await enCours; }catch(e){} }
+      return;
+    }
     // Pas de retour : on demande si une autre intervention enchaîne, pour ne pas revenir modifier cette fiche.
     const enchaine = window.confirm('Tu enchaînes une autre intervention à partir d\'ici ?\n\nOK = oui (pas de retour ajouté ici, la prochaine fiche part de ce point)\nAnnuler = non (le client est le dernier point, sans retour)');
     if(enchaine && typeof showToast === 'function') showToast('Noté : enchaînement sur une autre intervention, pas de retour ajouté');
   }catch(e){ /* le rappel ne doit jamais bloquer l'enregistrement */ }
 }
 async function enregistrer(){
-  rappelRetourBaseFournisseur();
+  await rappelRetourBaseFournisseur();
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   // v215 : le formulaire peut avoir été modifié après le dernier calcul (ex. plaque).
   // Rafraîchir lastCalc juste avant la sauvegarde évite de réenregistrer les anciennes valeurs.
