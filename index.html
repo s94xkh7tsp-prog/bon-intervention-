@@ -3205,6 +3205,19 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
       <input type="number" id="minutesAttente" placeholder="0" min="0" step="15" inputmode="numeric" oninput="invaliderTicketObsolete(); updateAdvancedSummary()">
     </div>
 
+    <div id="blocIdentRoue" class="field" style="display:none; margin-bottom:12px; border:1px solid #ffb11a; border-radius:10px; padding:10px;">
+      <label style="font-weight:700;">🛞 Identification de la roue</label>
+      <input type="text" id="identRoueRef" placeholder="Référence / n° DOT / VIN (facultatif)" oninput="invaliderTicketObsolete()" style="margin-bottom:8px;">
+      <div class="toggles" style="margin:4px 0 8px;">
+        <div class="toggle" id="tgIdentIndispo" onclick="toggle('tgIdentIndispo'); invaliderTicketObsolete();">Informations indisponibles à distance</div>
+        <div class="toggle" id="tgIdentDeplacement" onclick="toggle('tgIdentDeplacement'); invaliderTicketObsolete();">Déplacement préalable pour identification de la roue</div>
+      </div>
+      <div class="toggles" style="margin:4px 0 8px;">
+        <div class="toggle" id="tgIdentMention" onclick="toggle('tgIdentMention'); invaliderTicketObsolete();">Mentionner sur la facture (texte modifiable, sans montant)</div>
+      </div>
+      <textarea id="identRoueMention" rows="3" oninput="invaliderTicketObsolete()" style="width:100%; box-sizing:border-box;"></textarea>
+    </div>
+
     <div class="field">
       <label>Prix annoncé au client (optionnel)</label>
       <input type="number" id="prixAnnonce" placeholder="Montant annoncé au téléphone" min="0" step="1" inputmode="decimal" oninput="invaliderTicketObsolete()">
@@ -9712,7 +9725,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v341';
+const APP_VERSION = 'jm-express-bon-v344';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -12240,6 +12253,7 @@ async function chargerInterventionDepuisJournal(key){
   setTog('tgGardiennage', d.joursGardiennage > 0);
   document.getElementById('joursGardiennage').value = d.joursGardiennage || '';
   setTog('tgAttente', d.minutesAttente > 0);
+  restaurerIdentRoue(d.identRoue);
   document.getElementById('minutesAttente').value = d.minutesAttente || '';
   document.getElementById('kmTarifExceptionnel').value = d.kmTarifExcept || '';
   document.getElementById('ctRepasseMontant').value = d.ctRepasse || '';
@@ -13674,8 +13688,33 @@ function majAlerteLongueur(){
   } else el.style.display = 'none';
 }
 
+const IDENT_ROUE_MENTION_DEFAUT = "Déplacement préalable effectué pour identification de la roue (dimensions, référence, état). Informations indisponibles à distance : le déplacement a été nécessaire pour déterminer la pièce à fournir.";
+function afficherIdentRoue(){
+  const b = document.getElementById('blocIdentRoue'); if(!b) return;
+  const t = (document.getElementById('type') || {}).value;
+  const pneu = t === 'pneu_chg' || t === 'pneu_rep';
+  b.style.display = pneu ? 'block' : 'none';
+  const m = document.getElementById('identRoueMention');
+  if(pneu && m && !m.value.trim()) m.value = IDENT_ROUE_MENTION_DEFAUT;
+}
+function lireIdentRoue(){
+  const on = id => { const e = document.getElementById(id); return !!(e && e.classList.contains('on')); };
+  const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const t = (document.getElementById('type') || {}).value;
+  if(!(t === 'pneu_chg' || t === 'pneu_rep')) return null;
+  return {ref: val('identRoueRef'), indisponible: on('tgIdentIndispo'), deplacement: on('tgIdentDeplacement'), mentionOn: on('tgIdentMention'), mention: val('identRoueMention')};
+}
+function restaurerIdentRoue(d){
+  const setTog = (id, actif) => { const e = document.getElementById(id); if(e) e.classList.toggle('on', !!actif); };
+  const r = d || {};
+  const ref = document.getElementById('identRoueRef'); if(ref) ref.value = r.ref || '';
+  setTog('tgIdentIndispo', r.indisponible); setTog('tgIdentDeplacement', r.deplacement); setTog('tgIdentMention', r.mentionOn);
+  const m = document.getElementById('identRoueMention'); if(m) m.value = (r.mention !== undefined ? r.mention : IDENT_ROUE_MENTION_DEFAUT);
+  afficherIdentRoue();
+}
 function updateKmLabel(){
   const type = document.getElementById('type').value;
+  if(typeof afficherIdentRoue === 'function') afficherIdentRoue();
   const blocMat = document.getElementById('blocMateriel'); if(blocMat) blocMat.style.display = type === 'transport_materiel' ? 'block' : 'none';
   const isRemorquage = TYPES_REMORQUAGE.includes(type);
   const camionOn = document.getElementById('tgCamion').classList.contains('on');
@@ -15631,6 +15670,7 @@ function calculer(){
       battPrice, battDeplacement,
       gardiennageOn, joursGardiennage,
       attenteOn, minutesAttente,
+      identRoue: lireIdentRoue(),
       ctRepasseMontant: ctRepasse,
       donneesCT,
       operationsEnlise,
@@ -15716,7 +15756,7 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+  lastCalc = {identRoue: lireIdentRoue(), clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), paiementRecuForm: lirePaiementRecuForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, annulationMotif, annulationGratuite, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
@@ -15937,11 +15977,11 @@ const CHAMPS_BROUILLON = [
   'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
   'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
   'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
-  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage'
+  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage','identRoueRef','identRoueMention'
 ];
 const TOGGLES_BROUILLON = [
   'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
-  'tgAttente','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink','tgSousSol','tgSuppInforme','tgIncident','tgIncidentRefus','tgRemisePro','tgCtFraisAvances'
+  'tgAttente','tgIdentIndispo','tgIdentDeplacement','tgIdentMention','tgAnnulation','tgRevolut','tgPayconiq','tgRevlink','tgSousSol','tgSuppInforme','tgIncident','tgIncidentRefus','tgRemisePro','tgCtFraisAvances'
 ];
 
 let brouillonTimer = null;
@@ -16199,7 +16239,24 @@ function jmResetFormulaireIntervention(){
   lastCalc = null;
 }
 
+// v343 : rappel retour à la base quand un trajet fournisseur a été saisi (pneus)
+function rappelRetourBaseFournisseur(){
+  try{
+    const t = (document.getElementById('type') || {}).value;
+    const fourn = document.getElementById('tgFourn');
+    const retour = document.getElementById('tgRetour');
+    if(!(t === 'pneu_chg' || t === 'pneu_rep') || !fourn || !fourn.classList.contains('on') || !retour) return;
+    if(retour.classList.contains('on')) return;
+    // Mission terminée : une seule question, posée au moment d'enregistrer.
+    const ok = window.confirm('Mission terminée : tu rentres à la base ?\n\nOK = oui, ajouter le retour à la base\nAnnuler = non, je ne rentre pas maintenant');
+    if(ok){ retour.classList.add('on'); if(typeof rvSurToggle === 'function' && typeof RV_CTX !== 'undefined') rvSurToggle(RV_CTX.form); return; }
+    // Pas de retour : on demande si une autre intervention enchaîne, pour ne pas revenir modifier cette fiche.
+    const enchaine = window.confirm('Tu enchaînes une autre intervention à partir d\'ici ?\n\nOK = oui (pas de retour ajouté ici, la prochaine fiche part de ce point)\nAnnuler = non (le client est le dernier point, sans retour)');
+    if(enchaine && typeof showToast === 'function') showToast('Noté : enchaînement sur une autre intervention, pas de retour ajouté');
+  }catch(e){ /* le rappel ne doit jamais bloquer l'enregistrement */ }
+}
 async function enregistrer(){
+  rappelRetourBaseFournisseur();
   if(!lastCalc){ showToast('Calculez d\'abord le montant'); return; }
   // v215 : le formulaire peut avoir été modifié après le dernier calcul (ex. plaque).
   // Rafraîchir lastCalc juste avant la sauvegarde évite de réenregistrer les anciennes valeurs.
@@ -19479,6 +19536,10 @@ function construirePdfFactureV2(c, meta){
       if(c.donneurNom) parts.push(c.donneurNom);
       pdf.text(50, y, "Donneur d'ordre : " + parts.join(' - '), {size:9.5, gray:0.3}); y += 13;
       if(c.refDossier){ pdf.text(50, y, 'Reference dossier : ' + c.refDossier, {size:9.5, gray:0.3}); y += 13; }
+    }
+    if(c.identRoue && c.identRoue.mentionOn && c.identRoue.mention){
+      wrapText(c.identRoue.mention, 105).forEach(ligne => { pdf.text(50, y, ligne, {size:8.5, gray:0.3}); y += 11; });
+      y += 4;
     }
     if(c.km){
       const lignesKm = descKmFacturableLignes(c, lang, false);
