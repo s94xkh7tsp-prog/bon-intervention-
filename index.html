@@ -2454,6 +2454,11 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <span class="gb-txt">Mes appels</span>
         <span class="gb-badge" id="gbAppelsBadge" style="display:none;">0</span>
       </div>
+      <div class="gros-bouton" onclick="jmAgenda.ouvrir()">
+        <span class="gb-ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg></span>
+        <span class="gb-txt">À mettre au calendrier</span>
+        <span class="gb-badge" id="gbAgendaBadge" style="display:none;">0</span>
+      </div>
     </div>
   </section>
 
@@ -3991,6 +3996,35 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="field" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="apTranscAuto" style="width:auto;"><label for="apTranscAuto" style="margin:0;">Transcrire automatiquement après l'enregistrement</label></div>
     <p class="ap-meta" id="apEspace"></p>
     <p class="ap-meta" style="margin-top:8px;">Seule votre note vocale, enregistrée quand vous appuyez sur le micro après l'appel, est conservée : l'appli n'enregistre jamais une conversation téléphonique. Les audios restent sur ce téléphone (jamais synchronisés) et ne sont envoyés qu'au serveur JM Express pour la transcription, sans y être conservés. Texte et fiches se synchronisent avec le téléphone de secours. Supprimer un appel supprime texte, fiche et audio.</p>
+  </div>
+  </section>
+
+  <!-- ===================== v348 : À mettre au calendrier ===================== -->
+  <section class="tab-section" id="tabAgenda" style="display:none;">
+  <div class="eyebrow">Rappels à encoder</div>
+  <h1 class="page-title">À mettre au calendrier</h1>
+  <p class="page-sub">Les échéances données par Claude ou ChatGPT (bilans Google Ads, budgets, maintenance). Un appui ouvre le Calendrier iPhone avec tout pré-rempli ; cochez ensuite « Encodé ». Les notifications restent celles du Calendrier.</p>
+
+  <div class="ag-list" id="agListe"></div>
+
+  <div class="eyebrow">Ajouter</div>
+  <div class="card ag-form" id="agForm">
+    <b id="agFormTitre">Ajouter un rappel</b>
+    <label for="agTitre">Titre</label><input id="agTitre" type="text" placeholder="Ex. Bilan Google Ads, échéance assurance…">
+    <div class="ag-grid">
+      <div><label for="agDate">Date</label><input id="agDate" type="date"></div>
+      <div><label for="agHeure">Heure</label><input id="agHeure" type="time"></div>
+    </div>
+    <label for="agNotes">Notes</label><textarea id="agNotes" rows="2" placeholder="Quoi faire, avec quoi…"></textarea>
+    <label for="agOrigine">Origine</label><select id="agOrigine"><option>Moi</option><option>Claude</option><option>ChatGPT</option></select>
+    <button type="button" class="primary" id="agEnregistrer" style="margin-top:12px;">Enregistrer le rappel</button>
+  </div>
+
+  <div class="card ag-form" style="margin-top:12px;">
+    <b>Coller des rappels</b>
+    <p class="page-sub" style="margin:6px 0 8px;">Une ligne par rappel : <code>2026-12-05 09:10 | Bilan J+14 campagne Transport | notes facultatives</code>. Les doublons sont ignorés.</p>
+    <textarea id="agColle" rows="4" placeholder="2026-12-05 09:10 | Titre | notes"></textarea>
+    <button type="button" class="ghost" id="agCollerBtn" style="margin-top:10px;">Ajouter les lignes collées</button>
   </div>
   </section>
 
@@ -8639,6 +8673,7 @@ async function prochaineEcheancePub(){
 }
 
 async function checkPubReminder(){
+  return;   // v348 — plus de prestataire publicitaire : rappel de paiement désactivé (historique des frais conservé)
   try{
     const echeanceStr = await prochaineEcheancePub();
     const echeance = new Date(echeanceStr + 'T00:00:00');
@@ -9794,7 +9829,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v347';
+const APP_VERSION = 'jm-express-bon-v348';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11234,7 +11269,7 @@ function zoneVersDevis(){
 }
 
 function showTab(tab, forcer){
-  const sections = {tabAccueil:'tabAccueil', tabNouveau:'tabNouveau', tabHistorique:'tabHistorique', tabAppels:'tabAppels'};   // v347 : Mes appels & rentabilité
+  const sections = {tabAccueil:'tabAccueil', tabNouveau:'tabNouveau', tabHistorique:'tabHistorique', tabAppels:'tabAppels', tabAgenda:'tabAgenda'};   // v347 : Mes appels & rentabilité ; v348 : À mettre au calendrier
   if(!forcer && currentTab === 'tabNouveau' && tab !== 'tabNouveau' && lastCalc && !editingKey){
     demanderConfirmationSortie(() => showTab(tab, true));
     return;
@@ -18574,7 +18609,7 @@ window.addEventListener('unhandledrejection', (event) => {
 //    automatiquement sur les champs financiers/statut → choix explicite.
 //  - Désactivée tant qu'aucun appareil n'est associé : comportement v211 strict.
 // ===================================================================
-const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:', 'depot:', 'appel:'];   // v347 : fiches d'appels (texte + fiche ; audios jamais synchronisés)
+const SYNC_PREFIXES = ['intervention:', 'devis:', 'bdc:', 'rdv:', 'rachat:', 'depot:', 'appel:', 'rappel:'];   // v347 : fiches d'appels (texte + fiche ; audios jamais synchronisés)
 const SYNC_CLES = ['recettesPerso', 'clients', 'routes', 'favorisDestinations', 'accesVehiculeNotes', 'dispatch:active', 'dispatch:depart', 'dispatch:mode', 'rachatReperes', 'achatCounter', 'venteCounter', 'pubCampagnes', 'pubDepenses', 'dispoStatut', 'gardiennageCounter', 'chargesFixesMaj'];
 const SYNC_CLES_REGLAGES = ['rates', 'baseAddress', 'nightHours', 'revolutLink'];   // principal → secours, lecture seule
 const SYNC_CHAMPS_PROTEGES = ['prixAnnonce', 'total', 'paye', 'paiement', 'statut', 'factures', 'creditNotes', 'bonsCommande', 'remiseValue', 'remiseUnit', 'remiseAmount', 'invoiceNumber', 'invoicedTotal'];
@@ -23864,5 +23899,6 @@ async function jmClientChoisirContact(){
 })();
 </script>
 <script src="appels.js?v=347"></script>
+<script src="agenda.js?v=348"></script>
 </body>
 </html>
