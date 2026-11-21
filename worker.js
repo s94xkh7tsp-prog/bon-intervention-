@@ -37,6 +37,73 @@ async function appareilDepuisJeton(req, env){
   return d;
 }
 
+async function transcrireNote(req, env){
+  const cle = (env.OPENAI_API_KEY || '').trim();
+  if(!cle) return json({error:'ia_non_configuree'}, 503);
+  let b;
+  try{ b = await req.json(); }catch(e){ return json({error:'json'}, 400); }
+  const b64 = b && b.audioBase64;
+  const limite = 24 * 1048576;
+  if(typeof b64 !== 'string' || !b64) return json({error:'audio_invalide'}, 400);
+  if(b64.length > 4 * Math.ceil(limite / 3)) return json({error:'audio_trop_lourd'}, 413);
+  let octets;
+  try{ octets = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
+  catch(e){ return json({error:'audio_invalide'}, 400); }
+  if(!octets.length) return json({error:'audio_invalide'}, 400);
+  if(octets.length > limite) return json({error:'audio_trop_lourd'}, 413);
+  const entete = String.fromCharCode(...octets.subarray(0, 12));
+  const formats = {
+    'audio/mp4':'mp4', 'video/mp4':'mp4', 'audio/x-m4a':'m4a', 'audio/m4a':'m4a',
+    'audio/webm':'webm', 'video/webm':'webm', 'audio/ogg':'ogg', 'audio/mpeg':'mp3',
+    'audio/wav':'wav', 'audio/x-wav':'wav'
+  };
+  let mime = String(b.mime || '').split(';')[0].trim().toLowerCase();
+  if(entete.slice(4, 8) === 'ftyp') mime = 'audio/mp4';
+  else if(entete.startsWith('\x1a\x45\xdf\xa3')) mime = 'audio/webm';
+  else if(entete.startsWith('OggS')) mime = 'audio/ogg';
+  else if(entete.startsWith('RIFF') && entete.slice(8, 12) === 'WAVE') mime = 'audio/wav';
+  const ext = Object.hasOwn(formats, mime) && formats[mime];
+  if(!ext) return json({error:'audio_format'}, 415);
+
+  const audio = new Blob([octets], {type:mime});
+  const principal = (env.OPENAI_TRANSCRIPTION_MODEL || '').trim() || 'gpt-4o-mini-transcribe';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 55000);
+  try{
+    for(const modele of new Set([principal, 'whisper-1'])){
+      const fd = new FormData();
+      fd.append('file', audio, 'note.' + ext);
+      fd.append('model', modele);
+      fd.append('language', 'fr');
+      fd.append('response_format', 'json');
+      const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method:'POST', signal:ctrl.signal, headers:{Authorization:'Bearer ' + cle}, body:fd
+      });
+      const data = await r.json().catch(() => null);
+      if(r.ok && typeof data?.text === 'string'){
+        const texte = data.text.trim();
+        return texte ? json({texte}) : json({error:'audio_sans_texte'}, 422);
+      }
+      const code = data?.error?.code;
+      if(r.status === 401) return json({error:'ia_cle_refusee', statut:r.status}, 503);
+      if(r.status === 429) return json({
+        error:code === 'insufficient_quota' ? 'ia_quota' : 'ia_limite', statut:r.status
+      }, 429);
+      if(r.status === 413) return json({error:'audio_trop_lourd'}, 413);
+      if(modele !== 'whisper-1' && [400, 403, 404, 415, 422, 500, 502, 503, 504].includes(r.status)) continue;
+      if(r.status === 403 || r.status === 404 || code === 'model_not_found'){
+        return json({error:'ia_modele', statut:r.status}, 503);
+      }
+      if([400, 415, 422].includes(r.status)) return json({error:'audio_refuse', statut:r.status}, 422);
+      return json({error:'transcription_indisponible', statut:r.status}, 502);
+    }
+  }catch(e){
+    return ctrl.signal.aborted
+      ? json({error:'transcription_delai'}, 504)
+      : json({error:'transcription_indisponible'}, 502);
+  }finally{ clearTimeout(timer); }
+}
+
 const syncWorker = {
   async fetch(req, env){
     if(req.method === 'OPTIONS') return new Response(null, {headers: CORS});
@@ -72,25 +139,7 @@ const syncWorker = {
 
       // v347 — Mes appels & rentabilité : transcription d'une note vocale (audio reçu en base64, jamais conservé)
       if(p === '/ia/appels/transcrire' && req.method === 'POST'){
-        if(!env.OPENAI_API_KEY) return json({error:'ia_non_configuree'}, 503);
-        let b; try{ b = await req.json(); }catch(e){ return json({error:'json'}, 400); }
-        const b64 = String(b && b.audioBase64 || ''); if(!b64 || b64.length > 34 * 1024 * 1024) return json({error:'audio_absent_ou_trop_lourd'}, 400);
-        let octets; try{ const bin = atob(b64); octets = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) octets[i] = bin.charCodeAt(i); }catch(e){ return json({error:'audio_invalide'}, 400); }
-        const mime = /^audio\/(mp4|webm|ogg|mpeg|wav|x-m4a|m4a)/.test(String(b.mime || '')) ? String(b.mime).split(';')[0] : 'audio/mp4';
-        const ext = {'audio/mp4':'m4a','audio/x-m4a':'m4a','audio/m4a':'m4a','audio/webm':'webm','audio/ogg':'ogg','audio/mpeg':'mp3','audio/wav':'wav'}[mime] || 'm4a';
-        const fd = new FormData();
-        fd.append('file', new Blob([octets], {type: mime}), 'note.' + ext);
-        fd.append('model', env.OPENAI_TRANSCRIPTION_MODEL || 'gpt-4o-mini-transcribe');
-        fd.append('language', 'fr');
-        fd.append('prompt', "Note vocale d'un dépanneur belge (JM Express, Charleroi) après un appel client : véhicule, panne, lieu, destination, prix en euros, résultat.");
-        const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 55000);
-        try{
-          const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {method:'POST', signal: ctrl.signal, headers:{'Authorization':'Bearer ' + env.OPENAI_API_KEY}, body: fd});
-          if(!r.ok) return json({error:'transcription_indisponible', statut: r.status}, 502);
-          const data = await r.json();
-          return json({texte: String(data.text || '').trim()});
-        }catch(e){ return json({error:'transcription_indisponible'}, 504); }
-        finally{ clearTimeout(to); }
+        return await transcrireNote(req, env);
       }
       // v347 — Mes appels & rentabilité : fiche(s) structurée(s) à partir d'une note (plusieurs appels possibles), jamais d'invention
       if(p === '/ia/appels/analyser' && req.method === 'POST'){
