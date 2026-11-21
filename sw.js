@@ -1,7 +1,7 @@
 // v329 — cache distinct par livraison, réponses vérifiées, nettoyage limité à JM Express,
 // retour rapide au document en cache quand le réseau tarde.
 const CACHE_PREFIX = 'jm-express-bon-';
-const CACHE_NAME = 'jm-express-bon-v347';
+const CACHE_NAME = 'jm-express-bon-v348';
 const NAV_TIMEOUT_MS = 4000;
 
 // Seuls les fichiers indispensables doivent pouvoir bloquer l'installation.
@@ -13,7 +13,8 @@ const APP_SHELL_REQUIRED = [
   './navigation.js?v=329',
   './operations.js?v=329',
   './game-driver.js?v=329',  // chargé par index.html au démarrage : même livraison obligatoire
-  './appels.js?v=347'        // v347 : Mes appels & rentabilité
+  './appels.js?v=347',       // v347 : Mes appels & rentabilité
+  './agenda.js?v=348'        // v348 : À mettre au calendrier
 ];
 
 // Un visuel ou une icône manquante ne doit jamais empêcher une mise à jour.
