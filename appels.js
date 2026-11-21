@@ -495,7 +495,12 @@ async function init(){
   if(!$('tabAppels')) return;
   await chargerReglages();
   $('apRetention').value = REGL.retentionJours; $('apTranscAuto').checked = !!REGL.transcriptionAuto;
-  $('apMic').addEventListener('click', basculerMicro);
+  const appareilAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  $('apMic').addEventListener('click', appareilAppleMobile ? function(){
+    $('apHint').textContent = 'Après la dictée, copiez le texte depuis Notes et collez-le dans le brouillon pour analyser l’appel.';
+    window.location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent('Compte rendu d’appel JM');
+  } : basculerMicro);
   $('apNote').addEventListener('input', () => { if(!cur) nouveau(); cur.texte = $('apNote').value; clearTimeout(saveT); $('apSave').textContent = 'Enregistrement…'; saveT = setTimeout(async () => { await sauverCourant(); if(!(cur.texte || '').trim() && !cur.audioId) $('apSave').textContent = 'Nouveau brouillon'; await rafraichir(); }, 500); });
   $('apAnalyser').addEventListener('click', analyser);
   $('apNouveau').addEventListener('click', async () => { await sauverCourant(); nouveau(); await rafraichir(); toast('Nouveau brouillon'); });
