@@ -214,6 +214,49 @@ async function finaliser(){
   }finally{ $('apMic').disabled = false; }
 }
 function blobEnBase64(blob){ return new Promise((ok, ko) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1] || ''); fr.onerror = () => ko(fr.error); fr.readAsDataURL(blob); }); }
+async function envoyerAudio(blob){
+  const audioBase64 = await blobEnBase64(blob);
+  return syncApi('/ia/appels/transcrire', {audioBase64, mime:blob.type || 'audio/mp4', langue:'fr'});
+}
+
+// Le décodage hors ligne relit la note existante sans ouvrir le micro.
+async function convertirNoteWav(blob){
+  const Contexte = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if(!Contexte) return null;
+  const contexte = new Contexte(1, 1, 16000);
+  const piste = await contexte.decodeAudioData(await blob.arrayBuffer());
+  const taille = piste.length * 2;
+  if(!taille || taille + 44 > 24 * 1048576) return null;
+  const wav = new ArrayBuffer(44 + taille);
+  const vue = new DataView(wav);
+  function nom(i, texte){
+    for(let n = 0; n < texte.length; n++) vue.setUint8(i+n, texte.charCodeAt(n));
+  }
+  nom(0,'RIFF'); vue.setUint32(4,36+taille,true); nom(8,'WAVE'); nom(12,'fmt ');
+  vue.setUint32(16,16,true); vue.setUint16(20,1,true); vue.setUint16(22,1,true);
+  vue.setUint32(24,piste.sampleRate,true); vue.setUint32(28,piste.sampleRate*2,true);
+  vue.setUint16(32,2,true); vue.setUint16(34,16,true);
+  nom(36,'data'); vue.setUint32(40,taille,true);
+  const canaux = Array.from({length:piste.numberOfChannels}, (_, i) => piste.getChannelData(i));
+  for(let i=0; i<piste.length; i++){
+    let somme = 0;
+    for(const canal of canaux) somme += canal[i];
+    const sample = Math.max(-1, Math.min(1, somme / canaux.length));
+    vue.setInt16(44 + 2*i, Math.round(sample * (sample < 0 ? 32768 : 32767)), true);
+  }
+  return new Blob([wav], {type:'audio/wav'});
+}
+async function transcrireAudio(blob){
+  try{ return await envoyerAudio(blob); }
+  catch(e){
+    const refusAudio = ['audio_format','audio_refuse'].includes(e.code)
+      || (e.code === 'transcription_indisponible' && [400,415,422].includes(e.statutService));
+    if(!refusAudio || blob.type === 'audio/wav') throw e;
+    const wav = await convertirNoteWav(blob).catch(() => null);
+    if(!wav) throw e;
+    return envoyerAudio(wav);
+  }
+}
 async function transcrire(blob){
   if(transcriptionEnCours || recording || !cur) return;
   const note = cur;
@@ -230,8 +273,7 @@ async function transcrire(blob){
   $('apTranscBtn').disabled = true;
   $('apHint').textContent = 'Transcription en cours…'; $('apMic').classList.add('busy'); $('apMic').disabled = true;
   try{
-    const b64 = await blobEnBase64(blob);
-    const r = await syncApi('/ia/appels/transcrire', {audioBase64: b64, mime: blob.type || 'audio/mp4', langue: 'fr'});
+    const r = await transcrireAudio(blob);
     const t = r && String(r.texte || '').trim();
     if(!t) throw Object.assign(new Error('vide'), {code:'audio_sans_texte'});
     const avant = (note.texte || '').trim();
@@ -259,8 +301,19 @@ async function transcrire(blob){
       audio_trop_lourd:'Enregistrement trop volumineux pour la transcription.',
       transcription_delai:'Le service de transcription a mis trop de temps.'
     };
+    const causesService = {
+      400:'Le service a refusé la demande de transcription.',
+      401:'OpenAI a refusé la clé du Worker. Vérifiez le secret OPENAI_API_KEY.',
+      403:'Le projet OpenAI ne dispose pas des permissions nécessaires.',
+      404:'Le modèle de transcription est introuvable pour ce projet OpenAI.',
+      413:'L’audio transmis dépasse la limite du service.',
+      415:'Le service ne reconnaît pas le format de cette note.',
+      422:'Le service ne parvient pas à traiter cette note.',
+      429:'Le service signale une limite de débit ou de crédits OpenAI.'
+    };
+    const cause = e.statutService && (causesService[e.statutService] || 'Le service de transcription a échoué.');
     const message = e.revoque ? 'Appareil non autorisé sur le serveur.'
-      : messages[e.code] || (e.statut === 404 ? 'Le Worker de synchronisation doit être mis à jour.'
+      : messages[e.code] || (cause && cause + ' (service HTTP ' + e.statutService + ')') || (e.statut === 404 ? 'Le Worker de synchronisation doit être mis à jour.'
         : 'Service de transcription indisponible' + (e.statut ? ' (HTTP ' + e.statut + ')' : '') + '.');
     $('apHint').textContent = message + ' Audio conservé. Vous pouvez le réécouter ou dicter au clavier.';
     $('apTransc').style.display = 'block';
@@ -455,6 +508,6 @@ async function init(){
   $('apHint').textContent = microDispo() ? 'Appuyez, parlez, appuyez pour terminer. La note est sauvegardée puis transcrite.' : 'Micro indisponible ici : utilisez le micro du clavier dans la zone de texte.';
   nouveau(); await purgerAudios(); await rafraichir();
 }
-window.jmAppels = {ouvrir: async function(){ if(typeof showTab === 'function') showTab('tabAppels'); await rafraichir(); }, enregistrerDepuisAccueil: async function(){ if(typeof showTab === 'function') showTab('tabAppels'); await rafraichir(); if(!recording) setTimeout(demarrer, 250); }, rafraichir, nouveau};
+window.jmAppels = {ouvrir: async function(){ if(typeof showTab === 'function') showTab('tabAppels'); await rafraichir(); }, enregistrerDepuisAccueil: async function(){ if(typeof showTab === 'function') showTab('tabAppels'); await rafraichir(); $('apMic').scrollIntoView({block:'center'}); }, rafraichir, nouveau};
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

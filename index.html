@@ -2420,9 +2420,9 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     </div>
 
     <!-- v347 : note vocale après appel (Mes appels & rentabilité) -->
-    <div class="ap-rec-home" onclick="jmAppels.enregistrerDepuisAccueil()" role="button" aria-label="Enregistrer une note d'appel">
+    <div class="ap-rec-home" onclick="jmAppels.enregistrerDepuisAccueil()" role="button" aria-label="Ouvrir les notes d’appel">
       <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5M8 22h8"/></svg></div>
-      <div style="flex:1;min-width:0"><b>Note d'appel</b><span>Appuyez, racontez l'appel, terminez : brouillon sauvegardé</span></div>
+      <div style="flex:1;min-width:0"><b>Note d'appel</b><span>Ouvrir le brouillon, puis toucher le micro pour enregistrer</span></div>
       <span class="gb-badge" id="apHomeBadge" style="position:static;display:none;"></span>
     </div>
 
@@ -9829,7 +9829,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v349';
+const APP_VERSION = 'jm-express-bon-v350';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18738,6 +18738,7 @@ async function syncApi(chemin, corps, methode){
         const details = await res.json().catch(() => null);
         erreur.code = details && details.error;
         erreur.statut = res.status;
+        erreur.statutService = Number(details?.statut) || null;
       }
       throw erreur;
     }
@@ -23906,7 +23907,7 @@ async function jmClientChoisirContact(){
   }catch(e){}
 })();
 </script>
-<script src="appels.js?v=349"></script>
+<script src="appels.js?v=350"></script>
 <script src="agenda.js?v=348"></script>
 </body>
 </html>
