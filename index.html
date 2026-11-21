@@ -5026,6 +5026,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <div class="modal">
     <div class="eyebrow" id="qaEyebrow">Avant de partir</div>
     <h1 class="page-title" style="font-size:21px;" id="qaTitre">📋 Questions à poser au client</h1>
+    <button type="button" onclick="jmQaFermer()" style="position:sticky; top:0; float:right; margin:0 0 8px 8px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card, #1d2a33); color:inherit; font-weight:700; z-index:5;">✕ Fermer</button>
     <div id="qaPasse" style="display:none;">
       <div class="jm-qa-etape">1 · Quand</div>
       <div class="field-row"><div class="field" style="flex:1;"><label>Date</label><input type="date" id="qaDate"></div><div class="field" style="flex:1;"><label>Heure</label><input type="time" id="qaHeure"></div></div>
@@ -9849,7 +9850,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v354';
+const APP_VERSION = 'jm-express-bon-v355';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -20752,10 +20753,11 @@ async function genererRecuV2(){
     {k:'roues', t:'Est-il sur ses 4 roues ?', o:[['ok','Oui, 4 roues'],['manque','Roue manquante / jante'],['bloquee','Roue(s) bloquée(s)']], v:sauf(BATT, CARBU, OUV, DIAG)},
     {k:'boite', t:'Type de boîte ?', o:[['manuelle','Manuelle'],['auto','Automatique'],['autobloquee','Auto bloquée en P']], v:sauf(PNEU, CARBU, OUV, DIAG)},
     {k:'frein', t:'Frein à main ?', o:[['normal','Classique / desserré'],['electrique','Électrique serré']], v:() => !BATT.concat(PNEU, CARBU, OUV, DIAG).includes(type()) && (REP.etat === 'roulepas' || /^auto/.test(REP.boite || ''))},
-    {k:'vehicule', t:'Type de véhicule ?', o:[['normale','Voiture'],['suv','SUV / 4x4'],['utilitaire','Utilitaire'],['electrique','Électrique / hybride'],['vsp','Sans permis']], v:sauf(BATT, PNEU)},
+    {k:'vehicule', t:'Type de véhicule ?', o:[['normale','Voiture'],['suv','SUV / 4x4'],['utilitaire','Utilitaire'],['electrique','Électrique / hybride'],['vsp','Sans permis'],['remorque','Remorque (pas un véhicule)']], v:sauf(BATT, PNEU)},
     {k:'cles', t:'Les clés sont-elles là ?', o:[['oui','Avec les clés'],['non','Sans les clés']], v:() => false}
   ];
-  const visibles = () => Q.filter(q => !q.v || q.v());
+  const SANS_OBJET_REMORQUE = ['etat','roues','boite','frein'];   // v355 : une remorque n'a ni marche, ni roues en prise, ni boîte
+  const visibles = () => Q.filter(q => (!q.v || q.v()) && !(REP.vehicule === 'remorque' && SANS_OBJET_REMORQUE.includes(q.k)));
   const LIB = {}; Q.forEach(q => q.o.forEach(([v, l]) => LIB[q.k + ':' + v] = l));
   let REP = {}, MODE_PASSE = false;
   function rendu(){
