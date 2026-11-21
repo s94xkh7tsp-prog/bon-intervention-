@@ -3604,8 +3604,20 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           <div class="toggle" id="vtSuv" onclick="setVehicleType('suv')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M4 16v-4l2.5-5h11L20 12v4"/><path d="M2.5 16h19"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></svg> SUV / 4x4</div>
           <div class="toggle" id="vtElectrique" onclick="setVehicleType('electrique')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><rect x="2.5" y="8" width="16" height="8" rx="2"/><path d="M21 11v2M6 12h6"/></svg> Électrique / hybride</div>
           <div class="toggle" id="vtUtilitaire" onclick="setVehicleType('utilitaire')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M3 16V8h13l4 4v4"/><path d="M2 16h20"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg> Utilitaire / camionnette</div>
+          <div class="toggle" id="vtRemorque" onclick="setVehicleType('remorque')">🚚 Remorque</div>
         </div>
         <div id="capaciteWarning" style="display:none; background:rgba(224,90,78,0.12); border:1px solid rgba(224,90,78,0.4); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--white);">
+        <div id="blocRemorque" style="display:none; margin-bottom:14px; border:1px solid #17c7d9; border-radius:10px; padding:10px;">
+          <label style="font-weight:700; display:block; margin-bottom:8px;">🚚 Remorque transportée</label>
+          <select id="remorqueGabarit" onchange="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;"><option value="petite">Petite remorque</option><option value="grande">Grande remorque</option></select>
+          <select id="remorqueEssieux" onchange="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;"><option value="simple">Simple essieu</option><option value="double">Double essieu</option></select>
+          <input type="text" id="remorqueDimensions" placeholder="Dimensions hors tout, timon compris (vide = À confirmer avant chargement)" oninput="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;">
+          <input type="number" id="remorquePoids" placeholder="Poids réel estimé en kg (vide = À confirmer avant chargement)" inputmode="numeric" oninput="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;">
+          <select id="remorqueEtat" onchange="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;"><option value="chargee">Chargée</option><option value="vide">Vide</option></select>
+          <select id="remorqueRoues" onchange="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;"><option value="libres">Roues libres</option><option value="bloquees">Roues bloquées</option></select>
+          <input type="number" id="remorqueManutention" placeholder="Supplément manutention particulière (€), facultatif" inputmode="decimal" oninput="invaliderTicketObsolete()" style="width:100%; margin-bottom:8px;">
+          <textarea id="remorqueNotes" rows="2" placeholder="Remarques (photos à prendre sur place si besoin)" oninput="invaliderTicketObsolete()" style="width:100%; box-sizing:border-box;"></textarea>
+        </div>
           ⚠️ Vérifie le gabarit avant d'accepter : ta dépanneuse actuelle charge jusqu'à environ 1,7-1,8 tonne max, hors camionnettes H2 L2.
         </div>
     </div>
@@ -4226,6 +4238,9 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           <div class="grp-title">Suppléments type de véhicule</div>
           <div class="rate-row"><label>SUV / 4x4</label><input type="number" id="r_vehiculeSuvFee" step="1"></div>
           <div class="rate-row"><label>Électrique / hybride</label><input type="number" id="r_vehiculeElectriqueFee" step="1"></div>
+          <div class="rate-row"><label>Remorque petite (forfait)</label><input type="number" id="r_remorquePetite" step="1"></div>
+          <div class="rate-row"><label>Remorque grande (forfait)</label><input type="number" id="r_remorqueGrande" step="1"></div>
+          <div class="rate-row"><label>Supplément double essieu</label><input type="number" id="r_remorqueDoubleEssieu" step="1"></div>
           <div class="rate-row"><label>Utilitaire / camionnette</label><input type="number" id="r_vehiculeUtilitaireFee" step="1"></div>
         </div>
 
@@ -7243,6 +7258,7 @@ const DEFAULT_RATES = {
   deblocage_boite:20, deblocage_frein:15, roulettes:25,
   km_remorque:3.45, km_deplacement:1.20, nuitPct:30, wePct:25, auto:15,
   battMarginPct:30, battDeplacementFee:10, gardiennageJour:10,
+  remorquePetite:35, remorqueGrande:60, remorqueDoubleEssieu:15,
   vehiculeSuvFee:10, vehiculeElectriqueFee:15, vehiculeUtilitaireFee:15,
   attente15minFee:10,
   kmDegressifSeuil:50, km_remorque_reduit:2.30, gesteKmMax:60,
@@ -9833,7 +9849,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v353';
+const APP_VERSION = 'jm-express-bon-v354';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -12179,19 +12195,58 @@ function clearSignature(canvasId){
 let INVOICE_LANG = 'fr';
 
 let VEHICLE_TYPE = 'normale';
+// v354 — Remorque : gabarit + essieux + fiche (tarif forfaitaire réglable, indépendant du VSP)
+function libelleRemorque(r){
+  r = r || {};
+  const g = r.gabarit === 'grande' ? 'Grande remorque' : 'Petite remorque';
+  const e = r.essieux === 'double' ? 'double essieu' : 'simple essieu';
+  return g + ', ' + e + (r.etat === 'vide' ? ', vide' : ', chargée');
+}
+function lireRemorque(){
+  if(VEHICLE_TYPE !== 'remorque') return null;
+  const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const A_CONFIRMER = 'À confirmer avant chargement';
+  return {
+    gabarit: val('remorqueGabarit') || 'petite', essieux: val('remorqueEssieux') || 'simple',
+    dimensions: val('remorqueDimensions') || A_CONFIRMER, poids: val('remorquePoids') || A_CONFIRMER,
+    etat: val('remorqueEtat') || 'chargee', roues: val('remorqueRoues') || 'libres',
+    manutention: parseFloat(val('remorqueManutention')) || 0, notes: val('remorqueNotes')
+  };
+}
+function restaurerRemorque(r){
+  const r0 = r || {}, A_CONFIRMER = 'À confirmer avant chargement';
+  const v = (id, x) => { const e = document.getElementById(id); if(e) e.value = x; };
+  v('remorqueGabarit', r0.gabarit || 'petite'); v('remorqueEssieux', r0.essieux || 'simple');
+  v('remorqueDimensions', r0.dimensions && r0.dimensions !== A_CONFIRMER ? r0.dimensions : '');
+  v('remorquePoids', r0.poids && r0.poids !== A_CONFIRMER ? r0.poids : '');
+  v('remorqueEtat', r0.etat || 'chargee'); v('remorqueRoues', r0.roues || 'libres');
+  v('remorqueManutention', r0.manutention || ''); v('remorqueNotes', r0.notes || '');
+  afficherRemorque();
+}
+function afficherRemorque(){
+  const b = document.getElementById('blocRemorque'); if(b) b.style.display = (VEHICLE_TYPE === 'remorque') ? 'block' : 'none';
+}
+function fraisRemorque(r, t){
+  const T = t || RATES;
+  const base = (r && r.gabarit === 'grande') ? (T.remorqueGrande ?? 60) : (T.remorquePetite ?? 35);
+  const dbl = (r && r.essieux === 'double') ? (T.remorqueDoubleEssieu ?? 15) : 0;
+  const manut = (r && r.manutention) ? r.manutention : 0;
+  return base + dbl + manut;
+}
 
 function setVehicleType(type){
   VEHICLE_TYPE = type;
-  ['vtNormale','vtVsp','vtSuv','vtElectrique','vtUtilitaire'].forEach(id => document.getElementById(id).classList.remove('on'));
-  const map = {normale:'vtNormale', vsp:'vtVsp', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire'};
+  ['vtNormale','vtVsp','vtSuv','vtElectrique','vtUtilitaire','vtRemorque'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {normale:'vtNormale', vsp:'vtVsp', suv:'vtSuv', electrique:'vtElectrique', utilitaire:'vtUtilitaire', remorque:'vtRemorque'};
   document.getElementById(map[type]).classList.add('on');
   document.getElementById('capaciteWarning').style.display = (type === 'utilitaire') ? 'block' : 'none';
+  afficherRemorque();
   updateAdvancedSummary();
 }
 
 function updateAdvancedSummary(){
   const parts = [];
-  const vehicleLabels = {vsp:'VSP / Sans permis', suv:'SUV/4x4', electrique:'Électrique', utilitaire:'Utilitaire'};
+  const vehicleLabels = {vsp:'VSP / Sans permis', suv:'SUV/4x4', electrique:'Électrique', utilitaire:'Utilitaire', remorque:'Remorque'};
   if(vehicleLabels[VEHICLE_TYPE]) parts.push(vehicleLabels[VEHICLE_TYPE]);
   if(document.getElementById('tgCamion').classList.contains('on')) parts.push('Camion');
   if(document.getElementById('tgGardiennage').classList.contains('on')){
@@ -12349,6 +12404,7 @@ async function chargerInterventionDepuisJournal(key){
   document.getElementById('remise').value = d.remiseValue || '';
   setRemiseUnit(d.remiseUnit || 'euro');
   setVehicleType(d.vehicleType || 'normale');
+  restaurerRemorque(d.remorque);
 
   const setTog = (id, actif) => document.getElementById(id).classList.toggle('on', !!actif);
   setTog('tgNuit', d.nuit); setTog('tgWe', d.we); setTog('tgAuto', d.auto); setTog('tgRetour', d.retour);
@@ -12883,7 +12939,7 @@ function lignesDocument(c, lang, meta){
     add(S.fournitureBatterie, c.battCost);
     add(S.deplacementBatterie, c.battDeplacementCost);
     add(S.supplementPasRoues, c.pasRouesFee);
-    if(c.vehicleFee){ const vl = {suv:S.vehiculeSuv, electrique:S.vehiculeElectrique, utilitaire:S.vehiculeUtilitaire}; add(vl[c.vehicleType] || S.vehiculeSuv, c.vehicleFee); }
+    if(c.vehicleFee){ const vl = {suv:S.vehiculeSuv, electrique:S.vehiculeElectrique, utilitaire:S.vehiculeUtilitaire}; add(c.vehicleType === 'remorque' ? libelleRemorque(c.remorque) : (vl[c.vehicleType] || S.vehiculeSuv), c.vehicleFee); }
     if(c.gardiennageCost) add(S.gardiennage + c.joursGardiennage + S.jours, c.gardiennageCost);
     if(c.attenteCost) add(S.attente + c.minutesAttente + S.minAttente, c.attenteCost);
     add(S.ctRepasse, c.ctRepasse);
@@ -14750,7 +14806,7 @@ function calculerTarif(d, RATES, CTX){
 
   const VEHICLE_TYPE = d.vehicleType || 'normale';
   const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
-  const vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
+  const vehicleFee = (VEHICLE_TYPE === 'remorque') ? fraisRemorque(d.remorque, RATES) : (vehicleFeeMap[VEHICLE_TYPE] || 0);
 
   const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
   const nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
@@ -14896,7 +14952,7 @@ function MOTEUR_A_calculerTarif(d, tarifs, config) {
     electrique: tarifs.vehiculeElectriqueFee,
     utilitaire: tarifs.vehiculeUtilitaireFee
   };
-  const vehicleFee = vehicleFeeMap[d.vehicleType] || 0;
+  const vehicleFee = (d.vehicleType === 'remorque') ? fraisRemorque(d.remorque, tarifs) : (vehicleFeeMap[d.vehicleType] || 0);
 
   const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
   const nuitCost = (!annulation && d.nuit) ? subtotal * (tarifs.nuitPct / 100) : 0;
@@ -15062,7 +15118,7 @@ function MOTEUR_v224_calculerTarif(d, tarifs, config) {
     electrique: tarifs.vehiculeElectriqueFee,
     utilitaire: tarifs.vehiculeUtilitaireFee
   };
-  const vehicleFee = vehicleFeeMap[d.vehicleType] || 0;
+  const vehicleFee = (d.vehicleType === 'remorque') ? fraisRemorque(d.remorque, tarifs) : (vehicleFeeMap[d.vehicleType] || 0);
 
   const subtotal = annulation ? 0 : (base + kmCost + plancherComplement + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
   const nuitCost = (!annulation && d.nuit) ? subtotal * (tarifs.nuitPct / 100) : 0;
@@ -15775,7 +15831,7 @@ function calculer(){
       kmRetourVide: rvDonnees.kmRetourVide, kmRetourVerifie: rvDonnees.kmRetourVerifie,
       retourDoubleConfirme: rvDonnees.retourDoubleConfirme,
       retourLongueDistance: rvDonnees.retourLongueDistance,
-      vehicleType: VEHICLE_TYPE,
+      vehicleType: VEHICLE_TYPE, remorque: lireRemorque(),
       extras: extras.map(e => e.type),
       battPrice, battDeplacement,
       gardiennageOn, joursGardiennage,
@@ -15852,7 +15908,7 @@ function calculer(){
       ? km * kmTarifExcept * kmMultiplier
       : calculerKmCost(km, kmRate, kmMultiplier, estRemorquage);
     const vehicleFeeMap = {suv: RATES.vehiculeSuvFee, electrique: RATES.vehiculeElectriqueFee, utilitaire: RATES.vehiculeUtilitaireFee};
-    vehicleFee = vehicleFeeMap[VEHICLE_TYPE] || 0;
+    vehicleFee = (VEHICLE_TYPE === 'remorque') ? fraisRemorque(lireRemorque(), RATES) : (vehicleFeeMap[VEHICLE_TYPE] || 0);
     subtotal = annulation ? 0 : (base + kmCost + extrasCost + pasRouesFee + vehicleFee + ctRepasse);
     nuitCost = (!annulation && nuit) ? subtotal * (RATES.nuitPct/100) : 0;
     weCost = (!annulation && we) ? subtotal * (RATES.wePct/100) : 0;
@@ -15866,7 +15922,7 @@ function calculer(){
     total = Math.round(Math.max(0, totalAvantRemise - remiseAmount));
   }
 
-  lastCalc = {identRoue: lireIdentRoue(), clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
+  lastCalc = {identRoue: lireIdentRoue(), remorque: lireRemorque(), clientId:document.getElementById('jmClientChoisi').value||null,clientNom:document.getElementById('jmClientChoisiNom').value||'',...jmPreuvesLire(),...jmMultiLire('multi'), remisePro:lireRemisePro(), type, plaque, depart, from, to, km, retour, camionOn, nuit, we, auto, origineVehicule: ORIGINE_VEHICULE, base, kmCost, kmTarifExcept, kmRateNormal, kmRate, estRemorquage,
     kmRetourVide, kmRetourVerifie, kmRetourFacture, retourVideNeutralise, retourCTKm, retourDoubleConfirme, kmFacturable, kmSeuil, kmRateReduit, plancher, plancherApplicable, plancherComplement,
     retourLongueDistance, kmDegressif, retourLDCost, tarifRetourLD,
     ctRepasse, prixAnnonce, paiementRevolutAnticipe, paiementPayconiqAnticipe, paiementRevlinkAnticipe, acompteForm: lireAcompteForm(), paiementRecuForm: lirePaiementRecuForm(), nuitCost, weCost, autoCost, extras, extrasCost, battPrice, battCost, battDeplacement, battDeplacementCost, joursGardiennage, gardiennageCost, minutesAttente, attenteCost, abandon, sansMoteur, pasRoues, pasRouesFee, vehicleType: VEHICLE_TYPE, vehicleFee, remiseValue, remiseUnit, remiseAmount, telClient, horaires, fraisLibelle, fraisMontant, origineClient, controleVehicule, donneesCT, ctOfficielsCost, ctPrestataireCost, ctRetourCost, difficulteEnlise, operationsEnlise, manutMinutes, manutSupp, annulation, annulationMontant, annulationMotif, annulationGratuite, donneurOrdre, donneurNom, refDossier, checklist, total, date: dateInterventionChoisie().toISOString()};
@@ -16088,7 +16144,7 @@ const CHAMPS_BROUILLON = [
   'ctFraisOfficiels','ctFraisPrestataire','ctKmRetour',
   'incidentDesc','incidentDate','incidentHeure','incidentTemoin','remisParNom','remisParHeure','recuParNom','recuParHeure',
   'donneurOrdre','donneurNom','refDossier','interventionDate','interventionTime',
-  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage','identRoueRef','identRoueMention'
+  'minutesAttente','kmTarifExceptionnel','ctRepasseMontant','joursGardiennage','identRoueRef','identRoueMention','remorqueDimensions','remorquePoids','remorqueManutention','remorqueNotes'
 ];
 const TOGGLES_BROUILLON = [
   'tgNuit','tgWe','tgAuto','tgRetour','tgCamion','tgGardiennage',
@@ -18501,7 +18557,7 @@ function lireFormulairePourMoteur(){
     operationsEnlise: OPERATIONS_ENLISE,
     annulation: on('tgAnnulation'), annulationMontant: val('annulationMontant'), annulationMotif: lireAnnulationMotif(), annulationGratuite: on('tgAnnulationGratuit'),
     sansMoteur: on('tgSansMoteur'), pasRoues: on('tgPasRoues'),
-    vehicleType: VEHICLE_TYPE,
+    vehicleType: VEHICLE_TYPE, remorque: lireRemorque(),
     kmTarifExceptionnel: val('kmTarifExceptionnel'),
     remiseValue: val('remise'), remiseUnit: remiseUnit
   };
