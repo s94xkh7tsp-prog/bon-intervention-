@@ -9829,7 +9829,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v348';
+const APP_VERSION = 'jm-express-bon-v349';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -18732,7 +18732,15 @@ async function syncApi(chemin, corps, methode){
       signal: ctrl ? ctrl.signal : undefined
     });
     if(res.status === 401 || res.status === 403){ const e = new Error('revoque'); e.revoque = true; throw e; }
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    if(!res.ok){
+      const erreur = new Error('HTTP ' + res.status);
+      if(chemin === '/ia/appels/transcrire'){
+        const details = await res.json().catch(() => null);
+        erreur.code = details && details.error;
+        erreur.statut = res.status;
+      }
+      throw erreur;
+    }
     return await res.json();
   }catch(e){
     if(e && e.name === 'AbortError') throw new Error('serveur trop lent (délai dépassé) — nouvel essai plus tard');
@@ -23898,7 +23906,7 @@ async function jmClientChoisirContact(){
   }catch(e){}
 })();
 </script>
-<script src="appels.js?v=347"></script>
+<script src="appels.js?v=349"></script>
 <script src="agenda.js?v=348"></script>
 </body>
 </html>

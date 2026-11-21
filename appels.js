@@ -133,29 +133,45 @@ function rentabilite(m){ try{ if(typeof window.jmRentabilite !== 'function') ret
 let cur = null, saveT = null, filtre = 'tous', sauvegardeEnCours = false;
 async function sauverCourant(){ if(!cur) return; if(!(cur.texte || '').trim() && !cur.audioId) return; await sauver(cur); const s = $('apSave'); if(s) s.textContent = 'Enregistré ' + hm(cur.maj); }
 function nouveau(){ cur = {id: newId(), statut: 'brouillon', texte: '', fiche: null, ficheSrc: null, audioId: null, cree: new Date().toISOString()}; $('apNote').value = ''; $('apSave').textContent = 'Nouveau brouillon'; $('apFiche').style.display = 'none'; $('apAudioBox').style.display = 'none'; $('apTransc').style.display = 'none'; }
-async function charger(a){ cur = a; $('apNote').value = a.texte || ''; $('apSave').textContent = a.maj ? 'Enregistré ' + hm(a.maj) : 'Nouveau brouillon'; await afficherAudio(); afficherFiche(); $('apTransc').style.display = (a.audioId && !(a.texte || '').trim()) ? 'block' : 'none'; }
+async function charger(a){ cur = a; $('apNote').value = a.texte || ''; $('apSave').textContent = a.maj ? 'Enregistré ' + hm(a.maj) : 'Nouveau brouillon'; await afficherAudio(); afficherFiche(); $('apTransc').style.display = (a.audioId && a.transcription !== 'serveur') ? 'block' : 'none'; }
 
 // ---------- Micro : enregistrement, puis transcription automatique (Worker) ----------
-let rec = null, flux = null, chunks = [], recording = false, timerI = null, recStart = 0;
+let ouvertureMicro = false, transcriptionEnCours = false;
+let rec = null, flux = null, chunks = [], recording = false, timerI = null, recStart = 0, noteEnregistree = null;
 function microDispo(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
 function mimeAudio(){ for(const m of ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']){ try{ if(MediaRecorder.isTypeSupported(m)) return m; }catch(e){} } return ''; }
 async function basculerMicro(){ if(recording) return arreter('bouton'); return demarrer(); }
 async function demarrer(){
+  if(ouvertureMicro || rec || transcriptionEnCours || $('apMic').disabled) return;
   if(!microDispo()){ $('apHint').textContent = 'Micro indisponible dans ce navigateur : utilisez le micro du clavier dans la zone de texte.'; return; }
   if(!cur) nouveau();
+  const note = cur;
+  ouvertureMicro = true;
   try{ flux = await navigator.mediaDevices.getUserMedia({audio: true}); }
   catch(e){
     const refus = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
     $('apHint').textContent = refus ? 'Micro refusé. iPhone : Réglages › Safari › Micro (ou Réglages › JM Express si installée) → Autoriser. En attendant, micro du clavier.' : 'Micro inaccessible (' + (e && e.name || 'erreur') + '). Utilisez le micro du clavier.';
     return;
-  }
+  }finally{ ouvertureMicro = false; }
   try{ const mime = mimeAudio(); rec = new MediaRecorder(flux, mime ? {mimeType: mime} : undefined); }
   catch(e){ flux.getTracks().forEach(t => t.stop()); $('apHint').textContent = 'Enregistrement impossible sur cet appareil. Utilisez le micro du clavier.'; return; }
+  noteEnregistree = note;
   chunks = []; recording = true; recStart = Date.now();
   rec.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
   rec.onerror = () => { arreter('erreur'); };
-  rec.onstop = finaliser;
-  rec.start(1000);
+  rec.onstop = () => {
+    if(recording){ recording = false; clearInterval(timerI); }
+    finaliser().catch(() => { $('apHint').textContent = 'Sauvegarde de la note impossible. Vérifiez le stockage et réessayez.'; });
+  };
+  try{ rec.start(); }
+  catch(e){
+    recording = false;
+    rec = null;
+    flux.getTracks().forEach(t => t.stop());
+    flux = null;
+    $('apHint').textContent = 'Enregistrement impossible. Réessayez ou utilisez le micro du clavier.';
+    return;
+  }
   $('apMic').classList.add('rec'); $('apMicLbl').textContent = 'Terminer';
   $('apHint').textContent = 'Parlez… Appuyez pour terminer. Plusieurs appels possibles dans une même note.';
   timerI = setInterval(() => { const s = Math.floor((Date.now() - recStart) / 1000); $('apTimer').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); if(s >= 600) arreter('limite'); }, 250);
@@ -165,42 +181,96 @@ function arreter(raison){
   $('apMic').classList.remove('rec'); $('apMic').classList.add('busy'); $('apMicLbl').textContent = 'Sauvegarde…';
   if(raison === 'limite') toast('Note limitée à 10 minutes : enregistrement arrêté.');
   if(raison === 'interruption') toast('Enregistrement interrompu : la note est sauvegardée.');
-  try{ if(rec && rec.state !== 'inactive') rec.stop(); else finaliser(); }catch(e){ finaliser(); }
+  try{ if(rec && rec.state !== 'inactive') rec.stop(); }catch(e){ rec?.onstop(); }
 }
 async function finaliser(){
   try{ if(flux) flux.getTracks().forEach(t => t.stop()); }catch(e){}
   flux = null; const r = rec; rec = null;
-  $('apMic').classList.remove('busy'); $('apMicLbl').textContent = 'Note vocale'; $('apTimer').textContent = '';
+  const note = noteEnregistree; noteEnregistree = null;
+  $('apMic').classList.remove('rec', 'busy'); $('apMicLbl').textContent = 'Note vocale'; $('apTimer').textContent = '';
   if(!chunks.length){ $('apHint').textContent = 'Aucun son enregistré. Réessayez ou tapez votre note.'; return; }
-  const blob = new Blob(chunks, {type: (r && r.mimeType) || 'audio/mp4'}); chunks = [];
-  if(!cur) nouveau();
-  const audioId = cur.audioId || newId();
-  try{ await audioEcrire(audioId, blob); cur.audioId = audioId; cur.audioType = blob.type; cur.audioTaille = blob.size; cur.audioDuree = Math.round((Date.now() - recStart) / 1000); }
-  catch(e){ $('apHint').textContent = 'Audio non conservé (stockage plein ?). Le texte sera quand même sauvegardé.'; }
-  await sauverCourant(); await afficherAudio(); await rafraichir();
-  if(REGL.transcriptionAuto) await transcrire(blob); else { $('apHint').textContent = 'Note sauvegardée. Appuyez sur « Transcrire » ou dictez au clavier.'; $('apTransc').style.display = 'block'; }
+  const blob = new Blob(chunks, {type: chunks[0].type || (r && r.mimeType) || 'audio/mp4'}); chunks = [];
+  const audioId = note.audioId || newId();
+  $('apMic').disabled = true;
+  try{
+    await audioEcrire(audioId, blob);
+    note.audioId = audioId;
+    note.audioType = blob.type;
+    note.audioTaille = blob.size;
+    note.audioDuree = Math.round((Date.now() - recStart) / 1000);
+    note.audioPurge = false;
+    note.transcription = null;
+    await sauver(note);
+    if(cur !== note) return;
+    $('apSave').textContent = 'Enregistré ' + hm(note.maj);
+    await afficherAudio();
+    await rafraichir();
+    if(cur !== note) return;
+    if(REGL.transcriptionAuto) await transcrire(blob);
+    else {
+      $('apHint').textContent = 'Note sauvegardée. Appuyez sur « Transcrire l’audio ».';
+      $('apTransc').style.display = 'block';
+    }
+  }finally{ $('apMic').disabled = false; }
 }
 function blobEnBase64(blob){ return new Promise((ok, ko) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1] || ''); fr.onerror = () => ko(fr.error); fr.readAsDataURL(blob); }); }
 async function transcrire(blob){
-  if(!blob){ const au = cur && cur.audioId ? await audioLire(cur.audioId) : null; if(!au){ toast('Pas d\'audio à transcrire'); return; } blob = au.blob; }
+  if(transcriptionEnCours || recording || !cur) return;
+  const note = cur;
+  if(!blob){
+    const au = note.audioId ? await audioLire(note.audioId) : null;
+    if(cur !== note || transcriptionEnCours || recording) return;
+    if(!au){ toast('Pas d\'audio à transcrire'); return; }
+    blob = au.blob;
+  }
   if(typeof syncActif !== 'function' || !syncActif()){ $('apHint').textContent = 'Transcription automatique indisponible (serveur de synchro non configuré). Audio conservé : tapez ou dictez au clavier.'; $('apTransc').style.display = 'block'; return; }
   if(!navigator.onLine){ $('apHint').textContent = 'Hors ligne : audio conservé, transcription à relancer plus tard (bouton « Transcrire »).'; $('apTransc').style.display = 'block'; return; }
   if(blob.size > 24 * 1048576){ $('apHint').textContent = 'Audio trop long pour la transcription (max ≈ 24 Mo). Dictez au clavier.'; $('apTransc').style.display = 'block'; return; }
+  transcriptionEnCours = true;
+  $('apTranscBtn').disabled = true;
   $('apHint').textContent = 'Transcription en cours…'; $('apMic').classList.add('busy'); $('apMic').disabled = true;
   try{
     const b64 = await blobEnBase64(blob);
     const r = await syncApi('/ia/appels/transcrire', {audioBase64: b64, mime: blob.type || 'audio/mp4', langue: 'fr'});
     const t = r && String(r.texte || '').trim();
-    if(!t) throw new Error('vide');
-    const avant = ($('apNote').value || '').trim();
-    $('apNote').value = avant ? avant + '\n' + t : t; cur.texte = $('apNote').value; cur.transcription = 'serveur';
-    await sauverCourant(); $('apTransc').style.display = 'none';
-    $('apHint').textContent = 'Transcrit. Relisez, corrigez si besoin, puis « Analyser ».';
+    if(!t) throw Object.assign(new Error('vide'), {code:'audio_sans_texte'});
+    const avant = (note.texte || '').trim();
+    note.texte = avant ? avant + '\n' + t : t;
+    note.transcription = 'serveur';
+    if(cur === note) $('apNote').value = note.texte;
+    await sauver(note);
+    if(cur === note){
+      $('apSave').textContent = 'Enregistré ' + hm(note.maj);
+      $('apTransc').style.display = 'none';
+      $('apHint').textContent = 'Transcrit. Relisez, corrigez si besoin, puis « Analyser ».';
+    }
   }catch(e){
-    const m = e && e.message || '';
-    $('apHint').textContent = /503/.test(m) ? 'Transcription non configurée sur le serveur (clé absente). Audio conservé : dictez au clavier.' : /revoque/.test(m) ? 'Appareil non autorisé sur le serveur.' : 'Transcription impossible pour l\'instant (' + (m || 'erreur') + '). Audio conservé, réessayez plus tard.';
+    if(cur !== note) return;
+    const messages = {
+      ia_non_configuree:'Clé OpenAI absente sur le serveur.',
+      ia_cle_refusee:'Clé OpenAI refusée. Vérifiez le secret OPENAI_API_KEY du Worker.',
+      ia_quota:'Quota OpenAI épuisé. Vérifiez les crédits et la facturation du projet.',
+      ia_limite:'Trop de demandes de transcription. Réessayez dans un instant.',
+      ia_modele:'Le projet OpenAI ne donne pas accès au modèle de transcription.',
+      audio_refuse:'Le service n’a pas pu lire cet audio.',
+      audio_format:'Le format audio est incompatible.',
+      audio_invalide:'L’enregistrement ne contient pas d’audio lisible.',
+      audio_sans_texte:'Aucune parole reconnue dans cet enregistrement.',
+      audio_trop_lourd:'Enregistrement trop volumineux pour la transcription.',
+      transcription_delai:'Le service de transcription a mis trop de temps.'
+    };
+    const message = e.revoque ? 'Appareil non autorisé sur le serveur.'
+      : messages[e.code] || (e.statut === 404 ? 'Le Worker de synchronisation doit être mis à jour.'
+        : 'Service de transcription indisponible' + (e.statut ? ' (HTTP ' + e.statut + ')' : '') + '.');
+    $('apHint').textContent = message + ' Audio conservé. Vous pouvez le réécouter ou dicter au clavier.';
     $('apTransc').style.display = 'block';
-  }finally{ $('apMic').classList.remove('busy'); $('apMic').disabled = false; await rafraichir(); }
+  }finally{
+    transcriptionEnCours = false;
+    $('apTranscBtn').disabled = false;
+    $('apMic').classList.remove('busy');
+    $('apMic').disabled = false;
+    await rafraichir();
+  }
 }
 async function afficherAudio(){
   const box = $('apAudioBox'); if(!cur || !cur.audioId){ box.style.display = 'none'; return; }
