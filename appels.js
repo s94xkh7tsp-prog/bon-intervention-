@@ -132,7 +132,10 @@ function rentabilite(m){ try{ if(typeof window.jmRentabilite !== 'function') ret
 // ---------- État courant ----------
 let cur = null, saveT = null, filtre = 'tous', sauvegardeEnCours = false;
 async function sauverCourant(){ if(!cur) return; if(!(cur.texte || '').trim() && !cur.audioId) return; await sauver(cur); const s = $('apSave'); if(s) s.textContent = 'Enregistré ' + hm(cur.maj); }
-function nouveau(){ cur = {id: newId(), statut: 'brouillon', texte: '', fiche: null, ficheSrc: null, audioId: null, cree: new Date().toISOString()}; $('apNote').value = ''; $('apSave').textContent = 'Nouveau brouillon'; $('apFiche').style.display = 'none'; $('apAudioBox').style.display = 'none'; $('apTransc').style.display = 'none'; }
+function noterHeureSaisie(){
+  if(cur?.heureSuggeree && !cur.heureAppel) cur.heureAppel = hm(new Date());
+}
+function nouveau(){ cur = {heureSuggeree:true, id: newId(), statut: 'brouillon', texte: '', fiche: null, ficheSrc: null, audioId: null, cree: new Date().toISOString()}; $('apNote').value = ''; $('apSave').textContent = 'Nouveau brouillon'; $('apFiche').style.display = 'none'; $('apAudioBox').style.display = 'none'; $('apTransc').style.display = 'none'; }
 async function charger(a){ cur = a; $('apNote').value = a.texte || ''; $('apSave').textContent = a.maj ? 'Enregistré ' + hm(a.maj) : 'Nouveau brouillon'; await afficherAudio(); afficherFiche(); $('apTransc').style.display = (a.audioId && a.transcription !== 'serveur') ? 'block' : 'none'; }
 
 // ---------- Micro : enregistrement, puis transcription automatique (Worker) ----------
@@ -390,14 +393,14 @@ async function analyser(){
     const r = await analyserTexte(cur.texte); const texteOriginal = cur.texteOriginal || cur.texte;
     const manuel = cur.ficheSrc || {}, prev = cur.fiche || {};
     const premier = r.appels[0];
-    for(const k in prev){ if(manuel[k] === 'manuel' && !premier.fiche[k]){ premier.fiche[k] = prev[k]; premier.src[k] = 'manuel'; } }
+    for(const k in prev){ if(manuel[k] === 'manuel'){ premier.fiche[k] = prev[k]; premier.src[k] = 'manuel'; } }
     cur.fiche = premier.fiche; cur.ficheSrc = premier.src; cur.moteur = r.moteur; cur.texteOriginal = texteOriginal;
     if(r.appels.length > 1){
       cur.texte = premier.extrait; $('apNote').value = cur.texte; cur.multi = r.appels.length;
       for(let i = 1; i < r.appels.length; i++){ const a = r.appels[i]; await sauver({id: newId(), statut: 'brouillon', texte: a.extrait, texteOriginal, fiche: a.fiche, ficheSrc: a.src, moteur: r.moteur, audioId: cur.audioId || null, audioType: cur.audioType, audioDuree: cur.audioDuree, multi: r.appels.length, cree: new Date().toISOString()}); }
       toast(r.appels.length + ' appels détectés : ' + (r.appels.length - 1) + ' brouillon(s) supplémentaire(s) créé(s)');
     } else toast('Fiche préparée (' + r.moteur + ')');
-    await sauverCourant(); afficherFiche(); await rafraichir();
+    afficherFiche(); await sauverCourant(); await rafraichir();
     $('apFiche').scrollIntoView({behavior: 'smooth', block: 'start'});
   }finally{ b.disabled = false; b.textContent = 'Analyser → fiche'; }
 }
@@ -405,6 +408,11 @@ function afficherFiche(){
   const F = $('apFields'); if(!cur || !cur.fiche){ $('apFiche').style.display = 'none'; return; }
   $('apFiche').style.display = 'block'; $('apFicheSrc').textContent = cur.moteur || '—'; $('apOrig').textContent = cur.texteOriginal || cur.texte || '';
   $('apMulti').style.display = cur.multi > 1 ? 'block' : 'none'; if(cur.multi > 1) $('apMulti').textContent = 'Cette dictée contenait ' + cur.multi + ' appels : chacun a son brouillon, vérifiez-les un par un avant validation.';
+  if(cur.heureSuggeree){
+    cur.heureAppel = cur.multi > 1 ? '' : (cur.heureAppel || hm(new Date()));
+    delete cur.heureSuggeree;
+  }
+  $('apHeure').value = cur.heureAppel || '';
   F.innerHTML = '';
   for(const [k, lbl] of CHAMPS){
     const w = document.createElement('div'); w.className = 'ap-f'; const v = cur.fiche[k] || '', s = cur.ficheSrc && cur.ficheSrc[k];
@@ -430,6 +438,36 @@ function resume(a){ const f = a.fiche || {}; const p = [f.nature, f.lieu && f.de
 function chipRes(r){ if(!r) return '<span class="ap-chip">résultat non précisé</span>'; const c = r === 'obtenue' ? 'ok' : r === 'en attente' ? 'wait' : 'ko'; return '<span class="ap-chip ' + c + '">' + r + '</span>'; }
 function bouton(txt, cls, fn){ const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost ap-small ' + (cls || ''); b.textContent = txt; b.onclick = fn; return b; }
 function boutonSuppr(a, el){ return bouton('Supprimer', 'ap-del', async () => { if(el.dataset.c){ await supprimer(a); if(cur && cur.id === a.id) nouveau(); await rafraichir(); toast('Supprimé (texte, fiche' + (a.audioId ? ', audio' : '') + ')'); } else { el.dataset.c = '1'; const b = el.querySelector('.ap-del'); b.textContent = 'Confirmer la suppression'; setTimeout(() => { delete el.dataset.c; b.textContent = 'Supprimer'; }, 3500); } }); }
+function estHorsZone(f){
+  return /hors[ -]zone/i.test(f.motif || '');
+}
+function retrouverLiens(appels, missions){
+  const cles = new Set(missions.map(m => m.key));
+  for(const a of appels){
+    const cle = 'intervention:appel-' + a.id;
+    if(a.mission === undefined && cles.has(cle)) a.mission = cle;
+  }
+}
+async function creerDepuisAppel(a){
+  const source = $('apSourceAppel');
+  if(source.value === a.id && !editingKey){ showTab('tabNouveau', true); return; }
+  if(editingKey){ toast('Terminez la modification de l’intervention ouverte avant de créer celle-ci.'); return; }
+  if(!confirm('Ouvrir une nouvelle intervention pour cet appel ? Le formulaire en cours sera remplacé.')) return;
+  jmResetFormulaireIntervention();
+  lastCalc = null;
+  const f = a.fiche;
+  source.value = a.id;
+  $('addrFrom').value = f.lieu || '';
+  $('addrTo').value = f.destination || '';
+  $('telClient').value = f.tel || '';
+  $('prixAnnonce').value = String(f.prix || '').replace(',', '.');
+  $('etatLieuxNotes').value = [f.vehicule, f.nature].filter(Boolean).join(' — ');
+  showTab('tabNouveau', true);
+  majBarreActionsContextuelle();
+  majResumeCompact();
+  await sauvegarderBrouillon();
+  toast('Vérifiez la prestation et le trajet, puis calculez et enregistrez.');
+}
 async function rafraichir(){
   const all = await lireTous(); const br = all.filter(a => a.statut === 'brouillon'), va = all.filter(a => a.statut === 'valide');
   majBadges(br.length);
@@ -447,10 +485,15 @@ async function rafraichir(){
   }
   const Fl = $('apFiltres'); Fl.innerHTML = '';
   for(const [k, l] of [['tous', 'Tous'], ['obtenue', 'Obtenus'], ['en attente', 'En attente'], ['refusée', 'Refusés'], ['annulée', 'Annulés'], ['sans', 'Obtenus sans mission']]){ const t = document.createElement('span'); t.className = 'ap-tab' + (filtre === k ? ' on' : ''); t.textContent = l; t.onclick = () => { filtre = k; rafraichir(); }; Fl.appendChild(t); }
-  const miss = await interventions(); const V = $('apValides'); V.innerHTML = '';
+  const miss = await interventions(); retrouverLiens(va, miss); const V = $('apValides'); V.innerHTML = '';
   const list = va.filter(a => filtre === 'tous' || (filtre === 'sans' ? (!a.mission && (a.fiche || {}).resultat === 'obtenue') : (a.fiche || {}).resultat === filtre));
   if(!list.length) V.innerHTML = '<div class="ap-empty">Aucun appel validé' + (filtre !== 'tous' ? ' pour ce filtre' : '') + '.</div>';
-  let caMois = 0, margeMois = 0; const mois = new Date().toISOString().slice(0, 7);
+  let caMois = 0, margeMois = 0; const jour = new Date().toLocaleDateString('sv-SE', {timeZone:'Europe/Brussels'});
+  const mois = jour.slice(0, 7);
+  const duJour = va.filter(a => (a.fiche?.date || (a.valide && new Date(a.valide).toLocaleDateString('sv-SE', {timeZone:'Europe/Brussels'}))) === jour);
+  $('apBilanJour').textContent = 'Aujourd’hui · ' + duJour.length + ' appel(s) validé(s) · ' +
+    duJour.filter(a => estHorsZone(a.fiche || {})).length + ' hors zone · ' +
+    duJour.filter(a => a.fiche?.resultat === 'obtenue').length + ' obtenu(s)';
   for(const a of list){
     const f = a.fiche || {}; const el = document.createElement('div'); el.className = 'ap-item'; el.dataset.id = a.id; const m = a.mission ? miss.find(x => x.key === a.mission) : null; const r = m ? rentabilite(m) : null;
     let renta = '';
@@ -459,18 +502,23 @@ async function rafraichir(){
     el.innerHTML = '<div class="t"><b>' + esc(resume(a)) + '</b>' + chipRes(f.resultat) + '</div><div class="ap-meta">' + (f.date || 'date non précisée') + (f.tel ? ' · ' + esc(f.tel) : '') + (f.prix ? ' · annoncé ' + esc(f.prix) + ' €' : '') + (f.motif ? ' · ' + esc(f.motif) : '') + (f.origine ? ' · ' + esc(f.origine) : ' · origine non vérifiable') + '</div>' + renta + '<div class="ap-row"></div>';
     const row = el.querySelector('.ap-row');
     if(f.resultat === 'obtenue' && !a.mission){
+      if(!miss.some(m => m.key === 'intervention:appel-' + a.id)) row.appendChild(bouton('Créer l’intervention', '', () => creerDepuisAppel(a)));
       const sel = document.createElement('select'); sel.className = 'ap-sel';
       const cand = miss.filter(x => !va.some(b => b.mission === x.key)).slice(0, 60);
       sel.innerHTML = '<option value="">Rattacher à une mission…</option>' + cand.map(x => '<option value="' + esc(x.key) + '">' + esc(libelleMission(x)) + '</option>').join('');
       sel.onchange = async () => { if(!sel.value) return; a.mission = sel.value; await sauver(a); await rafraichir(); toast('Mission rattachée'); }; row.appendChild(sel);
     }
     row.appendChild(bouton('Modifier', '', async () => { a.statut = 'brouillon'; await sauver(a); await charger(a); await rafraichir(); window.scrollTo({top: 0, behavior: 'smooth'}); }));
-    if(a.mission) row.appendChild(bouton('Détacher', '', async () => { delete a.mission; await sauver(a); await rafraichir(); }));
+    if(a.mission) row.appendChild(bouton('Détacher', '', async () => { a.mission = null; await sauver(a); await rafraichir(); }));
     if(m && typeof ouvrirFicheHistorique === 'function') row.appendChild(bouton('Voir la mission', '', () => { try{ ouvrirFicheHistorique(m.key); }catch(e){ toast('Ouvrez-la depuis l\'Historique'); } }));
     row.appendChild(boutonSuppr(a, el)); V.appendChild(el);
-    if(m && ((f.date || a.valide || '').startsWith(mois))){ caMois += Number(m.data.total) || 0; if(r) margeMois += r.marge; }
+
   }
   const mm = va.filter(a => ((a.fiche || {}).date || a.valide || '').startsWith(mois)), q = mm.filter(a => (a.fiche || {}).resultat !== 'annulée'), dev = mm.filter(a => (a.fiche || {}).prix), ob = mm.filter(a => (a.fiche || {}).resultat === 'obtenue');
+  for(const a of mm){
+    const m = miss.find(x => x.key === a.mission);
+    if(m){ caMois += Number(m.data.total) || 0; margeMois += rentabilite(m)?.marge || 0; }
+  }
   $('apKpis').innerHTML = [[mm.length, 'appels ce mois'], [dev.length, 'devis annoncés'], [ob.length, 'transports obtenus'], [q.length ? Math.round(ob.length / q.length * 100) + ' %' : '—', 'taux obtenu'], [caMois ? fmtE(caMois) : '—', 'CA missions liées'], [margeMois ? fmtE(margeMois) : '—', 'marge estimée (jmRentabilite)']].map(k => '<div class="ap-kpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>').join('');
   $('apEspace').textContent = await espaceAudios();
 }
@@ -479,8 +527,9 @@ function majBadges(n){ for(const id of ['gbAppelsBadge', 'apHomeBadge']){ const 
 // ---------- Export CSV (colonnes du suivi lancement) ----------
 async function exportCsv(){
   const va = (await lireTous()).filter(a => a.statut === 'valide'); const miss = await interventions();
+  retrouverLiens(va, miss);
   const H = 'Date;Heure;Source;N° appelant;Durée (s);Type;Trajet demandé;Km A/R;Véhicule;Prix annoncé (€);Transport obtenu;Date mission;Montant facturé (€);Gasoil;Péages;Temps (h);Coût du temps;Marge estimée (€);À importer Google Ads;Note';
-  const rows = va.map(a => { const f = a.fiche || {}; const m = miss.find(x => x.key === a.mission); const r = m ? rentabilite(m) : null; return [f.date || '', a.valide ? hm(a.valide) : '', f.origine || 'indéterminée', f.tel || '', '', f.motif === 'Hors zone rentable' ? 'hors zone' : 'qualifié', (f.lieu || '') + (f.destination ? ' > ' + f.destination : ''), r ? r.kmParcourus : '', f.vehicule || '', f.prix || '', f.resultat === 'obtenue' ? 'oui' : f.resultat === 'en attente' ? 'en attente' : 'non', m ? String(m.data.date || '').slice(0, 10) : '', m ? (Number(m.data.total) || 0) : '', r ? r.carburant : '', '', r ? (r.minutes / 60).toFixed(2) : '', r ? r.temps : '', r ? r.marge : '', 'non', (f.motif || '') + (f.nature ? ' | ' + f.nature : '')].map(v => String(v).replace(/;/g, ',')).join(';'); });
+  const rows = va.map(a => { const f = a.fiche || {}; const m = miss.find(x => x.key === a.mission); const r = m ? rentabilite(m) : null; return [f.date || '', a.heureAppel || '', f.origine || 'indéterminée', f.tel || '', '', estHorsZone(f) ? 'hors zone' : 'qualifié', (f.lieu || '') + (f.destination ? ' > ' + f.destination : ''), r ? r.kmParcourus : '', f.vehicule || '', f.prix || '', f.resultat === 'obtenue' ? 'oui' : f.resultat === 'en attente' ? 'en attente' : 'non', m ? String(m.data.date || '').slice(0, 10) : '', m ? (Number(m.data.total) || 0) : '', r ? r.carburant : '', '', r ? (r.minutes / 60).toFixed(2) : '', r ? r.temps : '', r ? r.marge : '', 'non', (f.motif || '') + (f.nature ? ' | ' + f.nature : '')].map(v => String(v).replace(/;/g, ',')).join(';'); });
   const csv = [H].concat(rows).join('\n');
   try{ await navigator.clipboard.writeText(csv); toast('CSV copié (' + rows.length + ' lignes)'); }
   catch(e){ try{ const blob = new Blob([csv], {type: 'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'appels-jm-express.csv'; document.body.appendChild(a); a.click(); a.remove(); }catch(e2){ toast('Export impossible sur cet appareil'); } }
@@ -498,13 +547,26 @@ async function init(){
   const appareilAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   $('apMic').addEventListener('click', appareilAppleMobile ? function(){
+    noterHeureSaisie();
     $('apHint').textContent = 'Après la dictée, copiez le texte depuis Notes et collez-le dans le brouillon pour analyser l’appel.';
     window.location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent('Compte rendu d’appel JM');
   } : basculerMicro);
-  $('apNote').addEventListener('input', () => { if(!cur) nouveau(); cur.texte = $('apNote').value; clearTimeout(saveT); $('apSave').textContent = 'Enregistrement…'; saveT = setTimeout(async () => { await sauverCourant(); if(!(cur.texte || '').trim() && !cur.audioId) $('apSave').textContent = 'Nouveau brouillon'; await rafraichir(); }, 500); });
+  $('apNote').addEventListener('input', () => { if(!cur) nouveau(); noterHeureSaisie(); cur.texte = $('apNote').value; clearTimeout(saveT); $('apSave').textContent = 'Enregistrement…'; saveT = setTimeout(async () => { await sauverCourant(); if(!(cur.texte || '').trim() && !cur.audioId) $('apSave').textContent = 'Nouveau brouillon'; await rafraichir(); }, 500); });
   $('apAnalyser').addEventListener('click', analyser);
   $('apNouveau').addEventListener('click', async () => { await sauverCourant(); nouveau(); await rafraichir(); toast('Nouveau brouillon'); });
   $('apTranscBtn').addEventListener('click', () => transcrire(null));
+  $('apHeure').addEventListener('change', async () => {
+    if(!cur) return;
+    cur.heureAppel = $('apHeure').value;
+    await sauverCourant();
+  });
+  $('apHorsZone').addEventListener('click', async () => {
+    if(!cur?.fiche) return;
+    Object.assign(cur.fiche, {motif:'Hors zone rentable', resultat:'refusée'});
+    cur.ficheSrc = {...cur.ficheSrc, motif:'manuel', resultat:'manuel'};
+    afficherFiche();
+    await sauverCourant();
+  });
   $('apValider').addEventListener('click', valider);
   $('apEnregistrer').addEventListener('click', async () => { await sauverCourant(); await rafraichir(); toast('Brouillon enregistré'); });
   $('apCsv').addEventListener('click', exportCsv);

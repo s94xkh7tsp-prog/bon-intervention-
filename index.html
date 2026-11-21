@@ -2542,7 +2542,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="field">
       <label>Téléphone du client (optionnel)</label>
       <div class="input-with-btn" style="flex-wrap:wrap;">
-        <input type="hidden" id="jmClientChoisi"><input type="hidden" id="jmClientChoisiNom"><button type="button" class="ghost" onclick="openClients()">Chercher un client / client fidèle</button><div id="jmClientReconnu" class="km-mention" style="display:none"></div><input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel" style="flex:1 1 100%; min-width:0; order:-1; width:100%; box-sizing:border-box;">
+        <input type="hidden" id="apSourceAppel"><input type="hidden" id="jmClientChoisi"><input type="hidden" id="jmClientChoisiNom"><button type="button" class="ghost" onclick="openClients()">Chercher un client / client fidèle</button><div id="jmClientReconnu" class="km-mention" style="display:none"></div><input type="tel" id="telClient" placeholder="04xx xx xx xx" inputmode="tel" style="flex:1 1 100%; min-width:0; order:-1; width:100%; box-sizing:border-box;">
         <button type="button" class="loc-btn" onclick="jmEffacerAdresse('telClient')" title="Effacer" aria-label="Effacer">✕</button>
         <button type="button" class="loc-btn" onclick="appelerClient()" title="Appeler"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.1 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></button>
         <button type="button" class="loc-btn" onclick="smsClient()" title="SMS"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; flex-shrink:0;"><path d="M21 12a8 8 0 0 1-8 8H8l-5 2 1.5-4.5A8 8 0 1 1 21 12z"/></svg></button>
@@ -3949,6 +3949,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <p class="page-sub">Racontez l'appel en quelques secondes. Brouillon sauvegardé automatiquement, fiche préparée sans rien inventer.</p>
 
   <div class="ap-kpis" id="apKpis"></div>
+  <p class="ap-meta" id="apBilanJour"></p>
 
   <div class="card">
     <div class="ap-micwrap">
@@ -3957,6 +3958,7 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         <span id="apMicLbl">Note vocale</span>
       </button>
       <div class="ap-timer" id="apTimer"></div>
+      <button type="button" class="ghost" id="apCsv" style="width:auto;min-height:44px;margin:6px auto;">Copier les appels (CSV)</button>
       <div class="ap-hint" id="apHint"></div>
     </div>
     <textarea class="ap-note" id="apNote" placeholder="Ou tapez / dictez au clavier : qui appelait, véhicule, lieu, demande, prix annoncé, résultat…"></textarea>
@@ -3973,6 +3975,8 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
     <div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b>Fiche structurée</b><span class="ap-chip ai" id="apFicheSrc">—</span></div>
     <p class="ap-meta" style="margin:6px 0 10px;">Les champs non trouvés restent « non précisé ». Corrigez ce que vous voulez avant de valider.</p>
     <div class="ap-warn" id="apMulti" style="display:none;margin:0 0 10px;"></div>
+    <div class="field"><label for="apHeure">Heure de l’appel · à vérifier</label><input id="apHeure" type="time"></div>
+    <button class="ghost ap-small" type="button" id="apHorsZone">Refusé · hors zone</button>
     <div class="ap-fields" id="apFields"></div>
     <details style="margin-top:10px;"><summary style="color:var(--steel);font-size:13px;font-weight:600;cursor:pointer;">Texte original de la dictée</summary><div class="ap-orig" id="apOrig"></div></details>
     <div class="ap-alert" id="apDup" style="display:none;"></div>
@@ -3988,7 +3992,6 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   <div class="eyebrow">Appels &amp; rentabilité</div>
   <div class="ap-tabs" id="apFiltres"></div>
   <div class="ap-list" id="apValides"></div>
-  <div class="ap-row"><button type="button" class="ghost ap-small" id="apCsv" style="margin:0;">Copier le CSV (suivi commercial)</button></div>
 
   <div class="eyebrow">Données &amp; sécurité</div>
   <div class="card">
@@ -9061,6 +9064,7 @@ function lireParamsDevis(){
 }
 
 function reporterDevisDansFormulaire(v){
+  document.getElementById('apSourceAppel').value = '';
   jmMultiRestaurer('multi',v);
   document.getElementById('type').value = v.type;
   updateKmLabel();
@@ -9829,7 +9833,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v351';
+const APP_VERSION = 'jm-express-bon-v353';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -12319,6 +12323,7 @@ async function modifierDepuisRoute(key){
 }
 
 async function chargerInterventionDepuisJournal(key){
+  document.getElementById('apSourceAppel').value = '';
   let d;
   try{
     const res = await window.storage.get(key);
@@ -15518,6 +15523,7 @@ async function waModifier(id){ await waRemplirFormulaire(id, 'Demande reprise �
 async function waVersIntervention(id){ await waRemplirFormulaire(id, 'Demande convertie — vérifie et enregistre', true); }
 
 async function waRemplirFormulaire(id, message, marquerConverti){
+  document.getElementById('apSourceAppel').value = '';
   try{
     const d = JSON.parse((await window.storage.get(id)).value);
     const c = d.donnees || {};
@@ -16069,6 +16075,7 @@ async function afficherSuccesCreation(key){
 }
 
 const CHAMPS_BROUILLON = [
+  'apSourceAppel','etatLieuxNotes',
   'jmClientChoisi','jmClientChoisiNom',
   'jmPreuvesBrouillon',
   'recuParDate','recuParLieu','recuParNotes','recuParSignatureSauvee','remisParSignatureSauvee',
@@ -16250,6 +16257,7 @@ function ouvrirFicheHistorique(key){
 
 // v323 : remise à zéro complète du formulaire (après enregistrement, et pour une nouvelle intervention vierge).
 function jmResetFormulaireIntervention(){
+  document.getElementById('apSourceAppel').value = '';
   clearReceiptPhoto();
   clearEpavePhotos();
   clearEtatLieuxState();
@@ -16390,7 +16398,12 @@ async function enregistrer(){
       const rpMaj = lireRemisePro();
       if(rpMaj) entry.remisePro = rpMaj;
     } else {
-      id = 'intervention:' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      const appelId = document.getElementById('apSourceAppel').value;
+      id = appelId ? 'intervention:appel-' + appelId : 'intervention:' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      if(appelId && localStorage.getItem('jm_' + id)){
+        showToast('Cette intervention existe déjà. Reprenez-la depuis les appels.');
+        return;
+      }
       entry = {...lastCalc, paye: false, statut: 'a_faire', numero: await nextInterventionNumber()};
       const supp = lireSupplementClient();
       if(supp) entry.supplementClient = supp;
@@ -18868,6 +18881,7 @@ async function syncAppliquerDistant(r){
 }
 function syncParse(s){ try{ return JSON.parse(s); }catch(e){ return s; } }
 function syncRafraichirEcrans(){
+  if(window.jmAppels && currentTab === 'tabAppels') window.jmAppels.rafraichir().catch(console.warn);
   try{ if(typeof loadHistory === 'function') loadHistory(); }catch(e){}
   try{ if(typeof majResumeAccueil === 'function') majResumeAccueil(); }catch(e){}
   try{ if(typeof renderDashboard === 'function' && document.getElementById('dashboardContent')) renderDashboard(); }catch(e){}
@@ -23907,7 +23921,7 @@ async function jmClientChoisirContact(){
   }catch(e){}
 })();
 </script>
-<script src="appels.js?v=351"></script>
+<script src="appels.js?v=353"></script>
 <script src="agenda.js?v=348"></script>
 </body>
 </html>
