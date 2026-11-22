@@ -9858,7 +9858,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v356';
+const APP_VERSION = 'jm-express-bon-v357';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -17494,13 +17494,21 @@ async function jmEnvoyerLienJeux(key){
   let d;
   try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){ showToast('Intervention introuvable'); return; }
   const lien = (typeof JEUX_LINK !== 'undefined' ? JEUX_LINK : '').trim();
-  const n = jmNumeroWaDepuis(d.telClient);
-  const manque = [];
-  if(!n) manque.push('le numéro de téléphone du client');
-  if(!lien) manque.push('le lien de tes jeux (Réglages → Lien de tes jeux)');
-  if(manque.length){ showToast('Complète d’abord : ' + manque.join(' et ')); return; }
+  if(!lien){ showToast('Complète d’abord le lien de tes jeux (Réglages → Lien de tes jeux)'); return; }
   const msg = 'Votre intervention est confirmée. Si vous êtes à l’arrêt dans un endroit sûr, vous pouvez patienter avec quelques jeux ici : ' + lien + '. À bientôt, JM Express Auto Dépannage.';
-  location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  const n = jmNumeroWaDepuis(d.telClient);
+  if(n){ location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg); return; }
+  // Pas de numéro encodé sur cette intervention : on laisse quand même l'envoyer,
+  // via le partage natif (choisir WhatsApp puis le contact à la main) ou, à défaut, en copiant le message.
+  try{
+    if(navigator.share){ await navigator.share({text: msg}); return; }
+  }catch(e){ /* partage annulé ou indisponible : on tente la copie ci-dessous */ }
+  try{
+    await navigator.clipboard.writeText(msg);
+    showToast('Pas de numéro enregistré : message copié — colle-le dans WhatsApp');
+  }catch(e){
+    showToast('Pas de numéro enregistré pour ce client');
+  }
 }
 
 async function voirPhoto(key, field){
