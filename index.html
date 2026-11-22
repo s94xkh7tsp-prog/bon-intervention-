@@ -2232,6 +2232,17 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   </div>
 </div>
 
+<!-- v358 — proposer les jeux au client juste après la confirmation d'une intervention (parcours page ET appel, même écran de succès). -->
+<div class="modal-bg" id="modalJeuxBg">
+  <div class="modal" style="padding-bottom:calc(22px + env(safe-area-inset-bottom));">
+    <div class="eyebrow">Intervention confirmée</div>
+    <h1 class="page-title" style="font-size:22px;">🎮 Proposer les jeux au client ?</h1>
+    <p class="page-sub">En attendant ton arrivée, tu peux lui envoyer par WhatsApp le lien vers « La pause C'est carré ». Le message précise que les jeux ne suivent pas ton arrivée et ne confirment aucune intervention.</p>
+    <button class="primary" onclick="fermerModalJeux(true)">📲 Envoyer le lien par WhatsApp</button>
+    <button class="ghost close-modal" onclick="fermerModalJeux(false)">Plus tard</button>
+  </div>
+</div>
+
 
 <div class="services-modal" id="servicesModal" aria-hidden="true">
   <div class="services-wrap">
@@ -9858,7 +9869,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v357';
+const APP_VERSION = 'jm-express-bon-v358';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -16144,7 +16155,21 @@ async function afficherSuccesCreation(key){
   await new Promise(r => setTimeout(r, 850));
   overlay.classList.remove('show');
   await new Promise(r => setTimeout(r, 200));
-  ouvrirFicheHistorique(key);
+  // v358 — juste après confirmation : proposer d'envoyer le lien des jeux, si le lien est configuré.
+  const lienJeux = (typeof JEUX_LINK !== 'undefined' ? JEUX_LINK : '').trim();
+  if(lienJeux){
+    window.__jmJeuxKeyEnAttente = key;
+    document.getElementById('modalJeuxBg').classList.add('show');
+  } else {
+    ouvrirFicheHistorique(key);
+  }
+}
+function fermerModalJeux(envoyer){
+  document.getElementById('modalJeuxBg').classList.remove('show');
+  const key = window.__jmJeuxKeyEnAttente;
+  window.__jmJeuxKeyEnAttente = null;
+  if(envoyer && key) jmEnvoyerLienJeux(key);
+  if(key) ouvrirFicheHistorique(key);
 }
 
 const CHAMPS_BROUILLON = [
