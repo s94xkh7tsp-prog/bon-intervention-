@@ -4457,6 +4457,13 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
         </div>
 
         <div class="grp">
+          <div class="grp-title">Lien de tes jeux (page d'attente client)</div>
+          <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Envoyé par WhatsApp au client après confirmation d'une intervention, pour patienter en sécurité.</p>
+          <label style="display:block;">Lien vers ta page de jeux</label>
+          <input type="text" id="r_jeuxLink" placeholder="https://jm-express-auto.be/la-pause-cest-carre/">
+        </div>
+
+        <div class="grp">
           <div class="grp-title">Version de l'application</div>
           <div class="rate-row"><label>Version installée</label><span id="versionInstallee" style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">—</span></div>
           <div class="rate-row"><label>Version publiée</label><span id="versionPubliee" style="font-family:'JetBrains Mono',monospace; font-size:12.5px;">—</span></div>
@@ -7316,6 +7323,7 @@ let RATES = {...DEFAULT_RATES};
 const BASE_ADDRESS_FALLBACK = 'Rue du Blé 46, Monceau-sur-Sambre';
 let BASE_ADDRESS = BASE_ADDRESS_FALLBACK;
 let REVOLUT_LINK = 'https://revolut.me/jamalm_ku_fc4h';
+let JEUX_LINK = ''; // v356 — lien vers la page de jeux envoyé au client en attente (Réglages)
 let NIGHT_START = '20:00';
 let NIGHT_END = '08:00';
 
@@ -9850,7 +9858,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v355';
+const APP_VERSION = 'jm-express-bon-v356';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -11003,6 +11011,10 @@ async function loadRates(){
     if(res2b && res2b.value) REVOLUT_LINK = res2b.value;
   }catch(e){ /* pas encore de lien Revolut enregistré */ }
   try{
+    const res2c = await window.storage.get('jeuxLink');
+    if(res2c && res2c.value) JEUX_LINK = res2c.value;
+  }catch(e){ /* pas encore de lien de jeux enregistré */ }
+  try{
     const res3 = await window.storage.get('nightHours');
     if(res3 && res3.value){
       const parsed = JSON.parse(res3.value);
@@ -11170,6 +11182,7 @@ function fillSettingsForm(){
   });
   document.getElementById('r_baseAddress').value = BASE_ADDRESS;
   document.getElementById('r_revolutLink').value = REVOLUT_LINK;
+  document.getElementById('r_jeuxLink').value = JEUX_LINK;
   majAffichageMoteur();
   const vi = document.getElementById('versionInstallee');
   if(vi) vi.textContent = APP_VERSION.replace('jm-express-bon-', '');
@@ -11207,6 +11220,7 @@ function reglagesModifies(){
     if(Math.abs(saisi - actuel) > 0.0001) return true;
   }
   const champsTexte = [['r_baseAddress', () => BASE_ADDRESS], ['r_revolutLink', () => REVOLUT_LINK],
+                       ['r_jeuxLink', () => JEUX_LINK],
                        ['r_nightStart', () => NIGHT_START], ['r_nightEnd', () => NIGHT_END]];
   for(const [id, val] of champsTexte){
     const el = document.getElementById(id);
@@ -13772,12 +13786,14 @@ async function saveSettings(){
   });
   BASE_ADDRESS = document.getElementById('r_baseAddress').value.trim();
   REVOLUT_LINK = document.getElementById('r_revolutLink').value.trim();
+  JEUX_LINK = document.getElementById('r_jeuxLink').value.trim();
   NIGHT_START = document.getElementById('r_nightStart').value || '20:00';
   NIGHT_END = document.getElementById('r_nightEnd').value || '08:00';
   try{
     await window.storage.set('rates', JSON.stringify(RATES));
     await window.storage.set('baseAddress', BASE_ADDRESS);
     await window.storage.set('revolutLink', REVOLUT_LINK);
+    await window.storage.set('jeuxLink', JEUX_LINK);
     await window.storage.set('nightHours', JSON.stringify({start:NIGHT_START, end:NIGHT_END}));
     showToast('Tarifs enregistrés');
   }catch(e){ showToast('Erreur d\'enregistrement'); }
@@ -17454,7 +17470,7 @@ async function loadHistory(){
         <div class="info">
           <div class="type">${typeLabelComplet(d)}${etatLieuxIcons ? ' ' + etatLieuxIcons : ''}</div>
           <div class="meta">${d.numero ? d.numero + ' · ' : ''}${dt} · ${typeof jmTrajetTexte === 'function' ? jmTrajetTexte(d) : (d.from || '—') + ((d.to && d.to !== '—') ? ' → ' + d.to : '') + (typeof d.kmFacturable === 'number' ? ' · ' + fmtKm(d.kmFacturable) + ' km' : (Number(d.km) > 0 ? ' · ' + d.km + ' km' : ''))}</div>
-          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Ouvrir / compléter le bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge" onclick="jmClientDepuisIntervention('${it.key}')">★ Client</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
+          <div class="badge-row">${statutBadge}${payeBadge}${echeanceBadge}${rechargerBadge}${factureBadge}<div class="pay-badge jm-bon-badge" onclick="jmBonDepuisJournal('${it.key}')">📄 Ouvrir / compléter le bon</div><div class="pay-badge" onclick="jmLivraisonOuvrir('${it.key}')">✍ Livraison</div><div class="pay-badge" onclick="jmPreuvesPartager('${it.key}')">📷 Preuves</div><div class="pay-badge" onclick="jmClientDepuisIntervention('${it.key}')">★ Client</div><div class="pay-badge jm-ia-badge" onclick="jmIaOuvrir('${it.key}')">🤖</div><div class="pay-badge" style="background:rgba(41,128,201,0.10); color:#2980c9;" onclick="jmEnvoyerLienJeux('${it.key}')">🎮 Jeux (WhatsApp)</div>${bdcBadge}${noteCreditBadge}${supprimerBadge}</div>
         </div>
         <div class="amt">${fmt(d.total)}</div>
       </div>`;
@@ -17464,6 +17480,27 @@ async function loadHistory(){
     container.innerHTML = '<div class="empty">Aucune intervention enregistrée</div>';
     summary.innerHTML = '';
   }
+}
+
+// v356 — « Envoyer le lien des jeux par WhatsApp » depuis une intervention confirmée (parcours page ou appel : même fiche Historique pour les deux).
+function jmNumeroWaDepuis(brut){
+  let n = String(brut || '').replace(/[^0-9]/g, '');
+  if(!n) return '';
+  if(n.startsWith('00')) n = n.slice(2);
+  else if(n.startsWith('0')) n = '32' + n.slice(1);
+  return n;
+}
+async function jmEnvoyerLienJeux(key){
+  let d;
+  try{ d = JSON.parse((await window.storage.get(key)).value); }catch(e){ showToast('Intervention introuvable'); return; }
+  const lien = (typeof JEUX_LINK !== 'undefined' ? JEUX_LINK : '').trim();
+  const n = jmNumeroWaDepuis(d.telClient);
+  const manque = [];
+  if(!n) manque.push('le numéro de téléphone du client');
+  if(!lien) manque.push('le lien de tes jeux (Réglages → Lien de tes jeux)');
+  if(manque.length){ showToast('Complète d’abord : ' + manque.join(' et ')); return; }
+  const msg = 'Votre intervention est confirmée. Si vous êtes à l’arrêt dans un endroit sûr, vous pouvez patienter avec quelques jeux ici : ' + lien + '. À bientôt, JM Express Auto Dépannage.';
+  location.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
 }
 
 async function voirPhoto(key, field){
