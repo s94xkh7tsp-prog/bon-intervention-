@@ -4471,7 +4471,8 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
           <div class="grp-title">Lien de tes jeux (page d'attente client)</div>
           <p style="color:var(--grey); font-size:12px; margin:0 0 10px 0;">Envoyé par WhatsApp au client après confirmation d'une intervention, pour patienter en sécurité.</p>
           <label style="display:block;">Lien vers ta page de jeux</label>
-          <input type="text" id="r_jeuxLink" placeholder="https://jm-express-auto.be/la-pause-cest-carre/">
+          <div class="input-with-btn"><input type="text" id="r_jeuxLink" placeholder="https://jm-express-auto.be/la-pause-cest-carre/"><button type="button" class="loc-btn" onclick="jmCopierLienJeux()" title="Copier le lien" aria-label="Copier le lien">📋</button></div>
+          <p style="color:var(--grey); font-size:12px; margin:6px 0 0 0;">Copie juste le lien (sans message), à garder dans tes fichiers ou tes notes pour le ressortir où tu veux.</p>
         </div>
 
         <div class="grp">
@@ -9870,7 +9871,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v361';
+const APP_VERSION = 'jm-express-bon-v362';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -17534,6 +17535,18 @@ async function jmEnvoyerLienJeux(key){
     showToast('Pas de numéro enregistré : message copié — colle-le dans WhatsApp');
   }catch(e){
     showToast('Pas de numéro enregistré pour ce client');
+  }
+}
+
+// v362 — Copier uniquement le lien (sans message), pour le garder dans ses propres fichiers/notes.
+async function jmCopierLienJeux(){
+  const lien = (document.getElementById('r_jeuxLink')?.value || (typeof JEUX_LINK !== 'undefined' ? JEUX_LINK : '')).trim();
+  if(!lien){ showToast('Renseigne d’abord le lien de tes jeux ci-dessus'); return; }
+  try{
+    await navigator.clipboard.writeText(lien);
+    showToast('Lien copié : ' + lien);
+  }catch(e){
+    showToast('Impossible de copier — sélectionne le lien à la main dans le champ');
   }
 }
 
