@@ -2232,14 +2232,14 @@ body.jm-gants #modalMenuBg .jm-menu-groupe > .menu-item{min-height:66px!importan
   </div>
 </div>
 
-<!-- v358 — proposer les jeux au client juste après la confirmation d'une intervention (parcours page ET appel, même écran de succès). -->
+<!-- v359 — proposer les jeux au client, mais seulement une fois le client VRAIMENT confirmé (prix + venue acceptés) : l'enregistrement d'une fiche peut se faire avant, pendant la préparation du dossier, donc on redemande explicitement plutôt que de supposer que c'est déjà confirmé. -->
 <div class="modal-bg" id="modalJeuxBg">
   <div class="modal" style="padding-bottom:calc(22px + env(safe-area-inset-bottom));">
-    <div class="eyebrow">Intervention confirmée</div>
-    <h1 class="page-title" style="font-size:22px;">🎮 Proposer les jeux au client ?</h1>
-    <p class="page-sub">En attendant ton arrivée, tu peux lui envoyer par WhatsApp le lien vers « La pause C'est carré ». Le message précise que les jeux ne suivent pas ton arrivée et ne confirment aucune intervention.</p>
-    <button class="primary" onclick="fermerModalJeux(true)">📲 Envoyer le lien par WhatsApp</button>
-    <button class="ghost close-modal" onclick="fermerModalJeux(false)">Plus tard</button>
+    <div class="eyebrow">Avant de proposer les jeux</div>
+    <h1 class="page-title" style="font-size:22px;">✅ Le client a-t-il confirmé ?</h1>
+    <p class="page-sub">Prix et rendez-vous bien acceptés par le client (pas juste un dossier en préparation) ? Si oui, tu peux lui envoyer par WhatsApp le lien vers « La pause C'est carré » pour patienter. Le message précise que les jeux ne suivent pas ton arrivée et ne confirment aucune intervention.</p>
+    <button class="primary" onclick="fermerModalJeux(true)">✅ Oui, confirmé — envoyer par WhatsApp</button>
+    <button class="ghost close-modal" onclick="fermerModalJeux(false)">⏳ Pas encore confirmé</button>
   </div>
 </div>
 
@@ -9869,7 +9869,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v358';
+const APP_VERSION = 'jm-express-bon-v359';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
