@@ -9869,7 +9869,7 @@ function appliquerDistanceVerifiee(km){
   document.getElementById('blocVerifKm').style.display = 'none';
 }
 
-const APP_VERSION = 'jm-express-bon-v359';
+const APP_VERSION = 'jm-express-bon-v360';
 function numeroVersion(tag){
   const m = String(tag || '').match(/v(\d+)$/);
   return m ? Number(m[1]) : NaN;
@@ -17536,6 +17536,22 @@ async function jmEnvoyerLienJeux(key){
   }
 }
 
+// v360 — « Lien des jeux » depuis Accès rapide : envoi ad hoc, sans intervention précise liée (choix du contact via le partage natif).
+async function jmEnvoyerLienJeuxRapide(){
+  const lien = (typeof JEUX_LINK !== 'undefined' ? JEUX_LINK : '').trim();
+  if(!lien){ showToast('Complète d’abord le lien de tes jeux (Réglages → Lien de tes jeux)'); return; }
+  const msg = 'Votre intervention est confirmée. Si vous êtes à l’arrêt dans un endroit sûr, vous pouvez patienter avec quelques jeux ici : ' + lien + '. À bientôt, JM Express Auto Dépannage.';
+  try{
+    if(navigator.share){ await navigator.share({text: msg}); return; }
+  }catch(e){ /* partage annulé ou indisponible : on tente la copie ci-dessous */ }
+  try{
+    await navigator.clipboard.writeText(msg);
+    showToast('Message copié — colle-le dans WhatsApp, au client concerné');
+  }catch(e){
+    showToast('Impossible de copier le message');
+  }
+}
+
 async function voirPhoto(key, field){
   field = field || 'receiptPhoto';
   try{
@@ -23863,7 +23879,7 @@ async function jmClientChoisirContact(){
 </div></div>
 <script src="fuel-receipts.js?v=329"></script>
 <script src="operations.js?v=329"></script>
-<script src="navigation.js?v=329"></script>
+<script src="navigation.js?v=330"></script>
 <style id="jm-v331-style">
 .jm-ia-bloc{margin-top:12px;padding:12px;border:1.5px solid var(--orange,#FF9500);border-radius:16px;background:color-mix(in srgb,var(--orange,#FF9500) 9%,transparent)}
 .jm-ia-titre{font-size:13px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--orange,#FF9500);margin-bottom:10px}
