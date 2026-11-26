@@ -5,7 +5,7 @@
  * Endpoints:
  * - POST /whatsapp/webhook → reçoit les messages Meta (validation + stockage D1)
  * - GET  /whatsapp/messages → liste les messages en attente de validation
- * - POST /whatsapp/send → envoie un message validé au client
+ * - POST /whatsapp/send → désactivé pendant la préparation (503)
  * - POST /whatsapp/validate → valide + sauvegarde une réponse
  */
 
@@ -139,7 +139,7 @@ export async function getWhatsAppMessages(request, env) {
 
 /**
  * POST /whatsapp/validate
- * Valide une réponse draft, puis la marque prête à envoyer
+ * Enregistre une réponse validée (l'envoi reste désactivé)
  * Body: { message_id, response_text, validated_data }
  */
 export async function validateWhatsAppResponse(request, env) {
@@ -179,7 +179,7 @@ export async function validateWhatsAppResponse(request, env) {
 
 /**
  * POST /whatsapp/send
- * Envoie le message validé au client via Meta API
+ * Endpoint d'envoi temporairement désactivé
  * Body: { message_id }
  */
 export async function sendWhatsAppMessage(request) {
