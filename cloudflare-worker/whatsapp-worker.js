@@ -9,10 +9,36 @@
  * - POST /whatsapp/validate → valide + sauvegarde une réponse
  */
 
-const META_WEBHOOK_TOKEN = 'YOUR_META_WEBHOOK_TOKEN'; // À configurer en env secret
-const META_PHONE_NUMBER_ID = 'YOUR_PHONE_NUMBER_ID';  // À configurer
-const META_BUSINESS_ACCOUNT_ID = 'YOUR_BUSINESS_ACCOUNT_ID'; // À configurer
-const META_ACCESS_TOKEN = 'YOUR_META_ACCESS_TOKEN'; // À configurer en env secret
+// Secrets requis dans l'environnement Cloudflare : META_WEBHOOK_TOKEN,
+// META_APP_SECRET et ADMIN_API_TOKEN. Les valeurs ne sont jamais stockées dans le code.
+function constantTimeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let difference = 0;
+  for (let i = 0; i < a.length; i++) difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return difference === 0;
+}
+
+function isAdminAuthorized(request, env) {
+  const expected = env.ADMIN_API_TOKEN;
+  const authorization = request.headers.get('Authorization') || '';
+  return Boolean(expected && constantTimeEqual(authorization, `Bearer ${expected}`));
+}
+
+async function isMetaSignatureValid(rawBody, signatureHeader, appSecret) {
+  if (!appSecret || !signatureHeader || !signatureHeader.startsWith('sha256=')) return false;
+  const supplied = signatureHeader.slice('sha256='.length).toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(supplied)) return false;
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(appSecret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const digest = await crypto.subtle.sign('HMAC', key, rawBody);
+  const expected = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+  return constantTimeEqual(supplied, expected);
+}
 
 /**
  * POST /whatsapp/webhook
@@ -26,15 +52,26 @@ export async function handleWhatsAppWebhook(request, env) {
     const token = new URL(request.url).searchParams.get('hub.verify_token');
     const challenge = new URL(request.url).searchParams.get('hub.challenge');
     
-    if (mode === 'subscribe' && token === META_WEBHOOK_TOKEN) {
+    if (mode === 'subscribe' && env.META_WEBHOOK_TOKEN && constantTimeEqual(token || '', env.META_WEBHOOK_TOKEN)) {
       return new Response(challenge);
     }
     return new Response('Forbidden', { status: 403 });
   }
 
-  // POST : traiter les messages entrants
+  // POST : vérifier la signature sur le corps brut avant toute lecture ou écriture.
   if (request.method === 'POST') {
-    const body = await request.json();
+    const rawBody = await request.arrayBuffer();
+    const signature = request.headers.get('X-Hub-Signature-256');
+    if (!(await isMetaSignatureValid(rawBody, signature, env.META_APP_SECRET))) {
+      return new Response('Invalid webhook signature', { status: 401 });
+    }
+    let body;
+    try {
+      body = JSON.parse(new TextDecoder().decode(rawBody));
+    } catch {
+      return new Response('Invalid JSON', { status: 400 });
+    }
+    if (!env.DB) return new Response('Database unavailable', { status: 503 });
     const entry = body.entry?.[0];
     const change = entry?.changes?.[0];
     const messages = change?.value?.messages || [];
@@ -52,7 +89,7 @@ export async function handleWhatsAppWebhook(request, env) {
 
       // Stocker en D1
       await env.DB.prepare(`
-        INSERT INTO whatsapp_messages 
+        INSERT OR IGNORE INTO whatsapp_messages 
         (msg_id, from_number, message_text, message_type, timestamp, status, parsed_data, confidence_score)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
@@ -84,6 +121,8 @@ export async function getWhatsAppMessages(request, env) {
   if (request.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 });
   }
+  if (!isAdminAuthorized(request, env)) return new Response('Unauthorized', { status: 401 });
+  if (!env.DB) return new Response('Database unavailable', { status: 503 });
 
   const messages = await env.DB.prepare(`
     SELECT id, from_number, message_text, timestamp, status, parsed_data, confidence_score, response_draft
@@ -107,8 +146,19 @@ export async function validateWhatsAppResponse(request, env) {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
+  if (!isAdminAuthorized(request, env)) return new Response('Unauthorized', { status: 401 });
+  if (!env.DB) return new Response('Database unavailable', { status: 503 });
 
-  const { message_id, response_text, validated_data } = await request.json();
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return new Response('Invalid JSON', { status: 400 });
+  }
+  const { message_id, response_text, validated_data } = payload;
+  if (!Number.isInteger(Number(message_id)) || typeof response_text !== 'string') {
+    return new Response('Invalid request', { status: 400 });
+  }
 
   await env.DB.prepare(`
     UPDATE whatsapp_messages
@@ -132,70 +182,12 @@ export async function validateWhatsAppResponse(request, env) {
  * Envoie le message validé au client via Meta API
  * Body: { message_id }
  */
-export async function sendWhatsAppMessage(request, env) {
-  if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
-
-  const { message_id } = await request.json();
-
-  // Récupérer le message
-  const msg = await env.DB.prepare(`
-    SELECT id, from_number, response_draft, status
-    FROM whatsapp_messages
-    WHERE id = ? AND status = 'READY_TO_SEND'
-  `).bind(message_id).first();
-
-  if (!msg) {
-    return new Response(JSON.stringify({ error: 'Message not found or not ready' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  // Appel à l'API Meta pour envoyer
-  const metaResponse = await fetch(
-    `https://graph.instagram.com/v18.0/${META_PHONE_NUMBER_ID}/messages`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: msg.from_number,
-        type: 'text',
-        text: { body: msg.response_draft },
-      }),
-    }
-  );
-
-  const metaResult = await metaResponse.json();
-
-  if (metaResult.messages) {
-    // Succès
-    await env.DB.prepare(`
-      UPDATE whatsapp_messages
-      SET status = ?, sent_at = ?, meta_msg_id = ?
-      WHERE id = ?
-    `).bind(
-      'SENT',
-      new Date().toISOString(),
-      metaResult.messages[0].id,
-      message_id
-    ).run();
-
-    return new Response(JSON.stringify({ success: true, meta_id: metaResult.messages[0].id }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } else {
-    // Erreur
-    return new Response(
-      JSON.stringify({ error: 'Meta API error', details: metaResult }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-  }
+export async function sendWhatsAppMessage(request) {
+  // L'envoi reste volontairement désactivé durant la préparation et les essais.
+  return new Response('WhatsApp sending is disabled during setup', {
+    status: 503,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 /**
