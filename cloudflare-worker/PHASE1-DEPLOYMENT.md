@@ -1,175 +1,64 @@
-# Phase 1 WhatsApp MVP — Guide de Déploiement
+# Phase 1 WhatsApp — préparation sécurisée
 
-## 📋 Prérequis
+## État de cette branche
 
-1. **Compte Cloudflare existant** avec accès D1 (SQLite)
-2. **Meta Business Account** avec:
-   - WhatsApp Business Platform API activée
-   - Numéro de téléphone WhatsApp enregistré
-   - Tokens d'accès générés
-3. **Domain** configuré sur Cloudflare (pour les webhooks)
+- Le point d’entrée Wrangler vise maintenant `whatsapp-worker.js`.
+- Le webhook refuse les POST sans signature Meta valide.
+- Les routes de lecture et de validation nécessitent un jeton administrateur.
+- La route d’envoi est désactivée et répond 503.
+- Aucun Worker n’est déployé par cette procédure.
+- L’interface `index.html` n’est pas encore reliée à D1.
 
-## 🚀 Étapes de déploiement
+## Accès nécessaires avant configuration distante
 
-### 1. Configurer la base de données D1
+- Accès au compte Cloudflare et au projet Workers/D1 voulu.
+- Accès Meta Business avec l’application et le compte WhatsApp Business concernés.
+- Secret d’application Meta (à saisir uniquement dans le gestionnaire de secrets Cloudflare).
+- Choix du nom de domaine ou de l’URL Worker pour le webhook.
 
-```bash
-# Dans le dashboard Cloudflare D1 :
-# 1. Créer une nouvelle base "jm-express"
-# 2. Copier l'ID obtenu (format: xxxxxxxxxxxxxxxx)
-# 3. Exécuter le schéma SQL
+Ne colle pas les secrets dans le dépôt, dans le navigateur ou ici.
 
-# Via wrangler CLI :
-wrangler d1 execute jm-express --file=d1-schema.sql
-```
+## Préparer D1
 
-### 2. Configurer les secrets Cloudflare
+Depuis `cloudflare-worker/` avec Wrangler authentifié :
 
 ```bash
-# Récupérer depuis Meta Business Manager → Settings → Tokens
-wrangler secret put META_WEBHOOK_TOKEN          # Token de validation webhook (à choisir)
-wrangler secret put META_PHONE_NUMBER_ID        # ID du numéro enregistré
-wrangler secret put META_BUSINESS_ACCOUNT_ID    # ID du compte business
-wrangler secret put META_ACCESS_TOKEN           # Access token (long-lived)
+npx wrangler d1 create jm-express
 ```
 
-### 3. Configurer le webhook Meta
-
-1. Aller dans Meta App Dashboard → WhatsApp → Configuration
-2. **Webhook URL** : `https://your-domain.com/whatsapp/webhook`
-3. **Verify Token** : la valeur de META_WEBHOOK_TOKEN
-4. **Subscribe to events** : sélectionner `messages` 
-5. Tester la connexion (Cloudflare va appeler GET /whatsapp/webhook)
-
-### 4. Déployer le Worker
+Reporter l’identifiant retourné dans `wrangler.toml`, puis appliquer le schéma explicitement à la base distante :
 
 ```bash
-# Depuis le dossier cloudflare-worker/
-npm install wrangler
-npx wrangler deploy
+npx wrangler d1 execute jm-express --remote --file=./d1-schema.sql
 ```
 
-### 5. Vérifier le déploiement
+Vérifier ensuite les tables `whatsapp_messages`, `whatsapp_responses` et `whatsapp_conversations` dans D1.
+
+## Ajouter les secrets Cloudflare
 
 ```bash
-# Tester l'endpoint /whatsapp/messages
-curl https://your-worker.workers.dev/whatsapp/messages
-
-# Vérifier les logs
-npx wrangler tail
+npx wrangler secret put META_WEBHOOK_TOKEN
+npx wrangler secret put META_APP_SECRET
+npx wrangler secret put ADMIN_API_TOKEN
 ```
 
-### 6. Intégrer l'UI dans index.html
+Le jeton administrateur doit être long et aléatoire. Ne pas l’intégrer au JavaScript du site : l’interface n’a pas encore de relais serveur sécurisé.
 
-L'onglet "📱 WhatsApp — Demandes" doit afficher:
-- ✅ Polling automatique toutes les 30 secondes
-- ✅ Nombre de messages en attente
-- ✅ Liste des messages avec confiance % et statut
-- ✅ Modal de validation avec suggestion de réponse
-- ✅ Bouton "Envoyer" (après validation)
-- ✅ Bouton "Reporter" (rappel 30 min)
+## Étapes à faire seulement après revue
 
-## 📊 États des messages
+1. Exécuter `npx wrangler dev` localement.
+2. Vérifier que le GET de validation Meta ne répond au challenge qu’avec le bon jeton.
+3. Envoyer un événement fictif signé avec le secret de test et vérifier son insertion dans D1 local.
+4. Vérifier qu’un POST sans signature est refusé et que les routes protégées répondent 401 sans jeton.
+5. Vérifier que `POST /whatsapp/send` répond 503, même avec un jeton.
+6. Examiner les logs et les données de test.
+7. Après accord distinct, créer la base distante, configurer Meta et envisager un déploiement contrôlé.
 
-| Statut | Signification | Visible où |
-|--------|--------------|-----------|
-| PENDING | Reçu du client, en attente de validation | UI — onglet WhatsApp |
-| DRAFT | Réponse en cours de rédaction | UI — modal |
-| READY_TO_SEND | Validé, prêt à envoyer | UI — confirmation avant envoi |
-| SENT | Envoyé au client ✅ | Historique |
-| FAILED | Erreur d'envoi | Historique avec détail erreur |
+Aucune réponse ne doit être envoyée à un client pendant cette phase. Aucun devis, tarif, remise ou engagement ne doit être calculé ou confirmé automatiquement.
 
-## 🔐 Sécurité
+## Limites connues à traiter ensuite
 
-- ✅ Tokens stockés dans les secrets Cloudflare (jamais en code)
-- ✅ Signature Meta validée sur webhook (prevent spoofing)
-- ✅ Aucun envoi automatique (validation manuelle obligatoire)
-- ✅ Logging des actions (qui, quand, quoi)
-- ✅ Rate limiting via Cloudflare (optionnel)
-
-## 🧪 Test en dev
-
-```javascript
-// Dans console navigateur ou test node :
-const testMessage = {
-  entry: [{
-    changes: [{
-      value: {
-        messages: [{
-          id: "wamid.xxx",
-          from: "33612345678",
-          type: "text",
-          text: { body: "Bonjour j'ai un problème de batterie à Charleroi urgent" },
-          timestamp: Math.floor(Date.now() / 1000)
-        }],
-        contacts: [{
-          profile: { name: "Jean Dupont" },
-          wa_id: "33612345678"
-        }]
-      }
-    }]
-  }]
-};
-
-// Envoyer au webhook
-fetch('/whatsapp/webhook', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(testMessage)
-});
-```
-
-## ⚠️ Notes importantes
-
-1. **Tarifs Meta** : 
-   - Messages entrants = gratuit
-   - Messages sortants (business-initiated) = payant
-   - Phase 1 : messages client-initiated uniquement
-
-2. **Numéro client** : 
-   - Format attendu : `33612345678` (sans +33)
-   - Parser accepte `+33` et le convertit
-
-3. **Confidence score** :
-   - < 60% : demander tous les infos (adresse, véhicule)
-   - 60-75% : suggérer corrections
-   - > 75% : réponse auto-suggérée
-
-4. **Sync A/B** :
-   - WhatsApp messages = stockage D1 indépendant
-   - Pas d'impact sur sync téléphones
-   - Historique intervention restant inchangé
-
-## 📱 Flow utilisateur Phase 1
-
-1. **Client envoie message WhatsApp**
-2. Meta → webhook Cloudflare → stockage D1
-3. **App notifie Jamal** : "1 nouveau message en attente"
-4. **Jamal ouvre onglet WhatsApp**
-5. Voir message + parsing suggéré + confiance %
-6. **Modifier si nécessaire** (adresse, type, urgence)
-7. **Valider** → changement statut
-8. **Envoyer** → appel Meta API → envoi
-9. **Historique** : affiche messages SENT + FAILED
-
-## 🎯 Phase 2 (à venir)
-
-- Suggestions AI avancées (ChatGPT + Anthropic fallback)
-- Création auto devis/intervention à partir du message validé
-- Templates de réponse prédéfinis
-- Analytics : temps de réponse, taux de conversion
-
-## 🆘 Troubleshooting
-
-**Webhook ne reçoit pas les messages**
-→ Vérifier token, domaine HTTPS, signature Meta valide
-
-**Messages stockés mais UI ne les affiche pas**
-→ Vérifier GET /whatsapp/messages retourne JSON valide
-→ Vérifier polling fréquence (30s)
-
-**Erreur lors d'envoi**
-→ Vérifier ACCESS_TOKEN valide + pas expiré
-→ Vérifier PHONE_NUMBER_ID correct
-→ Vérifier numéro client au bon format
-
+- Le tableau de bord de l’application lit encore `window.storage`; il n’interroge pas D1.
+- L’assistant ne vérifie pas encore les clients existants dans l’application et n’utilise pas son moteur tarifaire.
+- La boîte mail professionnelle n’est pas intégrée.
+- L’accès Meta, le numéro, les abonnements webhook et la configuration Cloudflare restent à confirmer dans les comptes du propriétaire.
