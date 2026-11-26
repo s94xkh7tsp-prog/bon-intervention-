@@ -38,4 +38,4 @@ Les secrets se configurent avec `npx wrangler secret put NOM_DU_SECRET`. Ne jama
 - `POST /whatsapp/validate` : sauvegarde une réponse à valider; accès protégé.
 - `POST /whatsapp/send` : désactivé (503) pendant la préparation.
 
-L’interface actuelle n’est pas encore reliée à D1. Ne pas placer `ADMIN_API_TOKEN` dans `index.html) ou dans du JavaScript client.
+L’interface actuelle n’est pas encore reliée à D1. Ne pas placer `ADMIN_API_TOKEN` dans `index.html` ou dans du JavaScript client.
