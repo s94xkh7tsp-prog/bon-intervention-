@@ -1,64 +1,41 @@
-# Cloudflare Worker — WhatsApp Business Integration Phase 1
+# Cloudflare Worker — intégration WhatsApp JM Express
 
-Ce dossier contient l'infrastructure Cloudflare pour recevoir et gérer les messages WhatsApp entrants.
+Ce dossier prépare la réception sécurisée des webhooks WhatsApp. **Le Worker n’est pas déployé et l’envoi de messages est désactivé.**
 
-## 📦 Fichiers
+## Fichiers
 
-| Fichier | Lignes | Description |
-|---------|--------|-------------|
-| `whatsapp-worker.js` | 314 | Code du Worker avec 4 endpoints |
-| `d1-schema.sql` | 59 | Schéma D1 (3 tables) |
-| `wrangler.toml` | 35 | Configuration Cloudflare |
-| `PHASE1-DEPLOYMENT.md` | 200 | Guide détaillé de déploiement |
+- `whatsapp-worker.js` : webhook Meta, extraction simple, accès D1.
+- `d1-schema.sql` : schéma des trois tables D1.
+- `wrangler.toml` : point d’entrée corrigé. L’identifiant D1 reste à renseigner.
+- `PHASE1-DEPLOYMENT.md` : prérequis et procédure contrôlée.
 
-## ⚡ Quick Start
+## Sécurité en place dans cette branche
 
-```bash
-# 1. Cloner le repo
-cd bon-intervention-appli/cloudflare-worker
+- Les POST du webhook sont vérifiés avec `X-Hub-Signature-256` et le secret d’application Meta.
+- Les routes de lecture et de validation exigent `Authorization: Bearer <ADMIN_API_TOKEN>`.
+- `POST /whatsapp/send` renvoie toujours 503 pendant cette étape.
+- Aucun secret, ID de base D1 ni route publique réelle n’est inscrit dans la configuration.
 
-# 2. Installer wrangler
-npm install -g wrangler
+## Mise en place ultérieure
 
-# 3. Créer D1 database
-wrangler d1 create jm-express
+Depuis ce dossier, avec accès au compte Cloudflare autorisé :
 
-# 4. Récupérer l'ID et mettre à jour wrangler.toml
-# ...
+1. Créer la base D1 `jm-express` avec Wrangler et reporter l’ID retourné dans `wrangler.toml`.
+2. Appliquer le schéma à la base distante :
+   ```bash
+   npx wrangler d1 execute jm-express --remote --file=./d1-schema.sql
+   ```
+3. Ajouter comme secrets Cloudflare `META_WEBHOOK_TOKEN`, `META_APP_SECRET` et `ADMIN_API_TOKEN`.
+4. Vérifier d’abord le Worker localement et avec des requêtes de test signées.
+5. N’ajouter l’URL webhook dans Meta qu’après revue et accord séparé.
 
-# 5. Exécuter le schéma
-wrangler d1 execute jm-express --file=d1-schema.sql
+Les secrets se configurent avec `npx wrangler secret put NOM_DU_SECRET`. Ne jamais mettre leurs valeurs dans le dépôt, le navigateur ou un fichier de configuration versionné.
 
-# 6. Configurer les secrets
-wrangler secret put META_WEBHOOK_TOKEN
-wrangler secret put META_ACCESS_TOKEN
-wrangler secret put META_PHONE_NUMBER_ID
-wrangler secret put META_BUSINESS_ACCOUNT_ID
+## Routes
 
-# 7. Déployer
-wrangler deploy
-```
+- `GET/POST /whatsapp/webhook` : vérification initiale Meta et réception signée des événements.
+- `GET /whatsapp/messages` : liste les demandes en attente; accès protégé par le jeton administrateur.
+- `POST /whatsapp/validate` : sauvegarde une réponse à valider; accès protégé.
+- `POST /whatsapp/send` : désactivé (503) pendant la préparation.
 
-## 🔌 Endpoints
-
-- **POST /whatsapp/webhook** → reçoit messages Meta
-- **GET /whatsapp/messages** → liste messages PENDING
-- **POST /whatsapp/validate** → valide réponse
-- **POST /whatsapp/send** → envoie via Meta API
-
-## 📖 Documentation complète
-
-Voir `PHASE1-DEPLOYMENT.md` pour:
-- Configuration Meta Business Manager
-- Configuration webhooks
-- Tests en dev
-- Troubleshooting
-- Flow utilisateur complet
-
-## ✅ Prérequis
-
-- Cloudflare Account avec D1 active
-- Meta Business Manager avec WhatsApp API
-- Numéro téléphone WhatsApp enregistré
-- 4 tokens Meta à récupérer
-
+L’interface actuelle n’est pas encore reliée à D1. Ne pas placer `ADMIN_API_TOKEN` dans `index.html) ou dans du JavaScript client.
